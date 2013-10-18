@@ -16,7 +16,7 @@ $Id$
 <!ATTLIST installation version CDATA #REQUIRED>
 
 <!-- The info section (general information on an installation) -->
-<!ELEMENT info (appname, appversion, appsubpath?, authors?, url?, javaversion?, uninstaller?, webdir?, summarylogfilepath?,writeinstallationinformation?)>
+<!ELEMENT info (appname, appversion, appsubpath?, authors?, url?, javaversion?, uninstaller?, webdir?, summarylogfilepath?,writeinstallationinformation?, run-privileged?)>
     <!ELEMENT appname (#PCDATA)>
     <!ELEMENT appversion (#PCDATA)>
     <!ELEMENT appsubpath (#PCDATA)>
@@ -35,6 +35,7 @@ $Id$
     <!ELEMENT webdir (#PCDATA)>
     <!ELEMENT summarylogfilepath (#PCDATA)>
 	<!ELEMENT writeinstallationinformation (#PCDATA)>
+	<!ELEMENT run-privileged EMPTY>
 
 <!ELEMENT packaging (packager, unpacker)>
 <!ELEMENT packager (options)>
