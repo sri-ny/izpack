@@ -1,26 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <parent>
+    <parent>
     <groupId>org.codehaus</groupId>
     <artifactId>codehaus-parent</artifactId>
     <version>3</version>
-  </parent>
+    </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>org.codehaus.izpack</groupId>
-  <artifactId>izpack-standalone-compiler</artifactId>
+    <artifactId>izpack-standalone-compiler</artifactId>
   <version>4.3.5</version>
-  
+
   <name>IzPack Standalone Compiler</name>
 
   <description>
     Use this pom to install/deploy standalone compiler snapshot for test and early feed back purpose.
-    To deploy the release version, use the one under izpack-maven 
+    To deploy the release version, use the one under izpack-maven
   </description>
 
-  <packaging>pom</packaging>  
-  
+    <packaging>pom</packaging>
+
 
   <distributionManagement>
     <site>
@@ -30,18 +30,18 @@
     </site>
   </distributionManagement>
 
-  <build>
-  
+    <build>
+
     <defaultGoal>package</defaultGoal>
-    
+
     <sourceDirectory>src/lib</sourceDirectory>
-    
+
      <plugins>
-     
-      <!-- copy the real standlone-compiler to this project and overwrite the implicit jar already built by the jar packaging -->
-      <plugin>
+
+        <!-- copy the real standlone-compiler to this project and overwrite the implicit jar already built by the jar packaging -->
+       <plugin>
          <artifactId>maven-antrun-plugin</artifactId>
-         <version>1.6</version>
+         <version>1.7</version>
          <executions>
            <execution>
              <id>build-izpack-with-ant</id>
@@ -51,14 +51,13 @@
              <phase>package</phase>
              <configuration>
                <target>
-                  <exec executable="${env.ANT_HOME}/bin/ant${antExeExt}" dir="${basedir}/src">
-                    <arg value="-Ddebug=true" />
-                  </exec>
-                  <jar destfile="${project.build.directory}/${project.build.finalName}-sources.jar" basedir="${project.basedir}/src/lib"/>
+                 <ant dir="${basedir}" antfile="${basedir}/src/build.xml" inheritAll="false" inheritRefs="true">
+                   <property name="build.compiler" value="extJavac" />
+                 </ant>
+                 <attachartifact file="${basedir}/lib/standalone-compiler.jar" />
                </target>
              </configuration>
            </execution>
-           
            <execution>
              <id>clean-ant-build</id>
              <goals>
@@ -66,45 +65,18 @@
              </goals>
              <phase>pre-clean</phase>
              <configuration>
-               <tasks>
-                  <exec executable="${env.ANT_HOME}/bin/ant${antExeExt}" dir="${basedir}/src">
-                    <arg value="clean"/>
-                  </exec>
-               </tasks>
-             </configuration>
-           </execution>
-           
-         </executions>
-       </plugin>
-       
-      <plugin>
-         <groupId>org.codehaus.mojo</groupId>
-         <artifactId>build-helper-maven-plugin</artifactId>
-         <version>1.2</version>
-         <executions>
-           <execution>
-             <id>attach</id>
-             <goals><goal>attach-artifact</goal></goals>
-             <phase>package</phase>
-             <configuration>
-               <artifacts>
-                 <artifact>
-                   <file>${basedir}/lib/standalone-compiler.jar</file>
-                 </artifact>
-                 <artifact>
-                   <file>${project.build.directory}/${project.build.finalName}-sources.jar</file>
-                   <classifier>sources</classifier>
-                 </artifact>
-               </artifacts>
+               <target>
+                 <ant target="clean" dir="${basedir}" antfile="${basedir}/src/build.xml" inheritAll="false" inheritRefs="true" />
+               </target>
              </configuration>
            </execution>
          </executions>
        </plugin>
-       
-     </plugins>
-     
-  </build>
-  
+
+      </plugins>
+
+    </build>
+
   <profiles>
     <profile>
       <id>windows</id>
