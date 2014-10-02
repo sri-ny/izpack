@@ -123,6 +123,8 @@ public class Info implements Serializable
 
     private boolean writeInstallationInformation = true;
 
+    private boolean isSingleInstance = true;
+
     private boolean pack200Compression;
 
     private boolean requirePrivilegedExecution = false;
@@ -583,7 +585,6 @@ public class Info implements Serializable
         return unpackerClassName;
     }
 
-
     public void setUnpackerClassName(String unpackerClassName)
     {
         this.unpackerClassName = unpackerClassName;
@@ -595,10 +596,21 @@ public class Info implements Serializable
         return writeInstallationInformation;
     }
 
-
     public void setWriteInstallationInformation(boolean writeInstallationInformation)
     {
         this.writeInstallationInformation = writeInstallationInformation;
+    }
+
+
+    public boolean isSingleInstance()
+    {
+        return this.isSingleInstance;
+    }
+
+    public void setSingleInstance(boolean flag)
+    {
+        this.isSingleInstance = flag;
+
     }
 
 
@@ -607,11 +619,11 @@ public class Info implements Serializable
         return uninstallerCondition;
     }
 
-
     public void setUninstallerCondition(String uninstallerCondition)
     {
         this.uninstallerCondition = uninstallerCondition;
     }
+
 
     public void addTempDir(TempDir tempDir)
     {
@@ -624,7 +636,7 @@ public class Info implements Serializable
     }
 
     public Set<TempDir> getTempDirs()
-	{
-		return tempdirs;
-	}
+    {
+        return tempdirs;
+    }
 }

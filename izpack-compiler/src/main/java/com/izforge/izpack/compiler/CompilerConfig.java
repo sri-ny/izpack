@@ -2050,6 +2050,13 @@ public class CompilerConfig extends Thread
             info.setWriteInstallationInformation(validateYesNo(writeInstallInfoString));
         }
 
+        IXMLElement isSingleInstance = root.getFirstChildNamed("singleinstance");
+        if (isSingleInstance != null)
+        {
+            String isSingleInstanceString = xmlCompilerHelper.requireContent(isSingleInstance);
+            info.setSingleInstance(validateYesNo(isSingleInstanceString));
+        }
+
         // look for an unpacker class
         String unpackerclass = propertyManager.getProperty("UNPACKER_CLASS");
         info.setUnpackerClassName(unpackerclass);
