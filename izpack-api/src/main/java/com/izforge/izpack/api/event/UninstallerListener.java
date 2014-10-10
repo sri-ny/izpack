@@ -35,7 +35,7 @@ import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
  * @author Klaus Bartz
  * @author Tim Anderson
  */
-public interface UninstallerListener
+public interface UninstallerListener extends InstallationListener
 {
 
     // ------------------------------------------------------------------------
@@ -53,14 +53,6 @@ public interface UninstallerListener
     @Deprecated
     public static final int AFTER_DELETE = 4;
 
-
-    /**
-     * Initialises the listener.
-     *
-     * @throws IzPackException for any error
-     */
-    void initialise();
-
     /**
      * Invoked before files are deleted.
      *
@@ -68,16 +60,6 @@ public interface UninstallerListener
      * @throws IzPackException for any error
      */
     void beforeDelete(List<File> files);
-
-    /**
-     * Determines if the listener should be notified of every file deletion.
-     * <p/>
-     * If <tt>true</tt>, the {@link #beforeDelete(File)} and {@link #afterDelete(File)} methods will be invoked for
-     * each file.
-     *
-     * @return <tt>true</tt> if this listener would be informed at every delete operation, else <tt>false</tt>
-     */
-    boolean isFileListener();
 
     /**
      * Invoked before a file is deleted.
