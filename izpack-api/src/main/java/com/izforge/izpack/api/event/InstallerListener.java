@@ -40,7 +40,7 @@ import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
  * @author Klaus Bartz
  * @author Tim Anderson
  */
-public interface InstallerListener
+public interface InstallerListener extends InstallationListener
 {
 
     // ------------------------------------------------------------------------
@@ -70,13 +70,6 @@ public interface InstallerListener
 
     @Deprecated
     public static final int AFTER_PACKS = 8;
-
-    /**
-     * Initialises the listener.
-     *
-     * @throws IzPackException for any error
-     */
-    void initialise();
 
     /**
      * Invoked before packs are installed.
@@ -132,19 +125,6 @@ public interface InstallerListener
      * @throws IzPackException for any error
      */
     void afterDir(File dir, PackFile packFile, Pack pack);
-
-    /**
-     * Determines if the listener should be notified of every file and directory installation.
-     * <p/>
-     * If <tt>true</tt>, the {@link #beforeFile} and {@link #afterFile} methods will be invoked for every installed
-     * file, and {@link #beforeDir}, and {@link #afterDir} invoked for each directory creation.
-     * <p/>
-     * Listeners that return <tt>true</tt> should ensure they don't do any long running operations, to avoid
-     * performance issues.
-     *
-     * @return <tt>true</tt> if the listener should be notified, otherwise <tt>false</tt>
-     */
-    boolean isFileListener();
 
     /**
      * Invoked before a file is installed.
