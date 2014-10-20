@@ -2050,6 +2050,13 @@ public class CompilerConfig extends Thread
             info.setWriteInstallationInformation(validateYesNo(writeInstallInfoString));
         }
 
+        IXMLElement isSingleInstance = root.getFirstChildNamed("singleinstance");
+        if (isSingleInstance != null)
+        {
+            String isSingleInstanceString = xmlCompilerHelper.requireContent(isSingleInstance);
+            info.setSingleInstance(validateYesNo(isSingleInstanceString));
+        }
+
         // look for an unpacker class
         String unpackerclass = propertyManager.getProperty("UNPACKER_CLASS");
         info.setUnpackerClassName(unpackerclass);
@@ -2977,7 +2984,7 @@ public class CompilerConfig extends Thread
                     String stage = xmlCompilerHelper.requireAttribute(action, PanelAction.PANEL_ACTION_STAGE_TAG);
                     String actionName = xmlCompilerHelper.requireAttribute(action,
                                                                            PanelAction.PANEL_ACTION_CLASSNAME_TAG);
-                    Class actionType = classLoader.loadClass(actionName, PanelAction.class);
+                    Class<PanelAction> actionType = classLoader.loadClass(actionName, PanelAction.class);
 
                     List<IXMLElement> params = action.getChildrenNamed("param");
                     PanelActionConfiguration config = new PanelActionConfiguration(actionType.getName());

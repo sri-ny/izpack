@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.InstallerRequirement;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -59,66 +60,71 @@ public class ConditionCheck
      */
     public void checkLockFile() throws Exception
     {
-        String appName = installdata.getInfo().getAppName();
-        File file = FileUtil.getLockFile(appName);
-        if (file.exists())
+        Info installationInfo = installdata.getInfo();
+
+        if (installationInfo.isSingleInstance() && !Boolean.getBoolean("MULTIINSTANCE"))
         {
-            // Ask user if they want to proceed.
-            logger.fine("Lock File Exists, asking user for permission to proceed.");
-            StringBuilder msg = new StringBuilder();
-            msg.append("<html>");
-            msg.append("The ").append(appName).append(
-                    " installer you are attempting to run seems to have a copy already running.<br><br>");
-            msg.append(
-                    "This could be from a previous failed installation attempt or you may have accidentally launched <br>");
-            msg.append(
-                    "the installer twice. <b>The recommended action is to select 'Exit'</b> and wait for the other copy of <br>");
-            msg.append(
-                    "the installer to start. If you are sure there is no other copy of the installer running, click <br>");
-            msg.append("the 'Continue' button to allow this installer to run. <br><br>");
-            msg.append("Are you sure you want to continue with this installation?");
-            msg.append("</html>");
-            JLabel label = new JLabel(msg.toString());
-            label.setFont(new Font("Sans Serif", Font.PLAIN, 12));
-            Object[] optionValues = {"Continue", "Exit"};
-            int selectedOption = JOptionPane.showOptionDialog(null, label, "Warning",
-                                                              JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-                                                              null, optionValues,
-                                                              optionValues[1]);
-            logger.fine("Selected option: " + selectedOption);
-            if (selectedOption == 0)
+            String appName = installdata.getInfo().getAppName();
+            File file = FileUtil.getLockFile(appName);
+            if (file.exists())
             {
-                // Take control of the file so it gets deleted after this installer instance exits.
-                logger.fine("Setting temporary file to delete on exit");
-                file.deleteOnExit();
-            }
-            else
-            {
-                // Leave the file as it is.
-                logger.fine("Leaving temporary file alone and exiting");
-                System.exit(1);
-            }
-        }
-        else
-        {
-            try
-            {
-                // Create the new lock file
-                if (file.createNewFile())
+                // Ask user if they want to proceed.
+                logger.fine("Lock File Exists, asking user for permission to proceed.");
+                StringBuilder msg = new StringBuilder();
+                msg.append("<html>");
+                msg.append("The ").append(appName).append(
+                        " installer you are attempting to run seems to have a copy already running.<br><br>");
+                msg.append(
+                        "This could be from a previous failed installation attempt or you may have accidentally launched <br>");
+                msg.append(
+                        "the installer twice. <b>The recommended action is to select 'Exit'</b> and wait for the other copy of <br>");
+                msg.append(
+                        "the installer to start. If you are sure there is no other copy of the installer running, click <br>");
+                msg.append("the 'Continue' button to allow this installer to run. <br><br>");
+                msg.append("Are you sure you want to continue with this installation?");
+                msg.append("</html>");
+                JLabel label = new JLabel(msg.toString());
+                label.setFont(new Font("Sans Serif", Font.PLAIN, 12));
+                Object[] optionValues = {"Continue", "Exit"};
+                int selectedOption = JOptionPane.showOptionDialog(null, label, "Warning",
+                                                                  JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+                                                                  null, optionValues,
+                                                                  optionValues[1]);
+                logger.fine("Selected option: " + selectedOption);
+                if (selectedOption == 0)
                 {
-                    logger.fine("Temporary file created");
+                    // Take control of the file so it gets deleted after this installer instance exits.
+                    logger.fine("Setting temporary file to delete on exit");
                     file.deleteOnExit();
                 }
                 else
                 {
-                    logger.warning("Temporary file could not be created");
-                    logger.warning("*** Multiple instances of installer will be allowed ***");
+                    // Leave the file as it is.
+                    logger.fine("Leaving temporary file alone and exiting");
+                    System.exit(1);
                 }
             }
-            catch (Exception e)
+            else
             {
-                logger.log(Level.WARNING, "Temporary file could not be created: " + e.getMessage(), e);
-                logger.warning("*** Multiple instances of installer will be allowed ***");
+                try
+                {
+                    // Create the new lock file
+                    if (file.createNewFile())
+                    {
+                        logger.fine("Temporary file created");
+                        file.deleteOnExit();
+                    }
+                    else
+                    {
+                        logger.warning("Temporary file could not be created");
+                        logger.warning("*** Multiple instances of installer will be allowed ***");
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.log(Level.WARNING, "Temporary file could not be created: " + e.getMessage(), e);
+                    logger.warning("*** Multiple instances of installer will be allowed ***");
+                }
             }
         }
     }
