@@ -233,4 +233,18 @@ public class PlatformTest extends AbstractPlatformTest
         Platform platform2 = new Platform(Name.SUNOS);
         assertEquals("sunos,version=null,arch=unknown,symbolicName=null,javaVersion=null", platform2.toString());
     }
+
+    /**
+     * Tests the {@link Platform#isValidDirectoryPath(String)} method.
+     */
+    @Test
+    public void testIsValidDirectoryPath()
+    {
+        Platform platform1 = new Platform(Name.WINDOWS);
+	//ensure case insensitivity
+        assertTrue(platform1.isValidDirectoryPath("C:\\test"));
+        assertTrue(platform1.isValidDirectoryPath("c:\\test"));
+	//screen invalid characters
+        assertFalse(platform1.isValidDirectoryPath("C:\\*<>"));
+    }
 }
