@@ -805,7 +805,11 @@ public abstract class UnpackerBase implements IUnpacker
             Messages messages = installData.getMessages();
             if (messages != null)
             {
+              try {
                 packMessages = messages.newMessages(PackHelper.LANG_FILE_NAME);
+              } catch (Exception ex){
+                logger.fine(ex.getLocalizedMessage());
+              }
             }
         }
 
