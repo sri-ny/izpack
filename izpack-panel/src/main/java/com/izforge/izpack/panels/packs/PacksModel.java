@@ -24,16 +24,6 @@
 
 package com.izforge.izpack.panels.packs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.*;
-import java.util.logging.Logger;
-
-import javax.swing.table.AbstractTableModel;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackColor;
@@ -41,6 +31,11 @@ import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.installer.util.PackHelper;
+
+import javax.swing.table.AbstractTableModel;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * User: Gaganis Giorgos Date: Sep 17, 2004 Time: 8:33:21 AM
@@ -82,7 +77,11 @@ public class PacksModel extends AbstractTableModel
     {
         this.installData = idata;
         this.rules = idata.getRules();
-        this.messages = idata.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+        try{
+          this.messages = idata.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+        } catch(com.izforge.izpack.api.exception.ResourceNotFoundException ex){
+          this.messages=idata.getMessages();
+        }
         this.variables = idata.getVariables();
         this.packsToInstall = idata.getSelectedPacks();
 
