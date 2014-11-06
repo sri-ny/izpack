@@ -235,7 +235,7 @@ public class ShortcutPanel extends IzPanel implements ActionListener, ListSelect
                 programGroup.setText(suggestedProgramGroup);
             }
 
-            if(groupList.getSelectedIndex() < 0)
+            if(groupList != null && groupList.getSelectedIndex() < 0)
             {
                 groupList.setSelectedIndex(0);
             }
