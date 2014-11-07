@@ -761,7 +761,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
         private void executeOnOptions(Options configurable) throws Exception
         {
             List<String> values = configurable.getAll(key);
-            String newValue = null;
+            String newValue;
             boolean contains = false;
             if (values != null)
             {
@@ -799,6 +799,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
             }
             if (!contains)
             {
+                newValue = execute(value);
                 logger.fine("Set option value for key \"" + key + "\": \"" + newValue + "\"");
                 configurable.put(key, newValue);
             }
