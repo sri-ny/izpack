@@ -263,7 +263,12 @@ public class DynamicVariableImpl implements DynamicVariable
     @Override
     public int hashCode()
     {
-        return name.hashCode() ^ conditionid.hashCode();
+        int condidHashCode = 0;
+        if (conditionid != null)
+        {
+            condidHashCode = conditionid.hashCode();
+        }
+        return name.hashCode() ^ condidHashCode;
     }
 
     @Override
