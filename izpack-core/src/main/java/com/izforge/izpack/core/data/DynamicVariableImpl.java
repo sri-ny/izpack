@@ -263,7 +263,6 @@ public class DynamicVariableImpl implements DynamicVariable
     @Override
     public int hashCode()
     {
-        // TODO: check if this always correct
         return name.hashCode() ^ conditionid.hashCode();
     }
 
