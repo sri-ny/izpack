@@ -257,14 +257,20 @@ public class DynamicVariableImpl implements DynamicVariable
         }
         DynamicVariable compareObj = (DynamicVariable) obj;
         return (name.equals(compareObj.getName())
-                && (conditionid == null || conditionid.equals(compareObj.getConditionid())));
+                && (   (conditionid == null && compareObj.getConditionid() == null)
+                    || (conditionid != null && conditionid.equals(compareObj.getConditionid()))
+                   ));
     }
 
     @Override
     public int hashCode()
     {
-        // TODO: check if this always correct
-        return name.hashCode() ^ conditionid.hashCode();
+        int condidHashCode = 0;
+        if (conditionid != null)
+        {
+            condidHashCode = conditionid.hashCode();
+        }
+        return name.hashCode() ^ condidHashCode;
     }
 
     @Override
