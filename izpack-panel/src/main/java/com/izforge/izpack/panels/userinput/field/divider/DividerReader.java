@@ -22,6 +22,7 @@
 package com.izforge.izpack.panels.userinput.field.divider;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Alignment;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.SimpleFieldReader;
@@ -40,9 +41,9 @@ public class DividerReader extends SimpleFieldReader implements DividerConfig
      *
      * @param config the configuration
      */
-    public DividerReader(IXMLElement element, Config config)
+    public DividerReader(IXMLElement element, Config config, RulesEngine rules)
     {
-        super(element, config);
+        super(element, config, rules);
     }
 
     /**

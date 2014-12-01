@@ -54,7 +54,6 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
      * @return the field
      */
     @Override
-    @SuppressWarnings("unchecked")
     public ChoiceField getField()
     {
         return (ChoiceField) super.getField();
@@ -73,16 +72,24 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
         ChoiceField field = getField();
         printDescription();
 
-        List<Choice> choices = field.getChoices();
-        listChoices(choices, field.getSelectedIndex());
-
-        int selected = getConsole().prompt("input selection: ", 0, choices.size() - 1, field.getSelectedIndex(), -1);
-        if (selected == -1)
+        if (isReadonly())
         {
-            return false;
+            println(field.getValue());
+            return true;
         }
-        field.setValue(choices.get(selected).getKey());
-        return true;
+        else
+        {
+            List<Choice> choices = field.getChoices();
+            listChoices(choices, field.getSelectedIndex());
+
+            int selected = getConsole().prompt("input selection: ", 0, choices.size() - 1, field.getSelectedIndex(), -1);
+            if (selected == -1)
+            {
+                return false;
+            }
+            field.setValue(choices.get(selected).getKey());
+            return true;
+        }
     }
 
     /**

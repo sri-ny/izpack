@@ -50,4 +50,18 @@ public interface FieldView
      */
     void setDisplayed(boolean displayed);
 
+    /**
+     * Determines if the view is read-only.
+     *
+     * @return {@code true} if the view is read-only
+     */
+    boolean isReadonly();
+
+    /**
+     * Set the view read-only or not.
+     *
+     * @param displayed {@code true} if the view is read-only
+     */
+    void setReadonly(boolean readonly);
+
 }

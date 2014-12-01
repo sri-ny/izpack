@@ -73,6 +73,12 @@ public class ConsolePasswordGroupField extends ConsoleField
     @Override
     public boolean display()
     {
+        if (isReadonly())
+        {
+            // Do not display password fields in read-only mode
+            return true;
+        }
+
         boolean result = false;
         printDescription();
         String[] passwords = getPasswords();

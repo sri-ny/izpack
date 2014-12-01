@@ -79,7 +79,7 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
     /**
      * Ensure to display the minimum amount of rows required.
      */
-    private void addInitialRows()
+    private void addInitialRows(boolean readonly)
     {
         for (int count = minRow; count > 1; count--)
         {
@@ -124,25 +124,32 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
             }
 
 
-            while (value == INVALID)
+            if (isReadonly())
             {
-                // Only give options to continue or redisplay when you need to meet the minimum amount of rows
-                // or you are at the max amount of rows
-                if (initial || numberOfRows == maxRow)
-                {
-                    value = getConsole().prompt("Enter 1 continue, or 2 to redisplay", 1, 2, -1, -1);
-                    if (value == 2)
-                    {
-                        value = REDISPLAY;
-                    }
-                } else
-                {
-                    value = getConsole().prompt("Enter 1 continue, or 2 to add another module, 3 to redisplay", 1, 3, -1, -1);
-                }
+                return false;
             }
-            if (value != REDISPLAY)
+            else
             {
-                onModule = false;
+                while (value == INVALID)
+                {
+                    // Only give options to continue or redisplay when you need to meet the minimum amount of rows
+                    // or you are at the max amount of rows
+                    if (initial || numberOfRows == maxRow)
+                    {
+                        value = getConsole().prompt("Enter 1 continue, or 2 to redisplay", 1, 2, -1, -1);
+                        if (value == 2)
+                        {
+                            value = REDISPLAY;
+                        }
+                    } else
+                    {
+                        value = getConsole().prompt("Enter 1 continue, or 2 to add another module, 3 to redisplay", 1, 3, -1, -1);
+                    }
+                }
+                if (value != REDISPLAY)
+                {
+                    onModule = false;
+                }
             }
         }
 
@@ -169,9 +176,10 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
     {
         numberOfRows = 0;
         consoleFields = new HashMap<Integer, List<ConsoleField>>();
+        boolean readonly = isReadonly();
 
-        addInitialRows();
-        while (addRow())
+        addInitialRows(readonly);
+        while (addRow(readonly))
         {
             //Keep adding rows until the user is done or max limit is reached
         }

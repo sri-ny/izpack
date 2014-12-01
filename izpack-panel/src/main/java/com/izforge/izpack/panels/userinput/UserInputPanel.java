@@ -41,6 +41,7 @@ import com.izforge.izpack.util.PlatformModelMatcher;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -56,6 +57,9 @@ public class UserInputPanel extends IzPanel
     private static final String TOPBUFFER = "topBuffer";
     private static final String RIGID = "rigid";
     private static final String DISPLAY_HIDDEN = "displayHidden";
+    private static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
+    private static final String READONLY = "readonly";
+    private static final String READONLY_CONDITION = "readonlyCondition";
 
     /**
      * The parsed result from reading the XML specification from the file
@@ -85,12 +89,6 @@ public class UserInputPanel extends IzPanel
      * The prompt.
      */
     private final Prompt prompt;
-
-    /**
-     * Indicate if allowed to display hidden fields.
-     * When displaying hidden fields show them on the panel but disabled.
-     */
-    private boolean isDisplayingHidden;
 
     /**
      * The delegating prompt. This is used to switch between the above prompt and a no-op prompt when performing
@@ -137,15 +135,22 @@ public class UserInputPanel extends IzPanel
         this.delegatingPrompt = new DelegatingPrompt(prompt);
 
         this.spec = readSpec();
+        boolean isDisplayingHidden = false;
         try
         {
-            this.isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
+            isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
         }
         catch (Exception ignore)
         {
-            this.isDisplayingHidden = false;
+            isDisplayingHidden = false;
         }
+        panel.setDisplayHidden(isDisplayingHidden);
 
+        String condition = spec.getAttribute(DISPLAY_HIDDEN_CONDITION);
+        if (condition != null && !condition.isEmpty())
+        {
+            panel.setDisplayHiddenCondition(condition);
+        }
 
         // Prevent activating on certain global conditions
         ElementReader reader = new ElementReader(userInputModel.getConfig());
@@ -153,6 +158,23 @@ public class UserInputPanel extends IzPanel
         if (globalConstraint != null)
         {
             rules.addPanelCondition(panel, globalConstraint);
+        }
+
+        boolean readonly = false;
+        try
+        {
+            readonly = Boolean.parseBoolean(spec.getAttribute(READONLY));
+        }
+        catch (Exception ignore)
+        {
+            readonly = false;
+        }
+        panel.setReadonly(readonly);
+
+        condition = spec.getAttribute(READONLY_CONDITION);
+        if (condition != null && !condition.isEmpty())
+        {
+            panel.setReadonlyCondition(condition);
         }
 
         init();
@@ -181,6 +203,7 @@ public class UserInputPanel extends IzPanel
      */
     @Override
     public void saveData() { readInput(prompt, true); }
+
     /**
      * This method is called when the panel becomes active.
      */
@@ -311,16 +334,16 @@ public class UserInputPanel extends IzPanel
             Field field = view.getField();
             if (FieldHelper.isRequired(field, installData, matcher) && field.isConditionTrue())
             {
-                enabled = true;
+                enabled = !isReadonly();
                 addToPanel = true;
                 view.setDisplayed(true);
             }
             else if (FieldHelper.isRequired(field, installData, matcher) &&
-                    (field.getDisplayHidden() ||isDisplayingHidden ))
+                    (field.isDisplayHidden()))
             {
                 enabled = false;
                 addToPanel = true;
-                view.setDisplayed(false);
+                view.setDisplayed(true);
             }
             else
             {
@@ -333,7 +356,7 @@ public class UserInputPanel extends IzPanel
             {
                 for (Component component : view.getComponents())
                 {
-                    component.getComponent().setEnabled(enabled);
+                    component.setEnabled(enabled);
                     panel.add(component.getComponent(), component.getConstraints());
                 }
             }

@@ -22,6 +22,7 @@
 package com.izforge.izpack.panels.userinput.field.title;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Alignment;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.SimpleFieldReader;
@@ -40,9 +41,9 @@ public class TitleFieldReader extends SimpleFieldReader implements TitleFieldCon
      * @param field  the field element
      * @param config the configuration
      */
-    public TitleFieldReader(IXMLElement field, Config config)
+    public TitleFieldReader(IXMLElement field, Config config, RulesEngine rules)
     {
-        super(field, config);
+        super(field, config, rules);
     }
 
     /**

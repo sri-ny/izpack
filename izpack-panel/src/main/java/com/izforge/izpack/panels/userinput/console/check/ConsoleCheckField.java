@@ -72,13 +72,20 @@ public class ConsoleCheckField extends ConsoleField
         printDescription();
         println("  [" + (selected ? "x" : " ") + "] " + field.getLabel());
 
-        int defaultValue = field.getInitialSelection() ? 1 : 0;
-        int value = getConsole().prompt("Enter 1 to select, 0 to deselect: ", 0, 1, defaultValue, -1);
-        if (value == -1)
+        if (isReadonly())
         {
-            return false;
+            return true;
         }
-        field.setValue(value == 1 ? field.getTrueValue() : field.getFalseValue());
-        return true;
+        else
+        {
+            int defaultValue = field.getInitialSelection() ? 1 : 0;
+            int value = getConsole().prompt("Enter 1 to select, 0 to deselect: ", 0, 1, defaultValue, -1);
+            if (value == -1)
+            {
+                return false;
+            }
+            field.setValue(value == 1 ? field.getTrueValue() : field.getFalseValue());
+            return true;
+        }
     }
 }

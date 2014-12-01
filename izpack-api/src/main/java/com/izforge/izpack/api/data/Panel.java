@@ -63,6 +63,26 @@ public class Panel implements Serializable
     private String condition;
 
     /**
+     * Condition whether the panel should be shown read-only in otherwise hidden.
+     */
+    private String displayHiddenCondition;
+
+    /**
+     * Whether the panel including all fields is read-only if otherwise hidden.
+     */
+    private boolean displayHidden = false;
+
+    /**
+     * Whether the panel including all fields is read-only as a whole.
+     */
+    private boolean readonly = false;
+
+    /**
+     * Condition whether the panel should be shown read-only.
+     */
+    private String readonlyCondition;
+
+    /**
      * The list of validators for this panel
      */
     private List<String> validators = new ArrayList<String>();
@@ -110,6 +130,7 @@ public class Panel implements Serializable
      * Contains configuration values for a panel.
      */
     private Map<String, String> configuration = null;
+
 
     public String getClassName()
     {
@@ -168,6 +189,91 @@ public class Panel implements Serializable
     {
         return this.condition != null;
     }
+
+
+    /**
+     * Get the 'displayHiddenCondition' of this panel.
+     *
+     * @return the condition to set when the panel should be shown read-only in otherwise hidden state
+     */
+    public String getDisplayHiddenCondition()
+    {
+        return this.displayHiddenCondition;
+    }
+
+    /**
+     * Set the 'displayHiddenCondition' of this panel.
+     *
+     * @param condition the condition to set when the panel should be shown read-only in otherwise hidden state
+     */
+    public void setDisplayHiddenCondition(String condition)
+    {
+        this.displayHiddenCondition = condition;
+    }
+
+    /**
+     * Whether the 'displayHiddenCondition' is set for this panel.
+     *
+     * @return the condition to set when the panel should be shown read-only in otherwise hidden state
+     */
+    public boolean hasDisplayHiddenCondition()
+    {
+        return this.displayHiddenCondition != null;
+    }
+
+
+    public boolean isDisplayHidden()
+    {
+        return displayHidden;
+    }
+
+    public void setDisplayHidden(boolean flag)
+    {
+        this.displayHidden = flag;
+    }
+
+
+    public boolean isReadonly()
+    {
+        return readonly;
+    }
+
+    public void setReadonly(boolean flag)
+    {
+        this.readonly = flag;
+    }
+
+
+    /**
+     * Get the 'readonlyCondition' of this panel.
+     *
+     * @return the condition to set when the panel should be shown read-only
+     */
+    public String getReadonlyCondition()
+    {
+        return this.readonlyCondition;
+    }
+
+    /**
+     * Set the 'readonlyCondition' of this panel.
+     *
+     * @param condition the condition to set when the panel should be shown read-only
+     */
+    public void setReadonlyCondition(String condition)
+    {
+        this.readonlyCondition = condition;
+    }
+
+    /**
+     * Whether the 'readonlyCondition' is set for this panel.
+     *
+     * @return the condition to set when the panel should be shown read-only
+     */
+    public boolean hasReadonlyCondition()
+    {
+        return this.readonlyCondition != null;
+    }
+
 
     /**
      * Get validator and validator condition entries for this panel

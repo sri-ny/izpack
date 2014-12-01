@@ -142,7 +142,7 @@ public abstract class Field
         processor = config.getProcessor();
         label = config.getLabel();
         description = config.getDescription();
-        displayHidden = config.getDisplayHidden();
+        displayHidden = config.isDisplayHidden();
         tooltip = config.getTooltip();
         omitFromAuto = config.getOmitFromAuto();
         this.condition = config.getCondition();
@@ -201,7 +201,7 @@ public abstract class Field
      *
      * @return {@code true} if displaying hidden otherwise {@code false}
      */
-    public boolean getDisplayHidden()
+    public boolean isDisplayHidden()
     {
         return displayHidden;
     }

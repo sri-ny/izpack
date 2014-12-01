@@ -24,6 +24,7 @@ package com.izforge.izpack.panels.userinput.field;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.button.ButtonField;
 import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.panels.userinput.field.check.CheckField;
@@ -113,6 +114,7 @@ public class FieldFactory
         Field result;
         Type type;
         String value = config.getAttribute(element, "type");
+        RulesEngine rules = installData.getRules();
         try
         {
             type = Type.valueOf(value.toUpperCase());
@@ -127,7 +129,7 @@ public class FieldFactory
                 result = new ButtonField(new ButtonFieldReader(element, config, installData), installData);
                 break;
             case CHECK:
-                result = new CheckField(new CheckFieldReader(element, config), installData);
+                result = new CheckField(new CheckFieldReader(element, config, rules), installData);
                 break;
             case COMBO:
                 result = new ComboField(new SimpleChoiceReader(element, config, installData), installData);
@@ -136,40 +138,40 @@ public class FieldFactory
                 result = new CustomField(new CustomFieldReader(element, config, matcher, installData), installData);
                 break;
             case DIR:
-                result = new DirField(new DirFieldReader(element, config), installData);
+                result = new DirField(new DirFieldReader(element, config, rules), installData);
                 break;
             case DIVIDER:
-                result = new Divider(new DividerReader(element, config), installData);
+                result = new Divider(new DividerReader(element, config, rules), installData);
                 break;
             case FILE:
-                result = new FileField(new FileFieldReader(element, config), installData);
+                result = new FileField(new FileFieldReader(element, config, rules), installData);
                 break;
             case MULTIFILE:
-                result = new MultipleFileField(new MultipleFileFieldReader(element, config), installData);
+                result = new MultipleFileField(new MultipleFileFieldReader(element, config, rules), installData);
                 break;
             case PASSWORD:
-                result = new PasswordGroupField(new PasswordGroupFieldReader(element, config), installData);
+                result = new PasswordGroupField(new PasswordGroupFieldReader(element, config, rules), installData);
                 break;
             case RADIO:
                 result = new RadioField(new SimpleChoiceReader(element, config, installData), installData);
                 break;
             case RULE:
-                result = new RuleField(new RuleFieldReader(element, config), installData, config.getFactory());
+                result = new RuleField(new RuleFieldReader(element, config, rules), installData, config.getFactory());
                 break;
             case SEARCH:
-                result = new SearchField(new SearchFieldReader(element, config, matcher), installData);
+                result = new SearchField(new SearchFieldReader(element, config, rules, matcher), installData);
                 break;
             case SPACE:
-                result = new Spacer(new SimpleFieldReader(element, config), installData);
+                result = new Spacer(new SimpleFieldReader(element, config, rules), installData);
                 break;
             case STATICTEXT:
-                result = new StaticText(new StaticTextFieldReader(element, config), installData);
+                result = new StaticText(new StaticTextFieldReader(element, config, rules), installData);
                 break;
             case TEXT:
-                result = new TextField(new FieldReader(element, config), installData);
+                result = new TextField(new FieldReader(element, config, rules), installData);
                 break;
             case TITLE:
-                result = new TitleField(new TitleFieldReader(element, config), installData);
+                result = new TitleField(new TitleFieldReader(element, config, rules), installData);
                 break;
             default:
                 throw new IzPackException("Unsupported field type: " + value + " in " + config.getContext(element));
