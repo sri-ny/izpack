@@ -56,10 +56,6 @@ public class ContainsCondition extends Condition {
     }
 
     Variables variables = getInstallData().getVariables();
-    if (isRegEx)
-    {
-        pattern = Pattern.compile(value);
-    }
 
     switch (contentType) {
     case STRING:
@@ -128,9 +124,17 @@ public class ContainsCondition extends Condition {
     if (content == null)
       return false;
 
-    if (isByLine)
+    if (isRegEx && isByLine)
     {
         return matchesByLine(new StringReader(content));
+    }
+    if (isRegEx)
+    {
+        if (isByLine)
+        {
+            return matchesByLine(new StringReader(content));
+        }
+        pattern = Pattern.compile(value);
     }
 
     return matchesString(content);
