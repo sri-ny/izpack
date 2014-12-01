@@ -92,7 +92,7 @@ public class TestFieldConfig implements FieldConfig
     }
 
     @Override
-    public boolean getDisplayHidden()
+    public boolean isDisplayHidden()
     {
         return false;
     }

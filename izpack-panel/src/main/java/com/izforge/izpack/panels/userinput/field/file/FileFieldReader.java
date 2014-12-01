@@ -22,6 +22,7 @@
 package com.izforge.izpack.panels.userinput.field.file;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 
 /**
@@ -37,8 +38,8 @@ public class FileFieldReader extends AbstractFileFieldReader
      * @param field  the field element
      * @param config the configuration
      */
-    public FileFieldReader(IXMLElement field, Config config)
+    public FileFieldReader(IXMLElement field, Config config, RulesEngine rules)
     {
-        super(field, config);
+        super(field, config, rules);
     }
 }

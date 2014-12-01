@@ -193,6 +193,15 @@ public class RuleInputField extends JComponent implements KeyListener, FocusList
         }
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        for (JTextField jTextField : inputFields)
+        {
+            jTextField.setEnabled(enabled);
+        }
+        super.setEnabled(enabled);
+    };
+
     /*---------------------------------------------------------------------------*
      Implementation for KeyListener
      *---------------------------------------------------------------------------*/

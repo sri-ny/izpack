@@ -73,23 +73,30 @@ public class AbstractConsoleFileField extends ConsoleField
         {
             label = "";
         }
-        String prompt = label + "[" + ((initialValue != null) ? initialValue : "") + "] ";
-        String path = getConsole().promptLocation(prompt, null);
-        if (path != null)
+        if (isReadonly())
         {
-            path = path.trim();
-            if ("".equals(path))
+            println(label + (label.isEmpty()?" ":"") + "[" + field.getValue() + "]");
+        }
+        else
+        {
+            String prompt = label + (label.isEmpty()?" ":"") + "[" + ((initialValue != null) ? initialValue : "") + "] ";
+            String path = getConsole().promptLocation(prompt, null);
+            if (path != null)
             {
-                path = initialValue;
-            }
-            if (path != null && !"".equals(path))
-            {
-                path = field.getAbsoluteFile(path).toString();
-            }
-            if (view.validate(path))
-            {
-                field.setValue(path);
-                result = true;
+                path = path.trim();
+                if ("".equals(path))
+                {
+                    path = initialValue;
+                }
+                if (path != null && !"".equals(path))
+                {
+                    path = field.getAbsoluteFile(path).toString();
+                }
+                if (view.validate(path))
+                {
+                    field.setValue(path);
+                    result = true;
+                }
             }
         }
         return result;

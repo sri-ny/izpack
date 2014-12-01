@@ -12,8 +12,8 @@ import com.izforge.izpack.util.Console;
  * Based on {@link ConsoleChoiceField}
  */
 public class ConsoleSearchField extends ConsoleField { // ConsoleComboField { //AbstractConsoleFileField {
-	
-	/**
+
+    /**
      * Constructs a {@link ConsoleSearchField}.
      *
      * @param field   the field
@@ -23,14 +23,20 @@ public class ConsoleSearchField extends ConsoleField { // ConsoleComboField { //
     public ConsoleSearchField(SearchField field, Console console, Prompt prompt)
     {
         //super(new SearchFieldView(field, prompt), console, prompt);
-    	super(field, console, prompt);
+        super(field, console, prompt);
     }
 
     @Override
     public boolean display()
     {
-    	SearchField field = (SearchField)getField();
+        SearchField field = (SearchField)getField();
         printDescription();
+
+        if (isReadonly())
+        {
+            println(field.getValue());
+            return true;
+        }
 
         List<String> choices = field.getChoices();
         listChoices(choices, field.getSelectedIndex());
@@ -43,7 +49,7 @@ public class ConsoleSearchField extends ConsoleField { // ConsoleComboField { //
         field.setValue(choices.get(selected));
         return true;
     }
-    
+
     /**
      * Displays the choices.
      *

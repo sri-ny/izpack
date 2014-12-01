@@ -168,6 +168,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             boolean rerun = false;
             for (ConsoleField field : fields)
             {
+                field.setReadonly(field.getField().isDisplayHidden());
                 if (field.getField().isConditionTrue() && !field.display())
                 {
                     // field is invalid

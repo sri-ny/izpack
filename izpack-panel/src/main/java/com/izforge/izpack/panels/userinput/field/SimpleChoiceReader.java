@@ -32,7 +32,7 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
      */
     public SimpleChoiceReader(IXMLElement field, Config config, InstallData installData)
     {
-        super(field, config);
+        super(field, config, installData.getRules());
         this.installData = installData;
 
         for (IXMLElement choice : getSpec().getChildrenNamed("choice"))

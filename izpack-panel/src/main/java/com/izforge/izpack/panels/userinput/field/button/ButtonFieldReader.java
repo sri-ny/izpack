@@ -26,7 +26,7 @@ public class ButtonFieldReader extends SimpleFieldReader implements ButtonFieldC
      */
     public ButtonFieldReader(IXMLElement field, Config config, InstallData installData)
     {
-        super(field, config);
+        super(field, config, installData.getRules());
         this.installData = installData;
         this.messages = installData.getMessages();
     }

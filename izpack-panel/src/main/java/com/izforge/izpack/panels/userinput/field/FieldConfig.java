@@ -56,7 +56,7 @@ public interface FieldConfig
      *
      * @return the 'displayHidden' attribute, or {@code null}
      */
-    boolean getDisplayHidden();
+    boolean isDisplayHidden();
 
     /**
      * Returns the packs that this field applies to.

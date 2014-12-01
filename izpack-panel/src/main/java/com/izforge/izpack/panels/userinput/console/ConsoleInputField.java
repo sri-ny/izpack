@@ -59,25 +59,34 @@ public abstract class ConsoleInputField extends ConsoleField
         boolean result = false;
         printDescription();
         Field field = getField();
-        String initialValue = field.getInitialValue();
-        if (initialValue == null)
+        if (isReadonly())
         {
-            initialValue = "";
+            println(field.getLabel() + " [" + field.getValue() + "] ");
+            return true;
         }
-        String value = getConsole().prompt(field.getLabel() + " [" + initialValue + "] ", initialValue, null);
-        if (value != null)
+        else
         {
-            ValidationStatus status = validate(value);
-            if (!status.isValid())
+            String initialValue = field.getInitialValue();
+            if (initialValue == null)
             {
-                error(status.getMessage());
+                initialValue = "";
             }
-            else
+            String value = getConsole().prompt(field.getLabel() + " [" + initialValue + "] ", initialValue, null);
+            if (value != null)
             {
-                field.setValue(value);
-                result = true;
+                ValidationStatus status = validate(value);
+                if (!status.isValid())
+                {
+                    error(status.getMessage());
+                }
+                else
+                {
+                    field.setValue(value);
+                    result = true;
+                }
             }
         }
+
         return result;
     }
 

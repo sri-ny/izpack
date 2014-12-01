@@ -24,6 +24,7 @@ package com.izforge.izpack.panels.userinput.field;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.rules.RulesEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,8 @@ public class FieldReader extends ElementReader implements FieldConfig
      */
     private final IXMLElement spec;
 
+    private final RulesEngine rules;
+
     /**
      * Variable attribute name.
      */
@@ -60,6 +63,8 @@ public class FieldReader extends ElementReader implements FieldConfig
      * Variable attribute name.
      */
     protected static final String DISPLAY_HIDDEN = "displayHidden";
+
+    protected static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
 
 
     /**
@@ -87,19 +92,18 @@ public class FieldReader extends ElementReader implements FieldConfig
      */
     protected static final String OMIT_FROM_AUTO = "omitFromAuto";
 
-    private boolean omitFromAuto;
-
     /**
      * Constructs a {@code FieldReader}.
      *
      * @param field  the field element to read
      * @param config the configuration
      */
-    public FieldReader(IXMLElement field, Config config)
+    public FieldReader(IXMLElement field, Config config, RulesEngine rules)
     {
         super(config);
         this.field = field;
         this.spec = getSpec(field, config);
+        this.rules = rules;
     }
 
     /**
@@ -155,8 +159,7 @@ public class FieldReader extends ElementReader implements FieldConfig
     @Override
     public String getSummaryKey()
     {
-        boolean optional = true;
-        return getConfig().getAttribute(getField(), SUMMARY_KEY, optional);
+        return getConfig().getAttribute(getField(), SUMMARY_KEY, true);
     }
 
     /**
@@ -164,23 +167,21 @@ public class FieldReader extends ElementReader implements FieldConfig
      * If the conditionid is false, display the field but disable it.
      * <p/>
      *
-     * @return the 'displayHidden' attribute, or {@code null}
+     * @return the 'displayHidden' attribute, or {@code false}
      */
     @Override
-    public boolean getDisplayHidden()
+    public boolean isDisplayHidden()
     {
-        boolean displayHidden = false;
-        boolean optional = true;
-        String displayHiddenValue = getConfig().getAttribute(getField(), DISPLAY_HIDDEN, optional);
-        try
+        boolean displayHidden = getConfig().getBoolean(getField(), DISPLAY_HIDDEN, false);
+        if (!displayHidden)
         {
-            displayHidden = Boolean.parseBoolean(displayHiddenValue);
-            return displayHidden;
+            String id = getConfig().getAttribute(getField(), DISPLAY_HIDDEN_CONDITION, true);
+            if (id != null && !id.isEmpty())
+            {
+                return rules.isConditionTrue(id);
+            }
         }
-        catch(Exception ignore)
-        {
-            return false;
-        }
+        return displayHidden;
     }
 
     /**

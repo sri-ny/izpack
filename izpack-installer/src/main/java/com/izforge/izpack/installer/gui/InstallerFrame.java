@@ -610,6 +610,8 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             performHeading(newPanel);
             performHeadingCounter(newPanel);
             newPanel.executePreActivationActions();
+            Panel panel = newPanel.getPanel();
+            newView.setReadonly(panel.isReadonly() || panel.isDisplayHidden());
             newView.panelActivate();
             panelsContainer.setVisible(true);
             if (iconLabel != null)

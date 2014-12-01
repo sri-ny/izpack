@@ -39,6 +39,11 @@ public abstract class AbstractFieldView implements FieldView
      */
     private boolean displayed = false;
 
+    /**
+     * Determines if the view is readonly.
+     */
+    private boolean readonly = false;
+
 
     /**
      * Constructs an {@link AbstractFieldView}.
@@ -86,25 +91,27 @@ public abstract class AbstractFieldView implements FieldView
         return field.getSummaryKey();
     }
 
-    /**
-     * Determines if the view is being displayed.
-     *
-     * @return {@code true} if the view is being displayed
-     */
     @Override
     public boolean isDisplayed()
     {
         return displayed;
     }
 
-    /**
-     * Determines if the view is being displayed.
-     *
-     * @param displayed {@code true} if the view is being displayed
-     */
     @Override
     public void setDisplayed(boolean displayed)
     {
         this.displayed = displayed;
+    }
+
+    @Override
+    public boolean isReadonly()
+    {
+        return readonly;
+    }
+
+    @Override
+    public void setReadonly(boolean readonly)
+    {
+        this.readonly = readonly;
     }
 }
