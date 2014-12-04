@@ -151,9 +151,9 @@ public class TestFieldConfig implements FieldConfig
         return initialValue;
     }
 
-    public void setInitialValue(String defaultValue)
+    public void setInitialValue(String initialValue)
     {
-        this.initialValue = defaultValue;
+        this.initialValue = initialValue;
     }
 
     /**

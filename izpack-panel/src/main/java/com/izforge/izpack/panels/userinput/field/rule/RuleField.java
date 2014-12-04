@@ -21,10 +21,6 @@
 
 package com.izforge.izpack.panels.userinput.field.rule;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
@@ -34,7 +30,6 @@ import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.FieldProcessor;
 import com.izforge.izpack.panels.userinput.field.ValidationStatus;
 import com.izforge.izpack.panels.userinput.processor.Processor;
-import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 
 
 /**
@@ -69,7 +64,6 @@ public class RuleField extends Field
      */
     private final String[] defaultValues;
 
-    private final ObjectFactory factory;
 
     /**
      * The logger.
@@ -88,10 +82,27 @@ public class RuleField extends Field
     public RuleField(RuleFieldConfig config, InstallData installData, ObjectFactory factory)
     {
         super(config, installData);
-        this.factory = factory;
         this.layout = new FieldLayout(config.getLayout());
-        this.initialValues = parseSet(super.getInitialValue(), factory);
-        this.defaultValues = parseSet(super.getDefaultValue(), factory);
+        String value = super.getInitialValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.initialValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            this.initialValues = null;
+        }
+        value = super.getDefaultValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.defaultValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            this.defaultValues = null;
+        }
         this.format = config.getFormat();
         this.separator = config.getSeparator();
     }
@@ -152,7 +163,12 @@ public class RuleField extends Field
         String[] result = initialValues;
         if (result == null)
         {
-            result = parseSet(getValue(), factory);
+            String value = getValue();
+            if (value != null)
+            {
+                ValidationStatus status = validateFormatted(value);
+                result = status.isValid()?status.getValues():null;
+            }
             if (result == null)
             {
                 result = defaultValues;
@@ -222,40 +238,7 @@ public class RuleField extends Field
     public ValidationStatus validateFormatted(String value)
     {
         ValidationStatus status = layout.validate(value);
-        if (status.isValid())
-        {
-            String[] values = status.getValues();
-            status = super.validate(getValidationFormat(values), values);
-        }
         return status;
-    }
-
-    /**
-     * Generates array of values and formatting elements in the current order just for validation purposes.
-     * The validation is made from a concatenation of them all in the given order.
-     * @param values the ordered user input values
-     * @return the ordered validation parts
-     */
-    private MessageFormat getValidationFormat(String[] values)
-    {
-        StringBuffer sBuffer = new StringBuffer();
-        int index = 0;
-        for (Object item : layout.getLayout())
-        {
-            if (item instanceof String)
-            {
-                sBuffer.append((String)item);
-            }
-            else
-            {
-                if (index < values.length)
-                {
-                    sBuffer.append("{"+index+"}");
-                    ++index;
-                }
-            }
-        }
-        return new MessageFormat(sBuffer.toString());
     }
 
     /**
@@ -347,106 +330,5 @@ public class RuleField extends Field
         }
         return result;
     }
-
-    /**
-     * Parses single value strings for each input field from a formatted string.
-     *
-     * @param value the value to parse
-     * @param factory the factory for creating {@link Processor} instances
-     * @return the default values for each field
-     */
-    private String[] parseSet(String value, ObjectFactory factory)
-    {
-        if (value == null)
-        {
-            return null;
-        }
-
-        StringTokenizer tokenizer = new StringTokenizer(value);
-        String[] result = new String[layout.getFieldSpecs().size()];
-
-        List<String> processors = new ArrayList<String>();
-
-        while (tokenizer.hasMoreTokens())
-        {
-            String token = tokenizer.nextToken();
-            String[] values = token.split(":");
-            if (values.length > 1 && values.length <= 3)
-            {
-                try
-                {
-                    int index = Integer.parseInt(values[0]);
-                    if (index >= 0 && index < result.length)
-                    {
-                        result[index] = replaceVariables(values[1]);
-                        String className = (values.length == 3) ? values[2] : null;
-                        if (className != null && !className.equals(""))
-                        {
-                            processors.add(className);
-                        }
-                    }
-                    else
-                    {
-                        logger.warning("Field index: " + index + " in '" + token + "' in 'set' attribute: '"
-                                               + value + "' not in the range [0.." + result.length + "]");
-                    }
-                }
-                catch (NumberFormatException exception)
-                {
-                    logger.warning("Non-numeric field index: " + values[0] + " in '" + token + "' in 'set' attribute:"
-                                           + " '" + value + "'");
-                }
-            }
-            else
-            {
-                logger.warning("Expected 2..3 fields in '" + token + "' in 'set' attribute: '" + value + "' but got "
-                                       + values.length);
-            }
-        }
-
-        if (!processors.isEmpty())
-        {
-            result = processValues(result, processors, factory);
-        }
-        return result;
-    }
-
-    /**
-     * Processes values using a list of {@link Processor}s specified by their class names.
-     *
-     * @param values     the values to process. One for each field
-     * @param processors the processor class names
-     * @param factory    the factory for creating processors
-     * @return the processed values, one for each field
-     */
-    private String[] processValues(String[] values, List<String> processors, ObjectFactory factory)
-    {
-        String[] result = values;
-        for (String className : processors)
-        {
-            Processor processor = factory.create(className, Processor.class);
-            String processed = processor.process(new ValuesProcessingClient(values));
-            if (processed != null)
-            {
-                values = processed.split(" ");
-                if (values.length == result.length)
-                {
-                    result = values;
-                }
-                else
-                {
-                    logger.warning("Cannot use result of processor: " + processor.getClass().getName() + ". Expected "
-                                           + result.length + " fields but got " + values.length);
-                }
-            }
-            else
-            {
-                logger.warning("Processor: " + processor.getClass().getName() + " returned null. Expected "
-                                       + result.length + " fields");
-            }
-        }
-        return result;
-    }
-
 }
 

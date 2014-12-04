@@ -22,7 +22,6 @@
 package com.izforge.izpack.panels.userinput.console.rule;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -33,9 +32,7 @@ import com.izforge.izpack.core.factory.DefaultObjectFactory;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.rule.RuleField;
 import com.izforge.izpack.panels.userinput.field.rule.RuleFormat;
-import com.izforge.izpack.panels.userinput.field.rule.TestDefaultIPProcessor;
 import com.izforge.izpack.panels.userinput.field.rule.TestRuleFieldConfig;
-import com.izforge.izpack.panels.userinput.processor.Processor;
 
 
 /**
@@ -66,7 +63,7 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
     public void testSelectDefaultValue()
     {
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
-        String initialValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "192.168.0.1";
         String separator = null;
         String variable = "variable1";
 
@@ -91,7 +88,7 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
         String separator = null;
         String variable = "variable1";
-        String initialValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "192.168.0.1";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
@@ -102,28 +99,5 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
         assertTrue(field.display());
 
         assertEquals("127.0.0.1", installData.getVariable(variable));
-    }
-
-    /**
-     * Tests the specification of a {@link Processor} as part of the 'set' attribute.
-     */
-    @Test
-    public void testDefaultValueProcessor()
-    {
-        String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
-        String variable = "variable1";
-        String separator = null;
-        String initialValue = "0::" + TestDefaultIPProcessor.class.getName();
-        // The processor will be run for the first field
-
-        TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setInitialValue(initialValue);
-        RuleField model = new RuleField(config, installData, factory);
-        ConsoleRuleField field = new ConsoleRuleField(model, console, prompt);
-
-        assertNull(installData.getVariable("variable1"));
-        console.addScript("Select default", "\n");
-        assertTrue(field.display());
-        assertEquals("192.168.0.1", installData.getVariable(variable));
     }
 }

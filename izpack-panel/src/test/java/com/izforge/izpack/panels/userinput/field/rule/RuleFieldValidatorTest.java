@@ -82,7 +82,7 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String initialValue = "0: 1:";
+        String initialValue = "";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
@@ -101,7 +101,7 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String initialValue = "0: 1:";
+        String initialValue = "";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
@@ -118,7 +118,7 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "0:@HOST_ADDRESS@ 1:1234";
+        String defaultValue = "abc:1234";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setDefaultValue(defaultValue);
@@ -132,7 +132,7 @@ public class RuleFieldValidatorTest
 
         RuleField model = new RuleField(config, installData, factory);
 
-        assertArrayEquals(model.getInitialValues(), new String[] { "@HOST_ADDRESS@", "1234"});
+        assertArrayEquals(new String[] { "abc", "1234"}, model.getInitialValues());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "0:@HOST_ADDRESS@ 1:1234";
+        String defaultValue = "127.0.0.1:1234";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setDefaultValue(defaultValue);
@@ -154,9 +154,9 @@ public class RuleFieldValidatorTest
         config.addValidator(fieldValidator);
 
         RuleField model = new RuleField(config, installData, factory);
-        model.setValue("0:@my-second-server@ 1:1234");
+        model.setValue("my-second-server:1234");
 
-        assertArrayEquals(model.getInitialValues(), new String[] { "@my-second-server@", "1234"});
+        assertArrayEquals(model.getInitialValues(), new String[] { "my-second-server", "1234"});
     }
 
     @Test
@@ -165,8 +165,8 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String initialValue = "0:${host} 1:1234";
-        String defaultValue = "0:localhost 1:1234";
+        String initialValue = "${host}:1234";
+        String defaultValue = "localhost:1234";
 
         installData.setVariable("host", "my-server");
 

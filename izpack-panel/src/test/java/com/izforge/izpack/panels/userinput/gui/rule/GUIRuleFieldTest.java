@@ -39,7 +39,6 @@ import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.panels.userinput.LoggingPrompt;
 import com.izforge.izpack.panels.userinput.field.rule.RuleField;
 import com.izforge.izpack.panels.userinput.field.rule.RuleFormat;
-import com.izforge.izpack.panels.userinput.field.rule.TestDefaultIPProcessor;
 import com.izforge.izpack.panels.userinput.field.rule.TestRuleFieldConfig;
 import com.izforge.izpack.panels.userinput.processor.Processor;
 import com.izforge.izpack.util.Platforms;
@@ -85,7 +84,7 @@ public class GUIRuleFieldTest
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
         String separator = null;
         String variable = "variable1";
-        String initialValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "192.168.0.1";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
@@ -123,35 +122,13 @@ public class GUIRuleFieldTest
      * Tests the specification of a {@link Processor} as part of the 'set' attribute.
      */
     @Test
-    public void testDefaultValueProcessor()
-    {
-        String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
-        String variable = "variable1";
-        String separator = null;
-        TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setInitialValue("0::" + TestDefaultIPProcessor.class.getName()); // The processor will be run for the
-        // first field
-        RuleField model = new RuleField(config, installData, factory);
-
-        GUIRuleField field = new GUIRuleField(model);
-        assertEquals("192.168.0.1", field.getValue());
-
-        assertNull(installData.getVariable("variable1"));
-        assertTrue(field.updateField(LoggingPrompt.INSTANCE));
-        assertEquals("192.168.0.1", installData.getVariable(variable));
-    }
-
-    /**
-     * Tests the specification of a {@link Processor} as part of the 'set' attribute.
-     */
-    @Test
     public void testDefaultValueProcessorOnePart()
     {
         String layout = "O:25:U";
         String variable = "variable1";
         String separator = null;
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setInitialValue("0:localhost");
+        config.setInitialValue("localhost");
         RuleField model = new RuleField(config, installData, factory);
 
         GUIRuleField field = new GUIRuleField(model);

@@ -129,7 +129,8 @@ public class GUIRuleField extends GUIField
     public boolean updateView()
     {
         boolean result = false;
-        String value = getField().getValue();
+        Field f = getField();
+        String value = f.getValue();
 
         if (value != null)
         {
@@ -139,7 +140,6 @@ public class GUIRuleField extends GUIField
         else
         {
             // Set default value here for getting current variable values replaced
-            Field f = getField();
             String defaultValue = f.getDefaultValue();
             if (defaultValue != null)
             {

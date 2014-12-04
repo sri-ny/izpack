@@ -93,22 +93,13 @@ public abstract class AbstractGUIFileField extends GUIField
     public boolean updateView()
     {
         boolean result = false;
-        String value = getField().getValue();
-
+        // Set default value here for getting current variable values replaced
+        Field field = getField();
+        String value = field.getInitialValue();
         if (value != null)
         {
             fileInput.setFile(value);
             result = true;
-        }
-        else
-        {
-            // Set default value here for getting current variable values replaced
-            Field field = getField();
-            String defaultValue = field.getDefaultValue();
-            if (defaultValue != null)
-            {
-                fileInput.setFile(defaultValue);
-            }
         }
 
         return result;
