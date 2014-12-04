@@ -43,6 +43,7 @@ import com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator;
 import com.izforge.izpack.util.Platforms;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -81,10 +82,10 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "0: 1:";
+        String initialValue = "0: 1:";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put(RegularExpressionValidator.PATTERN_PARAM, "\\b.*\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3})\\b");
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), parameters, "Regex validation failed", factory);
@@ -100,10 +101,10 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "0: 1:";
+        String initialValue = "0: 1:";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         FieldValidator fieldValidator = new FieldValidator( HostAddressValidator.class, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
         RuleField model = new RuleField(config, installData, factory);
@@ -117,10 +118,10 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        //String defaultValue = "0: 1:";
+        String defaultValue = "0:@HOST_ADDRESS@ 1:1234";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        //config.setDefaultValue(defaultValue);
+        config.setDefaultValue(defaultValue);
 
         Map<String, String> regexp = new HashMap<String, String>();
         regexp.put(RegularExpressionValidator.PATTERN_PARAM, "\\b.*\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3})\b");
@@ -129,10 +130,62 @@ public class RuleFieldValidatorTest
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
 
-        installData.setVariable(variable, "@HOST_ADDRESS@:1234");
         RuleField model = new RuleField(config, installData, factory);
 
-        assertArrayEquals(model.getDefaultValues(), new String[] { "@HOST_ADDRESS@", "1234"});
+        assertArrayEquals(model.getInitialValues(), new String[] { "@HOST_ADDRESS@", "1234"});
+    }
+
+    @Test
+    public void testValues()
+    {
+        String layout = "O:15:U : N:5:5"; // host : port format
+        String variable = "server.address";
+        String separator = null;
+        String defaultValue = "0:@HOST_ADDRESS@ 1:1234";
+
+        TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
+        config.setDefaultValue(defaultValue);
+
+        Map<String, String> regexp = new HashMap<String, String>();
+        regexp.put(RegularExpressionValidator.PATTERN_PARAM, "\\b.*\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3})\b");
+
+        // Tests, whether the following validator is ignored for just receiving unvalidated default values
+        FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
+        config.addValidator(fieldValidator);
+
+        RuleField model = new RuleField(config, installData, factory);
+        model.setValue("0:@my-second-server@ 1:1234");
+
+        assertArrayEquals(model.getInitialValues(), new String[] { "@my-second-server@", "1234"});
+    }
+
+    @Test
+    public void testInitialValues()
+    {
+        String layout = "O:15:U : N:5:5"; // host : port format
+        String variable = "server.address";
+        String separator = null;
+        String initialValue = "0:${host} 1:1234";
+        String defaultValue = "0:localhost 1:1234";
+
+        installData.setVariable("host", "my-server");
+
+        TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
+        config.setInitialValue(initialValue);
+        config.setDefaultValue(defaultValue);
+
+        Map<String, String> regexp = new HashMap<String, String>();
+        regexp.put(RegularExpressionValidator.PATTERN_PARAM, "\\b.*\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3})\b");
+
+        // Tests, whether the following validator is ignored for just receiving unvalidated default values
+        FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
+        config.addValidator(fieldValidator);
+
+        RuleField model = new RuleField(config, installData, factory);
+        model.setValue("my-second-server:4321");
+
+        assertArrayEquals(model.getInitialValues(), new String[] { "my-server", "1234"});
+        assertEquals(model.getValue(), "my-second-server:4321");
     }
 
 }

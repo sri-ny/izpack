@@ -107,10 +107,10 @@ public class RuleInputField extends JComponent implements KeyListener, FocusList
         // ----------------------------------------------------
         createItems();
 
-        String[] defaultValues = field.getDefaultValues();
-        for (int i = 0; i < defaultValues.length; ++i)
+        String[] initialValues = field.getInitialValues();
+        for (int i = 0; i < initialValues.length; ++i)
         {
-            inputFields.get(i).setText(defaultValues[i]);
+            inputFields.get(i).setText(initialValues[i]);
         }
 
         // ----------------------------------------------------

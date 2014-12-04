@@ -87,7 +87,7 @@ public class ConsoleCheckFieldTest
         String variable = "check";
 
         TestCheckFieldConfig config = new TestCheckFieldConfig(variable, "selected", "unselected");
-        config.setDefaultValue("true");
+        config.setInitialValue("true");
 
         CheckField model = new CheckField(config, installData);
         ConsoleCheckField field = new ConsoleCheckField(model, console, prompt);
@@ -123,7 +123,7 @@ public class ConsoleCheckFieldTest
     {
         String variable = "check";
         TestCheckFieldConfig config = new TestCheckFieldConfig(variable, "selected", "unselected");
-        config.setDefaultValue("true");
+        config.setInitialValue("true");
         CheckField model = new CheckField(config, installData);
         ConsoleCheckField field = new ConsoleCheckField(model, console, prompt);
 
@@ -141,7 +141,7 @@ public class ConsoleCheckFieldTest
     {
         String variable = "check";
         TestCheckFieldConfig config = new TestCheckFieldConfig(variable, "selected", "unselected");
-        config.setDefaultValue("true");
+        config.setInitialValue("true");
         CheckField model = new CheckField(config, installData);
         ConsoleCheckField field = new ConsoleCheckField(model, console, prompt);
 

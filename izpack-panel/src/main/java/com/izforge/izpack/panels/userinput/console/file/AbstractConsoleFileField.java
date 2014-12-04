@@ -84,11 +84,11 @@ public class AbstractConsoleFileField extends ConsoleField
             if (path != null)
             {
                 path = path.trim();
-                if ("".equals(path))
+                if (path.isEmpty())
                 {
                     path = initialValue;
                 }
-                if (path != null && !"".equals(path))
+                if (path != null && !path.isEmpty())
                 {
                     path = field.getAbsoluteFile(path).toString();
                 }

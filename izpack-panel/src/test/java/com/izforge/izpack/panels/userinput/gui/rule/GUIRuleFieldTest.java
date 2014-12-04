@@ -85,10 +85,10 @@ public class GUIRuleFieldTest
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
         String separator = null;
         String variable = "variable1";
-        String defaultValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "0:192 1:168 2:0 3:1";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
 
         RuleField model = new RuleField(config, installData, factory);
 
@@ -129,7 +129,7 @@ public class GUIRuleFieldTest
         String variable = "variable1";
         String separator = null;
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue("0::" + TestDefaultIPProcessor.class.getName()); // The processor will be run for the
+        config.setInitialValue("0::" + TestDefaultIPProcessor.class.getName()); // The processor will be run for the
         // first field
         RuleField model = new RuleField(config, installData, factory);
 
@@ -151,7 +151,7 @@ public class GUIRuleFieldTest
         String variable = "variable1";
         String separator = null;
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue("0:localhost");
+        config.setInitialValue("0:localhost");
         RuleField model = new RuleField(config, installData, factory);
 
         GUIRuleField field = new GUIRuleField(model);

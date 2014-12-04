@@ -132,11 +132,11 @@ public class ConsoleFileFieldTest extends AbstractConsoleFieldTest
      * @param defaultValue the default value. May be {@code null}
      * @return a new field
      */
-    private ConsoleFileField createField(String defaultValue)
+    private ConsoleFileField createField(String initialValue)
     {
         TestFileFieldConfig config = new TestFileFieldConfig("file");
         config.setLabel("Enter file: ");
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         FileField model = new FileField(config, installData);
         return new ConsoleFileField(model, console, prompt);
     }

@@ -54,9 +54,14 @@ public abstract class Field
     private final String summaryKey;
 
     /**
-     * Specifies the default (or set) value for the field.
+     * Specifies the value to override the current variable value for the field.
      */
-    private final String set;
+    private final String initialValue;
+
+    /**
+     * Specifies the default value for the field.
+     */
+    private final String defaultValue;
 
     /**
      * The field size.
@@ -134,7 +139,8 @@ public abstract class Field
     {
         variable = config.getVariable();
         summaryKey = config.getSummaryKey();
-        set = config.getDefaultValue();
+        initialValue = config.getInitialValue();
+        defaultValue = config.getDefaultValue();
         size = config.getSize();
         packs = config.getPacks();
         models = config.getOsModels();
@@ -233,27 +239,39 @@ public abstract class Field
      */
     public String getDefaultValue()
     {
-        if (set != null)
+        if (defaultValue != null)
         {
-            return installData.getVariables().replace(set);
+            return installData.getVariables().replace(defaultValue);
         }
         return null;
     }
 
     /**
-     * Returns the initial value.
+     * Returns the initial value to use for this field.
      * <p/>
-     * If the field is associated with a variable, and the variable value is non-null, this is returned, otherwise
-     * {@link #getDefaultValue} is returned.
+     * The following non-null value is used from the following search order
+     * <ul>
+     * <li>initial value (substituting variables)
+     * <li>current variable value
+     * <li>default value (substituting variables)
+     * </ul>
      *
-     * @return the initial value
+     * @return The initial value to use for this field
      */
     public String getInitialValue()
     {
-        String result = getValue();
+        String result = null;
+        if (initialValue != null)
+        {
+            result = installData.getVariables().replace(initialValue);
+        }
         if (result == null)
         {
-            result = getDefaultValue();
+            result = getValue();
+            if (result == null)
+            {
+                result = getDefaultValue();
+            }
         }
         return result;
     }
@@ -342,7 +360,7 @@ public abstract class Field
     }
 
     /**
-     * Processes a set of values.
+     * Processes a initialValue of values.
      *
      * @param values the values to process
      * @return the result of processing
@@ -418,16 +436,6 @@ public abstract class Field
     public InstallData getInstallData()
     {
         return installData;
-    }
-
-    /**
-     * Returns the raw value of the 'set' attribute.
-     *
-     * @return the raw value of the 'set' attribute
-     */
-    protected String getSet()
-    {
-        return set;
     }
 
     /**

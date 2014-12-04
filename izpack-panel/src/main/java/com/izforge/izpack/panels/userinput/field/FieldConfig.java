@@ -73,11 +73,18 @@ public interface FieldConfig
     List<OsModel> getOsModels();
 
     /**
-     * Returns the default value of the field.
+     * Returns the default value to be used for the field.
      *
      * @return the default value. May be {@code null}
      */
     String getDefaultValue();
+
+    /**
+     * Returns the initial value to be used for the field.
+     *
+     * @return the initial  value. May be {@code null}
+     */
+    String getInitialValue();
 
     /**
      * Returns the field size.

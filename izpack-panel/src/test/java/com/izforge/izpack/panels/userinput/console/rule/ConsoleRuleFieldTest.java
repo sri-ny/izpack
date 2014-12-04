@@ -66,12 +66,12 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
     public void testSelectDefaultValue()
     {
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
-        String defaultValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "0:192 1:168 2:0 3:1";
         String separator = null;
         String variable = "variable1";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
 
         RuleField model = new RuleField(config, installData, factory);
 
@@ -91,10 +91,10 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
         String separator = null;
         String variable = "variable1";
-        String defaultValue = "0:192 1:168 2:0 3:1";
+        String initialValue = "0:192 1:168 2:0 3:1";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         RuleField model = new RuleField(config, installData, factory);
 
         ConsoleRuleField field = new ConsoleRuleField(model, console, prompt);
@@ -113,11 +113,11 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
         String layout = "N:3:3 . N:3:3 . N:3:3 . N:3:3"; // IP address format
         String variable = "variable1";
         String separator = null;
-        String defaultValue = "0::" + TestDefaultIPProcessor.class.getName();
+        String initialValue = "0::" + TestDefaultIPProcessor.class.getName();
         // The processor will be run for the first field
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         RuleField model = new RuleField(config, installData, factory);
         ConsoleRuleField field = new ConsoleRuleField(model, console, prompt);
 
