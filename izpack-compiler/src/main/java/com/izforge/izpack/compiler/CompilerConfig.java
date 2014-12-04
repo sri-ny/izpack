@@ -2159,6 +2159,12 @@ public class CompilerConfig extends Thread
                 assertionHelper.parseWarn(variableNode, "Variable '" + name + "' being overwritten");
             }
             variables.setProperty(name, value);
+
+            // Preserve default values for dynamic variables if the same variable names are used to define
+            // static values in <variables>. This way dynamic variables are prevented from being unset.
+            DynamicVariable dynamicVariable = new DynamicVariableImpl(name, value);
+            dynamicVariable.setCheckonce(true);
+            addDynamicVariable(variableNode, 0, name, dynamicVariable);
         }
         notifyCompilerListener("addVariables", CompilerListener.END, data);
     }
@@ -2198,8 +2204,6 @@ public class CompilerConfig extends Thread
         {
             return;
         }
-
-        Map<String, List<DynamicVariable>> dynamicvariables = packager.getDynamicVariables();
 
         for (IXMLElement var : root.getChildrenNamed("variable"))
         {
@@ -2447,25 +2451,45 @@ public class CompilerConfig extends Thread
                         "Error in definition of dynamic variable " + name + ": " + e.getMessage());
             }
 
-            List<DynamicVariable> dynamicValues = new ArrayList<DynamicVariable>();
-            if (dynamicvariables.containsKey(name))
-            {
-                dynamicValues = dynamicvariables.get(name);
-            }
-            else
-            {
-                dynamicvariables.put(name, dynamicValues);
-            }
-
             String conditionid = var.getAttribute("condition");
             dynamicVariable.setConditionid(conditionid);
-            if (dynamicValues.remove(dynamicVariable))
-            {
-                assertionHelper.parseWarn(var, "Dynamic Variable '" + name + "' will be overwritten");
-            }
-            dynamicValues.add(dynamicVariable);
+
+            addDynamicVariable(var, name, dynamicVariable);
         }
         notifyCompilerListener("addDynamicVariables", CompilerListener.END, data);
+    }
+
+    private void addDynamicVariable(IXMLElement varXml, int index, String name, DynamicVariable dynamicVariable)
+    {
+        Map<String, List<DynamicVariable>> dynamicvariables = packager.getDynamicVariables();
+        List<DynamicVariable> dynamicValues = new ArrayList<DynamicVariable>();
+
+        if (dynamicvariables.containsKey(name))
+        {
+            dynamicValues = dynamicvariables.get(name);
+        }
+        else
+        {
+            dynamicvariables.put(name, dynamicValues);
+        }
+
+        if (dynamicValues.remove(dynamicVariable))
+        {
+            assertionHelper.parseWarn(varXml, "Variable '" + name + "' will be overwritten");
+        }
+        if (index < 0)
+        {
+            dynamicValues.add(dynamicVariable);
+        }
+        else
+        {
+            dynamicValues.add(index, dynamicVariable);
+        }
+    }
+
+    private void addDynamicVariable(IXMLElement varXml, String name, DynamicVariable dynamicVariable)
+    {
+        addDynamicVariable(varXml, -1, name, dynamicVariable);
     }
 
     protected void addDynamicInstallerRequirement(IXMLElement data) throws CompilerException
