@@ -21,7 +21,6 @@ package com.izforge.izpack.panels.userinput.gui;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 /**
