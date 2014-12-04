@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.izforge.izpack.api.data.binding.Action;
 import com.izforge.izpack.api.data.binding.Help;
@@ -88,12 +89,17 @@ public class Panel implements Serializable
     private List<String> validators = new ArrayList<String>();
 
     /**
+     * Set affected variable names that might be changed on this panel
+     */
+    private Set<String> affectedVariableNames;
+
+    /**
      * The map of validator conditions for this panel depending on the validator
      * Condition whether the validator has to be asked for validation.
      */
     private Map<Integer, String> validatorConditionIds = new HashMap<Integer, String>();
 
-
+    @Deprecated
     private List<Action> actions;
 
     /**
@@ -427,28 +433,16 @@ public class Panel implements Serializable
         return null;
     }
 
+    @Deprecated
     public List<Action> getActions()
     {
         return actions;
     }
 
+    @Deprecated
     public void setActions(List<Action> actions)
     {
         this.actions = actions;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Panel{" +
-                "className='" + className + '\'' +
-                ", osConstraints=" + osConstraints +
-                ", panelid='" + getPanelId() + '\'' +
-                ", condition='" + condition + '\'' +
-                ", actions=" + actions +
-                ", validator count='" + validators.size() + '\'' +
-                ", helps=" + helps +
-                '}';
     }
 
     /**
@@ -466,5 +460,43 @@ public class Panel implements Serializable
     public void setVisited(boolean visited)
     {
         this.visited = visited;
+    }
+
+    /**
+     * Gets a unique collection of names of variables that might me affected when this panel is active.
+     *
+     * @return Set of variable names
+     */
+    public Set<String> getAffectedVariableNames()
+    {
+        return affectedVariableNames;
+    }
+
+    /**
+     * Adds or completes a collection of names of variables that might me affected when this panel is active.<br><br>
+     * Affected variables are blocked for further dynamic changes if there are definitions as dynamic
+     * variables as soon as the user passes forward over this panel
+     *
+     * @param name Affected variable
+     * @return <tt>true</tt> if this set did not already contain the specified name
+     */
+    public void setAffectedVariableNames(Set<String> names)
+    {
+        affectedVariableNames = names;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Panel{" +
+                "className='" + className + '\'' +
+                ", osConstraints=" + osConstraints +
+                ", panelid='" + getPanelId() + '\'' +
+                ", condition='" + condition + '\'' +
+                ", actions=" + actions +
+                ", validator count='" + validators.size() + '\'' +
+                ", helps=" + helps + '\'' +
+                ", affected variables count='" + affectedVariableNames.size() + '\'' +
+                '}';
     }
 }

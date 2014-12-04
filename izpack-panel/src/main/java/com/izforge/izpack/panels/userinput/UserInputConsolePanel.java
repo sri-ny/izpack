@@ -196,6 +196,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         IXMLElement spec = model.getPanelSpec(getPanel());
 
         variables = model.updateVariables(spec);
+        getPanel().setAffectedVariableNames(variables);
 
         ElementReader reader = new ElementReader(model.getConfig());
         List<String> forPacks = reader.getPacks(spec);

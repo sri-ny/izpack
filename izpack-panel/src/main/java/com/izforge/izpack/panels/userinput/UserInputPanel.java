@@ -417,6 +417,7 @@ public class UserInputPanel extends IzPanel
     protected void updateVariables()
     {
         variables = userInputModel.updateVariables(spec);
+        getMetadata().setAffectedVariableNames(variables);
     }
 
     /**
