@@ -89,7 +89,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
      * Constructs an {@code AbstractPanels}.
      *
      * @param panels    the panels
-     * @param installData 
+     * @param installData
      */
     public AbstractPanels(List<T> panels, InstallData installData)
     {
@@ -500,7 +500,9 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         int oldIndex = index;
         index = newIndex;
 
-        newPanelView.getPanel().setVisited(true);
+        Panel newPanel = newPanelView.getPanel();
+
+        newPanel.setVisited(true);
         if (switchPanel(newPanelView, oldPanelView))
         {
 
@@ -509,12 +511,16 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
                   // Switches back in a sorted list of panels
                   // -> set unvisited all panels in order after this one to always keep history information up to date
                   // -> important for summary panel and generation of auto-install.xml
-                  for (int i = index + 1; i < panelViews.size(); i++)
+                  for (int i = panelViews.size() - 1; i > index; i--)
                   {
                       T futurePanelView = panelViews.get(i);
-                      futurePanelView.getPanel().setVisited(false);
-                  }
+                      Panel futurePanel = futurePanelView.getPanel();
+                      futurePanel.setVisited(false);
+                      variables.unregisterBlockedVariableNames(futurePanel.getAffectedVariableNames(), futurePanel);
+                 }
             }
+
+            variables.registerBlockedVariableNames(newPanel.getAffectedVariableNames(), newPanel);
 
             logger.fine("Switched panel index: " + oldIndex + " -> " + index);
             result = true;
@@ -523,7 +529,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         {
             index = oldIndex;
             result = false;
-            newPanelView.getPanel().setVisited(false);
+            newPanel.setVisited(false);
         }
 
        return result;

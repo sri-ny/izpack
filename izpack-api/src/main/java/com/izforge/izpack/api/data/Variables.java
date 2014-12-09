@@ -23,6 +23,7 @@ package com.izforge.izpack.api.data;
 
 
 import java.util.Properties;
+import java.util.Set;
 
 import com.izforge.izpack.api.exception.IzPackException;
 
@@ -137,5 +138,21 @@ public interface Variables
      * @return the variables
      */
     Properties getProperties();
+
+    /**
+     * Register a set of variable names for blocking from further changes.
+     *
+     * @param names Variable names
+     * @param blocker Blocking object
+     */
+    void registerBlockedVariableNames(Set<String> names, Object blocker);
+
+    /**
+     * Unregister a set of variable names from blocking from further changes.
+     *
+     * @param names Variable names
+     * @param blocker Blocking object
+     */
+    void unregisterBlockedVariableNames(Set<String> names, Object blocker);
 
 }

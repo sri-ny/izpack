@@ -70,11 +70,11 @@ public class ConsoleTextFieldTest extends AbstractConsoleFieldTest
      * @param defaultValue the default value. May be {@code null}
      * @return a new field
      */
-    private ConsoleTextField createField(String defaultValue)
+    private ConsoleTextField createField(String initialValue)
     {
         TestFieldConfig config = new TestFieldConfig("text");
         config.setLabel("Enter value:");
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         return new ConsoleTextField(new TextField(config, installData), console, prompt);
     }
 }

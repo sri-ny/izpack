@@ -209,12 +209,25 @@ public class FieldReader extends ElementReader implements FieldConfig
     /**
      * Returns the default value of the field without replacing variables.
      * <p/>
-     * This is obtained from the 'set' attribute of the 'spec' element.
+     * This is obtained from the 'default' attribute of the 'spec' element.
      *
      * @return the default value. May be {@code null}
      */
     @Override
     public String getDefaultValue()
+    {
+        return (spec != null) ? getConfig().getRawString(spec, "default", null) : null;
+    }
+
+    /**
+     * Returns the initial value of the field without replacing variables.
+     * <p/>
+     * This is obtained from the 'set' attribute of the 'spec' element.
+     *
+     * @return the default value. May be {@code null}
+     */
+    @Override
+    public String getInitialValue()
     {
         return (spec != null) ? getConfig().getRawString(spec, "set", null) : null;
     }

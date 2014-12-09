@@ -48,6 +48,11 @@ public class TestFieldConfig implements FieldConfig
     private String defaultValue;
 
     /**
+     * The initial value.
+     */
+    private String initialValue;
+
+    /**
      * The label.
      */
     private String label;
@@ -133,6 +138,22 @@ public class TestFieldConfig implements FieldConfig
     public void setDefaultValue(String defaultValue)
     {
         this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Returns the initial value of the field.
+     *
+     * @return the initial value. May be {@code null}
+     */
+    @Override
+    public String getInitialValue()
+    {
+        return initialValue;
+    }
+
+    public void setInitialValue(String initialValue)
+    {
+        this.initialValue = initialValue;
     }
 
     /**

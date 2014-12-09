@@ -21,9 +21,13 @@
 
 package com.izforge.izpack.core.data;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -64,6 +68,11 @@ public class DefaultVariables implements Variables
      * The rules for evaluating dynamic variable conditions.
      */
     private RulesEngine rules;
+
+    /**
+     * Maps variable names to their stack of blocker objects.
+     */
+    private transient Map<String, Deque<Object>> blockedVariableNameStacks = new HashMap<String, Deque<Object>>();
 
 
     /**
@@ -308,48 +317,54 @@ public class DefaultVariables implements Variables
         for (DynamicVariable variable : dynamicVariables)
         {
             String name = variable.getName();
-            String conditionId = variable.getConditionid();
-            if (conditionId == null || rules.isConditionTrue(conditionId))
+            if (!isBlockedVariableName(name))
             {
-                if (!(variable.isCheckonce() && variable.isChecked()))
+                String conditionId = variable.getConditionid();
+                if (conditionId == null || rules.isConditionTrue(conditionId))
                 {
-                    String newValue;
-                    try
+                    if (!(variable.isCheckonce() && variable.isChecked()))
                     {
-                        newValue = variable.evaluate(replacer);
-                    }
-                    catch (IzPackException exception)
-                    {
-                        throw exception;
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new IzPackException("Failed to refresh dynamic variables (" + name + ")", exception);
-                    }
-                    if (newValue == null)
-                    {
-                        // Mark unset if dynamic variable cannot be evaluated and failOnError set
-                        unsetVariables.add(name);
+                        String newValue;
+                        try
+                        {
+                            newValue = variable.evaluate(replacer);
+                        }
+                        catch (IzPackException exception)
+                        {
+                            throw exception;
+                        }
+                        catch (Exception exception)
+                        {
+                            throw new IzPackException("Failed to refresh dynamic variable (" + name + ")", exception);
+                        }
+                        if (newValue == null)
+                        {
+                            // Mark unset if dynamic variable cannot be evaluated and failOnError set
+                            unsetVariables.add(name);
+                        }
+                        else
+                        {
+                            setVariables.put(name, newValue);
+                        }
+                        variable.setChecked();
                     }
                     else
                     {
-                        setVariables.put(name, newValue);
+                        String oldvalue = properties.getProperty(name);
+                        if (oldvalue != null)
+                        {
+                            setVariables.put(name, oldvalue);
+                        }
                     }
-                    variable.setChecked();
                 }
                 else
                 {
-                    String oldvalue = properties.getProperty(name);
-                    if (oldvalue != null)
-                    {
-                        setVariables.put(name, oldvalue);
-                    }
+                    // Mark unset if condition is not true
+                    unsetVariables.add(name);
                 }
             }
-            else
-            {
-                // Mark unset if condition is not true
-                unsetVariables.add(name);
+            else {
+                logger.fine("Dynamic variable '" + name + "' blocked from changing due to user input");
             }
         }
 
@@ -380,4 +395,43 @@ public class DefaultVariables implements Variables
         return properties;
     }
 
+    @Override
+    public void registerBlockedVariableNames(Set<String> names, Object blocker)
+    {
+        if (names != null)
+        {
+            for (String name : names)
+            {
+                Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
+                if (blockerStack == null)
+                {
+                    blockerStack = new ArrayDeque<Object>();
+                }
+                blockerStack.push(blocker);
+                blockedVariableNameStacks.put(name, blockerStack);
+            }
+        }
+    }
+
+   @Override
+   public void unregisterBlockedVariableNames(Set<String> names, Object blocker)
+    {
+        if (names != null)
+        {
+            for (String name : names)
+            {
+                Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
+                if (blockerStack != null)
+                {
+                    blockerStack.remove(blocker);
+                }
+            }
+        }
+    }
+
+    private boolean isBlockedVariableName(String name)
+    {
+        Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
+        return (blockerStack != null && !blockerStack.isEmpty());
+    }
 }

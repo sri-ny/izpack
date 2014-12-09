@@ -21,10 +21,6 @@
 
 package com.izforge.izpack.panels.userinput.field.rule;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
@@ -34,7 +30,6 @@ import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.FieldProcessor;
 import com.izforge.izpack.panels.userinput.field.ValidationStatus;
 import com.izforge.izpack.panels.userinput.processor.Processor;
-import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 
 
 /**
@@ -62,7 +57,13 @@ public class RuleField extends Field
     /**
      * The initial values.
      */
+    private final String[] initialValues;
+
+    /**
+     * The default values.
+     */
     private final String[] defaultValues;
+
 
     /**
      * The logger.
@@ -82,7 +83,26 @@ public class RuleField extends Field
     {
         super(config, installData);
         this.layout = new FieldLayout(config.getLayout());
-        this.defaultValues = parseSet(getSet(), factory);
+        String value = super.getInitialValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.initialValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            this.initialValues = null;
+        }
+        value = super.getDefaultValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.defaultValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            this.defaultValues = null;
+        }
         this.format = config.getFormat();
         this.separator = config.getSeparator();
     }
@@ -105,71 +125,58 @@ public class RuleField extends Field
     @Override
     public String getInitialValue()
     {
-        String value = getValue();
-
-        if (value != null)
+        String result = format(initialValues);
+        if (result == null)
         {
-            ValidationStatus status = validateFormatted(value);
-            if (status.isValid())
+            result = getValue();
+            if (result == null)
             {
-                return value;
+                result = getDefaultValue();
             }
         }
+        return result;
+    }
 
-        if (hasDefaultValues())
+    /**
+     * Returns the default value of the field.
+     *
+     * @return the default value. May be {@code null}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        if (defaultValues != null)
         {
-            return format(getDefaultValues());
+            return getInstallData().getVariables().replace(format(defaultValues));
         }
-
         return null;
     }
 
     /**
-     * Determines if the field has default values.
-     * <p/>
-     * It has default values if at least one sub-field has a value
-     *
-     * @return {@code true} if the field has default values
-     */
-    public boolean hasDefaultValues()
-    {
-        if (defaultValues == null)
-        {
-            return false;
-        }
-
-        for (String value : defaultValues)
-        {
-            if (value != null && !value.equals(""))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the default values for each sub-field.
+     * Returns the initial values for each sub-field.
      * Field validators are not activated here, this method just verifies whether the value matches the layout.
      *
-     * @return the default values
+     * @return the initial values
      */
-    public String[] getDefaultValues()
+    public String[] getInitialValues()
     {
-        String value = super.getInitialValue();
-
-        if (hasDefaultValues())
+        String[] result = initialValues;
+        if (result == null)
         {
-            return defaultValues;
-        }
-
-        if (value != null)
-        {
-            ValidationStatus status = layout.validate(value);
-            if (status.isValid())
+            String value = getValue();
+            if (value != null)
             {
-                return status.getValues();
+                ValidationStatus status = validateFormatted(value);
+                result = status.isValid()?status.getValues():null;
             }
+            if (result == null)
+            {
+                result = defaultValues;
+            }
+        }
+        if (result != null)
+        {
+            return result;
         }
 
         return new String[0];
@@ -185,6 +192,11 @@ public class RuleField extends Field
     public String format(String[] values)
     {
         String result;
+
+        if (values == null)
+        {
+            return null;
+        }
 
         switch (format)
         {
@@ -226,40 +238,7 @@ public class RuleField extends Field
     public ValidationStatus validateFormatted(String value)
     {
         ValidationStatus status = layout.validate(value);
-        if (status.isValid())
-        {
-            String[] values = status.getValues();
-            status = super.validate(getValidationFormat(values), values);
-        }
         return status;
-    }
-
-    /**
-     * Generates array of values and formatting elements in the current order just for validation purposes.
-     * The validation is made from a concatenation of them all in the given order.
-     * @param values the ordered user input values
-     * @return the ordered validation parts
-     */
-    private MessageFormat getValidationFormat(String[] values)
-    {
-        StringBuffer sBuffer = new StringBuffer();
-        int index = 0;
-        for (Object item : layout.getLayout())
-        {
-            if (item instanceof String)
-            {
-                sBuffer.append((String)item);
-            }
-            else
-            {
-                if (index < values.length)
-                {
-                    sBuffer.append("{"+index+"}");
-                    ++index;
-                }
-            }
-        }
-        return new MessageFormat(sBuffer.toString());
     }
 
     /**
@@ -351,106 +330,5 @@ public class RuleField extends Field
         }
         return result;
     }
-
-    /**
-     * Parses default values.
-     *
-     * @param set     the value of the 'set' attribute
-     * @param factory the factory for creating {@link Processor} instances
-     * @return the default values for each field
-     */
-    private String[] parseSet(String set, ObjectFactory factory)
-    {
-        if (set == null)
-        {
-            return null;
-        }
-
-        StringTokenizer tokenizer = new StringTokenizer(set);
-        String[] result = new String[layout.getFieldSpecs().size()];
-
-        List<String> processors = new ArrayList<String>();
-
-        while (tokenizer.hasMoreTokens())
-        {
-            String token = tokenizer.nextToken();
-            String[] values = token.split(":");
-            if (values.length > 1 && values.length <= 3)
-            {
-                try
-                {
-                    int index = Integer.parseInt(values[0]);
-                    if (index >= 0 && index < result.length)
-                    {
-                        result[index] = replaceVariables(values[1]);
-                        String className = (values.length == 3) ? values[2] : null;
-                        if (className != null && !className.equals(""))
-                        {
-                            processors.add(className);
-                        }
-                    }
-                    else
-                    {
-                        logger.warning("Field index: " + index + " in '" + token + "' in 'set' attribute: '"
-                                               + set + "' not in the range [0.." + result.length + "]");
-                    }
-                }
-                catch (NumberFormatException exception)
-                {
-                    logger.warning("Non-numeric field index: " + values[0] + " in '" + token + "' in 'set' attribute:"
-                                           + " '" + set + "'");
-                }
-            }
-            else
-            {
-                logger.warning("Expected 2..3 fields in '" + token + "' in 'set' attribute: '" + set + "' but got "
-                                       + values.length);
-            }
-        }
-
-        if (!processors.isEmpty())
-        {
-            result = processValues(result, processors, factory);
-        }
-        return result;
-    }
-
-    /**
-     * Processes values using a list of {@link Processor}s specified by their class names.
-     *
-     * @param values     the values to process. One for each field
-     * @param processors the processor class names
-     * @param factory    the factory for creating processors
-     * @return the processed values, one for each field
-     */
-    private String[] processValues(String[] values, List<String> processors, ObjectFactory factory)
-    {
-        String[] result = values;
-        for (String className : processors)
-        {
-            Processor processor = factory.create(className, Processor.class);
-            String processed = processor.process(new ValuesProcessingClient(values));
-            if (processed != null)
-            {
-                values = processed.split(" ");
-                if (values.length == result.length)
-                {
-                    result = values;
-                }
-                else
-                {
-                    logger.warning("Cannot use result of processor: " + processor.getClass().getName() + ". Expected "
-                                           + result.length + " fields but got " + values.length);
-                }
-            }
-            else
-            {
-                logger.warning("Processor: " + processor.getClass().getName() + " returned null. Expected "
-                                       + result.length + " fields");
-            }
-        }
-        return result;
-    }
-
 }
 

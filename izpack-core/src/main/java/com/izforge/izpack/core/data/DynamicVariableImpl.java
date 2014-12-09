@@ -263,6 +263,12 @@ public class DynamicVariableImpl implements DynamicVariable
     }
 
     @Override
+    public String toString()
+    {
+        return "name: " + name + ", condition: " + conditionid;
+    }
+
+    @Override
     public int hashCode()
     {
         int condidHashCode = 0;
@@ -282,6 +288,6 @@ public class DynamicVariableImpl implements DynamicVariable
     @Override
     public void setChecked()
     {
-        checked = true;    }
-
+        checked = true;
+    }
 }

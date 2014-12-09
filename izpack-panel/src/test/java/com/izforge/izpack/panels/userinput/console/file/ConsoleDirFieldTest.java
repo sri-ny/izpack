@@ -155,11 +155,11 @@ public class ConsoleDirFieldTest extends AbstractConsoleFieldTest
      * @param mustExist    if {@code true}, the directory must exist
      * @return a new field
      */
-    private ConsoleDirField createField(String defaultValue, boolean mustExist, boolean create)
+    private ConsoleDirField createField(String initialValue, boolean mustExist, boolean create)
     {
         TestDirFieldConfig config = new TestDirFieldConfig("dir");
         config.setLabel("Enter directory: ");
-        config.setDefaultValue(defaultValue);
+        config.setInitialValue(initialValue);
         config.setMustExist(mustExist);
         config.setCreate(create);
         DirField model = new DirField(config, installData);
