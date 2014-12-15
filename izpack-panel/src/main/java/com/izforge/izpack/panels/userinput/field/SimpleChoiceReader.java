@@ -32,7 +32,7 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
      */
     public SimpleChoiceReader(IXMLElement field, Config config, InstallData installData)
     {
-        super(field, config, installData.getRules());
+        super(field, config);
         this.installData = installData;
 
         for (IXMLElement choice : getSpec().getChildrenNamed("choice"))
@@ -54,7 +54,6 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
     {
         List<Choice> result = new ArrayList<Choice>();
         Config config = getConfig();
-        RulesEngine rules = installData.getRules();
         for (IXMLElement choice : getSpec().getChildrenNamed("choice"))
         {
             String processorClass = choice.getAttribute("processor");
@@ -78,19 +77,13 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
                 while (tokenizer.hasMoreTokens())
                 {
                     String token = tokenizer.nextToken();
-                    if (isDisplayed(rules, conditionId))
-                    {
-                        result.add(new Choice(token, token));
-                    }
+                    result.add(new Choice(token, token, conditionId));
                 }
             }
             else
             {
                 String value = config.getAttribute(choice, "value");
-                if (isDisplayed(rules, conditionId))
-                {
-                    result.add(new Choice(value, getText(choice)));
-                }
+                result.add(new Choice(value, getText(choice), conditionId));
             }
         }
         return result;

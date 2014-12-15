@@ -18,7 +18,14 @@
 
 package com.izforge.izpack.gui;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.LayoutManager2;
+import java.awt.Stroke;
 import java.util.ArrayList;
 
 /**
@@ -208,10 +215,17 @@ public class TwoColumnLayout implements LayoutManager2
      * @param comp        the component to be modified.
      * @param constraints the constraints to be applied.
      */
+    @Override
     public void addLayoutComponent(Component comp, Object constraints)
     {
         if (constraints == null)
         {
+            return;
+        }
+
+        if (!comp.isVisible())
+        {
+            // Don't leave spave for invisible components, like radiobutton choices
             return;
         }
 
@@ -343,6 +357,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component which needs to be laid out.
      */
+    @Override
     public void layoutContainer(Container parent)
     {
         positionRules(parent);
@@ -862,6 +877,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public Dimension preferredLayoutSize(Container parent)
     {
         return (minimumLayoutSize(parent));
@@ -873,6 +889,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public Dimension minimumLayoutSize(Container parent)
     {
         positionTitle(parent);
@@ -894,6 +911,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public Dimension maximumLayoutSize(Container parent)
     {
         return (minimumLayoutSize(parent));
@@ -907,6 +925,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public float getLayoutAlignmentX(Container parent)
     {
         return (0);
@@ -920,6 +939,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public float getLayoutAlignmentY(Container parent)
     {
         return (0);
@@ -931,6 +951,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param parent the component to be laid out
      */
+    @Override
     public void invalidateLayout(Container parent)
     {
         leftRule = 0;
@@ -946,6 +967,7 @@ public class TwoColumnLayout implements LayoutManager2
      * @param name the component name
      * @param comp the component to be added
      */
+    @Override
     public void addLayoutComponent(String name, Component comp)
     {
     }
@@ -956,6 +978,7 @@ public class TwoColumnLayout implements LayoutManager2
      *
      * @param comp the component to be removed
      */
+    @Override
     public void removeLayoutComponent(Component comp)
     {
         java.util.List<TwoColumnConstraints> left = components[LEFT];

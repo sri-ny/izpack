@@ -50,13 +50,37 @@ public interface FieldConfig
     String getSummaryKey();
 
     /**
-     * Returns if the field should always be displayed on the panel regardless if its conditionid is true or false.
-     * If the conditionid is false, display the field but disable it.
-     * <p/>
+     * Returns if the field should always be displayed read-only
+     * on the panel regardless if its conditionid is true or false.
      *
-     * @return the 'displayHidden' attribute, or {@code null}
+     * @return the 'displayHidden' attribute, or {@code false}
      */
-    boolean isDisplayHidden();
+    Boolean isDisplayHidden();
+
+    /**
+     * Returns a condition for which the field should be displayed read-only
+     * on the panel regardless if its conditionid is true or false.
+     * If the condition evaluates false, don't apply displayHidden.
+     *
+     * @return the condition, or {@code null}
+     */
+    String getDisplayHiddenCondition();
+
+    /**
+     * Returns if the field should always be displayed read-only.
+     *
+     * @return the 'readonly' attribute, or {@code false}
+     */
+    Boolean isReadonly();
+
+    /**
+     * Returns a condition for which the field should be displayed read-only.
+     * If the conditionid is false, don't apply readonly.
+     *
+     * @return the 'readonlyCondition' attribute, or {@code null}
+     */
+    String getReadonlyCondition();
+
 
     /**
      * Returns the packs that this field applies to.
@@ -150,6 +174,4 @@ public interface FieldConfig
      * @return the 'omitFromAuto' attribute
      */
     public boolean getOmitFromAuto();
-
-
 }

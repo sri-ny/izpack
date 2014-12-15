@@ -40,12 +40,14 @@ import java.util.List;
  *
  * @author Tim Anderson
  */
-public class GUIRadioField extends GUIField
+public class GUIRadioField extends GUIField implements ActionListener
 {
     /**
      * The choices.
      */
     private final List<RadioChoiceView> choices = new ArrayList<RadioChoiceView>();
+
+    private ButtonGroup buttonGroup;
 
     /**
      * Constructs a {@code GUIRadioField}.
@@ -55,29 +57,20 @@ public class GUIRadioField extends GUIField
     public GUIRadioField(RadioField field)
     {
         super(field);
-        String variable = field.getVariable();
-
-        ButtonGroup group = new ButtonGroup();
 
         TwoColumnConstraints constraints = new TwoColumnConstraints(TwoColumnConstraints.BOTH);
         constraints.indent = true;
         constraints.stretch = true;
 
-
-        int id = 1;
-        ActionListener l = new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                notifyUpdateListener();
-            }
-        };
-
         if (getField().getDescription() != null)
         {
             addDescription();
         }
+
+        String variable = field.getVariable();
+        buttonGroup = new ButtonGroup();
+
+        int id = 1;
 
         for (Choice choice : field.getChoices())
         {
@@ -85,10 +78,10 @@ public class GUIRadioField extends GUIField
             button.setName(variable + "." + id);
             ++id;
             button.setText(choice.getValue());
-            button.addActionListener(l);
+            button.addActionListener(this);
 
-            group.add(button);
-            boolean selected = field.getSelectedIndex() == group.getButtonCount() - 1;
+            buttonGroup.add(button);
+            boolean selected = field.getSelectedIndex() == buttonGroup.getButtonCount() - 1;
 
             if (selected)
             {
@@ -101,6 +94,12 @@ public class GUIRadioField extends GUIField
         addTooltip();
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+        notifyUpdateListener();
+    }
+
     /**
      * Returns the field.
      *
@@ -109,7 +108,7 @@ public class GUIRadioField extends GUIField
     @Override
     public RadioField getField()
     {
-        return (RadioField) super.getField();
+       return (RadioField) super.getField();
     }
 
     /**
@@ -142,6 +141,8 @@ public class GUIRadioField extends GUIField
     @Override
     public boolean updateView()
     {
+        refreshChoices();
+
         boolean result = false;
         RadioField field = getField();
         String value = field.getValue();
@@ -195,6 +196,47 @@ public class GUIRadioField extends GUIField
             this.choice = choice;
             this.button = button;
         }
+
+        public Choice getChoice()
+        {
+            return choice;
+        }
+
+        public JRadioButton getButton()
+        {
+            return button;
+        }
     }
 
+    /**
+     * Reassemble choices according to current conditions and processor results
+     * when the panel changes
+     */
+    private void refreshChoices()
+    {
+
+        RadioField field = getField();
+
+        int index = 0;
+        for (RadioChoiceView radioChoiceView : choices)
+        {
+            String conditionId = radioChoiceView.getChoice().getConditionId();
+            JRadioButton radioButton = radioChoiceView.getButton();
+            if (conditionId == null || getInstallData().getRules().isConditionTrue(conditionId))
+            {
+                radioButton.setVisible(true);
+
+                boolean selected = field.getSelectedIndex() == index;
+                if (selected)
+                {
+                    radioButton.setSelected(true);
+                }
+            }
+            else
+            {
+                radioButton.setVisible(false);
+            }
+            index++;
+        }
+    }
 }

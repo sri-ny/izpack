@@ -295,6 +295,26 @@ public class Config
     }
 
     /**
+     * Returns the named attribute as an integer in a three-state logic.
+     *
+     * @param element      the element name
+     * @param name         the attribute name
+     * @return the attribute value as Boolean or {@code null} if it isn't set or is invalid
+     */
+    public Boolean getBooleanOrNull(IXMLElement element, String name)
+    {
+        Boolean result = null;
+        String value = getString(element, name, null);
+
+        if (value != null && !value.isEmpty())
+        {
+            // support "yes" for backwards compatibility, but don't encourage its use...
+            result = value.equals("yes") || Boolean.valueOf(value);
+        }
+        return result;
+    }
+
+    /**
      * Extracts the text from an element. The text can be defined:
      * <ol>
      * <li>in the locale's messages, under the key defined by the {@code id} attribute; or

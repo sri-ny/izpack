@@ -22,7 +22,6 @@
 package com.izforge.izpack.panels.userinput.field.rule;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 
@@ -41,9 +40,9 @@ public class RuleFieldReader extends FieldReader implements RuleFieldConfig
      * @param field the field element
      * @param config the configuration
      */
-    public RuleFieldReader(IXMLElement field, Config config, RulesEngine rules)
+    public RuleFieldReader(IXMLElement field, Config config)
     {
-        super(field, config, rules);
+        super(field, config);
     }
 
     /**

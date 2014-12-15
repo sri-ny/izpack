@@ -22,7 +22,6 @@
 package com.izforge.izpack.panels.userinput.field.statictext;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.SimpleFieldReader;
 
@@ -40,9 +39,9 @@ public class StaticTextFieldReader extends SimpleFieldReader
      * @param field  the field element
      * @param config the configuration
      */
-    public StaticTextFieldReader(IXMLElement field, Config config, RulesEngine rules)
+    public StaticTextFieldReader(IXMLElement field, Config config)
     {
-        super(field, config, rules);
+        super(field, config);
     }
 
     /**

@@ -97,9 +97,27 @@ public class TestFieldConfig implements FieldConfig
     }
 
     @Override
-    public boolean isDisplayHidden()
+    public Boolean isDisplayHidden()
     {
-        return false;
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public String getDisplayHiddenCondition()
+    {
+        return null;
+    }
+
+    @Override
+    public Boolean isReadonly()
+    {
+        return Boolean.FALSE;
+   }
+
+    @Override
+    public String getReadonlyCondition()
+    {
+        return null;
     }
 
     /**

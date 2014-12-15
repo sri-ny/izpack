@@ -64,14 +64,14 @@ public class Panel implements Serializable
     private String condition;
 
     /**
-     * Condition whether the panel should be shown read-only in otherwise hidden.
-     */
-    private String displayHiddenCondition;
-
-    /**
      * Whether the panel including all fields is read-only if otherwise hidden.
      */
     private boolean displayHidden = false;
+
+    /**
+     * Condition whether the panel should be shown read-only in otherwise hidden.
+     */
+    private String displayHiddenCondition;
 
     /**
      * Whether the panel including all fields is read-only as a whole.
@@ -235,7 +235,7 @@ public class Panel implements Serializable
 
     public void setDisplayHidden(boolean flag)
     {
-        this.displayHidden = flag;
+        this.displayHidden = Boolean.valueOf(flag);
     }
 
 
@@ -246,7 +246,7 @@ public class Panel implements Serializable
 
     public void setReadonly(boolean flag)
     {
-        this.readonly = flag;
+        this.readonly = Boolean.valueOf(flag);
     }
 
 

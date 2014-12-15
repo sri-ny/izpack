@@ -903,26 +903,6 @@ public abstract class IzPanel extends JPanel implements AbstractUIHandler, Layou
     }
 
     /**
-     * Returns whether this panel should be displayed read-only.
-     *
-     * @return whether this panel will be hidden general or not
-     */
-    public boolean isReadonly()
-    {
-        return readonly;
-    }
-
-    /**
-     * Set whether this panel should be displayed read-only.
-     *
-     * @param hidden flag to be set
-     */
-    public void setReadonly(boolean readonly)
-    {
-        this.readonly = readonly;
-    }
-
-    /**
      * Returns the used layout helper. Can be used in a derived class to create custom layout.
      *
      * @return the used layout helper

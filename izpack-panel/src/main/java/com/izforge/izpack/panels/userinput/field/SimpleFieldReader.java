@@ -20,7 +20,6 @@
 package com.izforge.izpack.panels.userinput.field;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.rules.RulesEngine;
 
 
 /**
@@ -36,9 +35,9 @@ public class SimpleFieldReader extends FieldReader
      * @param field  the field
      * @param config the configuration
      */
-    public SimpleFieldReader(IXMLElement field, Config config, RulesEngine rules)
+    public SimpleFieldReader(IXMLElement field, Config config)
     {
-        super(field, config, rules);
+        super(field, config);
     }
 
     /**

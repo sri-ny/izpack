@@ -112,7 +112,23 @@ public abstract class Field
      * Determines if the field should always be displayed on the panel regardless if its conditionid is true or false.
      * If the conditionid is false, display the field but disable it.
      */
-    private boolean displayHidden;
+    private Boolean displayHidden;
+
+    /**
+     * Determines a condition for which the field should be displayed on the panel regardless if its conditionid is true or false.
+     */
+    private String displayHiddenCondition;
+
+    /**
+     * Determines if the field should always be displayed read-only.
+     */
+    private Boolean readonly;
+
+    /**
+     * Determines a condition for which the field should be displayed read-only.
+     */
+    private String readonlyCondition;
+
     /**
      * The installation data.
      */
@@ -149,6 +165,9 @@ public abstract class Field
         label = config.getLabel();
         description = config.getDescription();
         displayHidden = config.isDisplayHidden();
+        displayHiddenCondition = config.getDisplayHiddenCondition();
+        readonly = config.isReadonly();
+        readonlyCondition = config.getReadonlyCondition();
         tooltip = config.getTooltip();
         omitFromAuto = config.getOmitFromAuto();
         this.condition = config.getCondition();
@@ -202,14 +221,99 @@ public abstract class Field
     }
 
     /**
-     * Determines if the field should always be displayed on the panel regardless if its conditionid is true or false.
-     * If the conditionid is false, display the field but disable it.
+     * Returns if the field should always be displayed read-only
+     * on the panel regardless if its conditionid is true or false.
+     * This equals the value of the 'displayHidden' attribute from the field definition.
      *
-     * @return {@code true} if displaying hidden otherwise {@code false}
+     * @return the 'displayHidden' attribute, or {@code false}
      */
-    public boolean isDisplayHidden()
+    public Boolean isDisplayHidden()
     {
         return displayHidden;
+    }
+
+    /**
+     * Returns a condition for which the field should be displayed read-only
+     * on the panel regardless if its conditionid is true or false.
+     * If the condition evaluates false, don't apply displayHidden.
+     * This equals the value of the 'displayHiddenCondition' attribute from the field definition.
+     *
+    * @return the condition ID, or {@code null}
+     */
+    public String getDisplayHiddenCondition()
+    {
+        return displayHiddenCondition;
+    }
+
+    /**
+     * Returns if the field should be always displayed read-only.
+     * This equals the value of the 'readonly' attribute from the field definition.
+     *
+     * @return true if field should be shown read-only, or {@code false}
+     */
+    public Boolean isReadonly()
+    {
+        return readonly;
+    }
+
+    /**
+     * Returns an effective value whether a field should be currently displayed read-only.
+     *
+     * @return true if field should be shown read-only, or {@code false}
+     */
+    public boolean isEffectiveReadonly(boolean defaultFlag, RulesEngine rules)
+    {
+        boolean result = false;
+
+        if (readonly != null)
+        {
+            result = readonly.booleanValue();
+        }
+        else if (readonlyCondition != null && rules.isConditionTrue(readonlyCondition))
+        {
+            result = rules.isConditionTrue(readonlyCondition);
+        }
+        else
+        {
+            result = defaultFlag;
+        }
+        return result;
+    }
+
+    /**
+     * Returns an effective value whether a field should be currently displayed read-only if hidden.
+     *
+     * @return true if field should be shown read-only if hidden, or {@code false}
+     */
+    public boolean isEffectiveDisplayHidden(boolean defaultFlag, RulesEngine rules)
+    {
+        boolean result = false;
+
+        if (displayHidden != null)
+        {
+            result = displayHidden.booleanValue();
+        }
+        else if (displayHiddenCondition != null && rules.isConditionTrue(displayHiddenCondition))
+        {
+            result = rules.isConditionTrue(displayHiddenCondition);
+        }
+        else
+        {
+            result = defaultFlag;
+        }
+        return result;
+    }
+
+    /**
+     * Returns a condition for which the field should be displayed read-only.
+     * If the conditionid is false, don't apply readonly.
+     * This equals the value of the 'readonlyCondition' attribute from the field definition.
+     *
+     * @return the condition ID, or {@code null}
+     */
+    public String getReadonlyCondition()
+    {
+        return readonlyCondition;
     }
 
     /**

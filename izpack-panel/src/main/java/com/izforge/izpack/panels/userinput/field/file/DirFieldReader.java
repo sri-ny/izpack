@@ -22,7 +22,6 @@
 package com.izforge.izpack.panels.userinput.field.file;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 
 
@@ -40,9 +39,9 @@ public class DirFieldReader extends AbstractFileFieldReader implements DirFieldC
      * @param field  the field element
      * @param config the configuration
      */
-    public DirFieldReader(IXMLElement field, Config config, RulesEngine rules)
+    public DirFieldReader(IXMLElement field, Config config)
     {
-        super(field, config, rules);
+        super(field, config);
     }
 
     /**
