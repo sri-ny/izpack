@@ -124,10 +124,6 @@ public class ContainsCondition extends Condition {
     if (content == null)
       return false;
 
-    if (isRegEx && isByLine)
-    {
-        return matchesByLine(new StringReader(content));
-    }
     if (isRegEx)
     {
         if (isByLine)
