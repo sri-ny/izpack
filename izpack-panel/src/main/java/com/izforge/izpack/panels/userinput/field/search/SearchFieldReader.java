@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 import com.izforge.izpack.util.OsConstraintHelper;
@@ -75,9 +74,9 @@ public class SearchFieldReader extends FieldReader implements SearchFieldConfig
      * @param field  the field element
      * @param config the configuration
      */
-    public SearchFieldReader(IXMLElement field, Config config, RulesEngine rules, PlatformModelMatcher matcher)
+    public SearchFieldReader(IXMLElement field, Config config, PlatformModelMatcher matcher)
     {
-        super(field, config, rules);
+        super(field, config);
         this.matcher = matcher;
     }
 

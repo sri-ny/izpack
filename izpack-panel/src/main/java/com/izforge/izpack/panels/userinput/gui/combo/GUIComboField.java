@@ -27,6 +27,7 @@ import com.izforge.izpack.panels.userinput.field.combo.ComboField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import javax.swing.*;
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -86,4 +87,76 @@ public class GUIComboField extends GUIField
         getField().setValue(value);
         return true;
     }
+
+    /**
+     * Updates the view from the field.
+     *
+     * @return {@code true} if the view was updated
+     */
+    @Override
+    public boolean updateView()
+    {
+        refreshChoices();
+
+        boolean result = false;
+        ComboField field = (ComboField)getField();
+        String value = field.getValue();
+
+        if (value != null)
+        {
+            result = splitValue(value);
+        }
+
+        if (!result) // fallback for invalid values
+        {
+            // Set default value here for getting current variable values replaced
+            String defaultValue = field.getDefaultValue();
+            if (defaultValue != null)
+            {
+                result = splitValue(defaultValue);
+            }
+        }
+        return result;
+    }
+
+    private boolean splitValue(String value)
+    {
+        for (int i = 0; i < combo.getItemCount(); i++)
+        {
+            Choice item = (Choice) combo.getItemAt(i);
+            if (value.equals(item.getTrueValue()))
+            {
+                combo.setSelectedIndex(i);
+                notifyUpdateListener();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Reassemble choices according to current conditions and processor results
+     * when the panel changes
+     */
+    private void refreshChoices()
+    {
+        ComboField field = (ComboField)getField();
+        combo.removeAllItems();
+        int index = 0;
+        for (Choice choice : field.getChoices())
+        {
+            String conditionId = choice.getConditionId();
+            if (conditionId == null || getInstallData().getRules().isConditionTrue(conditionId))
+            {
+                combo.addItem(choice);
+            }
+
+            boolean selected = field.getSelectedIndex() == index;
+            if (selected)
+            {
+                combo.setSelectedItem(choice);
+            }
+            index++;
+        }
+     }
 }

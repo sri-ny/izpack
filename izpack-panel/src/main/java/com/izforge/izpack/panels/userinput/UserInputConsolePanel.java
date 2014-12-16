@@ -26,6 +26,7 @@ import java.util.*;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.Prompt;
@@ -168,8 +169,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             boolean rerun = false;
             for (ConsoleField field : fields)
             {
-                field.setReadonly(field.getField().isDisplayHidden());
-                if (field.getField().isConditionTrue() && !field.display())
+                if (!field.display())
                 {
                     // field is invalid
                     rerun = true;
@@ -193,7 +193,8 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     private boolean collectInputs(InstallData installData)
     {
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, rules, matcher);
-        IXMLElement spec = model.getPanelSpec(getPanel());
+        Panel panel = getPanel();
+        IXMLElement spec = model.getPanelSpec(panel);
 
         variables = model.updateVariables(spec);
         getPanel().setAffectedVariableNames(variables);
@@ -213,9 +214,44 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         fields.clear();
 
         ConsoleFieldFactory factory = new ConsoleFieldFactory(console, prompt);
-        for (Field field : model.createFields(spec))
+        for (Field fieldDefinition : model.createFields(spec))
         {
-            fields.add(factory.create(field, model, spec));
+            boolean readonly = false;
+            boolean addToPanel = false;
+            boolean required = FieldHelper.isRequired(fieldDefinition, installData, matcher);
+
+            if (required && fieldDefinition.isConditionTrue())
+            {
+                readonly = fieldDefinition.isEffectiveReadonly(
+                        panel.isReadonly()
+                        || (panel.getReadonlyCondition() != null && rules.isConditionTrue(panel.getReadonlyCondition())),
+                        rules);
+                addToPanel = true;
+            }
+            else if (required
+                    && (
+                            fieldDefinition.isEffectiveDisplayHidden(
+                                    panel.isDisplayHidden()
+                                    || (panel.getDisplayHiddenCondition() != null && rules.isConditionTrue(panel.getDisplayHiddenCondition())),
+                                    rules)
+                       )
+                    )
+            {
+                readonly = true;
+                addToPanel = true;
+            }
+            else
+            {
+                readonly = true;
+                addToPanel = false;
+            }
+
+            if (addToPanel)
+            {
+                ConsoleField consoleField = factory.create(fieldDefinition, model, spec);
+                consoleField.setReadonly(readonly);
+                fields.add(consoleField);
+            }
         }
         return true;
     }

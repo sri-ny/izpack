@@ -30,7 +30,7 @@ public class CustomFieldReader extends FieldReader implements CustomFieldConfig
      */
     public CustomFieldReader(IXMLElement field, Config config, PlatformModelMatcher matcher, InstallData installData)
     {
-        super(field, config, installData.getRules());
+        super(field, config);
         this.installData = installData;
         this.config = config;
         this.matcher = matcher;

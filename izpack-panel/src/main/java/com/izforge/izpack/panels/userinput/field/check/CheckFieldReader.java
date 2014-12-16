@@ -22,7 +22,6 @@
 package com.izforge.izpack.panels.userinput.field.check;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.field.Config;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 
@@ -41,9 +40,9 @@ public class CheckFieldReader extends FieldReader implements CheckFieldConfig
      * @param field  the field element
      * @param config the configuration
      */
-    public CheckFieldReader(IXMLElement field, Config config, RulesEngine rules)
+    public CheckFieldReader(IXMLElement field, Config config)
     {
-        super(field, config, rules);
+        super(field, config);
     }
 
     /**

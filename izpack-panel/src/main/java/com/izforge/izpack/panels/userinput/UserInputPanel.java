@@ -331,15 +331,27 @@ public class UserInputPanel extends IzPanel
             boolean enabled = false;
             boolean addToPanel = false;
 
-            Field field = view.getField();
-            if (FieldHelper.isRequired(field, installData, matcher) && field.isConditionTrue())
+            Field fieldDefinition = view.getField();
+            Panel metadata = getMetadata();
+            boolean required = FieldHelper.isRequired(fieldDefinition, installData, matcher);
+
+            if (required && fieldDefinition.isConditionTrue())
             {
-                enabled = !isReadonly();
+                enabled = !(fieldDefinition.isEffectiveReadonly(
+                        metadata.isReadonly()
+                        || (metadata.getReadonlyCondition() != null && rules.isConditionTrue(metadata.getReadonlyCondition())),
+                        rules));
                 addToPanel = true;
                 view.setDisplayed(true);
             }
-            else if (FieldHelper.isRequired(field, installData, matcher) &&
-                    (field.isDisplayHidden()))
+            else if (required
+                    && (
+                            fieldDefinition.isEffectiveDisplayHidden(
+                                    metadata.isDisplayHidden()
+                                    || (metadata.getDisplayHiddenCondition() != null && rules.isConditionTrue(metadata.getDisplayHiddenCondition())),
+                                    rules)
+                       )
+                    )
             {
                 enabled = false;
                 addToPanel = true;

@@ -40,15 +40,26 @@ public class Choice
     private final String value;
 
     /**
+     * Optional condition, may be null.
+     */
+    private final String conditionId;
+
+    /**
      * Constructs a {@code Choice}.
      *
      * @param key   the key
      * @param value the display value
      */
-    public Choice(String key, String value)
+    public Choice(String key, String value, String conditionId)
     {
         this.key = key;
         this.value = value;
+        this.conditionId = conditionId;
+     }
+
+    public Choice(String key, String value)
+    {
+        this(key, value, null);
     }
 
     /**
@@ -76,6 +87,16 @@ public class Choice
     public String getValue()
     {
         return value;
+    }
+
+    /**
+     * Returns the optional condition ID.
+     *
+     * @return the condition ID, might be null
+     */
+    public String getConditionId()
+    {
+        return conditionId;
     }
 
     /**
