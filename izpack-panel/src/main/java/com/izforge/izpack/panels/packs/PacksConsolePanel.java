@@ -46,13 +46,6 @@ import com.izforge.izpack.util.Console;
  */
 public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePanel
 {
-
-    private static final String REQUIRED = "required";
-    private static final String NOT_SELECTED = "Not Selected";
-    private static final String ALREADY_SELECTED = "Already Selected";
-    private static final String DONE = "Done!";
-    private static final String SPACE = " ";
-
     private HashMap<String, Pack> names;
 
     private final Prompt prompt;
@@ -97,7 +90,7 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
         {
             drawHelper(key, selectedPacks, installData);
         }
-        out(Type.INFORMATION, DONE);
+        out(Type.INFORMATION, "Done!");
 
         installData.setSelectedPacks(selectedPacks);
 
@@ -129,36 +122,31 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     {
         Pack p = names.get(pack);
         Boolean conditionSatisfied = checkCondition(installData, p);
-        Boolean conditionExists = !(conditionSatisfied == null);
         String packName = p.getName();
+        final boolean required = p.isRequired();
+        final boolean packConditionTrue = conditionSatisfied == null || conditionSatisfied.booleanValue();
 
-        // If a condition is set to that pack
-        if (conditionExists)
+        if (packConditionTrue)
         {
-            if (conditionSatisfied)
+            // Pack 'condition' not set or 'condition' evaluates true
+            if (required)
             {
-
-                out(Type.INFORMATION, packName + SPACE + ALREADY_SELECTED);
+                // Force selecting the pack
+                out(Type.INFORMATION, "  [x] Pack '" + packName + "' required");
                 selectedPacks.add(p);
-
             }
             else
             {
-                // condition says don't install!
-                out(Type.INFORMATION, packName + SPACE + NOT_SELECTED);
+                if (askUser("  [x] Include optional pack '" + packName + "'", Option.YES))
+                {
+                    selectedPacks.add(p);
+                }
             }
-            // If no condition specified
         }
-        else if (p.isRequired())
+        else
         {
-            out(Type.INFORMATION, packName + SPACE + REQUIRED);
-
-            selectedPacks.add(p);
-            // Prompt the user
-        }
-        else if (askUser(packName))
-        {
-            selectedPacks.add(p);
+            // Force not selecting the pack
+            out(Type.INFORMATION, "  [ ] Pack '" + packName + "' not enabled");
         }
     }
 
@@ -189,9 +177,9 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
      *
      * @return boolean  - true if condition above satisfied. Otherwise false
      */
-    private boolean askUser(String message)
+    private boolean askUser(String message, Option defaultOption)
     {
-        return Option.YES == prompt.confirm(Type.QUESTION, message, Options.YES_NO);
+        return Option.YES == prompt.confirm(Type.QUESTION, message, Options.YES_NO, defaultOption);
     }
 
 
