@@ -67,6 +67,7 @@ import com.izforge.izpack.api.adaptator.IXMLWriter;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLWriter;
 import com.izforge.izpack.api.data.Blockable;
+import com.izforge.izpack.api.data.ConfigurationOption;
 import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.GUIPrefs;
@@ -1580,13 +1581,29 @@ public class CompilerConfig extends Thread
             if (configurationElement != null)
             {
                 logger.fine("Found a configuration for panel " + panel.getPanelId());
-                List<IXMLElement> params = configurationElement.getChildrenNamed("param");
+                List<IXMLElement> params = configurationElement.getChildren();
                 for (IXMLElement param : params)
                 {
-                    String name = xmlCompilerHelper.requireAttribute(param, "name");
-                    String value = xmlCompilerHelper.requireAttribute(param, "value");
-                    logger.fine("Adding configuration property " + name + " with value " + value);
-                    panel.addConfiguration(name, value);
+                    String elementName = param.getName();
+                    String name = elementName;
+                    final String value;
+                    final ConfigurationOption option;
+                    if (elementName.equals("param"))
+                    {
+                        // TODO after 5.0: Compatibility: Nested <param name="..." value="..." /> (remove in future?)
+                        name = xmlCompilerHelper.requireAttribute(param, "name");
+                        value = xmlCompilerHelper.requireAttribute(param, "value");
+                        option = new ConfigurationOption(value);
+                    }
+                    else
+                    {
+                        value = xmlCompilerHelper.requireContent(param);
+                        option = new ConfigurationOption(value,
+                                param.getAttribute("condition"),
+                                param.getAttribute("defaultValue"));
+                    }
+                    logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                    panel.addConfigurationOption(name, option);
                 }
             }
 

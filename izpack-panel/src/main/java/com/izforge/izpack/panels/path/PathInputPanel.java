@@ -49,6 +49,21 @@ public class PathInputPanel extends IzPanel implements ActionListener
     private static final transient Logger logger = Logger.getLogger(PathInputPanel.class.getName());
 
     /**
+     * ShowCreateDirectoryMessage configuration option<br>
+     * If 'ShowCreateDirectoryMessage' configuration option set 'false' then don't show
+     * then don't show "directory will be created" dialog
+     */
+    private static final String SHOWCREATEDIRECTORYMESSAGE = "ShowCreateDirectoryMessage";
+
+    /**
+     * ShowExistingDirectoryWarning configuration option<br>
+     * If 'ShowExistingDirectoryWarning' configuration option set 'false' then don't show
+     * "The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"
+     * warning dialog
+     */
+    private static final String SHOWEXISTINGDIRECTORYWARNING = "ShowExistingDirectoryWarning";
+
+    /**
      * Flag whether the choosen path must exist or not
      */
     protected boolean mustExist = false;
@@ -343,9 +358,9 @@ public class PathInputPanel extends IzPanel implements ActionListener
     protected boolean checkCreateDirectory(File dir)
     {
         boolean result = true;
-        //if 'ShowCreateDirectoryMessage' variable set to 'false'
+        // if 'ShowCreateDirectoryMessage' configuration option set 'false' then don't show
         // then don't show "directory will be created" dialog:
-        String show = installData.getVariable("ShowCreateDirectoryMessage");
+        String show = getMetadata().getConfigurationOptionValue(SHOWCREATEDIRECTORYMESSAGE, installData.getRules());
         if (show == null || Boolean.getBoolean(show))
         {
             result = emitNotificationFeedback(getI18nStringForClass("createdir", "TargetPanel") + "\n" + dir);
@@ -361,9 +376,17 @@ public class PathInputPanel extends IzPanel implements ActionListener
      */
     protected boolean checkOverwrite(File dir)
     {
-        return askWarningQuestion(getString("installer.warning"), warnMsg,
-                           AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_YES)
-                == AbstractUIHandler.ANSWER_YES;
+        boolean result = true;
+        // if 'ShowExistingDirectoryWarning' configuration option set 'false' then don't show
+        // "The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"
+        // warning dialog:
+        String show = getMetadata().getConfigurationOptionValue(SHOWEXISTINGDIRECTORYWARNING, installData.getRules());
+        if (show == null || Boolean.getBoolean(show))
+        {
+            result = askWarningQuestion(getString("installer.warning"), warnMsg,
+                    AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_YES) == AbstractUIHandler.ANSWER_YES;
+        }
+        return result;
     }
 
     /**

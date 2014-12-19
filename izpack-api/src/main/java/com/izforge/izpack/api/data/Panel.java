@@ -33,6 +33,7 @@ import java.util.Set;
 import com.izforge.izpack.api.data.binding.Action;
 import com.izforge.izpack.api.data.binding.Help;
 import com.izforge.izpack.api.data.binding.OsModel;
+import com.izforge.izpack.api.rules.RulesEngine;
 
 /**
  * @author Jan Blok
@@ -135,7 +136,7 @@ public class Panel implements Serializable
     /**
      * Contains configuration values for a panel.
      */
-    private Map<String, String> configuration = null;
+    private Map<String, ConfigurationOption> configuration = null;
 
 
     public String getClassName()
@@ -383,26 +384,41 @@ public class Panel implements Serializable
         this.postValidationActions.add(action);
     }
 
-    public boolean hasConfiguration()
-    {
-        return this.configuration != null;
-    }
-
-    public void addConfiguration(String key, String value)
+    /**
+     * Add an optional configuration option additionally depending on the according configuration
+     * option condition (if defined)
+     *
+     * @param name Configuration option name
+     * @param the configuration option
+     */
+    public void addConfigurationOption(String name, ConfigurationOption option)
     {
         if (this.configuration == null)
         {
-            this.configuration = new HashMap<String, String>();
+            this.configuration = new HashMap<String, ConfigurationOption>();
         }
-        this.configuration.put(key, value);
+        this.configuration.put(name, option);
     }
 
-    public String getConfiguration(String key)
+    /**
+     * Get an optional configuration value additionally depending on the according configuration
+     * option condition (if defined)
+     *
+     * @param name Configuration option name
+     * @param rules Current RulesEngine instance
+     * @return the effective value or {@code null}
+     */
+    public String getConfigurationOptionValue(String name, RulesEngine rules)
     {
         String result = null;
+        ConfigurationOption option = null;
         if (this.configuration != null)
         {
-            result = this.configuration.get(key);
+            option = this.configuration.get(name);
+        }
+        if (option != null)
+        {
+            result = option.getValue(rules);
         }
         return result;
     }
