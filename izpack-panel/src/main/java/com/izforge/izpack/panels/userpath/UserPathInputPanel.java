@@ -103,7 +103,7 @@ public class UserPathInputPanel extends IzPanel implements ActionListener
         _variableName = getString(targetPanel + ".variableName");
 
         String mustExist;
-        if ((mustExist = panel.getConfiguration("mustExist")) != null) {
+        if ((mustExist = panel.getConfigurationOptionValue("mustExist", installData.getRules())) != null) {
             this._mustExist = Boolean.parseBoolean(mustExist);
         }
 

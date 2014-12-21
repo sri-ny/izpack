@@ -74,7 +74,7 @@ public class InstallationTest
     @InstallFile("samples/helloAndFinish.xml")
     public void testHelloAndFinishPanels() throws Exception
     {
-    	Image image = icons.get("JFrameIcon").getImage();
+        Image image = icons.get("JFrameIcon").getImage();
         assertThat(image, IsNull.<Object>notNullValue());
 
         languageDialog.initLangPack();
@@ -107,8 +107,8 @@ public class InstallationTest
         installerController.buildInstallation();
 
         HelloPanel helloPanel = (HelloPanel) installerContainer.getComponent("hellopanel");
-        assertThat(helloPanel.getMetadata().getConfiguration("config1"), Is.is("value1"));
-        assertThat(helloPanel.getMetadata().getConfiguration("config2"), Is.is("value2"));
+        assertThat(helloPanel.getMetadata().getConfigurationOptionValue("config1", installData.getRules()), Is.is("value1"));
+        assertThat(helloPanel.getMetadata().getConfigurationOptionValue("config2", installData.getRules()), Is.is("value2"));
     }
 
     @Test
