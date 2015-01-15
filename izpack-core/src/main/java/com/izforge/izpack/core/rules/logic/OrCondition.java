@@ -25,6 +25,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.ConditionWithMultipleOperands;
 import com.izforge.izpack.api.rules.RulesEngine;
+import com.izforge.izpack.core.rules.process.RefCondition;
 
 /**
  * @author Dennis Reil, <izpack@reil-online.de>
@@ -49,6 +50,9 @@ public class OrCondition extends ConditionWithMultipleOperands
         }
         for (IXMLElement element : xmlcondition.getChildren())
         {
+            if (!RefCondition.isValidRefCondition(element)){
+                throw new Exception("Incorrect element specified in condition \"" + getId() + "\"");
+            }
             nestedConditions.add(rules.createCondition(element));
         }
     }
