@@ -53,7 +53,7 @@ public class NotCondition extends ConditionReference
         }
         else if (xmlcondition.getChildrenCount() != 1 || !RefCondition.isValidRefCondition(xmlcondition.getChildAtIndex(0)))
         {
-            throw new Exception("Condition \"" + getId() + "\" needs exactly one condition as operand");
+            throw new Exception("Condition \"" + getId() + "\" needs exactly one condition of type \"ref\" as operand");
         }
 
         RefCondition refCondition = new RefCondition(rules);
