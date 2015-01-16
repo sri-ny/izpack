@@ -100,4 +100,12 @@ public class RefCondition extends ConditionReference
     {
         conditionRoot.setAttribute("refid", this.referencedConditionId);
     }
+
+    public static boolean isValidRefCondition(IXMLElement conditionElement){
+        if (conditionElement.hasAttribute("refid") && conditionElement.hasAttribute("type")
+                && conditionElement.getAttribute("type").equals("ref") && conditionElement.getName().toLowerCase().equals("condition")){
+            return true;
+        }
+        return false;
+    }
 }

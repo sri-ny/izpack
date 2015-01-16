@@ -35,7 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.izforge.izpack.api.exception.IzPackException;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
@@ -62,6 +65,7 @@ import com.izforge.izpack.core.rules.process.UserCondition;
 import com.izforge.izpack.core.rules.process.VariableCondition;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
+import org.junit.rules.ExpectedException;
 
 
 public class RulesEngineImplTest
@@ -140,6 +144,8 @@ public class RulesEngineImplTest
             WINDOWS_2003_INSTALL, WINDOWS_VISTA_INSTALL, WINDOWS_7_INSTALL, WINDOWS_8_INSTALL, LINUX_INSTALL, SOLARIS_INSTALL,
             SOLARIS_X86_INSTALL, SOLARIS_SPARC_INSTALL, MAC_INSTALL, MAC_OSX_INSTALL};
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception
@@ -157,6 +163,12 @@ public class RulesEngineImplTest
         conditions.put("true", alwaysTrue);
 
         engine.readConditionMap(conditions);
+    }
+
+    @After
+    public void resetExpectedException()
+    {
+        exception = ExpectedException.none();
     }
 
     @Test
@@ -518,6 +530,34 @@ public class RulesEngineImplTest
         assertTrue(rules.getCondition("packselection1") instanceof PackSelectionCondition);
         assertTrue(rules.getCondition("ref1") instanceof RefCondition);
         assertTrue(rules.getCondition("user1") instanceof UserCondition);
+    }
+
+    /**
+     * Verifies that exception is thrown when reading a poorly defined not condition from <tt>poorly_defined_not_condition.xml</tt>.
+     */
+    @Test
+    public void testPoorlyDefinedNotCondition()
+    {
+        RulesEngine rules = createRulesEngine(new AutomatedInstallData(new DefaultVariables(), Platforms.UNIX));
+        IXMLParser parser = new XMLParser();
+        IXMLElement conditions = parser.parse(getClass().getResourceAsStream("poorly_defined_not_condition.xml"));
+        exception.expectMessage("Condition \"poorlydefinednot\" needs exactly one condition of type \"ref\" as operand");
+        rules.analyzeXml(conditions);
+        rules.getCondition("poorlydefinednot");
+    }
+
+    /**
+     * Verifies that exception is thrown when reading a poorly defined not condition from <tt>poorly_defined_and_condition.xml</tt>.
+     */
+    @Test
+    public void testPoorlyDefinedAndConditions()
+    {
+        RulesEngine rules = createRulesEngine(new AutomatedInstallData(new DefaultVariables(), Platforms.UNIX));
+        IXMLParser parser = new XMLParser();
+        IXMLElement conditions = parser.parse(getClass().getResourceAsStream("poorly_defined_and_condition.xml"));
+        exception.expectMessage("Incorrect element specified in condition \"poorlydefinedand\"");
+        rules.analyzeXml(conditions);
+        rules.getCondition("poorlydefinedand");
     }
 
     /**

@@ -24,6 +24,7 @@ package com.izforge.izpack.core.rules.logic;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
+import com.izforge.izpack.core.rules.process.RefCondition;
 
 /**
  * @author Dennis Reil, <Dennis.Reil@reddot.de>
@@ -45,6 +46,14 @@ public class XorCondition extends OrCondition
         {
             throw new Exception("Not more than two operands allowed in XOR condition \"" + getId() + "\"");
         }
+
+        for (IXMLElement condition : xmlcondition.getChildren()){
+            if (!RefCondition.isValidRefCondition(condition))
+            {
+                throw new Exception("Incorrect element specified in condition \"" + getId() + "\"");
+            }
+        }
+
         super.readFromXML(xmlcondition);
     }
 
