@@ -332,11 +332,11 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
         }
         else if (configurable instanceof Ini)
         {
-            ((Ini) configurable).remove(section, key);
+            ((Ini) configurable).removeOptionFromSection(section, key);
         }
         else if (configurable instanceof Reg)
         {
-            ((Reg) configurable).remove(section, key);
+            ((Reg) configurable).removeOptionFromSection(section, key);
         }
         else
         {
