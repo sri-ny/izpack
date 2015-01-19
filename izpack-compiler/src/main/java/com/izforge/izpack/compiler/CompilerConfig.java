@@ -466,6 +466,9 @@ public class CompilerConfig extends Thread
             {
                 String lafName = prefs.lookAndFeelMapping.get(s);
                 LookAndFeels feels = LookAndFeels.lookup(lafName);
+                if (feels == null){
+                    assertionHelper.parseError(guiPrefsElement, "Unrecognized Look and Feel: " + lafName);
+                }
                 List<Mergeable> mergeableList = Collections.emptyList();
                 switch (feels)
                 {
