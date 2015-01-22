@@ -345,7 +345,7 @@ public abstract class Field
     {
         if (defaultValue != null)
         {
-            return installData.getVariables().replace(defaultValue);
+            return replaceVariables(defaultValue);
         }
         return null;
     }
@@ -367,7 +367,7 @@ public abstract class Field
         String result = null;
         if (initialValue != null)
         {
-            result = installData.getVariables().replace(initialValue);
+            result = replaceVariables(initialValue);
         }
         if (result == null)
         {

@@ -43,11 +43,4 @@ public class GUIStaticText extends GUIField
         addText(getField().getLabel());
         addTooltip();
     }
-
-    @Override
-    public boolean updateView()
-    {
-        refreshStaticText();
-        return false;
-    }
 }
