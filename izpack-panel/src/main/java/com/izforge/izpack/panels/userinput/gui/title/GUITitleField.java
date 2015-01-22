@@ -107,20 +107,6 @@ public class GUITitleField extends GUIField
         addTooltip();
     }
 
-    @Override
-    public boolean updateView()
-    {
-        String value = getField().getLabel();
-
-        if (value != null)
-        {
-            // Set value here for getting current variable values replaced
-            label.setText(replaceVariables(value));
-        }
-
-        return false;
-    }
-
     /**
      * Maps an {@code Alignment} to the {@link TwoColumnConstraints} constants.
      *

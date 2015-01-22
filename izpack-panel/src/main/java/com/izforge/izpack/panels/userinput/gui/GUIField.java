@@ -167,19 +167,34 @@ public abstract class GUIField extends AbstractFieldView
     }
 
     /**
-     * Refresh JLabel texts to replace variables
+     * Refresh not editable texts to replace variables
+     *
+     * @return whether the text changed
      */
-    protected void refreshStaticText()
+    public final boolean translateStaticText()
     {
+        boolean updated = false;
         for (Component c : components)
         {
             JComponent jc = c.getComponent();
             if (jc instanceof JTextPane)
             {
                 JTextPane pane = (JTextPane)jc;
-                pane.setText(replaceVariables(pane.getText()));
+                String oldText = pane.getText();
+                String newText = replaceVariables(pane.getText());
+                updated |= oldText.equals(newText);
+                pane.setText(newText);
+            }
+            else if (jc instanceof JLabel)
+            {
+                JLabel label = (JLabel)jc;
+                String oldText = label.getText();
+                String newText = replaceVariables(label.getText());
+                updated |= oldText.equals(newText);
+                label.setText(newText);
             }
         }
+        return updated;
     }
 
     /**
