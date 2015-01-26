@@ -229,15 +229,30 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
     }
 
     /**
-     * Determines if the panel is valid.
+     * Determines if the panel is valid. Dynamic variables are automatically refreshed.
      *
      * @return {@code true} if the panel is valid
      */
     @Override
     public boolean isValid()
     {
+        return isValid(true);
+    }
+
+    /**
+     * Determines if the panel is valid.
+     *
+     * @param refreshVariables whether to refresh dynamic variables before validating
+     * @return {@code true} if the panel is valid
+     */
+    @Override
+    public boolean isValid(boolean refreshVariables)
+    {
         boolean result = false;
-        installData.getVariables().refresh();
+        if (refreshVariables)
+        {
+            installData.getVariables().refresh();
+        }
         executePreValidationActions();
 
         List<DynamicInstallerRequirementValidator> conditions = installData.getDynamicInstallerRequirements();
@@ -369,7 +384,6 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
         boolean result = true;
         try
         {
-            installData.refreshVariables();
             for (DynamicInstallerRequirementValidator validator : installData.getDynamicInstallerRequirements())
             {
                 if (!isValid(validator, installData))

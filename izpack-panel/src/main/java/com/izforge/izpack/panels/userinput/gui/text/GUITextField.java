@@ -108,7 +108,7 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
     public boolean updateView()
     {
         boolean result = false;
-        String value = getField().getValue();
+        String value = getField().getInitialValue();
 
         if (value != null)
         {
@@ -131,10 +131,16 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
 
     private void replaceValue(String value)
     {
-        text.getDocument().removeDocumentListener(this);
-        text.setText(replaceVariables(value));
-        text.getDocument().addDocumentListener(this);
-        setChanged(false);
+        boolean changed = false;
+        String oldValue = text.getText();
+        if (!(oldValue == null ? value == null : oldValue.equals(value)))
+        {
+            text.getDocument().removeDocumentListener(this);
+            text.setText(replaceVariables(value));
+            text.getDocument().addDocumentListener(this);
+            changed = true;
+        }
+        setChanged(changed);
     }
 
     public synchronized void setChanged(boolean changed)

@@ -26,7 +26,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
@@ -491,7 +494,6 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
             return false;
         }
 
-
         // refresh variables prior to switching panels
         variables.refresh();
 
@@ -503,6 +505,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         Panel newPanel = newPanelView.getPanel();
 
         newPanel.setVisited(true);
+
         if (switchPanel(newPanelView, oldPanelView))
         {
 
@@ -516,11 +519,23 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
                       T futurePanelView = panelViews.get(i);
                       Panel futurePanel = futurePanelView.getPanel();
                       futurePanel.setVisited(false);
+                      Set<String> blockedNames = futurePanel.getAffectedVariableNames();
                       variables.unregisterBlockedVariableNames(futurePanel.getAffectedVariableNames(), futurePanel);
+                      if( logger.isLoggable(Level.FINE))
+                      {
+                          logger.fine("Unblocked variables on panel '" + futurePanel.getPanelId() +"': " + createListAsString(blockedNames));
+                      }
                  }
             }
-
-            variables.registerBlockedVariableNames(newPanel.getAffectedVariableNames(), newPanel);
+            else
+            {
+                Set<String> blockedNames = newPanel.getAffectedVariableNames();
+                variables.registerBlockedVariableNames(blockedNames, newPanel);
+                if( logger.isLoggable(Level.FINE))
+                {
+                    logger.fine("Blocked variables on panel '" + newPanel.getPanelId() +"': " + createListAsString(blockedNames));
+                }
+            }
 
             logger.fine("Switched panel index: " + oldIndex + " -> " + index);
             result = true;
@@ -532,7 +547,30 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
             newPanel.setVisited(false);
         }
 
-       return result;
+        variables.refresh();
+        return result;
+    }
+
+    private String createListAsString(Set<String> list)
+    {
+        StringBuffer msg = new StringBuffer("{");
+        if (list != null)
+        {
+            Iterator<String> it = list.iterator();
+            while (it.hasNext())
+            {
+                if( logger.isLoggable(Level.FINE))
+                {
+                    msg.append(it.next());
+                    if (it.hasNext())
+                    {
+                        msg.append(", ");
+                    }
+                }
+            }
+        }
+        msg.append("}");
+        return msg.toString();
     }
 
     /**

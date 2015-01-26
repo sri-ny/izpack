@@ -413,8 +413,8 @@ public class DefaultVariables implements Variables
         }
     }
 
-   @Override
-   public void unregisterBlockedVariableNames(Set<String> names, Object blocker)
+    @Override
+    public void unregisterBlockedVariableNames(Set<String> names, Object blocker)
     {
         if (names != null)
         {
@@ -429,7 +429,8 @@ public class DefaultVariables implements Variables
         }
     }
 
-    private boolean isBlockedVariableName(String name)
+    @Override
+    public boolean isBlockedVariableName(String name)
     {
         Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
         return (blockerStack != null && !blockerStack.isEmpty());

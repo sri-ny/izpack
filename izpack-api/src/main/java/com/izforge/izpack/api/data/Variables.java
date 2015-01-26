@@ -155,4 +155,11 @@ public interface Variables
      */
     void unregisterBlockedVariableNames(Set<String> names, Object blocker);
 
+    /**
+     * Whether a variable is currently blocked against being refreshed.
+     *
+     * @param name the variable name
+     */
+    boolean isBlockedVariableName(String name);
+
 }

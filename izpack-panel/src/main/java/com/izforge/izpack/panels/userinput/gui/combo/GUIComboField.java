@@ -100,7 +100,7 @@ public class GUIComboField extends GUIField
 
         boolean result = false;
         ComboField field = (ComboField)getField();
-        String value = field.getValue();
+        String value = field.getInitialValue();
 
         if (value != null)
         {

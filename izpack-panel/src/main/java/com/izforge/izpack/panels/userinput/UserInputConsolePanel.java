@@ -22,7 +22,11 @@
 package com.izforge.izpack.panels.userinput;
 
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
@@ -37,7 +41,10 @@ import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.userinput.console.ConsoleField;
 import com.izforge.izpack.panels.userinput.console.ConsoleFieldFactory;
-import com.izforge.izpack.panels.userinput.field.*;
+import com.izforge.izpack.panels.userinput.field.ElementReader;
+import com.izforge.izpack.panels.userinput.field.Field;
+import com.izforge.izpack.panels.userinput.field.FieldHelper;
+import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
@@ -83,8 +90,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
      * The fields.
      */
     private List<ConsoleField> fields = new ArrayList<ConsoleField>();
-
-    private Set<String> variables = new HashSet<String>();
 
     private final InstallData installData;
 
@@ -192,12 +197,9 @@ public class UserInputConsolePanel extends AbstractConsolePanel
 
     private boolean collectInputs(InstallData installData)
     {
-        UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, rules, matcher);
+        UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
         Panel panel = getPanel();
         IXMLElement spec = model.getPanelSpec(panel);
-
-        variables = model.updateVariables(spec);
-        getPanel().setAffectedVariableNames(variables);
 
         ElementReader reader = new ElementReader(model.getConfig());
         List<String> forPacks = reader.getPacks(spec);
@@ -211,6 +213,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             return false;
         }
 
+        Set<String> variables = new HashSet<String>();
         fields.clear();
 
         ConsoleFieldFactory factory = new ConsoleFieldFactory(console, prompt);
@@ -252,7 +255,14 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                 consoleField.setReadonly(readonly);
                 fields.add(consoleField);
             }
+
+            String var = fieldDefinition.getVariable();
+            if (var != null)
+            {
+                variables.add(var);
+            }
         }
+        panel.setAffectedVariableNames(variables);
         return true;
     }
 
@@ -263,6 +273,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     @Override
     public void createInstallationRecord(IXMLElement rootElement)
     {
-        new UserInputPanelAutomationHelper(variables, fields).createInstallationRecord(installData, rootElement);
+        new UserInputPanelAutomationHelper(fields).createInstallationRecord(installData, rootElement);
     }
 }

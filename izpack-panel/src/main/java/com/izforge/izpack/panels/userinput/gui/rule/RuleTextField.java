@@ -1,17 +1,17 @@
 /*
  * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- * 
+ *
  * http://izpack.org/
  * http://izpack.codehaus.org/
- * 
+ *
  * Copyright 2002 Elmar Grom
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *     
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,6 @@ import com.izforge.izpack.panels.userinput.field.rule.FieldSpec;
 /*---------------------------------------------------------------------------*/
 public class RuleTextField extends JTextField
 {
-
     private final FieldSpec spec;
 
     public RuleTextField(FieldSpec spec)
@@ -56,12 +55,14 @@ public class RuleTextField extends JTextField
         setDocument(rule);
     }
 
+    @Override
     protected Document createDefaultModel()
     {
         Rule rule = new Rule(spec);
         return (rule);
     }
 
+    @Override
     public int getColumns()
     {
         return spec.getColumns();
@@ -77,6 +78,7 @@ public class RuleTextField extends JTextField
         return spec.isUnlimitedLength();
     }
 
+    @Override
     public void setColumns(int columns)
     {
         super.setColumns(columns + 1);
@@ -102,6 +104,7 @@ public class RuleTextField extends JTextField
             this.spec = spec;
         }
 
+        @Override
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException
         {
             // --------------------------------------------------

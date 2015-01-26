@@ -85,7 +85,7 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     {
         boolean result;
 
-        if (panel == null || panel.isValid())
+        if (panel == null || panel.isValid(false))
         {
             String prompt = installData.getMessages().get("ConsoleInstaller.continueQuitRedisplay");
             console.println();

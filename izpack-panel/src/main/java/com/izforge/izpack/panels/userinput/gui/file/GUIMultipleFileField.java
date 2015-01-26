@@ -99,7 +99,7 @@ public class GUIMultipleFileField extends GUIField
     public boolean updateView()
     {
         boolean result = false;
-        String value = getField().getValue();
+        String value = getField().getInitialValue();
 
         if (value != null)
         {

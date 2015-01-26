@@ -87,6 +87,23 @@ public interface PanelView<T>
     boolean isValid();
 
     /**
+     * Determines if the panel is valid.
+     * <p/>
+     * This:
+     * <ol>
+     * <li>Executes any pre-validation panel actions</li>
+     * <li>Validates any {@link DynamicInstallerRequirementValidator}s returned by
+     * {@link InstallData#getDynamicInstallerRequirements()}</li>
+     * <li>Validates any {@link DataValidator} associated with the panel</li>
+     * <li>Executes any post-validation panel actions</li>
+     * </ol>
+     *
+     * @param refreshVariables whether to refresh dynamic variables before validating
+     * @return {@code true} if the panel is valid, otherwise {@code false}
+     */
+    boolean isValid(boolean refreshVariables);
+
+    /**
      * Save the contents of the panel into install data.
      */
     void saveData();
