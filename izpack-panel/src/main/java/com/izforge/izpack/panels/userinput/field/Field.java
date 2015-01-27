@@ -351,6 +351,20 @@ public abstract class Field
     }
 
     /**
+     * Returns the forced value of the field.
+     *
+     * @return the forced value. May be {@code null}
+     */
+    private String getForcedValue()
+    {
+        if (initialValue != null)
+        {
+            return replaceVariables(initialValue);
+        }
+        return null;
+    }
+
+    /**
      * Returns the initial value to use for this field.
      * <p/>
      * The following non-null value is used from the following search order
@@ -365,9 +379,9 @@ public abstract class Field
     public String getInitialValue()
     {
         String result = null;
-        if (initialValue != null)
+        if (!installData.getVariables().isBlockedVariableName(variable))
         {
-            result = replaceVariables(initialValue);
+            result = getForcedValue();
         }
         if (result == null)
         {

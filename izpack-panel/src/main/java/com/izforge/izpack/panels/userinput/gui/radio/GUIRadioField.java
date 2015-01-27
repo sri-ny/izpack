@@ -145,7 +145,7 @@ public class GUIRadioField extends GUIField implements ActionListener
 
         boolean result = false;
         RadioField field = getField();
-        String value = field.getValue();
+        String value = field.getInitialValue();
 
         if (value != null)
         {
@@ -230,7 +230,7 @@ public class GUIRadioField extends GUIField implements ActionListener
                 if (selected)
                 {
                     radioButton.setSelected(true);
-                }
+               }
             }
             else
             {

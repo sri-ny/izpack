@@ -21,13 +21,13 @@
 
 package com.izforge.izpack.panels.userinput.gui.rule;
 
+import javax.swing.JTextField;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.ValidationStatus;
 import com.izforge.izpack.panels.userinput.field.rule.RuleField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
-
-import javax.swing.*;
 
 
 /**
@@ -128,14 +128,13 @@ public class GUIRuleField extends GUIField
     @Override
     public boolean updateView()
     {
-        boolean result = false;
+        boolean changed = false;
         Field f = getField();
-        String value = f.getValue();
+        String value = f.getInitialValue();
 
         if (value != null)
         {
-            replaceValue(value);
-            result = true;
+            changed = replaceValue(value);
         }
         else
         {
@@ -143,16 +142,17 @@ public class GUIRuleField extends GUIField
             String defaultValue = f.getDefaultValue();
             if (defaultValue != null)
             {
-                replaceValue(defaultValue);
+                changed = replaceValue(defaultValue);
             }
         }
 
-        return result;
+        return changed;
     }
 
-    private void replaceValue(String value)
+    private boolean replaceValue(String value)
     {
         RuleField f = (RuleField) getField();
+        boolean changed = false;
         if (value != null)
         {
             ValidationStatus status = f.validateFormatted(value);
@@ -162,10 +162,17 @@ public class GUIRuleField extends GUIField
                 int id = 0;
                 for (JTextField input : component.getInputFields())
                 {
-                    input.setText(values[id]);
+                    String oldValue = input.getText();
+                    String newValue = values[id];
+                    if (!(oldValue == null ? newValue == null : oldValue.equals(newValue)))
+                    {
+                        input.setText(newValue);
+                        changed = true;
+                    }
                     id++;
                 }
             }
         }
+        return changed;
     }
 }

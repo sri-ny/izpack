@@ -84,7 +84,7 @@ public class ConsolePanels extends AbstractPanels<ConsolePanelView, ConsolePanel
                 {
                     break;
                 }
-            } while (!newPanel.isValid());
+            } while (!newPanel.isValid(false));
         }
 
         return result;

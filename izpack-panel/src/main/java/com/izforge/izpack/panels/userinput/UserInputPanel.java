@@ -68,7 +68,7 @@ public class UserInputPanel extends IzPanel
 
     private boolean eventsActivated = false;
 
-    private Set<String> variables = new HashSet<String>();
+    private final Set<String> variables = new HashSet<String>();
     private List<GUIField> views = new ArrayList<GUIField>();
 
     private JPanel panel;
@@ -236,7 +236,7 @@ public class UserInputPanel extends IzPanel
     @Override
     public void createInstallationRecord(IXMLElement rootElement)
     {
-        new UserInputPanelAutomationHelper(variables, views).createInstallationRecord(installData, rootElement);
+        new UserInputPanelAutomationHelper(/*variables,*/ views).createInstallationRecord(installData, rootElement);
     }
 
     /**
@@ -259,9 +259,6 @@ public class UserInputPanel extends IzPanel
             // case we must skip the panel when it gets activated.
             return;
         }
-
-        // refresh variables specified in spec
-        updateVariables();
 
         // clear button mnemonics map
         ButtonFactory.clearPanelButtonMnemonics();
@@ -287,7 +284,9 @@ public class UserInputPanel extends IzPanel
             GUIField view = viewFactory.create(field, userInputModel, spec);
             view.setUpdateListener(listener);
             views.add(view);
+            variables.add(field.getVariable());
         }
+        getMetadata().setAffectedVariableNames(variables);
         eventsActivated = true;
     }
 
@@ -423,14 +422,8 @@ public class UserInputPanel extends IzPanel
      */
     private IXMLElement readSpec()
     {
-        userInputModel = new UserInputPanelSpec(getResources(), installData, factory, rules, matcher);
+        userInputModel = new UserInputPanelSpec(getResources(), installData, factory, /*rules,*/ matcher);
         return userInputModel.getPanelSpec(getMetadata());
-    }
-
-    protected void updateVariables()
-    {
-        variables = userInputModel.updateVariables(spec);
-        getMetadata().setAffectedVariableNames(variables);
     }
 
     /**
@@ -444,7 +437,6 @@ public class UserInputPanel extends IzPanel
         {
             this.eventsActivated = false;
             readInput(LoggingPrompt.INSTANCE, skipValidation); // read from the input fields, but don't display a prompt for errors
-            updateVariables();
             updateUIElements();
             buildUI();
             revalidate();

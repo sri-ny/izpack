@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
@@ -62,8 +61,6 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
 
     private static final String AUTO_ATTRIBUTE_VALUE = "value";
 
-    private Set<String> variables;
-
     private List<? extends AbstractFieldView> views;
 
     /**
@@ -79,9 +76,8 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
      * @param variables
      * @param views
      */
-    public UserInputPanelAutomationHelper(Set<String> variables, List<? extends AbstractFieldView> views)
+    public UserInputPanelAutomationHelper(List<? extends AbstractFieldView> views)
     {
-        this.variables = variables;
         this.views = views;
     }
 
@@ -95,7 +91,7 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
     public void createInstallationRecord(InstallData installData, IXMLElement rootElement)
     {
         HashSet<String> omitFromAutoSet = new HashSet<String>();
-        Map<String, String> entries = generateEntries(installData, variables, views, omitFromAutoSet);
+        Map<String, String> entries = generateEntries(installData, views, omitFromAutoSet);
         IXMLElement dataElement;
 
         for (String key : entries.keySet())
@@ -109,15 +105,11 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
     }
 
     private Map<String, String> generateEntries(InstallData installData,
-                                                Set<String> variables, List<? extends AbstractFieldView> views,
+                                                List<? extends AbstractFieldView> views,
                                                 HashSet<String> omitFromAutoSet)
     {
         Map<String, String> entries = new HashMap<String, String>();
 
-        for (String variable : variables)
-        {
-            entries.put(variable, installData.getVariable(variable));
-        }
         for (FieldView view : views)
         {
             String variable = view.getField().getVariable();

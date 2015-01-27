@@ -96,30 +96,6 @@ public class IzPanelView extends AbstractPanelView<IzPanel>
     }
 
     /**
-     * Validates dynamic conditions.
-     * <br/>
-     * This implementation sets a busy cursor while evaluating conditions.
-     *
-     * @return {@code true} if there are no conditions, or conditions validate successfully
-     */
-    @Override
-    protected boolean validateDynamicConditions()
-    {
-        Component component = getView().getTopLevelAncestor();
-        Cursor current = component.getCursor();
-        Cursor wait = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-        try
-        {
-            component.setCursor(wait);
-            return super.validateDynamicConditions();
-        }
-        finally
-        {
-            component.setCursor(current);
-        }
-    }
-
-    /**
      * Evaluates the panel data validator.
      * <br/>
      * This implementation sets a busy cursor while evaluating conditions.
