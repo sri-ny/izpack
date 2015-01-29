@@ -284,6 +284,46 @@ public class DefaultVariablesTest
         assertEquals("a", variables.get("unset1"));
     }
 
+    /**
+     * Tests dynamic variables with a deeper dependency
+     * @see https://jira.codehaus.org/browse/IZPACK-1182
+     */
+    @Test
+   public void testDependentDynamicVariables()
+   {
+        variables.add(createDynamic("depVar1", "${depVar2}"));
+        variables.add(createDynamic("depVar2", "${depVar3}"));
+        variables.set("depVar3", "depValue");
+
+        assertNull(variables.get("depVar1")); // not created till variables refreshed
+        variables.refresh();
+        assertEquals("check dependent variable","depValue", variables.get("depVar1"));
+   }
+
+   /**
+    * Tests dynamic variables with a deeper dependency and checkonce==true
+    * @see https://jira.codehaus.org/browse/IZPACK-1182
+    */
+   @Test
+   public void testDependentDynamicVariablesWithCheckOnce()
+   {
+       variables.add(createDynamic("depVar1", "${depVar2}"));
+       variables.add(createDynamic("depVar2", "${depVar3}"));
+       variables.set("depVar3", "depValue");
+
+       DynamicVariable checkonceVar = createDynamic("checkonceVar", "${depVar1}");
+       checkonceVar.setCheckonce(true);
+       variables.add(checkonceVar);
+
+       variables.refresh();
+       assertEquals("check dependent variable","depValue", variables.get("depVar1"));
+       assertEquals("check variable with checkonce=true","depValue", variables.get("checkonceVar"));
+
+       variables.set("depVar3", "newValue");
+       variables.refresh();
+       assertEquals("recheck dependent variable","newValue", variables.get("depVar1")); // should be changed
+       assertEquals("recheck variable with checkonce=true","depValue", variables.get("checkonceVar")); // should not change any more
+   }
 
     /**
      * Creates a dynamic variable.
@@ -313,47 +353,6 @@ public class DefaultVariablesTest
         result.setConditionid(conditionId);
         return result;
     }
-    
-    /**
-      * Tests dynamic variables with a deeper dependency
-      * @see https://jira.codehaus.org/browse/IZPACK-1182
-      */
-     @Test
-    public void testDependentDynamicVariables()
-    {
-         variables.add(createDynamic("depVar1", "${depVar2}"));
-         variables.add(createDynamic("depVar2", "${depVar3}"));
-         variables.set("depVar3", "depValue");
 
-         assertNull(variables.get("depVar1")); // not created till variables refreshed
-         variables.refresh();
-         assertEquals("check dependent variable","depValue", variables.get("depVar1"));
-    }
-
-    /**
-     * Tests dynamic variables with a deeper dependency and checkonce==true
-     * @see https://jira.codehaus.org/browse/IZPACK-1182
-     */
-    @Test
-    public void testDependentDynamicVariablesWithCheckOnce()
-    {
-        variables.add(createDynamic("depVar1", "${depVar2}"));
-        variables.add(createDynamic("depVar2", "${depVar3}"));
-        variables.set("depVar3", "depValue");
-
-        DynamicVariable checkonceVar = createDynamic("checkonceVar", "${depVar1}");
-        checkonceVar.setCheckonce(true);
-        variables.add(checkonceVar);
-
-        variables.refresh();
-        assertEquals("check dependent variable","depValue", variables.get("depVar1"));
-        assertEquals("check variable with checkonce=true","depValue", variables.get("checkonceVar"));
-
-        variables.set("depVar3", "newValue");
-        variables.refresh();
-        assertEquals("recheck dependent variable","newValue", variables.get("depVar1")); // should be changed
-        assertEquals("recheck variable with checkonce=true","depValue", variables.get("checkonceVar")); // should not change any more
-    }
-    
 }
 
