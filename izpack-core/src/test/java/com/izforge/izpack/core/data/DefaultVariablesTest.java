@@ -320,6 +320,87 @@ public class DefaultVariablesTest
    }
 
    /**
+    * Tests dynamic variables with and without conditions
+    * 
+    * This test is for the definition
+    * <dynamicvariables>
+    *   <variable name="thechoice" value="fallback value" />
+    *   <variable name="thechoice" value="choice1" condition="cond1" />
+    *   <variable name="thechoice" value="choice2" condition="cond2" />
+    * </dynamicvariables>
+    * @see http://docs.codehaus.org/display/IZPACK/Lifecycle+of+dynamic+variables
+    */
+   @Test
+   public void testMixedDynamicVariables()
+   {
+       final String observedVar = "thechoice";
+
+       // set up conditions
+       Map<String, Condition> conditions = new HashMap<String, Condition>();
+       conditions.put("cond1", new VariableCondition("condvar1", "1"));
+       conditions.put("cond2", new VariableCondition("condvar2", "1"));
+
+       // set up the rules
+       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                                                   installData.getPlatform());
+       rules.readConditionMap(conditions);
+       ((DefaultVariables) variables).setRules(rules);
+
+       variables.add(createDynamic(observedVar, "fallback value", null));
+       variables.add(createDynamic(observedVar, "choice1", "cond1"));
+       variables.add(createDynamic(observedVar, "choice2", "cond2"));
+
+       assertNull(variables.get(observedVar));
+
+       // !cond1+!cond2
+       variables.refresh();
+       assertEquals("fallback value", variables.get(observedVar));
+
+       // cond1+!cond2
+       variables.set("condvar1", "1");
+       variables.refresh();
+       assertEquals("choice1", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice1", variables.get(observedVar));
+
+       // cond1+cond2
+       variables.set("condvar2", "1");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+
+       // !cond1+cond2
+       variables.set("condvar1", "0");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+
+       // !cond1+!cond2
+       variables.set("condvar2", "0");
+       variables.refresh();
+       assertEquals("fallback value", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("fallback value", variables.get(observedVar));
+
+       // !cond1+cond2
+       variables.set("condvar2", "1");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+       
+       // cond1+cond2
+       variables.set("condvar1", "1");
+       variables.refresh(); // cond2 takes precedence because of ordering
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+   }
+
+   /**
     * Creates a dynamic variable with Checkonce set.
     *
     * @param name        the variable name
