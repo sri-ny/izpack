@@ -311,9 +311,9 @@ public class DefaultVariables implements Variables
     {
         logger.fine("Refreshing dynamic variables");
         Set<DynamicVariable> checkedVariables = new HashSet<DynamicVariable>();
-        boolean unchanged = false;
-        while (! unchanged) {
-            unchanged = true; 
+        boolean changed = true;
+        while (changed) {
+            changed = false; 
             Properties setVariables = new Properties();
             Set<String> unsetVariables = new HashSet<String>();
 
@@ -342,13 +342,13 @@ public class DefaultVariables implements Variables
                             }
                             if (newValue == null)
                             {
-                                unchanged &= (get(name) == null);
+                                changed |= (get(name) != null);
                                 // Mark unset if dynamic variable cannot be evaluated and failOnError set
                                 unsetVariables.add(name);
                             }
                             else
                             {
-                                unchanged &= newValue.equals(get(name));
+                                changed |= ! newValue.equals(get(name));
                                 setVariables.put(name, newValue);
                             }
                             checkedVariables.add(variable);
