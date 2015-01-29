@@ -342,13 +342,11 @@ public class DefaultVariables implements Variables
                             }
                             if (newValue == null)
                             {
-                                changed |= (get(name) != null);
                                 // Mark unset if dynamic variable cannot be evaluated and failOnError set
                                 unsetVariables.add(name);
                             }
                             else
                             {
-                                changed |= ! newValue.equals(get(name));
                                 setVariables.put(name, newValue);
                             }
                             checkedVariables.add(variable);
@@ -379,13 +377,23 @@ public class DefaultVariables implements Variables
                 // are set to a value from another one during this refresh
                 if (!setVariables.containsKey(key))
                 {
-                    set(key, null);
+                    if (get(key)!=null)
+                    {
+                        changed = true;
+                        set(key, null);
+                    }
                 }
             }
 
             for (String key : setVariables.stringPropertyNames())
             {
-                set(key, setVariables.getProperty(key));
+                String newValue = setVariables.getProperty(key);
+                String oldValue = get(key);
+                if (oldValue==null || ! oldValue.equals(newValue))
+                {
+                    changed = true;
+                    set(key,newValue);
+                }
             }
         }
         for (DynamicVariable variable : checkedVariables)
