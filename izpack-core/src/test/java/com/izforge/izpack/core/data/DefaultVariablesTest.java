@@ -254,12 +254,8 @@ public class DefaultVariablesTest
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
-        DynamicVariable variable1 = createDynamic("unset1", "a", "cond1+cond2");
-        variable1.setCheckonce(true);
-        variables.add(variable1);
-        DynamicVariable variable2 = createDynamic("unset1", "b", "cond1+!cond2");
-        variable2.setCheckonce(true);
-        variables.add(variable2);
+        variables.add(createDynamicCheckonce("unset1", "a", "cond1+cond2"));
+        variables.add(createDynamicCheckonce("unset1", "b", "cond1+!cond2"));
 
         // !cond1+!cond2
         variables.refresh();
@@ -311,9 +307,7 @@ public class DefaultVariablesTest
        variables.add(createDynamic("depVar2", "${depVar3}"));
        variables.set("depVar3", "depValue");
 
-       DynamicVariable checkonceVar = createDynamic("checkonceVar", "${depVar1}");
-       checkonceVar.setCheckonce(true);
-       variables.add(checkonceVar);
+       variables.add(createDynamicCheckonce("checkonceVar", "${depVar1}"));
 
        variables.refresh();
        assertEquals("check dependent variable","depValue", variables.get("depVar1"));
@@ -323,6 +317,33 @@ public class DefaultVariablesTest
        variables.refresh();
        assertEquals("recheck dependent variable","newValue", variables.get("depVar1")); // should be changed
        assertEquals("recheck variable with checkonce=true","depValue", variables.get("checkonceVar")); // should not change any more
+   }
+
+   /**
+    * Creates a dynamic variable with Checkonce set.
+    *
+    * @param name        the variable name
+    * @param value       the variable value
+    * @return a new variable
+    */
+   private DynamicVariable createDynamicCheckonce(String name, String value)
+   {
+       return createDynamicCheckonce(name, value, null);
+   }
+
+   /**
+    * Creates a dynamic variable with a condition and Checkonce set.
+    *
+    * @param name        the variable name
+    * @param value       the variable value
+    * @param conditionId the condition identifier. May be {@code null}
+    * @return a new variable
+    */
+   private DynamicVariable createDynamicCheckonce(String name, String value, String conditionId)
+   {
+       DynamicVariable var = createDynamic(name, value, conditionId);
+       var.setCheckonce(true);
+       return var;
    }
 
     /**
