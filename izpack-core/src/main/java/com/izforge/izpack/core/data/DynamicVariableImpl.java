@@ -130,7 +130,7 @@ public class DynamicVariableImpl implements DynamicVariable
             return null;
         }
 
-        if (checkonce && currentValue != null)
+        if (checkonce && checked)
         {
             return filterValue(currentValue, substitutors);
         }

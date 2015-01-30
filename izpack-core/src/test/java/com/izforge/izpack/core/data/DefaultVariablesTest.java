@@ -254,12 +254,8 @@ public class DefaultVariablesTest
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
-        DynamicVariable variable1 = createDynamic("unset1", "a", "cond1+cond2");
-        variable1.setCheckonce(true);
-        variables.add(variable1);
-        DynamicVariable variable2 = createDynamic("unset1", "b", "cond1+!cond2");
-        variable2.setCheckonce(true);
-        variables.add(variable2);
+        variables.add(createDynamicCheckonce("unset1", "a", "cond1+cond2"));
+        variables.add(createDynamicCheckonce("unset1", "b", "cond1+!cond2"));
 
         // !cond1+!cond2
         variables.refresh();
@@ -284,6 +280,152 @@ public class DefaultVariablesTest
         assertEquals("a", variables.get("unset1"));
     }
 
+    /**
+     * Tests dynamic variables with a deeper dependency
+     * @see https://jira.codehaus.org/browse/IZPACK-1182
+     */
+    @Test
+   public void testDependentDynamicVariables()
+   {
+        variables.add(createDynamic("depVar1", "${depVar2}"));
+        variables.add(createDynamic("depVar2", "${depVar3}"));
+        variables.set("depVar3", "depValue");
+
+        assertNull(variables.get("depVar1")); // not created till variables refreshed
+        variables.refresh();
+        assertEquals("check dependent variable","depValue", variables.get("depVar1"));
+   }
+
+   /**
+    * Tests dynamic variables with a deeper dependency and checkonce==true
+    * @see https://jira.codehaus.org/browse/IZPACK-1182
+    */
+   @Test
+   public void testDependentDynamicVariablesWithCheckOnce()
+   {
+       variables.add(createDynamic("depVar1", "${depVar2}"));
+       variables.add(createDynamic("depVar2", "${depVar3}"));
+       variables.set("depVar3", "depValue");
+
+       variables.add(createDynamicCheckonce("checkonceVar", "${depVar1}"));
+
+       variables.refresh();
+       assertEquals("check dependent variable","depValue", variables.get("depVar1"));
+       assertEquals("check variable with checkonce=true","depValue", variables.get("checkonceVar"));
+
+       variables.set("depVar3", "newValue");
+       variables.refresh();
+       assertEquals("recheck dependent variable","newValue", variables.get("depVar1")); // should be changed
+       assertEquals("recheck variable with checkonce=true","depValue", variables.get("checkonceVar")); // should not change any more
+   }
+
+   /**
+    * Tests dynamic variables with and without conditions
+    * 
+    * This test is for the definition
+    * <dynamicvariables>
+    *   <variable name="thechoice" value="fallback value" />
+    *   <variable name="thechoice" value="choice1" condition="cond1" />
+    *   <variable name="thechoice" value="choice2" condition="cond2" />
+    * </dynamicvariables>
+    * @see http://docs.codehaus.org/display/IZPACK/Lifecycle+of+dynamic+variables
+    */
+   @Test
+   public void testMixedDynamicVariables()
+   {
+       final String observedVar = "thechoice";
+
+       // set up conditions
+       Map<String, Condition> conditions = new HashMap<String, Condition>();
+       conditions.put("cond1", new VariableCondition("condvar1", "1"));
+       conditions.put("cond2", new VariableCondition("condvar2", "1"));
+
+       // set up the rules
+       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                                                   installData.getPlatform());
+       rules.readConditionMap(conditions);
+       ((DefaultVariables) variables).setRules(rules);
+
+       variables.add(createDynamic(observedVar, "fallback value", null));
+       variables.add(createDynamic(observedVar, "choice1", "cond1"));
+       variables.add(createDynamic(observedVar, "choice2", "cond2"));
+
+       assertNull(variables.get(observedVar));
+
+       // !cond1+!cond2
+       variables.refresh();
+       assertEquals("fallback value", variables.get(observedVar));
+
+       // cond1+!cond2
+       variables.set("condvar1", "1");
+       variables.refresh();
+       assertEquals("choice1", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice1", variables.get(observedVar));
+
+       // cond1+cond2
+       variables.set("condvar2", "1");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+
+       // !cond1+cond2
+       variables.set("condvar1", "0");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+
+       // !cond1+!cond2
+       variables.set("condvar2", "0");
+       variables.refresh();
+       assertEquals("fallback value", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("fallback value", variables.get(observedVar));
+
+       // !cond1+cond2
+       variables.set("condvar2", "1");
+       variables.refresh();
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+       
+       // cond1+cond2
+       variables.set("condvar1", "1");
+       variables.refresh(); // cond2 takes precedence because of ordering
+       assertEquals("choice2", variables.get(observedVar));
+       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+       assertEquals("choice2", variables.get(observedVar));
+   }
+
+   /**
+    * Creates a dynamic variable with Checkonce set.
+    *
+    * @param name        the variable name
+    * @param value       the variable value
+    * @return a new variable
+    */
+   private DynamicVariable createDynamicCheckonce(String name, String value)
+   {
+       return createDynamicCheckonce(name, value, null);
+   }
+
+   /**
+    * Creates a dynamic variable with a condition and Checkonce set.
+    *
+    * @param name        the variable name
+    * @param value       the variable value
+    * @param conditionId the condition identifier. May be {@code null}
+    * @return a new variable
+    */
+   private DynamicVariable createDynamicCheckonce(String name, String value, String conditionId)
+   {
+       DynamicVariable var = createDynamic(name, value, conditionId);
+       var.setCheckonce(true);
+       return var;
+   }
 
     /**
      * Creates a dynamic variable.
@@ -313,5 +455,6 @@ public class DefaultVariablesTest
         result.setConditionid(conditionId);
         return result;
     }
+
 }
 
