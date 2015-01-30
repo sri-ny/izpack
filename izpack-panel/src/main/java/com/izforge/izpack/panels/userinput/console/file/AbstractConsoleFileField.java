@@ -76,6 +76,7 @@ public class AbstractConsoleFileField extends ConsoleField
         if (isReadonly())
         {
             println(label + (label.isEmpty()?" ":"") + "[" + field.getValue() + "]");
+            result = true;
         }
         else
         {
