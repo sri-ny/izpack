@@ -29,6 +29,7 @@ import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.event.InstallerListeners;
 import com.izforge.izpack.installer.event.ProgressNotifiersImpl;
+import com.izforge.izpack.installer.requirement.ExpiredChecker;
 import com.izforge.izpack.installer.requirement.InstallerRequirementChecker;
 import com.izforge.izpack.installer.requirement.JDKChecker;
 import com.izforge.izpack.installer.requirement.JavaVersionChecker;
@@ -97,6 +98,7 @@ public abstract class InstallerContainer extends AbstractContainer
         addComponent(JavaVersionChecker.class);
         addComponent(JDKChecker.class);
         addComponent(LangPackChecker.class);
+        addComponent(ExpiredChecker.class);
         addComponent(RequirementsChecker.class);
         addComponent(LockFileChecker.class);
         addComponent(MergeManagerImpl.class);
