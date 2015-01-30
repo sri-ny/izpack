@@ -284,7 +284,11 @@ public class UserInputPanel extends IzPanel
             GUIField view = viewFactory.create(field, userInputModel, spec);
             view.setUpdateListener(listener);
             views.add(view);
-            variables.add(field.getVariable());
+            String var = field.getVariable();
+            if (var != null)
+            {
+                variables.add(var);
+            }
         }
         getMetadata().setAffectedVariableNames(variables);
         eventsActivated = true;
