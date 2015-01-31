@@ -401,6 +401,25 @@ public class DefaultVariablesTest
    }
 
    /**
+    * Tests dynamic variables with cyclic reference
+    * <dynamicvariables>
+    *   <variable name="a" value="${b}" />
+    *   <variable name="b" value="${a}" />
+    * </dynamicvariables>
+    * 
+    * This example is not useful, but should not create a loop
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testCyclicReference()
+   {
+       variables.add(createDynamic("a", "${b}"));
+       variables.add(createDynamic("b", "${a}"));
+
+       variables.refresh();
+   }
+   
+   /**
     * Creates a dynamic variable with Checkonce set.
     *
     * @param name        the variable name
