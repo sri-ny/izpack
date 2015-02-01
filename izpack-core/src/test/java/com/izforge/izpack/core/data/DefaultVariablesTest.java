@@ -21,8 +21,7 @@
 
 package com.izforge.izpack.core.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.junit.Test;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.core.container.DefaultContainer;
 import com.izforge.izpack.core.rules.ConditionContainer;
@@ -416,7 +416,13 @@ public class DefaultVariablesTest
        variables.add(createDynamic("a", "${b}"));
        variables.add(createDynamic("b", "${a}"));
 
-       variables.refresh();
+       boolean catched=false;
+       try {
+    	   variables.refresh();
+       } catch (InstallerException e) {
+    	   catched=true;
+       }
+       assertTrue("cyclic dependency must throw a exception", catched);
    }
    
    /**

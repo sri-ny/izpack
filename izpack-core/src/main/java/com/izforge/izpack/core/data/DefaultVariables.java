@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
@@ -304,16 +305,25 @@ public class DefaultVariables implements Variables
     /**
      * Refreshes dynamic variables.
      *
-     * @throws IzPackException if variables cannot be refreshed
+     * @throws InstallerException if variables cannot be refreshed
      */
     @Override
-    public synchronized void refresh()
+    public synchronized void refresh() throws InstallerException
     {
         logger.fine("Refreshing dynamic variables");
         Set<DynamicVariable> checkedVariables = new HashSet<DynamicVariable>();
+        int maxCount = dynamicVariables.size()+1;
+        int count=maxCount;
         boolean changed = true;
         while (changed) {
-            changed = false; 
+            changed = false;
+            count--;		// decrement number of remaining loops
+            if (count<0) {
+            	throw new InstallerException(
+            		String.format("Refresh of dynamic variables seem to produce a loop. "
+            				     +"Stopped after %1s iterations. "
+            				     +"(Maybe a cyclic dependency of variables?)", maxCount));
+            }
             Properties setVariables = new Properties();
             Set<String> unsetVariables = new HashSet<String>();
 
