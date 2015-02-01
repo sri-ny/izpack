@@ -422,7 +422,25 @@ public class DefaultVariablesTest
        } catch (InstallerException e) {
     	   catched=true;
        }
-       assertTrue("cyclic dependency must throw a exception", catched);
+       assertTrue("cyclic dependency must throw an exception", catched);
+   }
+   
+   /**
+    * Test loop detection with no dynamic variables at all
+    * Ensure, that no exception is thrown 
+    * 
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testNoDynamicVariables()
+   {
+       boolean catched=false;
+       try {
+    	   variables.refresh();
+       } catch (InstallerException e) {
+    	   catched=true;
+       }
+       assertFalse("empty <dynamicVariables> must not throw an exception", catched);
    }
    
    /**
