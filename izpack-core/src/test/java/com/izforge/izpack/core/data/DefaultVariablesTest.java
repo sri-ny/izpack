@@ -401,6 +401,97 @@ public class DefaultVariablesTest
    }
 
    /**
+    * Tests, whether refresh() does not terminate before conditions have stabilized
+    * 
+    * This test is for the definition
+    * <dynamicvariables>
+    *  <variable name="var1" value="1" checkonce="true" />
+    *  <variable name="var1" value="2" checkonce="true" condition="cond1"/>
+    *  <variable name="var2" value="${var1}" />
+    *  <variable name="var3" value="${var2}" />
+    *  <variable name="var4" value="${var3}" />
+    *  <variable name="var5" value="${var4}" />
+    * </dynamicvariables>
+    * <conditions>
+    *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
+    * </conditions>
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testLoopWithConditions()
+   {
+       // set up conditions
+       Map<String, Condition> conditions = new HashMap<String, Condition>();
+       conditions.put("cond1", new VariableCondition("var5", "1"));
+
+       // set up the rules
+       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                                                   installData.getPlatform());
+       rules.readConditionMap(conditions);
+       ((DefaultVariables) variables).setRules(rules);
+
+       variables.add(createDynamic("var111", "${var5}"));
+       variables.add(createDynamicCheckonce("var1", "1", null));
+       variables.add(createDynamicCheckonce("var1", "2", "cond1"));
+       variables.add(createDynamic("var2", "${var1}"));
+       variables.add(createDynamic("var3", "${var2}"));
+       variables.add(createDynamic("var4", "${var3}"));
+       variables.add(createDynamic("var5", "${var4}"));
+
+       assertNull(variables.get("var5"));
+
+       // !cond1+!cond2
+       variables.refresh();
+       assertEquals("2", variables.get("var5"));
+   }
+
+   /**
+    * Tests, whether refresh() does not terminate before conditions have stabilized
+    * 
+    * This test is for the definition
+    * <dynamicvariables>
+    *  <variable name="var5" value="${var4}" />
+    *  <variable name="var4" value="${var3}" />
+    *  <variable name="var3" value="${var2}" />
+    *  <variable name="var2" value="${var1}" />
+    *  <variable name="var1" value="1" checkonce="true" />
+    *  <variable name="var1" value="2" checkonce="true" condition="cond1"/>
+    * </dynamicvariables>
+    * <conditions>
+    *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
+    * </conditions>
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testLoopWithConditionsReversedDefiniton()
+   {
+       // set up conditions
+       Map<String, Condition> conditions = new HashMap<String, Condition>();
+       conditions.put("cond1", new VariableCondition("var5", "1"));
+
+       // set up the rules
+       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                                                   installData.getPlatform());
+       rules.readConditionMap(conditions);
+       ((DefaultVariables) variables).setRules(rules);
+
+       variables.add(createDynamic("var5", "${var4}"));
+       variables.add(createDynamic("var4", "${var3}"));
+       variables.add(createDynamic("var3", "${var2}"));
+       variables.add(createDynamic("var2", "${var1}"));
+       variables.add(createDynamicCheckonce("var1", "1", null));
+       variables.add(createDynamicCheckonce("var1", "2", "cond1"));
+
+       assertNull(variables.get("var5"));
+
+       // !cond1+!cond2
+       variables.refresh();
+       assertEquals("2", variables.get("var5"));
+   }
+   
+   /**
     * Tests dynamic variables with cyclic reference
     * <dynamicvariables>
     *   <variable name="a" value="${b}" />

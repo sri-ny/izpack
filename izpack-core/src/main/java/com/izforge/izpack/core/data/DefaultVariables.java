@@ -312,7 +312,10 @@ public class DefaultVariables implements Variables
     {
         logger.fine("Refreshing dynamic variables");
         Set<DynamicVariable> checkedVariables = new HashSet<DynamicVariable>();
-        int maxCount = dynamicVariables.size()+1;
+        // for dependent dynamic variables a size of dynamicVariables.size()+1 would be enough
+        // in case of conditions, which depend on dynamic variables also, we need more iterations
+        // to be on the safe side, we take 10*dynamicVariables.size()+1
+        int maxCount = 10*dynamicVariables.size()+1;
         int count=maxCount;
         boolean changed = true;
         while (changed) {
@@ -359,7 +362,12 @@ public class DefaultVariables implements Variables
                             {
                                 setVariables.put(name, newValue);
                             }
-                            checkedVariables.add(variable);
+                            if (newValue==null || ! newValue.contains("$"))
+                            {
+                                variable.setChecked();
+                            } else {
+                                checkedVariables.add(variable);
+                            }
                         }
                         else
                         {
