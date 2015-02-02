@@ -25,7 +25,7 @@ package com.izforge.izpack.api.data;
 import java.util.Properties;
 import java.util.Set;
 
-import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.exception.InstallerException;
 
 /**
  * A collection of variables.
@@ -128,9 +128,9 @@ public interface Variables
     /**
      * Refreshes dynamic variables.
      *
-     * @throws IzPackException if variables cannot be refreshed
+     * @throws InstallerException if variables cannot be refreshed
      */
-    void refresh();
+    void refresh() throws InstallerException;
 
     /**
      * Exposes the variables as properties.

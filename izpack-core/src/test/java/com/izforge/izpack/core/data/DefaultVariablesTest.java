@@ -21,8 +21,7 @@
 
 package com.izforge.izpack.core.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.junit.Test;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.core.container.DefaultContainer;
 import com.izforge.izpack.core.rules.ConditionContainer;
@@ -400,6 +400,49 @@ public class DefaultVariablesTest
        assertEquals("choice2", variables.get(observedVar));
    }
 
+   /**
+    * Tests dynamic variables with cyclic reference
+    * <dynamicvariables>
+    *   <variable name="a" value="${b}" />
+    *   <variable name="b" value="${a}" />
+    * </dynamicvariables>
+    * 
+    * This example is not useful, but should not create a loop
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testCyclicReference()
+   {
+       variables.add(createDynamic("a", "${b}"));
+       variables.add(createDynamic("b", "${a}"));
+
+       boolean catched=false;
+       try {
+    	   variables.refresh();
+       } catch (InstallerException e) {
+    	   catched=true;
+       }
+       assertTrue("cyclic dependency must throw an exception", catched);
+   }
+   
+   /**
+    * Test loop detection with no dynamic variables at all
+    * Ensure, that no exception is thrown 
+    * 
+    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    */
+   @Test
+   public void testNoDynamicVariables()
+   {
+       boolean catched=false;
+       try {
+    	   variables.refresh();
+       } catch (InstallerException e) {
+    	   catched=true;
+       }
+       assertFalse("empty <dynamicVariables> must not throw an exception", catched);
+   }
+   
    /**
     * Creates a dynamic variable with Checkonce set.
     *
