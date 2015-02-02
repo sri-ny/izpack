@@ -359,7 +359,12 @@ public class DefaultVariables implements Variables
                             {
                                 setVariables.put(name, newValue);
                             }
-                            checkedVariables.add(variable);
+                            if (newValue==null || ! newValue.contains("$"))
+                            {
+                                variable.setChecked();
+                            } else {
+                                checkedVariables.add(variable);
+                            }
                         }
                         else
                         {
