@@ -18,7 +18,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.izforge.izpack.installer.requirement;
 
 import com.izforge.izpack.api.data.InstallData;
@@ -28,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 /**
  * Verifies that the installer has not expired.
  *
@@ -36,10 +34,15 @@ import java.util.Date;
  */
 public class ExpiredChecker implements RequirementChecker
 {
-    /**
+   /**
      * The name of the variable holding the expiration date.
      */
     public static final String EXPIRE_DATE_VAR_NAME = "InstallerExpiresDate";
+
+    /**
+     * The format of the expiration date.
+     */
+    public static final String EXPIRE_DATE_FORMAT = "yyyy-MM-dd";
 
     /**
      * The installation data.
@@ -51,11 +54,12 @@ public class ExpiredChecker implements RequirementChecker
      */
     private final Prompt prompt;
 
+    
     /**
      * Constructs a <tt>ExpiredChecker</tt>.
      *
      * @param installData the installation data
-     * @param prompt      the prompt
+     * @param prompt the prompt
      */
     public ExpiredChecker(InstallData installData, Prompt prompt)
     {
@@ -66,50 +70,53 @@ public class ExpiredChecker implements RequirementChecker
     /**
      * Determines whether the installer expires, and if so, whether it has.
      *
-     * @return <tt>true</tt> if installer has NOT expired, otherwise <tt>false</tt>
+     * @return <tt>true</tt> if installer has NOT expired, otherwise
+     * <tt>false</tt>
      */
     @Override
     public boolean check()
     {
-      if (!expires())
-          return true;
+        if (!expires())
+            return true;
 
-      try
-      {
-        if (expired())
+        try
         {
-          showExpired();
-          return false;
+            if (expired())
+            {
+                showExpired();
+                return false;
+            } 
+            else
+                return true;
+        } 
+        catch (ParseException ex)
+        {
+            prompt.error(String.format(
+                    "Could not parse %s.  Please correct the installer.",
+                    EXPIRE_DATE_VAR_NAME));
+            // we return true so user can workaround installer problem
+            return true;
+        } 
+        catch (Exception ex)
+        {
+            prompt.error(String.format(
+                    "Could not check expiration date because: %s.  Please correct the installer.",
+                    ex.toString(),
+                    EXPIRE_DATE_VAR_NAME));
+            // we return true so user can workaround installer problem
+            return true;
         }
-        else
-          return true;
-      }
-      catch (ParseException ex)
-      {
-        prompt.error(String.format(
-                "Could not parse %s.  Please correct the installer.",
-                EXPIRE_DATE_VAR_NAME));
-        // we return true so user can workaround installer problem
-        return true;
-      }
-      catch (Exception ex)
-      {
-        prompt.error(String.format(
-                "Could not check expiration date because: %s.  Please correct the installer.",
-                ex.toString(),
-                EXPIRE_DATE_VAR_NAME));
-        // we return true so user can workaround installer problem
-        return true;
-      }
     }
 
+    
     private boolean expired() throws ParseException
     {
         String expirationDateStr = installData.getVariable(EXPIRE_DATE_VAR_NAME);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(EXPIRE_DATE_FORMAT);
         Date expirationDate = dateFormat.parse(expirationDateStr);
         return new Date().after(expirationDate);
     }
+
     
     /**
      * Determines whether the installer expires.
@@ -118,9 +125,19 @@ public class ExpiredChecker implements RequirementChecker
      */
     private boolean expires()
     {
-        String expirationDateStr = installData.getVariable(EXPIRE_DATE_VAR_NAME);
+        String expirationDateStr;
+        try
+        {
+            expirationDateStr = installData.getVariable(EXPIRE_DATE_VAR_NAME);
+        } 
+        catch (NullPointerException e)
+        {
+            // getVariable throws NPE if installData.variables is null
+            return false;
+        }
         return (expirationDateStr != null) && !expirationDateStr.isEmpty();
     }
+
     
     /**
      * Invoked when the installer has expired.
@@ -133,8 +150,8 @@ public class ExpiredChecker implements RequirementChecker
         if (installData.getInfo().getAppURL() != null)
         {
             String urlText = installData.getInfo().getAppURL();
-            message += "\n\n" +
-                        "Please download a new one from " + urlText;
+            message += "\n\n"
+                    + "Please download a new one from " + urlText;
         }
         prompt.error(message);
     }
