@@ -31,6 +31,7 @@ import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.installer.RequirementChecker;
 import com.izforge.izpack.api.resource.Locales;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.installer.data.InstallData;
 import com.izforge.izpack.test.util.TestConsole;
@@ -64,7 +65,7 @@ public abstract class AbstractRequirementCheckerTest
      */
     public AbstractRequirementCheckerTest()
     {
-        installData = new InstallData(null, Platforms.FEDORA_LINUX);
+        installData = new InstallData(new DefaultVariables(), Platforms.FEDORA_LINUX);
         Info info = new Info();
         installData.setInfo(info);
 
