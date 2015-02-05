@@ -55,9 +55,21 @@ public class Options extends BasicOptionMap implements Persistable, Configurable
         load(input);
     }
 
+    public Options(Reader input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
+        load(input);
+    }
+
     public Options(InputStream input) throws IOException, InvalidFileFormatException
     {
         this();
+        load(input);
+    }
+
+    public Options(InputStream input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
         load(input);
     }
 
@@ -67,9 +79,22 @@ public class Options extends BasicOptionMap implements Persistable, Configurable
         load(input);
     }
 
+    public Options(URL input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
+        load(input);
+    }
+
     public Options(File input) throws IOException, InvalidFileFormatException
     {
         this();
+        _file = input;
+        load();
+    }
+
+    public Options(File input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
         _file = input;
         load();
     }
