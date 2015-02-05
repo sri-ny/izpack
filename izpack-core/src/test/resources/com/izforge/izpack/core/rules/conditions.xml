@@ -58,4 +58,18 @@
         <requiredusername>foo</requiredusername>
     </condition>
 
+    <condition type="exists" id="Update">
+        <file>${INSTALL_PATH}/some_path</file>
+    </condition>
+    <condition type="not" id="Install">
+        <condition type="ref" refid="Update" />
+    </condition>
+    <condition type="and" id="linuxInstallOrUpdate">
+      <condition type="ref" refid="izpack.linuxinstall" />
+      <condition type="or" id="installOrUpdate">
+        <condition type="ref" refid="Install" />
+        <condition type="ref" refid="Update" />
+      </condition>
+    </condition>
+
 </izpack:conditions>

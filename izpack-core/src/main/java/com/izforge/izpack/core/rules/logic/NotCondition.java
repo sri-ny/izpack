@@ -51,9 +51,14 @@ public class NotCondition extends ConditionReference
         {
             throw new Exception("Missing nested element in condition \"" + getId() + "\"");
         }
-        else if (xmlcondition.getChildrenCount() != 1 || !RefCondition.isValidRefCondition(xmlcondition.getChildAtIndex(0)))
+        else
         {
-            throw new Exception("Condition \"" + getId() + "\" needs exactly one condition of type \"ref\" as operand");
+            String type = xmlcondition.getAttribute("type");
+            if (xmlcondition.getChildrenCount() != 1 ||
+               (type == null || (type.equals("ref") && !RefCondition.isValidRefCondition(xmlcondition.getChildAtIndex(0)))))
+            {
+                throw new Exception("Condition \"" + getId() + "\" needs exactly one condition of type \"ref\" as operand");
+            }
         }
 
         RefCondition refCondition = new RefCondition(rules);
