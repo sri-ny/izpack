@@ -24,12 +24,15 @@ package com.izforge.izpack.core.data;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.DynamicVariable;
+import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.rules.Condition;
@@ -534,6 +537,52 @@ public class DefaultVariablesTest
        assertFalse("empty <dynamicVariables> must not throw an exception", catched);
    }
    
+   /**
+    * Test for blocking of dynamic variables
+    * 
+    * @see http://jira.codehaus.org/browse/IZPACK-1199
+    */
+   @Test
+   public void testBlockedDynamicVariables()
+   {
+       // set up conditions
+       Map<String, Condition> conditions = new HashMap<String, Condition>();
+       conditions.put("cond1", new VariableCondition("condvar1", "1"));
+       variables.set("condvar1", "0");
+
+       // set up the rules
+       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                                                   installData.getPlatform());
+       rules.readConditionMap(conditions);
+       ((DefaultVariables) variables).setRules(rules);
+
+       String blockedVar = "a";
+       variables.add(createDynamic(blockedVar, "oldValue"));
+       variables.add(createDynamic(blockedVar, "newValue", "cond1"));
+
+       variables.refresh();
+       assertEquals("oldValue", variables.get(blockedVar));
+
+       // block variable
+       Set<String> blockedVars = new HashSet<String>();
+       blockedVars.add(blockedVar);
+       Panel blocker = new Panel();
+       variables.registerBlockedVariableNames(blockedVars, blocker);
+       variables.refresh();
+       assertEquals("oldValue", variables.get(blockedVar));
+
+       // condition becomes true, but variable is still blocked
+       variables.set("condvar1", "1");
+       variables.refresh();
+       assertEquals("oldValue", variables.get(blockedVar));
+       
+       // unblock variable, so value should change
+       variables.unregisterBlockedVariableNames(blockedVars, blocker);
+       variables.refresh();
+       assertEquals("newValue", variables.get(blockedVar));
+   }
+
    /**
     * Creates a dynamic variable with Checkonce set.
     *
