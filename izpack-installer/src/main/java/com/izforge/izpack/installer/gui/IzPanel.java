@@ -104,11 +104,6 @@ public abstract class IzPanel extends JPanel implements AbstractUIHandler, Layou
     private boolean hidden;
 
     /**
-     * Is this panel to be shown read-only (at the moment)
-     */
-    private boolean readonly;
-
-    /**
      * HEADLINE = "headline"
      */
     public final static String HEADLINE = "headline";
