@@ -35,11 +35,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.izforge.izpack.api.exception.IzPackException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
@@ -65,7 +65,6 @@ import com.izforge.izpack.core.rules.process.UserCondition;
 import com.izforge.izpack.core.rules.process.VariableCondition;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
-import org.junit.rules.ExpectedException;
 
 
 public class RulesEngineImplTest

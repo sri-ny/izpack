@@ -149,6 +149,7 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
     protected String resolve(InputStream in, VariableSubstitutor... substitutors)
             throws Exception
     {
+        Config config;
         String _key_ = key;
         for (VariableSubstitutor substitutor : substitutors)
         {
@@ -158,17 +159,21 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
         switch (type)
         {
             case CONFIGFILE_TYPE_OPTIONS:
+                config = Config.getGlobal().clone();
+                config.setEscape(isEscape());
                 Options opts;
-                opts = new Options(in);
+                opts = new Options(in, config);
                 return opts.get(_key_);
             case CONFIGFILE_TYPE_INI:
+                config = Config.getGlobal().clone();
+                config.setEscape(isEscape());
                 Ini ini;
                 String _section_ = section;
                 for (VariableSubstitutor substitutor : substitutors)
                 {
                     _key_ = substitutor.substitute(_key_);
                 }
-                ini = new Ini(in);
+                ini = new Ini(in, config);
                 return ini.get(_section_, _key_);
             case CONFIGFILE_TYPE_XML:
                 return parseXPath(in, _key_, System.getProperty("line.separator"));

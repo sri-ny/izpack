@@ -51,9 +51,21 @@ public class Ini extends BasicProfile implements Persistable, Configurable
         load(input);
     }
 
+    public Ini(Reader input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
+        load(input);
+    }
+
     public Ini(InputStream input) throws IOException, InvalidFileFormatException
     {
         this();
+        load(input);
+    }
+
+    public Ini(InputStream input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
         load(input);
     }
 
@@ -63,9 +75,22 @@ public class Ini extends BasicProfile implements Persistable, Configurable
         load(input);
     }
 
+    public Ini(URL input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
+        load(input);
+    }
+
     public Ini(File input) throws IOException, InvalidFileFormatException
     {
         this();
+        _file = input;
+        load();
+    }
+
+    public Ini(File input, Config config) throws IOException, InvalidFileFormatException
+    {
+        this(config);
         _file = input;
         load();
     }
