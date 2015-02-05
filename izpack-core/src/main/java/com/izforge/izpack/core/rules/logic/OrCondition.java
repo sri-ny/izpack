@@ -50,7 +50,9 @@ public class OrCondition extends ConditionWithMultipleOperands
         }
         for (IXMLElement element : xmlcondition.getChildren())
         {
-            if (!RefCondition.isValidRefCondition(element)){
+            String type = element.getAttribute("type");
+            if (type == null || (type.equals("ref") && !RefCondition.isValidRefCondition(element)))
+            {
                 throw new Exception("Incorrect element specified in condition \"" + getId() + "\"");
             }
             nestedConditions.add(rules.createCondition(element));

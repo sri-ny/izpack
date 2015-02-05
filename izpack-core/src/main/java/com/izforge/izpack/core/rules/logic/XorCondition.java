@@ -47,8 +47,9 @@ public class XorCondition extends OrCondition
             throw new Exception("Not more than two operands allowed in XOR condition \"" + getId() + "\"");
         }
 
-        for (IXMLElement condition : xmlcondition.getChildren()){
-            if (!RefCondition.isValidRefCondition(condition))
+        for (IXMLElement element : xmlcondition.getChildren()){
+            String type = element.getAttribute("type");
+            if (type == null || (type.equals("ref") && !RefCondition.isValidRefCondition(element)))
             {
                 throw new Exception("Incorrect element specified in condition \"" + getId() + "\"");
             }

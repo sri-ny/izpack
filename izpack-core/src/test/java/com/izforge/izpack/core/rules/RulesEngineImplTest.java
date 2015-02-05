@@ -529,6 +529,7 @@ public class RulesEngineImplTest
         assertTrue(rules.getCondition("packselection1") instanceof PackSelectionCondition);
         assertTrue(rules.getCondition("ref1") instanceof RefCondition);
         assertTrue(rules.getCondition("user1") instanceof UserCondition);
+        assertTrue(rules.getCondition("linuxInstallOrUpdate") instanceof AndCondition);
     }
 
     /**
@@ -540,7 +541,8 @@ public class RulesEngineImplTest
         RulesEngine rules = createRulesEngine(new AutomatedInstallData(new DefaultVariables(), Platforms.UNIX));
         IXMLParser parser = new XMLParser();
         IXMLElement conditions = parser.parse(getClass().getResourceAsStream("poorly_defined_not_condition.xml"));
-        exception.expectMessage("Condition \"poorlydefinednot\" needs exactly one condition of type \"ref\" as operand");
+        exception.expectMessage("Missing attribute \"refid\" in condition");
+
         rules.analyzeXml(conditions);
         rules.getCondition("poorlydefinednot");
     }
@@ -633,7 +635,6 @@ public class RulesEngineImplTest
         assertFalse(rules2.isConditionTrue("izpack.windowsinstall"));
         assertTrue(rules2.isConditionTrue("izpack.macinstall.osx"));
     }
-
 
     /**
      * Verifies that when conditions are deserialized, any built-in conditions are replaced with those held by the
