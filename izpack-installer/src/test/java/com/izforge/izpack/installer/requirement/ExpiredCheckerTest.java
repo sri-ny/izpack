@@ -21,6 +21,8 @@
 
 package com.izforge.izpack.installer.requirement;
 
+import com.izforge.izpack.api.data.Info;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import static junit.framework.Assert.assertNotNull;
@@ -37,69 +39,111 @@ import org.junit.Test;
  */
 public class ExpiredCheckerTest extends AbstractRequirementCheckerTest
 {
-  /**
-   * CONSTANTS
-   */
-  private final long DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
-  private final long YEAR_MILLISECONDS = 365 * DAY_MILLISECONDS;
 
-  
-  /**
-   * DATA
-   */
-  ExpiredChecker checker = new ExpiredChecker(installData, prompt);
-  SimpleDateFormat dateFormat = new SimpleDateFormat(ExpiredChecker.EXPIRE_DATE_FORMAT);
-  
-  
-  /**
-   * METHODS
-   */
-  
-  /**
-   * Tests the {@link ExpiredChecker} when the installer has NOT expired.
-   */
-  @Test
-  public void testNotExpired()
-  {
-    assertNotNull("This class requires variables", installData.getVariables());
-    
-    // no expiration date set
-    assertTrue(checker.check());
+    /**
+     * CONSTANTS
+     */
+    private final long DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+    private final long YEAR_MILLISECONDS = 365 * DAY_MILLISECONDS;
 
-    // expires tomorrow
-    String tomorrow = dateFormat.format(new Date(new Date().getTime() + DAY_MILLISECONDS));
-    installData.setVariable(ExpiredChecker.EXPIRE_DATE_VAR_NAME, tomorrow);
-    assertTrue(checker.check());
     
-    // expires a year from now
-    String nextYear = dateFormat.format(new Date(new Date().getTime() + YEAR_MILLISECONDS));
-    installData.setVariable(ExpiredChecker.EXPIRE_DATE_VAR_NAME, nextYear);
-    assertTrue(checker.check());
-  }
+    /**
+     * DATA
+     */
+    ExpiredChecker checker = new ExpiredChecker(installData, prompt);
+    SimpleDateFormat dateFormat = new SimpleDateFormat(Info.EXPIRE_DATE_FORMAT);
 
-  
-  /**
-   * Tests the {@link ExpiredChecker} when the installer has expired.
-   */
-  @Test
-  public void testExpired()
-  {
-    assertNotNull("This class requires variables", installData.getVariables());
     
-    // expires today
-    String today = dateFormat.format(new Date());
-    installData.setVariable(ExpiredChecker.EXPIRE_DATE_VAR_NAME, today);
-    assertFalse(checker.check());
+    /**
+     * METHODS
+     */
     
-    // expired yesterday
-    String yesterday = dateFormat.format(new Date(new Date().getTime() - DAY_MILLISECONDS));
-    installData.setVariable(ExpiredChecker.EXPIRE_DATE_VAR_NAME, yesterday);
-    assertFalse(checker.check());
-    
-    // expired a year ago
-    String lastYear = dateFormat.format(new Date(new Date().getTime() - YEAR_MILLISECONDS));
-    installData.setVariable(ExpiredChecker.EXPIRE_DATE_VAR_NAME, lastYear);
-    assertFalse(checker.check());
-  }
+    /**
+     * Tests the {@link ExpiredChecker} when the installer has NOT expired.
+     */
+    @Test
+    public void testNotExpired()
+    {
+        // no expiration date set
+        installData.getInfo().setExpiresDate((Date) null);
+        assertTrue(checker.check());
+
+        // bad date format
+        try
+        {
+            installData.getInfo().setExpiresDate("01/01/2001");
+        } 
+        catch (ParseException ex)
+        {
+            assertNotNull(ex);
+        }
+
+        // expires tomorrow
+        String tomorrow = dateFormat.format(new Date(new Date().getTime() + DAY_MILLISECONDS));
+        try
+        {
+            installData.getInfo().setExpiresDate(tomorrow);
+        } 
+        catch (ParseException ex)
+        {
+            assertTrue(false);
+        }
+        assertTrue(checker.check());
+
+        // expires a year from now
+        String nextYear = dateFormat.format(new Date(new Date().getTime() + YEAR_MILLISECONDS));
+        try
+        {
+            installData.getInfo().setExpiresDate(nextYear);
+        }
+        catch (ParseException ex)
+        {
+            assertTrue(false);
+        }
+        assertTrue(checker.check());
+    }
+
+    /**
+     * Tests the {@link ExpiredChecker} when the installer has expired.
+     */
+    @Test
+    public void testExpired()
+    {
+        // expires today
+        String today = dateFormat.format(new Date());
+        try
+        {
+            installData.getInfo().setExpiresDate(today);
+        }
+        catch (ParseException ex)
+        {
+            assertTrue(false);
+        }
+        assertFalse(checker.check());
+
+        // expired yesterday
+        String yesterday = dateFormat.format(new Date(new Date().getTime() - DAY_MILLISECONDS));
+        try
+        {
+            installData.getInfo().setExpiresDate(yesterday);
+        }
+        catch (ParseException ex)
+        {
+            assertTrue(false);
+        }
+        assertFalse(checker.check());
+
+        // expired a year ago
+        String lastYear = dateFormat.format(new Date(new Date().getTime() - YEAR_MILLISECONDS));
+        try
+        {
+            installData.getInfo().setExpiresDate(lastYear);
+        }
+        catch (ParseException ex)
+        {
+            assertTrue(false);
+        }
+        assertFalse(checker.check());
+    }
 
 }
