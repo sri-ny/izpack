@@ -434,6 +434,7 @@
         <xs:attribute name="preselected" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="loose" type="xs:boolean" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
+        <xs:attribute name="installGroups" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackType">
