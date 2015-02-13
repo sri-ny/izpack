@@ -93,6 +93,7 @@ import com.izforge.izpack.util.Housekeeper;
  * @author Julien Ponge created October 27, 2002
  * @author Fabrice Mirabile added fix for alert window on cross button, July 06 2005
  * @author Dennis Reil, added RulesEngine November 10 2006, several changes in January 2007
+ * @author Bill Root added per-panel quit confirmation control, Feb 2015
  */
 public class InstallerFrame extends JFrame implements InstallerBase, InstallerView
 {
@@ -678,7 +679,14 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     void quit()
     {
         // FIXME !!! Reboot handling
-        if (installdata.isCanClose() || (!navigator.isNextEnabled() && !navigator.isPreviousEnabled()))
+
+        boolean confirmQuit;
+        Panel panel = panels.getPanel();
+        if (panel.getConfirmQuitType() == Panel.ConfirmQuitType.DYNAMIC)
+            confirmQuit = !(installdata.isCanClose() || (!navigator.isNextEnabled() && !navigator.isPreviousEnabled()));
+        else
+            confirmQuit = (panel.getConfirmQuitType() == Panel.ConfirmQuitType.CONFIRM);
+        if (!confirmQuit)
         {
             if (!writeUninstallData())
             {
