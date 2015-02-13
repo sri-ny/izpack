@@ -167,8 +167,15 @@ public interface IPackager
     public abstract List<DynamicInstallerRequirementValidator> getDynamicInstallerRequirements();
 
     /**
-     * Add a panel, where order is important. Only one copy of the class files needd are inserted in
+     * Add a panel, where order is important. Only one copy of the class files needed are inserted in
      * the installer. The panel class is automatically searched in the classpath.
      */
     void addPanel(Panel panel);
+    
+    /**
+     * Returns the list of panels.
+     * 
+     * @return the panels
+     */
+    public List<Panel> getPanelList();
 }

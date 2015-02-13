@@ -286,6 +286,12 @@ public abstract class PackagerBase implements IPackager
     }
 
     @Override
+    public List<Panel> getPanelList()
+    {
+        return panelList;
+    }
+    
+    @Override
     public Properties getVariables()
     {
         return properties;
