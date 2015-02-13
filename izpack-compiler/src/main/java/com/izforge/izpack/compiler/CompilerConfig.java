@@ -1522,7 +1522,7 @@ public class CompilerConfig extends Thread
     }
 
     /**
-     * Parse panels and their paramters, locate the panels resources and add to the Packager.
+     * Parse panels and their parameters, locate the panels resources and add to the Packager.
      *
      * @param data The XML data.
      * @throws CompilerException Description of the Exception
@@ -1540,7 +1540,7 @@ public class CompilerConfig extends Thread
         }
 
         // We process each panel markup
-        // We need a panel counter to build unique panel dependet resource names
+        // We need a panel counter to build unique panel dependent resource names
         int panelCounter = 0;
         for (IXMLElement panelElement : panels)
         {
@@ -1562,6 +1562,25 @@ public class CompilerConfig extends Thread
             String condition = panelElement.getAttribute("condition");
             panel.setCondition(condition);
 
+            String allowCloseStr = panelElement.getAttribute("allowClose");
+            if (allowCloseStr != null)
+            {
+              boolean allowClose = Boolean.parseBoolean(allowCloseStr);
+              if (allowClose)
+                panel.setConfirmQuitType(Panel.ConfirmQuitType.SILENT);
+              else
+                panel.setConfirmQuitType(Panel.ConfirmQuitType.CONFIRM);
+              // Make all previous panels CONFIRM if they're currently DYNAMIC.
+              // This simplifies usage while maintaining backward compatibility
+              // (user only has to specify allowClose="true" on last panel for
+              //  probably the most common desired behavior).
+              // Note: the new panel is not in the list yet (so we don't have to
+              //       manually exclude it)
+              List<Panel> previousPanels = packager.getPanelList();
+              for (Panel previousPanel: previousPanels)
+                if (previousPanel.getConfirmQuitType() == Panel.ConfirmQuitType.DYNAMIC)
+                  previousPanel.setConfirmQuitType(Panel.ConfirmQuitType.CONFIRM);
+            }
             // note - all jars must be added to the classpath prior to invoking this
             Class<IzPanel> type = classLoader.loadClass(className, IzPanel.class);
             if (type.equals(UserInputPanel.class))
