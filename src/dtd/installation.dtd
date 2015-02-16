@@ -143,6 +143,7 @@ $Id$
         <!ATTLIST pack excludeGroup CDATA #IMPLIED>
         <!ATTLIST pack uninstall (yes|no) "yes">
         <!ATTLIST pack parent CDATA #IMPLIED>
+        <!ATTLIST pack hidden (true|false) "false">
         <!ELEMENT description (#PCDATA)>
         <!ELEMENT file (os*, additionaldata*)>
             <!ATTLIST file src CDATA #REQUIRED>
