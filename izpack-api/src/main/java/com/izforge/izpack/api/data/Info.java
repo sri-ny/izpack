@@ -21,7 +21,10 @@
 package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -142,6 +145,15 @@ public class Info implements Serializable
      */
     private Set<TempDir> tempdirs;
 
+    /**
+     * The date on which the installer expires, if not null
+     */
+    private Date expiresDate = null;
+    /**
+     * The format of the expiration date
+     */
+    public static final String EXPIRE_DATE_FORMAT = "yyyy-MM-dd";
+    
     public boolean isPrivilegedExecutionRequired()
     {
         return requirePrivilegedExecution;
@@ -193,7 +205,7 @@ public class Info implements Serializable
     }
 
     /**
-     * The constructor, deliberatly void.
+     * The constructor, deliberately void.
      */
     public Info()
     {
@@ -638,5 +650,21 @@ public class Info implements Serializable
     public Set<TempDir> getTempDirs()
     {
         return tempdirs;
+    }
+    
+    public Date getExpiresDate()
+    {
+        return expiresDate;
+    }
+    
+    public void setExpiresDate(Date value)
+    {
+        expiresDate = value;
+    }
+
+    public void setExpiresDate(String value) throws ParseException
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(EXPIRE_DATE_FORMAT);
+        expiresDate = dateFormat.parse(value);
     }
 }

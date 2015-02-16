@@ -72,6 +72,7 @@ import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.GUIPrefs;
 import com.izforge.izpack.api.data.Info;
+import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
 import com.izforge.izpack.api.data.Info.TempDir;
 import com.izforge.izpack.api.data.InstallerRequirement;
 import com.izforge.izpack.api.data.LookAndFeels;
@@ -134,6 +135,7 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.FileUtils;
+import java.text.ParseException;
 
 /**
  * A parser for the installer xml configuration. This parses a document conforming to the
@@ -1947,6 +1949,22 @@ public class CompilerConfig extends Thread
             info.setJdkRequired("yes".equals(jdkRequired.getContent()));
         }
 
+        // Does the installer expire?
+        IXMLElement expiresDate = root.getFirstChildNamed("expiresdate");
+        if (expiresDate != null)
+        {
+            try
+            {
+                info.setExpiresDate(expiresDate.getContent());
+            }
+            catch (ParseException e)
+            {
+                throw new CompilerException(
+                        "expiresdate must be in format '" + EXPIRE_DATE_FORMAT + "'",
+                        e);
+            }
+        }
+        
         // validate and insert (and require if -web kind) web dir
         IXMLElement webDirURL = root.getFirstChildNamed("webdir");
         if (webDirURL != null)

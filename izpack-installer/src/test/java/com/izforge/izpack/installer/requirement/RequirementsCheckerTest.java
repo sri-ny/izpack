@@ -50,6 +50,7 @@ public class RequirementsCheckerTest
                                                              mock(JavaVersionChecker.class, true),
                                                              mock(JDKChecker.class, true),
                                                              mock(LockFileChecker.class, true),
+                                                             mock(ExpiredChecker.class, true),
                                                              mock(InstallerRequirementChecker.class, true));
         assertTrue(checker.check());
     }
@@ -63,16 +64,17 @@ public class RequirementsCheckerTest
     public void testCheckFailure()
     {
         Variables variables = Mockito.mock(Variables.class);
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 6; ++i)
         {
             LangPackChecker langChecker = mock(LangPackChecker.class, (i != 0));
             JavaVersionChecker javaChecker = mock(JavaVersionChecker.class, (i != 1));
             JDKChecker jdkChecker = mock(JDKChecker.class, (i != 2));
             LockFileChecker lockChecker = mock(LockFileChecker.class, (i != 3));
-            InstallerRequirementChecker requirementChecker = mock(InstallerRequirementChecker.class, (i != 4));
+            ExpiredChecker expiredChecker = mock(ExpiredChecker.class, (i != 4));
+            InstallerRequirementChecker requirementChecker = mock(InstallerRequirementChecker.class, (i != 5));
 
             RequirementsChecker checker2 = new RequirementsChecker(variables, langChecker, javaChecker, jdkChecker,
-                                                                   lockChecker, requirementChecker);
+                                                                   lockChecker, expiredChecker, requirementChecker);
             assertFalse(checker2.check());
         }
     }

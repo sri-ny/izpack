@@ -58,6 +58,11 @@ public class RequirementsChecker implements RequirementChecker
     private final LockFileChecker lockChecker;
 
     /**
+     * The expired installer checker.
+     */
+    private final ExpiredChecker expiredChecker;
+    
+    /**
      * The installer requirement checker.
      */
     private final InstallerRequirementChecker installerRequirementChecker;
@@ -70,10 +75,12 @@ public class RequirementsChecker implements RequirementChecker
      * @param versionChecker              the java version checker
      * @param jdkChecker                  the JDK checker
      * @param lockChecker                 the lock file checker
+     * @param expiredChecker              the expiration checker
      * @param installerRequirementChecker the installer requirement checker
      */
     public RequirementsChecker(Variables variables, LangPackChecker langChecker, JavaVersionChecker versionChecker,
                                JDKChecker jdkChecker, LockFileChecker lockChecker,
+                               ExpiredChecker expiredChecker,
                                InstallerRequirementChecker installerRequirementChecker)
     {
         this.variables = variables;
@@ -81,6 +88,7 @@ public class RequirementsChecker implements RequirementChecker
         this.jdkChecker = jdkChecker;
         this.lockChecker = lockChecker;
         this.langChecker = langChecker;
+        this.expiredChecker = expiredChecker;
         this.installerRequirementChecker = installerRequirementChecker;
     }
 
@@ -94,6 +102,7 @@ public class RequirementsChecker implements RequirementChecker
     {
         variables.refresh();
         return langChecker.check() && versionChecker.check() && jdkChecker.check() && lockChecker.check() &&
+                expiredChecker.check() && 
                 installerRequirementChecker.check();
     }
 }
