@@ -138,7 +138,24 @@ public class Panel implements Serializable
      */
     private Map<String, ConfigurationOption> configuration = null;
 
-
+    /**
+     * Whether we confirm quit from this panel.
+     * 
+     * This is set from the "allowClose" attribute in the panel specification:
+     * - not specified      = DYNAMIC
+     * - allowClose="true"  = SILENT
+     * - allowClose="false" = CONFIRM
+     * 
+     * See CompilerConfig.addPanels for special handling to simplify usage while  
+     * maintaining backward compatibility.
+     */
+    public enum ConfirmQuitType {
+        DYNAMIC,  //confirm quit until files are copied; "classic" behavior
+        CONFIRM,  //always confirm quit
+        SILENT};  //never confirm quit
+    private ConfirmQuitType confirmQuitType = ConfirmQuitType.DYNAMIC;
+    
+    
     public String getClassName()
     {
         return this.className;
@@ -501,6 +518,24 @@ public class Panel implements Serializable
         affectedVariableNames = names;
     }
 
+    /**
+     * Gets the behavior when quit is pressed on this panel.
+     * @return 
+     */
+    public ConfirmQuitType getConfirmQuitType()
+    {
+      return confirmQuitType;
+    }
+
+    /**
+     * Sets the behavior when quit is pressed on this panel.
+     * @param value 
+     */
+    public void setConfirmQuitType(ConfirmQuitType value)
+    {
+      confirmQuitType = value;
+    }
+    
     @Override
     public String toString()
     {
