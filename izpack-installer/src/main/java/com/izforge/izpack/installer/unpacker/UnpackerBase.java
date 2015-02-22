@@ -401,7 +401,7 @@ public abstract class UnpackerBase implements IUnpacker
                 parseFiles(parsables);
                 checkInterrupt();
 
-                logger.fine("Found " + parsables.size() + " executable files");
+                logger.fine("Found " + executables.size() + " executable files");
                 executeFiles(executables);
                 checkInterrupt();
 
