@@ -181,17 +181,23 @@ public abstract class GUIField extends AbstractFieldView
             {
                 JTextPane pane = (JTextPane)jc;
                 String oldText = pane.getText();
-                String newText = replaceVariables(pane.getText());
-                updated |= oldText.equals(newText);
-                pane.setText(newText);
+                if (oldText != null)
+                {
+                    String newText = replaceVariables(oldText);
+                    updated |= oldText.equals(newText);
+                    pane.setText(newText);
+                }
             }
             else if (jc instanceof JLabel)
             {
                 JLabel label = (JLabel)jc;
                 String oldText = label.getText();
-                String newText = replaceVariables(label.getText());
-                updated |= oldText.equals(newText);
-                label.setText(newText);
+                if (oldText != null)
+                {
+                    String newText = replaceVariables(oldText);
+                    updated |= oldText.equals(newText);
+                    label.setText(newText);
+                }
             }
         }
         return updated;
