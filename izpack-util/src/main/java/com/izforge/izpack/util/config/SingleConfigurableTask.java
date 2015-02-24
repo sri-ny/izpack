@@ -285,7 +285,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
     {
         for (int i = 0; i < ((Options) configurable).length(key); i++)
         {
-            if (lookupValue == null)
+            if (lookupValue != null)
             {
                 String origValue = getValueFromOptionMap((OptionMap) configurable, key, i);
 
