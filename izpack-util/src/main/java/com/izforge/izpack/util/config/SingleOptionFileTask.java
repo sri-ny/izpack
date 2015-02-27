@@ -124,11 +124,14 @@ public class SingleOptionFileTask extends ConfigFileTask
             throw new Exception(ioe);
         }
 
-        if (cleanup && oldFile.exists())
+        if (oldFile != null)
         {
-            if (!oldFile.delete())
+            if (cleanup && oldFile.exists())
             {
-                logger.warning("File " + oldFile + " could not be cleant up");
+                if (!oldFile.delete())
+                {
+                    logger.warning("File " + oldFile + " could not be cleant up");
+                }
             }
         }
     }
