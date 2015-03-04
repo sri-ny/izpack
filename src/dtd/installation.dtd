@@ -129,7 +129,7 @@ $Id$
 
 <!-- The packs section (indicates the packs to create) -->
 <!ELEMENT packs ((pack|refpack)+)>
-    <!ELEMENT pack (description, os*, file*, singlefile*, fileset*, updatecheck?, parsable*, executable*, depends*)>
+    <!ELEMENT pack (description, os*, file*, singlefile*, fileset*, updatecheck?, parsable*, executable*, depends*, validator*)>
         <!ATTLIST pack name CDATA #REQUIRED>
         <!ATTLIST pack id CDATA #IMPLIED>
         <!ATTLIST pack condition CDATA #IMPLIED>
@@ -201,6 +201,7 @@ $Id$
           <!ATTLIST depends packname CDATA #REQUIRED>
     <!ELEMENT refpack EMPTY>
         <!ATTLIST refpack file CDATA #REQUIRED>
+    <!ELEMENT validator (#PCDATA)>
           
 <!-- Allows the inclusion in the installer or uninstaller of a native library -->
 <!ELEMENT native (os*)>
