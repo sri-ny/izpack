@@ -1098,7 +1098,7 @@ public abstract class UnpackerBase implements IUnpacker
         File installationInfo = new File(installDir + File.separator + InstallData.INSTALLATION_INFORMATION);
         if (!installationInfo.exists())
         {
-            logger.fine("Creating info file" + installationInfo.getAbsolutePath());
+            logger.fine("Creating info file " + installationInfo.getAbsolutePath());
             File dir = new File(installData.getInstallPath());
             if (!dir.exists())
             {
