@@ -1170,7 +1170,8 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                     List<IXMLElement> filterList = filters.getChildren();
                     for (IXMLElement filterElement : filterList)
                     {
-                        if (filterElement.getName().equals("regex"))
+                        String filterName = filterElement.getName();
+                        if (filterName.equals("regex"))
                         {
                             String expression = filterElement.getAttribute("regexp");
                             String selectexpr = filterElement.getAttribute("select");
@@ -1185,10 +1186,14 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                                             Boolean.valueOf(scasesensitive != null ? scasesensitive : "true"),
                                             Boolean.valueOf(sglobal != null ? sglobal : "false")));
                         }
-                        else if (filterElement.getName().equals("location"))
+                        else if (filterName.equals("location"))
                         {
                             String basedir = filterElement.getAttribute("basedir");
                             dynamicVariable.addFilter(new LocationFilter(basedir));
+                        }
+                        else
+                        {
+                            parseError(String.format("Unknown filter '%s'", filterName));
                         }
                     }
                 }
