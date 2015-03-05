@@ -56,6 +56,7 @@ import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.core.variable.RegistryValue;
 import com.izforge.izpack.core.variable.ZipEntryConfigFileValue;
+import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.util.FileUtil;
@@ -1190,6 +1191,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                         {
                             String basedir = filterElement.getAttribute("basedir");
                             dynamicVariable.addFilter(new LocationFilter(basedir));
+                        }
+                        else if (filterName.equals("casestyle"))
+                        {
+                            String style = filterElement.getAttribute("style");
+                            dynamicVariable.addFilter(new CaseStyleFilter(style));
                         }
                         else
                         {
