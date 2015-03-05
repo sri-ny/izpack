@@ -20,7 +20,6 @@ public class CaseStyleFilter implements ValueFilter
     {
         try 
         {
-System.out.println(style);
             this.style = Style.valueOf(style.toUpperCase());
         }
         catch (RuntimeException e)  //    IllegalArgumentException || NullPointerException
