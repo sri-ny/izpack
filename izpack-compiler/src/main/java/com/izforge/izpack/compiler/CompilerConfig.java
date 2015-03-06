@@ -72,7 +72,9 @@ import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.GUIPrefs;
 import com.izforge.izpack.api.data.Info;
+
 import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
+
 import com.izforge.izpack.api.data.Info.TempDir;
 import com.izforge.izpack.api.data.InstallerRequirement;
 import com.izforge.izpack.api.data.LookAndFeels;
@@ -113,6 +115,7 @@ import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.core.variable.RegistryValue;
 import com.izforge.izpack.core.variable.ZipEntryConfigFileValue;
+import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.data.CustomData;
@@ -135,6 +138,7 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.FileUtils;
+
 import java.text.ParseException;
 
 /**
@@ -2496,6 +2500,11 @@ public class CompilerConfig extends Thread
                     {
                         String basedir = filterElement.getAttribute("basedir");
                         dynamicVariable.addFilter(new LocationFilter(basedir));
+                    }
+                    else if (filterName.equals("case"))
+                    {
+                        String style = filterElement.getAttribute("style");
+                        dynamicVariable.addFilter(new CaseStyleFilter(style));
                     }
                     else
                     {
