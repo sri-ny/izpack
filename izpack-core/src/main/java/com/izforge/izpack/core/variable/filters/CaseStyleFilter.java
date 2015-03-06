@@ -8,7 +8,7 @@ public class CaseStyleFilter implements ValueFilter
 {
     private static final long serialVersionUID = 1L;
 
-    public enum Style {LOWERCASE,UPPERCASE};
+    public enum Style {LOWER,UPPER};
     private Style style;
     
     public CaseStyleFilter(Style style) 
@@ -33,7 +33,7 @@ public class CaseStyleFilter implements ValueFilter
     {
         if (style==null) 
         {
-            throw new CompilerException("casestyle Filter has been initialized with unknown style");
+            throw new CompilerException("case Filter has been initialized with unknown style");
         }
     }
 
@@ -42,9 +42,9 @@ public class CaseStyleFilter implements ValueFilter
     {
         switch (style)
         {
-        case LOWERCASE: return value.toLowerCase();
-        case UPPERCASE: return value.toUpperCase();
-        default:        throw new CompilerException("casestyle Filter has been initialized with unimplemented style");
+        case LOWER: return value.toLowerCase();
+        case UPPER: return value.toUpperCase();
+        default:        throw new CompilerException("case Filter has been initialized with unimplemented style");
         }
     }
 }

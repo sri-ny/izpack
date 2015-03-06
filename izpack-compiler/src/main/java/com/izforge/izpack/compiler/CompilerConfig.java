@@ -2501,7 +2501,7 @@ public class CompilerConfig extends Thread
                         String basedir = filterElement.getAttribute("basedir");
                         dynamicVariable.addFilter(new LocationFilter(basedir));
                     }
-                    else if (filterName.equals("casestyle"))
+                    else if (filterName.equals("case"))
                     {
                         String style = filterElement.getAttribute("style");
                         dynamicVariable.addFilter(new CaseStyleFilter(style));

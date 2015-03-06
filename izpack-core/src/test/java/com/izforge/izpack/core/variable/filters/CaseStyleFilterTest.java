@@ -20,8 +20,8 @@ public class CaseStyleFilterTest
         VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
         try
         {
-            assertEquals("some text", new CaseStyleFilter("lowercase").filter(text, subst));
-            assertEquals("some text", new CaseStyleFilter(CaseStyleFilter.Style.LOWERCASE).filter(text, subst));
+            assertEquals("some text", new CaseStyleFilter("lower").filter(text, subst));
+            assertEquals("some text", new CaseStyleFilter(CaseStyleFilter.Style.LOWER).filter(text, subst));
         }
         catch (Exception e)
         {
@@ -36,8 +36,8 @@ public class CaseStyleFilterTest
         VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
         try
         {
-            assertEquals("SOME TEXT", new CaseStyleFilter("uppercase").filter(text, subst));
-            assertEquals("SOME TEXT", new CaseStyleFilter(CaseStyleFilter.Style.UPPERCASE).filter(text, subst));
+            assertEquals("SOME TEXT", new CaseStyleFilter("upper").filter(text, subst));
+            assertEquals("SOME TEXT", new CaseStyleFilter(CaseStyleFilter.Style.UPPER).filter(text, subst));
         }
         catch (Exception e)
         {
