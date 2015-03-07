@@ -123,7 +123,7 @@ class IniSource
     {
         if (buff.length() != 0)
         {
-            buff.deleteCharAt(buff.length() - 1);
+            //buff.deleteCharAt(buff.length() - 1);
             comments.add(buff.toString());
             buff.delete(0, buff.length());
         }
