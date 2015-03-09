@@ -44,15 +44,8 @@ public class LoggingPrompt extends AbstractPrompt
      */
     public static final Prompt INSTANCE = new LoggingPrompt();
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param title   the message title. If {@code null}, the title will be determined from the type
-     * @param message the message to display
-     */
     @Override
-    public void message(Type type, String title, String message)
+    public void message(Type type, String title, String message, Throwable throwable)
     {
         Level level;
         switch (type)
@@ -66,7 +59,13 @@ public class LoggingPrompt extends AbstractPrompt
             default:
                 level = Level.INFO;
         }
-        logger.log(level, message);
+        logger.log(level, message, throwable);
+    }
+
+    @Override
+    public void message(Type type, String title, String message)
+    {
+        message(type, title, message, null);
     }
 
     /**

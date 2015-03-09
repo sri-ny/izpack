@@ -6,6 +6,7 @@
  *
  * Copyright 2004 Klaus Bartz
  * Copyright 2004 Thomas Guenter
+ * Copyright 2015 René Krell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +33,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildLogger;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.DemuxOutputStream;
+import org.apache.tools.ant.Location;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
 import org.apache.tools.ant.taskdefs.Ant;
 import org.apache.tools.ant.util.JavaEnvUtils;
 
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.util.file.FileUtils;
 
 /**
@@ -68,6 +73,8 @@ public class AntAction extends ActionBase
     private boolean verbose = false;
 
     private AntLogLevel logLevel = AntLogLevel.INFO;
+
+    private Prompt.Type severity = Prompt.Type.ERROR;
 
     private Properties properties = null;
 
@@ -105,7 +112,7 @@ public class AntAction extends ActionBase
      *
      * @throws Exception
      */
-    public void performInstallAction() throws Exception
+    public void performInstallAction() throws IzPackException
     {
         performAction(false);
     }
@@ -117,7 +124,7 @@ public class AntAction extends ActionBase
      *
      * @throws IzPackException for any error
      */
-    public void performUninstallAction()
+    public void performUninstallAction() throws IzPackException
     {
         performAction(true);
     }
@@ -131,7 +138,7 @@ public class AntAction extends ActionBase
      * @see #performInstallAction() for calling all install actions.
      * @see #performUninstallAction() for calling all uninstall actions.
      */
-    public void performAction(boolean uninstall)
+    public void performAction(boolean uninstall) throws IzPackException
     {
         if (verbose)
         {
@@ -149,9 +156,9 @@ public class AntAction extends ActionBase
         try
         {
             Project antProj = new Project();
+            antProj.setInputHandler(new AntActionInputHandler());
             antProj.setName("antcallproject");
             antProj.addBuildListener(createLogger());
-            antProj.setInputHandler(new AntActionInputHandler());
             antProj.setSystemProperties();
             addProperties(antProj, getProperties());
             addPropertiesFromPropertyFiles(antProj);
@@ -187,9 +194,9 @@ public class AntAction extends ActionBase
             System.setErr(new PrintStream(new DemuxOutputStream(antProj, true)));
             antProj.executeTarget("calltarget");
         }
-        catch (Exception exception)
+        catch (BuildException exception)
         {
-            throw new IzPackException(exception);
+            throw new IzPackException("Ant build failed", exception, getSeverity());
         }
         finally
         {
@@ -370,6 +377,7 @@ public class AntAction extends ActionBase
 
     /**
      * Get Ant log priority level the action uses when logging.
+     *
      * @return logLevel
      * @see org.apache.tools.ant.Project
      */
@@ -380,13 +388,33 @@ public class AntAction extends ActionBase
 
     /**
      * Set Ant log priority level the action should use when logging.
-     * Must be on of @TODO
+     *
      * @param logLevel
      * @see org.apache.tools.ant.Project
      */
     public void setLogLevel(AntLogLevel logLevel)
     {
         this.logLevel = logLevel;
+    }
+
+    /**
+     * Get severity of this action in case of errors
+     *
+     * @return
+     */
+    public Prompt.Type getSeverity()
+    {
+        return severity;
+    }
+
+    /**
+     * Set severity of this action in case of errors
+     *
+     * @param severity
+     */
+    public void setSeverity(Prompt.Type severity)
+    {
+        this.severity = severity;
     }
 
     /**
@@ -555,6 +583,35 @@ public class AntAction extends ActionBase
             FileUtils.close(fis);
         }
         addProperties(proj, props);
+    }
+
+    /**
+     * Wraps a Ant {@link BuildException} to an {@link InstallerException}.
+     * This is mainly done for the purpose of cutting of the location from the build failure message.
+     * Locations should appear just in logs, not to the user.
+     *
+     * @param e the {@link IzPackException} with the nested {@link BuildException}
+     * @throws InstallerException
+     */
+    public void throwBuildException(IzPackException e) throws InstallerException
+    {
+        String message;
+        Throwable cause = e.getCause(), nested = e;
+        IzPackException ize = e;
+        while (cause != null)
+        {
+            nested = cause;
+            cause = cause.getCause();
+        }
+        if (nested instanceof BuildException)
+        {
+            // Workaround for BuildException.toString():
+            // Filter off the location, just leave the clean failure message
+            Location location = ((BuildException)nested).getLocation();
+            message = nested.toString().substring(location.toString().length());
+            ize = new IzPackException(message, e, severity);
+        }
+        throw new InstallerException(ize);
     }
 
 }

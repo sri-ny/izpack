@@ -31,6 +31,7 @@ import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.core.handler.ProgressHandler;
@@ -156,9 +157,9 @@ public class InstallerListeners
      *
      * @param packs    the packs to install
      * @param listener the progress listener
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void beforePacks(List<Pack> packs, ProgressListener listener)
+    public void beforePacks(List<Pack> packs, ProgressListener listener) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
@@ -176,9 +177,9 @@ public class InstallerListeners
      * @param pack     the pack
      * @param i        the pack number
      * @param listener the progress listener
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void beforePack(Pack pack, int i, ProgressListener listener)
+    public void beforePack(Pack pack, int i, ProgressListener listener) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
@@ -206,9 +207,9 @@ public class InstallerListeners
      * @param dir      the directory
      * @param packFile corresponding pack file
      * @param pack     the pack that {@code packFile} comes from
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void beforeDir(File dir, PackFile packFile, Pack pack)
+    public void beforeDir(File dir, PackFile packFile, Pack pack) throws InstallerException
     {
         for (InstallerListener l : fileListeners)
         {
@@ -222,9 +223,9 @@ public class InstallerListeners
      * @param dir      the directory
      * @param packFile corresponding pack file
      * @param pack     the pack that {@code packFile} comes from
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void afterDir(File dir, PackFile packFile, Pack pack)
+    public void afterDir(File dir, PackFile packFile, Pack pack) throws InstallerException
     {
         for (InstallerListener l : fileListeners)
         {
@@ -240,9 +241,9 @@ public class InstallerListeners
      * @param file     the file
      * @param packFile corresponding pack file
      * @param pack     the pack that {@code packFile} comes from
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void beforeFile(File file, PackFile packFile, Pack pack)
+    public void beforeFile(File file, PackFile packFile, Pack pack) throws InstallerException
     {
         for (InstallerListener l : fileListeners)
         {
@@ -258,9 +259,9 @@ public class InstallerListeners
      * @param file     the file
      * @param packFile corresponding pack file
      * @param pack     the pack that {@code packFile} comes from
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void afterFile(File file, PackFile packFile, Pack pack)
+    public void afterFile(File file, PackFile packFile, Pack pack) throws InstallerException
     {
         for (InstallerListener l : fileListeners)
         {
@@ -274,9 +275,9 @@ public class InstallerListeners
      * @param pack     current pack object
      * @param i        current pack number
      * @param listener the progress listener
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void afterPack(Pack pack, int i, ProgressListener listener)
+    public void afterPack(Pack pack, int i, ProgressListener listener) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
@@ -293,9 +294,9 @@ public class InstallerListeners
      *
      * @param packs    the installed packs
      * @param listener the progress listener
-     * @throws IzPackException if a listener throws an exception
+     * @throws InstallerException if a listener throws an exception
      */
-    public void afterPacks(List<Pack> packs, ProgressListener listener)
+    public void afterPacks(List<Pack> packs, ProgressListener listener) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
