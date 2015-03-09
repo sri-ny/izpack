@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
@@ -106,7 +107,7 @@ public class SingleConfigurableTaskTest
 //    }
 
     @Test
-    public void testIniCommentsAtEnd() throws IOException
+    public void testIniCommentsAtEnd() throws IOException, URISyntaxException
     {
         SingleIniFileTask task = new SingleIniFileTask();
 
@@ -117,9 +118,51 @@ public class SingleConfigurableTaskTest
         assertNotNull("New file missing", newFileUrl);
         assertNotNull("Expected result file missing", expectedFileUrl);
 
-        File oldFile = new File(oldFileUrl.getFile());
-        File newFile = new File(newFileUrl.getFile());
-        File expectedFile = new File(expectedFileUrl.getFile());
+        File oldFile = new File(oldFileUrl.toURI());
+        File newFile = new File(newFileUrl.toURI());
+        File expectedFile = new File(expectedFileUrl.toURI());
+        File toFile = tmpDir.newFile("to.ini");
+
+        task.setToFile(toFile);
+        task.setOldFile(oldFile);
+        task.setNewFile(newFile);
+        task.setCleanup(false);
+        task.setCreate(true);
+        task.setPatchPreserveEntries(false);
+        task.setPatchPreserveValues(true);
+        task.setPatchResolveVariables(false);
+
+        try
+        {
+            task.execute();
+        }
+        catch (Exception e)
+        {
+            fail("Task could not be executed: " + e.getMessage());
+        }
+
+        printFileContent(toFile);
+        printFileContent(expectedFile);
+        assertEquals(FileUtils.contentEqualsIgnoreEOL(expectedFile, toFile, "ISO-8859-1"), true);
+    }
+
+    @Test
+    public void testIniCommentsAtEndWithSpaceInPath() throws IOException, URISyntaxException
+    {
+        SingleIniFileTask task = new SingleIniFileTask();
+
+        URL oldFileUrl = getClass().getResource("/com/izforge/izpack/util/config with space/oldversion2.ini");
+        URL newFileUrl = getClass().getResource("/com/izforge/izpack/util/config with space/newversion2.ini");
+        URL expectedFileUrl = getClass().getResource("/com/izforge/izpack/util/config with space/expected_after_merge2.ini");
+        assertNotNull("Old file missing", oldFileUrl);
+        assertNotNull("New file missing", newFileUrl);
+        assertNotNull("Expected result file missing", expectedFileUrl);
+        
+        System.out.println("The oldFileUrl: "+ oldFileUrl.toURI().toString());
+
+        File oldFile = new File(oldFileUrl.toURI());
+        File newFile = new File(newFileUrl.toURI());
+        File expectedFile = new File(expectedFileUrl.toURI());
         File toFile = tmpDir.newFile("to.ini");
 
         task.setToFile(toFile);
