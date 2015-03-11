@@ -26,15 +26,34 @@ import static com.izforge.izpack.api.handler.Prompt.Option.NO;
 import static com.izforge.izpack.api.handler.Prompt.Option.OK;
 import static com.izforge.izpack.api.handler.Prompt.Option.YES;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.izforge.izpack.api.handler.AbstractPrompt;
+import com.izforge.izpack.api.handler.Prompt.Type;
 
 
 /**
@@ -89,21 +108,14 @@ public class GUIPrompt extends AbstractPrompt
         this.parent = parent;
     }
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param title   the message title. If {@code null}, the title will be determined from the type
-     * @param message the message to display
-     */
     @Override
-    public void message(Type type, String title, String message)
+    public void message(Type type, String title, String message, Throwable throwable)
     {
         if (title == null)
         {
             title = getTitle(type);
         }
-        showMessageDialog(getMessageType(type), title, message);
+        showMessageDialog(getMessageType(type), title, message, null, throwable);
     }
 
     /**
@@ -116,7 +128,6 @@ public class GUIPrompt extends AbstractPrompt
      * @return the selected option
      */
     @Override
-    @SuppressWarnings("MagicConstant")
     public Option confirm(Type type, String title, final String message, Options options, Option defaultOption)
     {
         final int messageType = getMessageType(type);
@@ -189,37 +200,237 @@ public class GUIPrompt extends AbstractPrompt
     }
 
     /**
-     * Displays a message dialog, ensuring that it is displayed from the event dispatch thread.
+     * Maps a {@link Type} to a JOptionPane message type.
      *
-     * @param type    the dialog type
-     * @param title   the title
-     * @param message the message
+     * @param type the message type
+     * @return the JOptionPane equivalent
      */
-    @SuppressWarnings("MagicConstant")
-    private void showMessageDialog(final int type, final String title, final String message)
+    private int getMessageType(Type type)
     {
-        if (SwingUtilities.isEventDispatchThread())
+        int result;
+        switch (type)
         {
-            JOptionPane.showMessageDialog(parent, message, title, type);
+            case INFORMATION:
+                result = JOptionPane.INFORMATION_MESSAGE;
+                break;
+            case WARNING:
+                result = JOptionPane.WARNING_MESSAGE;
+                break;
+            case QUESTION:
+                result = JOptionPane.QUESTION_MESSAGE;
+                break;
+            default:
+                result = JOptionPane.ERROR_MESSAGE;
+                break;
         }
-        else
+        return result;
+    }
+
+    /**
+     * Display details about throwable in a simple modal dialog.
+     * @param throwable
+     * @param title the title of the dialog box.
+     * @param submissionURL if not null, allow the user to report the exception to that URL
+     * @param component the "owner" of the dialog, and may be null for non-graphical applications.
+     */
+    public void showMessageDialog(final int type, final String title, final String message,
+            final String submissionURL,
+            final Throwable throwable)
+    {
+        new Exception().printStackTrace();
+        final List<Object> buttons = new ArrayList<Object>();
+        String throwMessage = null;
+        final JButton detailsButton = new JButton("Show Details");;
+        final JButton copyButton = new JButton("Copy");;
+        if (throwable != null)
         {
-            try
-            {
-                SwingUtilities.invokeAndWait(new Runnable()
+            throwMessage = throwable.getMessage();
+            buttons.add(detailsButton);
+            buttons.add(copyButton);
+        }
+        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : "An error occured") );
+
+        final JPanel topPanel = new JPanel();
+        final JLabel messageLabel = new JLabel();
+        messageLabel.setText(basicMessage);
+        topPanel.add(messageLabel);
+
+        final JPanel centerPanel = new JPanel();
+        centerPanel.setSize(new Dimension(420, 300));
+        final JEditorPane exceptionPane = new JEditorPane();
+        exceptionPane.setEditable(false);
+        exceptionPane.setContentType("text/html");
+        exceptionPane.setText(getHTMLDetails(throwable));
+        final JScrollPane exceptionScrollPane = new JScrollPane(exceptionPane);
+        exceptionScrollPane.setPreferredSize(new Dimension(470, 300));
+        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        centerPanel.add(exceptionScrollPane);
+        centerPanel.setVisible(false);
+
+        final JPanel jPanel = new JPanel();
+        jPanel.setLayout(new BorderLayout());
+        jPanel.add(topPanel, BorderLayout.NORTH);
+        jPanel.add(centerPanel, BorderLayout.CENTER);
+
+        final JButton reportButton = new JButton("Send Report");
+        if (submissionURL != null)
+        {
+            buttons.add(reportButton);
+        }
+        buttons.add("Close");
+        JOptionPane pane = new JOptionPane(jPanel, type,
+                JOptionPane.YES_NO_OPTION, null,
+                buttons.toArray());
+        final JDialog dialog = pane.createDialog(parent, title);
+        if (throwable != null)
+        {
+            // event handler for the Details button
+            detailsButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event)
                 {
-                    @Override
-                    public void run()
+                    // Show or hide error details based on state of button
+                    String label = detailsButton.getText();
+                    if (label.startsWith("Show"))
                     {
-                        JOptionPane.showMessageDialog(parent, message, title, type);
+                        messageLabel.setText(basicMessage);
+                        centerPanel.setVisible(true);
+                        detailsButton.setText("Hide Details");
+                        dialog.pack(); // resize dialog to fit details
                     }
-                });
-            }
-            catch (Throwable exception)
+                    else
+                    {
+                        messageLabel.setText(basicMessage);
+                        centerPanel.setVisible(false);
+                        detailsButton.setText("Show Details");
+                        dialog.pack();
+                    }
+                }
+            });
+            // event handler for the Details button
+            copyButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event)
+                {
+                    // select and copy stacktrace to system clipboard
+                    exceptionPane.selectAll();
+                    exceptionPane.copy();
+                }
+            });
+        }
+        if (reportButton != null)
+        {
+            // Event handler for the "Report" button.
+            reportButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event)
+                {
+                    try
+                    {
+                        // Report the error, get response. See below.
+                        String response = reportThrowable(throwable, submissionURL);
+                        // Tell the user about the report
+                        messageLabel.setText("<html>Error reported to:<pre>" + submissionURL
+                                + "</pre>Server responds:<p>" + response + "</html>");
+                        dialog.pack(); // Resize dialog to fit new message
+                        // Don't allow it to be reported again
+                        reportButton.setText("Error Reported");
+                        reportButton.setEnabled(false);
+                    }
+                    catch (IOException e)
+                    { // If error reporting fails
+                        messageLabel.setText("Error not reported: " + e);
+                        dialog.pack();
+                    }
+                }
+            });
+        }
+        // Display the dialog modally. This method will return only when the
+        // user clicks the "Exit" button of the JOptionPane.
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Return an HTML-formatted stack trace for the specified Throwable, including any exceptions
+     * chained to the exception. Note the use of the Java 1.4 StackTraceElement to get stack
+     * details. The returned string begins with "<html>" and is therefore suitable for display in
+     * Swing components such as JLabel.
+     */
+    private static String getHTMLDetails(Throwable throwable)
+    {
+        StringBuffer b = new StringBuffer("<html>");
+        int lengthOfLastTrace = 1; // initial value
+        // Start with the specified throwable and loop through the chain of
+        // causality for the throwable.
+        while (throwable != null)
+        {
+            // Output Exception name and message, and begin a list
+            b.append("<b>" + throwable.getClass().getName() + "</b>: " + throwable.getMessage()
+                    + "<ul>");
+            // Get the stack trace and output each frame.
+            // Be careful not to repeat stack frames that were already reported
+            // for the exception that this one caused.
+            StackTraceElement[] stack = throwable.getStackTrace();
+            for (int i = stack.length - lengthOfLastTrace; i >= 0; i--)
             {
-                throw new IllegalStateException(exception);
+                b.append("<li> in " + stack[i].getClassName() + ".<b>" + stack[i].getMethodName()
+                        + "</b>() at <tt>" + stack[i].getFileName() + ":"
+                        + stack[i].getLineNumber() + "</tt>");
+            }
+            b.append("</ul>"); // end list
+            // See if there is a cause for this exception
+            throwable = throwable.getCause();
+            if (throwable != null)
+            {
+                // If so, output a header
+                b.append("<i>Caused by: </i>");
+                // And remember how many frames to skip in the stack trace
+                // of the cause exception
+                lengthOfLastTrace = stack.length;
             }
         }
+        b.append("</html>");
+        return b.toString();
+    }
+
+    /**
+     * Serialize the specified Throwable, and use an HttpURLConnection to POST it to the specified
+     * URL. Return the response of the web server.
+     */
+    private static String reportThrowable(Throwable throwable, String submissionURL)
+            throws IOException
+    {
+        URL url = new URL(submissionURL); // Parse the URL
+        URLConnection c = url.openConnection(); // Open unconnected Connection
+        c.setDoOutput(true);
+        c.setDoInput(true);
+        // Tell the server what kind of data we're sending
+        c.addRequestProperty("Content-type", "application/x-java-serialized-object");
+
+        // This code might work for other URL protocols, but it is intended
+        // for HTTP. We use a POST request to send data with the request.
+        if (c instanceof HttpURLConnection) ((HttpURLConnection) c).setRequestMethod("POST");
+
+        c.connect(); // Now connect to the server
+
+        // Get a stream to write to the server from the URLConnection.
+        // Wrap an ObjectOutputStream around it and serialize the Throwable.
+        ObjectOutputStream out = new ObjectOutputStream(c.getOutputStream());
+        out.writeObject(throwable);
+        out.close();
+
+        // Now get the response from the URLConnection. We expect it to be
+        // an InputStream from which we read the server's response.
+        Object response = c.getContent();
+        StringBuffer message = new StringBuffer();
+        if (response instanceof InputStream)
+        {
+            BufferedReader in = new BufferedReader(new InputStreamReader((InputStream) response));
+            String line;
+            while ((line = in.readLine()) != null)
+                message.append(line);
+        }
+        return message.toString();
     }
 
     /**
@@ -233,7 +444,6 @@ public class GUIPrompt extends AbstractPrompt
      * @param initialValue the initial value
      * @return the selected option
      */
-    @SuppressWarnings("MagicConstant")
     private int showOptionDialog(final int type, final String title, final String message, final int optionType,
                                  final List<Object> opts, final Object initialValue)
     {
@@ -276,7 +486,6 @@ public class GUIPrompt extends AbstractPrompt
      * @param optionType the option type
      * @return the selected option
      */
-    @SuppressWarnings("MagicConstant")
     private int showConfirmDialog(final int type, final String title, final String message, final int optionType)
     {
         int selected;
@@ -334,56 +543,48 @@ public class GUIPrompt extends AbstractPrompt
         return result;
     }
 
-    /**
-     * Returns the dialog title based on the type of the message.
-     *
-     * @param type the message type
-     * @return the title
-     */
-    private String getTitle(Type type)
-    {
-        String result;
-        switch (type)
-        {
-            case INFORMATION:
-                result = "Info";
-                break;
-            case QUESTION:
-                result = "Question";
-                break;
-            case WARNING:
-                result = "Warning";
-                break;
-            default:
-                result = "Error";
-        }
-        return result;
-    }
 
-    /**
-     * Maps a {@link Type} to a JOptionPane message type.
-     *
-     * @param type the message type
-     * @return the JOptionPane equivalent
-     */
-    private int getMessageType(Type type)
+    // A test program to demonstrate the class
+    public static class Test
     {
-        int result;
-        switch (type)
+        public static void main(String[] args)
         {
-            case INFORMATION:
-                result = JOptionPane.INFORMATION_MESSAGE;
-                break;
-            case WARNING:
-                result = JOptionPane.WARNING_MESSAGE;
-                break;
-            case QUESTION:
-                result = JOptionPane.QUESTION_MESSAGE;
-                break;
-            default:
-                result = JOptionPane.ERROR_MESSAGE;
-                break;
+            String url = (args.length > 0) ? args[0] : null;
+            try
+            {
+                foo();
+            }
+            catch (Throwable e)
+            {
+                new GUIPrompt().showMessageDialog(JOptionPane.ERROR_MESSAGE, "Fatal Error", "A critical error occured", url, e);
+                System.exit(1);
+            }
         }
-        return result;
+
+        // These methods purposely throw an exception
+        public static void foo()
+        {
+            bar(null);
+        }
+
+        public static void bar(Object o)
+        {
+            try
+            {
+                blah(o);
+            }
+            catch (NullPointerException e)
+            {
+                // Catch the null pointer exception and throw a new exception
+                // that has the NPE specified as its cause.
+                throw (IllegalArgumentException) new IllegalArgumentException("null argument")
+                        .initCause(e);
+            }
+        }
+
+        public static void blah(Object o)
+        {
+            Class c = o.getClass(); // throws NPE if o is null
+        }
     }
 }

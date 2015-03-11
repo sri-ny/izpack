@@ -55,6 +55,13 @@ public interface Prompt
     /**
      * Displays a message.
      *
+     * @param throwable the throwable for displaying details
+     */
+    void message(Throwable throwable);
+
+    /**
+     * Displays a message.
+     *
      * @param type    the type of the message
      * @param message the message to display
      */
@@ -68,6 +75,23 @@ public interface Prompt
      * @param message the message to display
      */
     void message(Type type, String title, String message);
+
+    /**
+     * Displays a message.
+     *
+     * @param type    the type of the message
+     * @param title   the message title. If {@code null}, the title will be determined from the type
+     * @param message the message to display
+     * @param throwable the throwable for displaying details
+     */
+    void message(Type type, String title, String message, Throwable throwable);
+
+    /**
+     * Displays a warning message.
+     *
+     * @param throwable the throwable for displaying details
+     */
+    void warn(Throwable throwable);
 
     /**
      * Displays a warning message.
@@ -94,10 +118,34 @@ public interface Prompt
     /**
      * Displays an error message.
      *
+     * @param throwable the throwable for displaying details
+     */
+    void error(Throwable throwable);
+
+    /**
+     * Displays an error message.
+     *
+     * @param message the message to display
+     * @param throwable the throwable for displaying details
+     */
+    void error(String message, Throwable throwable);
+
+    /**
+     * Displays an error message.
+     *
      * @param title   the message title. May be {@code null}
      * @param message the message display
      */
     void error(String title, String message);
+
+    /**
+     * Displays an error message.
+     *
+     * @param title   the message title. May be {@code null}
+     * @param message the message display
+     * @param throwable the throwable for displaying details
+     */
+    void error(String title, String message, Throwable throwable);
 
     /**
      * Displays a confirmation message.

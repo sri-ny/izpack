@@ -28,6 +28,8 @@ import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.exception.ResourceInterruptedException;
+import com.izforge.izpack.api.handler.AbstractPrompt;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
@@ -264,14 +266,40 @@ public abstract class UnpackerBase implements IUnpacker
             }
             else
             {
-                String message = exception.getMessage();
-                if (message == null || "".equals(message))
+                IzPackException ize;
+                if (exception instanceof InstallerException)
                 {
-                    message = "Internal error occurred : " + exception.toString();
+                    InstallerException ie = (InstallerException) exception;
+                    ize = (IzPackException)ie.getCause();
                 }
-                prompt.message(Type.ERROR, message);
+                else
+                {
+                    // IzPackException
+                    ize = (IzPackException)exception;
+                }
+                switch (ize.getPromptType())
+                {
+                    case ERROR:
+                        prompt.message(ize);
+                        break;
+
+                    case WARNING:
+                        AbstractUIHandler handler = new PromptUIHandler(prompt);
+                        if (handler.askWarningQuestion(null,
+                                AbstractPrompt.getThrowableMessage(ize) + "\nContinue Installation?",
+                                AbstractUIHandler.CHOICES_YES_NO,
+                                AbstractUIHandler.ANSWER_NO)
+                                == AbstractUIHandler.ANSWER_YES)
+                        {
+                            return;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
             }
-            // TODO - shouldn't do this. Should provide option to rollback changes
+
             housekeeper.shutDown(4);
         }
         finally
@@ -364,9 +392,9 @@ public abstract class UnpackerBase implements IUnpacker
      * This notifies the {@link #getProgressListener listener}, and any registered {@link InstallerListener listeners}.
      *
      * @param packs the packs to unpack
-     * @throws IzPackException for any error
+     * @throws InstallerException for any error
      */
-    protected void preUnpack(List<Pack> packs)
+    protected void preUnpack(List<Pack> packs) throws InstallerException
     {
         logger.fine("Unpacker starting");
         listener.startAction("Unpacking", packs.size());
@@ -382,10 +410,10 @@ public abstract class UnpackerBase implements IUnpacker
      * @param executables  used to collect executable files files in the pack
      * @param updateChecks used to collect update checks in the pack
      * @throws ResourceInterruptedException if unpacking is cancelled
-     * @throws IzPackException              for any error
+     * @throws InstallerException              for any error
      */
     protected void unpack(List<Pack> packs, FileQueue queue, List<ParsableFile> parsables,
-                          List<ExecutableFile> executables, List<UpdateCheck> updateChecks)
+                          List<ExecutableFile> executables, List<UpdateCheck> updateChecks) throws InstallerException
     {
         int count = packs.size();
         for (int i = 0; i < count; i++)
@@ -671,7 +699,7 @@ public abstract class UnpackerBase implements IUnpacker
      * @throws ResourceInterruptedException if installation is cancelled
      * @throws IOException                  for any I/O error
      */
-    protected void postUnpack(List<Pack> packs, FileQueue queue, List<UpdateCheck> updateChecks) throws IOException
+    protected void postUnpack(List<Pack> packs, FileQueue queue, List<UpdateCheck> updateChecks) throws IOException, InstallerException
     {
         InstallData installData = getInstallData();
 

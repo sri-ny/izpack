@@ -134,8 +134,8 @@ public class ProcessConsolePanelTest
         ProcessConsolePanel panel = new ProcessConsolePanel(rules, resources, prompt, matcher, null);
         assertFalse(panel.run(installData, console));
 
-        assertEquals(3, console.getOutput().size());
-        assertTrue(console.getOutput().get(2).equals(
+        assertEquals(4, console.getOutput().size());
+        assertTrue(console.getOutput().get(3).equals(
                 "Invocation Problem calling : com.izforge.izpack.panels.process.Executable, Executable exception"));
 
         // verify Executable was run the expected no. of times, with the expected arguments

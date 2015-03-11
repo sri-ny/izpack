@@ -20,6 +20,8 @@
  */
 package com.izforge.izpack.api.handler;
 
+import com.izforge.izpack.api.exception.IzPackException;
+
 /**
  * Abstract implementation of {@link Prompt}.
  *
@@ -28,62 +30,93 @@ package com.izforge.izpack.api.handler;
 public abstract class AbstractPrompt implements Prompt
 {
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param message the message to display
-     */
+    @Override
+    public void message(Throwable throwable)
+    {
+        if (throwable instanceof IzPackException)
+        {
+            IzPackException ize = (IzPackException)throwable;
+            switch (ize.getPromptType())
+            {
+                case ERROR:
+                    error(throwable);
+                    break;
+
+                case WARNING:
+                    warn(throwable);
+                    break;
+
+                default:
+                    message(Type.INFORMATION, throwable.getMessage());
+                    break;
+            }
+        }
+        else
+        {
+            error(throwable);
+        }
+    }
+
     @Override
     public void message(Type type, String message)
     {
         message(type, null, message);
     }
 
-    /**
-     * Displays a warning message.
-     *
-     * @param message the message to display
-     */
+    @Override
+    public void message(Type type, String title, String message)
+    {
+       message(type, title, message, null);
+    }
+
+    @Override
+    public void warn(Throwable throwable)
+    {
+        String message = getThrowableMessage(throwable);
+        warn((message!=null ? message : "An error occured"));
+    }
+
     @Override
     public void warn(String message)
     {
         warn(null, message);
     }
 
-    /**
-     * Displays a warning message.
-     *
-     * @param title   the message title. May be {@code null}
-     * @param message the message to display
-     */
     @Override
     public void warn(String title, String message)
     {
-        message(Type.WARNING, title, message);
+        message(Type.WARNING, title, message, null);
     }
 
-    /**
-     * Displays an error message.
-     *
-     * @param message the message to display
-     */
+    @Override
+    public void error(Throwable throwable)
+    {
+        String message = getThrowableMessage(throwable);
+        error(null, (message!=null ? message : "An error occured"), throwable);
+    }
+
     @Override
     public void error(String message)
     {
         error(null, message);
     }
 
-    /**
-     * Displays an error message.
-     *
-     * @param title   the message title. May be {@code null}
-     * @param message the message to display
-     */
+    @Override
+    public void error(String message, Throwable throwable)
+    {
+        error(null, message, throwable);
+    }
+
     @Override
     public void error(String title, String message)
     {
-        message(Type.ERROR, title, message);
+        message(Type.ERROR, title, message, null);
+    }
+
+    @Override
+    public void error(String title, String message, Throwable throwable)
+    {
+        message(Type.ERROR, title, message, throwable);
     }
 
     /**
@@ -128,6 +161,50 @@ public abstract class AbstractPrompt implements Prompt
     public Option confirm(Type type, String title, String message, Options options)
     {
         return confirm(type, title, message, options, null);
+    }
+
+    /**
+     * Returns the dialog title based on the type of the message.
+     *
+     * @param type the message type
+     * @return the title
+     */
+    protected String getTitle(Type type)
+    {
+        String result;
+        switch (type)
+        {
+            case INFORMATION:
+                result = "Info";
+                break;
+            case QUESTION:
+                result = "Question";
+                break;
+            case WARNING:
+                result = "Warning";
+                break;
+            default:
+                result = "Error";
+        }
+        return result;
+    }
+
+    /**
+     * Try to extract the uppermost message from a Throwable's stacktrace.
+     *
+     * @param throwable the Throwable to examine including its causes
+     * @return the message
+     */
+    public static String getThrowableMessage(Throwable throwable)
+    {
+        String message = null;
+
+        while (throwable != null)
+        {
+            message = throwable.getMessage();
+            throwable = throwable.getCause();
+        }
+        return message;
     }
 
 }

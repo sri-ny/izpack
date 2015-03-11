@@ -57,71 +57,72 @@ public class DelegatingPrompt implements Prompt
         this.prompt = prompt;
     }
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param message the message to display
-     */
+    @Override
+    public void message(Throwable throwable)
+    {
+        prompt.message(throwable);
+    }
+
     @Override
     public void message(Type type, String message)
     {
         prompt.message(type, message);
     }
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param title   the message title. If {@code null}, the title will be determined from the type
-     * @param message the message to display
-     */
     @Override
     public void message(Type type, String title, String message)
     {
         prompt.message(type, title, message);
     }
 
-    /**
-     * Displays a warning message.
-     *
-     * @param message the message to display
-     */
+    @Override
+    public void message(Type type, String title, String message, Throwable throwable)
+    {
+        prompt.message(type, title, message, throwable);
+    }
+
+    @Override
+    public void error(Throwable throwable)
+    {
+        prompt.message(null, null, null, throwable);
+    }
+
+    @Override
+    public void error(String message, Throwable throwable)
+    {
+        prompt.message(null, null, message, throwable);
+    }
+
+    @Override
+    public void error(String title, String message, Throwable throwable)
+    {
+        prompt.message(null, title, message, throwable);
+    }
+
+    @Override
+    public void warn(Throwable throwable)
+    {
+        prompt.warn(throwable);
+    }
+
     @Override
     public void warn(String message)
     {
         prompt.warn(message);
     }
 
-    /**
-     * Displays a warning message.
-     *
-     * @param title   the message title. May be {@code null}
-     * @param message the message to display
-     */
     @Override
     public void warn(String title, String message)
     {
         prompt.warn(title, message);
     }
 
-    /**
-     * Displays an error message.
-     *
-     * @param message the message to display
-     */
     @Override
     public void error(String message)
     {
         prompt.error(message);
     }
 
-    /**
-     * Displays an error message.
-     *
-     * @param title   the message title. May be {@code null}
-     * @param message the message display
-     */
     @Override
     public void error(String title, String message)
     {

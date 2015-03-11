@@ -31,6 +31,7 @@ import java.util.List;
 
 import com.izforge.izpack.api.event.AbstractUninstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
+import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.util.IoHelper;
 
@@ -163,11 +164,18 @@ public class AntActionUninstallerListener extends AbstractUninstallerListener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforeDelete(List<File> files)
+    public void beforeDelete(List<File> files) throws InstallerException
     {
         for (AntAction act : befDel)
         {
-            act.performUninstallAction();
+            try
+            {
+                act.performUninstallAction();
+            }
+            catch (IzPackException e)
+            {
+                act.throwBuildException(e);
+            }
         }
     }
 
@@ -179,11 +187,18 @@ public class AntActionUninstallerListener extends AbstractUninstallerListener
      * @throws IzPackException for any error
      */
     @Override
-    public void afterDelete(List<File> files, ProgressListener listener)
+    public void afterDelete(List<File> files, ProgressListener listener) throws InstallerException
     {
         for (AntAction act : antActions)
         {
-            act.performUninstallAction();
+            try
+            {
+                act.performUninstallAction();
+            }
+            catch (IzPackException e)
+            {
+                act.throwBuildException(e);
+            }
         }
     }
 

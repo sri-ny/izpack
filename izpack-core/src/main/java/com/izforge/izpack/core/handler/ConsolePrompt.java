@@ -92,17 +92,52 @@ public class ConsolePrompt extends AbstractPrompt
         no = messages.get("ConsolePrompt.no");
     }
 
-    /**
-     * Displays a message.
-     *
-     * @param type    the type of the message
-     * @param title   the message title. If {@code null}, the title will be determined from the type
-     * @param message the message to display
-     */
     @Override
-    public void message(Type type, String title, String message)
+    public void message(Type type, String title, String message, Throwable throwable)
     {
+        if (title != null)
+        {
+            console.println(title + ":");
+        }
         console.println(message);
+        if (throwable != null)
+        {
+            console.println(getDetails(throwable));
+        }
+    }
+
+    private static String getDetails(Throwable throwable)
+    {
+        StringBuffer b = new StringBuffer();
+        int lengthOfLastTrace = 1; // initial value
+        // Start with the specified throwable and loop through the chain of
+        // causality for the throwable.
+        while (throwable != null)
+        {
+            // Output Exception name and message, and begin a list
+            b.append(throwable.getClass().getName() + ": " + throwable.getMessage());
+            // Get the stack trace and output each frame.
+            // Be careful not to repeat stack frames that were already reported
+            // for the exception that this one caused.
+            StackTraceElement[] stack = throwable.getStackTrace();
+            for (int i = stack.length - lengthOfLastTrace; i >= 0; i--)
+            {
+                b.append("- in " + stack[i].getClassName() + "." + stack[i].getMethodName()
+                        + "() at " + stack[i].getFileName() + ":"
+                        + stack[i].getLineNumber() + "\n");
+            }
+            // See if there is a cause for this exception
+            throwable = throwable.getCause();
+            if (throwable != null)
+            {
+                // If so, output a header
+                b.append("Caused by: ");
+                // And remember how many frames to skip in the stack trace
+                // of the cause exception
+                lengthOfLastTrace = stack.length;
+            }
+        }
+        return b.toString();
     }
 
     /**

@@ -124,7 +124,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePacks(List<Pack> packs)
+    public void beforePacks(List<Pack> packs) throws InstallerException
     {
         try
         {
@@ -195,7 +195,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int i)
+    public void beforePack(Pack pack, int i) throws InstallerException
     {
         performAllActions(pack.getName(), ActionBase.BEFOREPACK, null);
     }
@@ -208,7 +208,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int i)
+    public void afterPack(Pack pack, int i) throws InstallerException
     {
         performAllActions(pack.getName(), ActionBase.AFTERPACK, null);
     }
@@ -221,7 +221,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPacks(List<Pack> packs, ProgressListener listener)
+    public void afterPacks(List<Pack> packs, ProgressListener listener) throws InstallerException
     {
         if (notifyProgress())
         {
@@ -310,9 +310,9 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
                     act.performInstallAction();
                 }
             }
-            catch (Exception e)
+            catch (IzPackException e)
             {
-                throw new InstallerException(e);
+                act.throwBuildException(e);
             }
             if (!act.getUninstallTargets().isEmpty())
             {
@@ -364,6 +364,19 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
             }
             act.setLogLevel(logLevel);
         }
+
+        String severityAttrValue = el.getAttribute(ActionBase.ANTCALL_SEVERITY_ATTR);
+        AntSeverity severity = AntSeverity.fromName(severityAttrValue);
+        if (severity == null)
+        {
+            if (severityAttrValue != null)
+            {
+                throw new InstallerException("Bad value for attribute " + ActionBase.ANTCALL_SEVERITY_ATTR);
+            }
+            severity = AntSeverity.ERROR;
+        }
+        act.setSeverity(severity.getLevel());
+
         buildDir = el.getAttribute(ActionBase.ANTCALL_DIR_ATTR);
         if (buildDir != null)
         {
