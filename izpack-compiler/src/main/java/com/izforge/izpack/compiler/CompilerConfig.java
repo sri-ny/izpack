@@ -1061,6 +1061,11 @@ public class CompilerConfig extends Thread
             {
                 File relsrcfile = new File(src);
                 File abssrcfile = FileUtil.getAbsoluteFile(src, compilerData.getBasedir());
+                // if the path does not exist, maybe it contains variables
+                if (!abssrcfile.exists())
+                {
+                    abssrcfile = new File(variableSubstitutor.substitute(abssrcfile.getAbsolutePath()));
+                }
                 if (!abssrcfile.exists())
                 {
                     throw new FileNotFoundException("Source file " + relsrcfile + " not found");
