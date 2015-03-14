@@ -3177,7 +3177,12 @@ public class CompilerConfig extends Thread
             dir_attr = fileSetNode.getAttribute("file");
             if (dir_attr != null)
             {
-                fs.setFile(FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir()));
+                File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
+                // if the path does not exist, maybe it contains variables
+                if (! dir.exists()) {
+                    dir = new File(variableSubstitutor.substitute(dir.getAbsolutePath()));
+                }
+                fs.setFile(dir);
             }
             else
             {
