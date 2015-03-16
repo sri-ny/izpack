@@ -28,22 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.handler.Prompt;
-import com.izforge.izpack.api.resource.Messages;
-import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.core.container.DefaultContainer;
-import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.core.handler.ConsolePrompt;
-import com.izforge.izpack.core.rules.ConditionContainer;
-import com.izforge.izpack.core.rules.RulesEngineImpl;
+import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.Choice;
 import com.izforge.izpack.panels.userinput.field.choice.TestChoiceFieldConfig;
 import com.izforge.izpack.panels.userinput.field.combo.ComboField;
-import com.izforge.izpack.test.util.TestConsole;
-import com.izforge.izpack.util.Platforms;
 
 
 /**
@@ -51,23 +40,8 @@ import com.izforge.izpack.util.Platforms;
  *
  * @author Tim Anderson
  */
-public class ConsoleComboFieldTest
+public class ConsoleComboFieldTest extends AbstractConsoleFieldTest
 {
-
-    /**
-     * The install data.
-     */
-    private final AutomatedInstallData installData;
-
-    /**
-     * The console.
-     */
-    private final TestConsole console;
-
-    /**
-     * The prompt.
-     */
-    private final Prompt prompt;
 
     /**
      * The choices.
@@ -79,13 +53,8 @@ public class ConsoleComboFieldTest
      */
     public ConsoleComboFieldTest()
     {
-        installData = new AutomatedInstallData(new DefaultVariables(), Platforms.HP_UX);
-        RulesEngine rules = new RulesEngineImpl(new ConditionContainer(new DefaultContainer()),
-                                                installData.getPlatform());
-        console = new TestConsole();
-        prompt = new ConsolePrompt(console, Mockito.mock(Messages.class));
-        installData.setRules(rules);
-
+    	super();
+    	
         choices = Arrays.asList(new Choice("A", "A String"), new Choice("B", "B String"), new Choice("C", "C String"));
     }
 

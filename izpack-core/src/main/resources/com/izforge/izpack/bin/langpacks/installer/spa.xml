@@ -332,6 +332,7 @@
     <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Presione 1 para aceptar, 2 para rechazar, 3 para volver a mostrar"/>
     <str id="ConsoleInstaller.redisplayQuit" txt="Presione 1 para volver a mostrar, 2 para salir"/>
     <str id="ConsoleInstaller.permissionError" txt="Se requieren permisos administrativos. Por favor, arranque de nuevo el instalador con permisos administrativos."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Introduzca selección: "/>
 
     <!-- AutomatedInstaller Strings -->
     <str id="AutomatedInstaller.permissionError" txt="Se requieren permisos administrativos. Por favor, arranque de nuevo el instalador con permisos administrativos."/>
