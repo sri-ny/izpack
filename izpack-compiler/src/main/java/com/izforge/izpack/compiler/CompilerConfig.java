@@ -1061,6 +1061,11 @@ public class CompilerConfig extends Thread
             {
                 File relsrcfile = new File(src);
                 File abssrcfile = FileUtil.getAbsoluteFile(src, compilerData.getBasedir());
+                // if the path does not exist, maybe it contains variables
+                if (!abssrcfile.exists())
+                {
+                    abssrcfile = new File(variableSubstitutor.substitute(abssrcfile.getAbsolutePath()));
+                }
                 if (!abssrcfile.exists())
                 {
                     throw new FileNotFoundException("Source file " + relsrcfile + " not found");
@@ -3160,14 +3165,24 @@ public class CompilerConfig extends Thread
         try
         {
             if (dir_attr != null)
-            {
-                fs.setDir(FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir()));
+            {   
+                File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
+                // if the path does not exist, maybe it contains variables
+                if (! dir.exists()) {
+                    dir = new File(variableSubstitutor.substitute(dir.getAbsolutePath()));
+                }
+                fs.setDir(dir);
             }
 
             dir_attr = fileSetNode.getAttribute("file");
             if (dir_attr != null)
             {
-                fs.setFile(FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir()));
+                File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
+                // if the path does not exist, maybe it contains variables
+                if (! dir.exists()) {
+                    dir = new File(variableSubstitutor.substitute(dir.getAbsolutePath()));
+                }
+                fs.setFile(dir);
             }
             else
             {
