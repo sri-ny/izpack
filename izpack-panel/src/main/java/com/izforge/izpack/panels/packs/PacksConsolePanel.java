@@ -27,13 +27,16 @@ import java.util.Properties;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.handler.Prompt.Option;
 import com.izforge.izpack.api.handler.Prompt.Options;
 import com.izforge.izpack.api.handler.Prompt.Type;
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.installer.util.PackHelper;
 import com.izforge.izpack.util.Console;
 
 /**
@@ -46,6 +49,8 @@ import com.izforge.izpack.util.Console;
  */
 public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePanel
 {
+
+    private Messages messages;
     private HashMap<String, Pack> names;
 
     private final Prompt prompt;
@@ -56,6 +61,18 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
         super(panel);
         this.prompt = prompt;
         this.installData = installData;
+        
+        //load the packs lang messages if exists
+        try
+        {
+            messages = installData.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+        }
+        catch (ResourceNotFoundException exception)
+        {
+            // no packs messages resource, so fall back to the default
+            messages = installData.getMessages();
+        }
+
     }
 
     /**
@@ -122,7 +139,10 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     {
         Pack p = names.get(pack);
         Boolean conditionSatisfied = checkCondition(installData, p);
-        String packName = p.getName();
+        
+        //get the pack localized name
+        String packName = PackHelper.getPackName(p, messages);
+        
         final boolean required = p.isRequired();
         final boolean packConditionTrue = conditionSatisfied == null || conditionSatisfied.booleanValue();
 
@@ -181,7 +201,6 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     {
         return Option.YES == prompt.confirm(Type.QUESTION, message, Options.YES_NO, defaultOption);
     }
-
 
     /**
      * Computes pack related installDataGUI like the names or the dependencies state.
