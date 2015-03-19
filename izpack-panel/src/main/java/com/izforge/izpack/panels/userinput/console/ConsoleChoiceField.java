@@ -82,7 +82,7 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
             List<Choice> choices = field.getChoices();
             listChoices(choices, field.getSelectedIndex());
 
-            int selected = getConsole().prompt("input selection: ", 0, choices.size() - 1, field.getSelectedIndex(), -1);
+            int selected = getConsole().prompt(getMessage("ConsoleInstaller.inputSelection"), 0, choices.size() - 1, field.getSelectedIndex(), -1);
             if (selected == -1)
             {
                 return false;
