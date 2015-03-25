@@ -237,7 +237,6 @@ public class GUIPrompt extends AbstractPrompt
             final String submissionURL,
             final Throwable throwable)
     {
-        new Exception().printStackTrace();
         final List<Object> buttons = new ArrayList<Object>();
         String throwMessage = null;
         final JButton detailsButton = new JButton("Show Details");;
