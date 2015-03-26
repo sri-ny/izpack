@@ -114,6 +114,13 @@ public abstract class GUIField extends AbstractFieldView
     }
 
     /**
+     * Return a {@link JComponent} of this field which is the primary candidate to gain focus.
+     *
+     * @return the primary {@link JComponent} to gain focus
+     */
+    public abstract JComponent getFirstFocusableComponent();
+
+    /**
      * Registers a listener to be notified of field updates.
      *
      * @param listener the listener to notify

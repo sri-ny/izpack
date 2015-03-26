@@ -131,4 +131,10 @@ public class GUISearchField extends GUIField
         getField().setValue(searchInputField.getResult());
         return true;
     }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return getComponents().get(0).getComponent();
+    }
 }

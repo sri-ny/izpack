@@ -52,4 +52,9 @@ public class GUISpacer extends GUIField
         addTooltip();
     }
 
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return null;
+    }
 }

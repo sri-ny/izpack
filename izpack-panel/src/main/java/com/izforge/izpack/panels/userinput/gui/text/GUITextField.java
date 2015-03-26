@@ -190,4 +190,10 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
     {
         setChanged(true);
     }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return text;
+    }
 }

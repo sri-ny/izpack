@@ -27,6 +27,7 @@ import com.izforge.izpack.panels.userinput.field.divider.Divider;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import javax.swing.*;
+
 import java.awt.*;
 
 /**
@@ -61,6 +62,12 @@ public class GUIDivider extends GUIField
         constraints.stretch = true;
         addComponent(panel, constraints);
         addTooltip();
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return null;
     }
 
 }

@@ -152,5 +152,10 @@ public class GUIPasswordGroupField extends GUIField
         return result;
     }
 
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return passwords.get(0);
+    }
 
 }

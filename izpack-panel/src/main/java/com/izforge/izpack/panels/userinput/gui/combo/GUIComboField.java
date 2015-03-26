@@ -21,15 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.gui.combo;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.userinput.field.Choice;
 import com.izforge.izpack.panels.userinput.field.combo.ComboField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
-
-import javax.swing.*;
-
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 
 /**
@@ -159,4 +160,10 @@ public class GUIComboField extends GUIField
             index++;
         }
      }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return combo;
+    }
 }

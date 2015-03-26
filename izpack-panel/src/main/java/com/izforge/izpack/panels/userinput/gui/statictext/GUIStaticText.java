@@ -21,6 +21,8 @@
 
 package com.izforge.izpack.panels.userinput.gui.statictext;
 
+import javax.swing.JComponent;
+
 import com.izforge.izpack.panels.userinput.field.statictext.StaticText;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
@@ -42,5 +44,11 @@ public class GUIStaticText extends GUIField
         super(field);
         addText(getField().getLabel());
         addTooltip();
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return null;
     }
 }
