@@ -21,6 +21,8 @@
 
 package com.izforge.izpack.panels.userinput.gui.file;
 
+import javax.swing.JComponent;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.installer.data.GUIInstallData;
@@ -150,6 +152,12 @@ public class GUIMultipleFileField extends GUIField
                 fileInput.addFile(file);
             }
         }
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return fileInput;
     }
 
 }

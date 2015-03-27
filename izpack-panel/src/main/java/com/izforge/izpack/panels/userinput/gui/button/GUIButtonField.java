@@ -7,6 +7,7 @@ import com.izforge.izpack.panels.userinput.field.button.ButtonField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import javax.swing.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -50,5 +51,11 @@ public class GUIButtonField extends GUIField implements ActionListener
         {
             prompt.message(Prompt.Type.INFORMATION, successMsg);
         }
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return button;
     }
 }

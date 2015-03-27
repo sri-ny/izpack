@@ -21,6 +21,9 @@
 
 package com.izforge.izpack.panels.userinput.gui.rule;
 
+import java.util.List;
+
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 
 import com.izforge.izpack.api.handler.Prompt;
@@ -174,5 +177,16 @@ public class GUIRuleField extends GUIField
             }
         }
         return changed;
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        List<JTextField> inputFields = component.getInputFields();
+        if (!inputFields.isEmpty())
+        {
+            return component.getInputFields().get(0);
+        }
+        return null;
     }
 }

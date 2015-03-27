@@ -21,18 +21,22 @@
 
 package com.izforge.izpack.panels.userinput.gui.radio;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
+import javax.swing.JRadioButton;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.panels.userinput.field.Choice;
 import com.izforge.izpack.panels.userinput.field.radio.RadioField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
-
-import javax.swing.*;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -79,6 +83,21 @@ public class GUIRadioField extends GUIField implements ActionListener
             ++id;
             button.setText(choice.getValue());
             button.addActionListener(this);
+
+            button.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(ItemEvent e)
+                {
+                    if (e.getStateChange() == ItemEvent.SELECTED)
+                    {
+                        // Fire a change action if the arrow keys are used to select a radiobutton.
+                        // This is important for condition-driven dynamic changes on the UserInputPanel,
+                        // otherwise they happen just on mouse clicks.
+                        ((JRadioButton) e.getSource()).doClick();
+                    }
+                }
+            });
 
             buttonGroup.add(button);
             boolean selected = field.getSelectedIndex() == buttonGroup.getButtonCount() - 1;
@@ -238,5 +257,26 @@ public class GUIRadioField extends GUIField implements ActionListener
             }
             index++;
         }
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        // Return first selected radiobutton
+        for (RadioChoiceView radioChoiceView : choices)
+        {
+            JRadioButton radioButton = radioChoiceView.getButton();
+            if (radioButton.isSelected())
+            {
+                return radioButton;
+            }
+        }
+        // No choice selected
+        if (choices.size() > 0)
+        {
+            return choices.get(0).getButton();
+        }
+        // No radiobutton at all
+        return null;
     }
 }

@@ -13,6 +13,8 @@ import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import java.util.List;
 
+import javax.swing.JComponent;
+
 /**
  * JPanel that contains the possible rows of fields defined by the user,
  * along with control buttons to add and remove rows.
@@ -53,5 +55,11 @@ public class GUICustomField extends GUIField implements CustomFieldType
     public boolean updateField(Prompt prompt)
     {
         return customInputField.updateField(prompt);
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return customInputField;
     }
 }

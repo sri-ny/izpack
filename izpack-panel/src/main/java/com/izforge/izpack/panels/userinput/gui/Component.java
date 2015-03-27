@@ -21,6 +21,8 @@ package com.izforge.izpack.panels.userinput.gui;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -34,6 +36,8 @@ public class Component
     private final JComponent component;
 
     private final Object constraints;
+
+    private boolean enabled = true;
 
     public Component(JComponent component, Object constraints)
     {
@@ -53,8 +57,9 @@ public class Component
 
     public void setEnabled(boolean enabled)
     {
-        if (component instanceof JLabel)
+        if (component instanceof JLabel || component instanceof JPanel || component instanceof JTextPane)
         {
+            enabled = false;
             return;
         }
         if (component instanceof JTextComponent)
@@ -62,10 +67,16 @@ public class Component
             JTextComponent textComponent = ((JTextComponent)component);
             if (!textComponent.isFocusable() || !textComponent.isEditable())
             {
+                enabled = false;
                 return;
             }
         }
-        component.setEnabled(enabled);
+        enabled = true;
+        component.setEnabled(true);
     }
 
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
 }

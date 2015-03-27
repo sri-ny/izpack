@@ -18,6 +18,19 @@
  */
 package com.izforge.izpack.panels.userinput;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.Border;
+
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -31,20 +44,16 @@ import com.izforge.izpack.gui.TwoColumnLayout;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
-import com.izforge.izpack.panels.userinput.field.*;
+import com.izforge.izpack.panels.userinput.field.ElementReader;
+import com.izforge.izpack.panels.userinput.field.Field;
+import com.izforge.izpack.panels.userinput.field.FieldHelper;
+import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.panels.userinput.gui.Component;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 import com.izforge.izpack.panels.userinput.gui.GUIFieldFactory;
 import com.izforge.izpack.panels.userinput.gui.UpdateListener;
 import com.izforge.izpack.panels.userinput.gui.custom.GUICustomField;
 import com.izforge.izpack.util.PlatformModelMatcher;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-
-import java.awt.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * User input panel.
@@ -72,6 +81,8 @@ public class UserInputPanel extends IzPanel
     private List<GUIField> views = new ArrayList<GUIField>();
 
     private JPanel panel;
+
+    private JComponent firstFocusedComponent;
 
     private RulesEngine rules;
 
@@ -219,14 +230,14 @@ public class UserInputPanel extends IzPanel
         }
         else
         {
-            //Here just to update dynamic variables
-            updateUIElements();
             buildUI();
+            updateUIElements();
         }
-        // Focus the first panel component according to the default traversal
-        // policy avoiding forcing the user to click into that field first
-        parent.setFocusCycleRoot(true);
-        parent.requestFocus();
+
+        if (firstFocusedComponent != null)
+        {
+            setInitialFocus(firstFocusedComponent);
+        }
     }
 
     /**
@@ -236,7 +247,7 @@ public class UserInputPanel extends IzPanel
     @Override
     public void createInstallationRecord(IXMLElement rootElement)
     {
-        new UserInputPanelAutomationHelper(/*variables,*/ views).createInstallationRecord(installData, rootElement);
+        new UserInputPanelAutomationHelper(views).createInstallationRecord(installData, rootElement);
     }
 
     /**
@@ -295,11 +306,13 @@ public class UserInputPanel extends IzPanel
     }
 
     /**
-     * Set elements to be visible or not.
+     * Set elements to be visible or not depending on field conditions - dynamic update of field visibility.
      */
     protected void updateUIElements()
     {
         boolean updated = false;
+
+        firstFocusedComponent = null;
 
         for (GUIField view : views)
         {
@@ -307,14 +320,26 @@ public class UserInputPanel extends IzPanel
             if (field.isConditionTrue())
             {
                 view.setDisplayed(true);
+
+                if (firstFocusedComponent == null)
+                {
+                    firstFocusedComponent = view.getFirstFocusableComponent();
+                }
             }
             else
             {
                 view.setDisplayed(false);
             }
+
             updated |= view.translateStaticText();
             updated |= view.updateView();
         }
+
+        if (firstFocusedComponent != null)
+        {
+            firstFocusedComponent.requestFocusInWindow();
+        }
+
         if (updated)
         {
             super.invalidate();
@@ -367,6 +392,9 @@ public class UserInputPanel extends IzPanel
                 addToPanel = false;
                 view.setDisplayed(false);
             }
+
+
+
 
             if (addToPanel)
             {

@@ -21,14 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.gui.check;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.panels.userinput.field.check.CheckField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 
 /**
@@ -106,5 +108,11 @@ public class GUICheckField extends GUIField
             field.setValue(field.getFalseValue());
         }
         return true;
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return checkbox;
     }
 }

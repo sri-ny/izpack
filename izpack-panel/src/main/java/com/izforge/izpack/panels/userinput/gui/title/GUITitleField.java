@@ -129,4 +129,10 @@ public class GUITitleField extends GUIField
         return result;
     }
 
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return null;
+    }
+
 }

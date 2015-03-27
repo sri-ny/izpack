@@ -23,6 +23,8 @@ package com.izforge.izpack.panels.userinput.gui.file;
 
 import java.io.File;
 
+import javax.swing.JComponent;
+
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.panels.userinput.field.Field;
@@ -126,6 +128,12 @@ public abstract class AbstractGUIFileField extends GUIField
         {
             addComponent(inputField, new TwoColumnConstraints(TwoColumnConstraints.BOTH));
         }
+    }
+
+    @Override
+    public JComponent getFirstFocusableComponent()
+    {
+        return this.fileInput;
     }
 
 }
