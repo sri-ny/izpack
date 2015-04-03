@@ -96,6 +96,8 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         {
             guiInstallData.buttonsHColor = UIManager.getColor("Button.background");
         }
+        // ENTER always presses button in focus
+        UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
         return guiInstallData;
     }
 

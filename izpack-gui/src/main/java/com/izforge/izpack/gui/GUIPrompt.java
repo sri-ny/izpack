@@ -53,7 +53,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.izforge.izpack.api.handler.AbstractPrompt;
-import com.izforge.izpack.api.handler.Prompt.Type;
 
 
 /**
@@ -344,6 +343,7 @@ public class GUIPrompt extends AbstractPrompt
                 }
             });
         }
+
         // Display the dialog modally. This method will return only when the
         // user clicks the "Exit" button of the JOptionPane.
         dialog.setVisible(true);
@@ -548,6 +548,7 @@ public class GUIPrompt extends AbstractPrompt
     {
         public static void main(String[] args)
         {
+            UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
             String url = (args.length > 0) ? args[0] : null;
             try
             {
