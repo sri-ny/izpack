@@ -26,6 +26,12 @@
     <str id="installer.no" txt="Ne"/>
     <str id="installer.cancel" txt="Zrušit"/>
     <str id="installer.error" txt="Chyba"/>
+    <str id="installer.errorMessage" txt="Nastala chyba"/>
+    <str id="installer.close" txt="Zavřít"/>
+    <str id="installer.showDetails" txt="Zobrazit podrobnosti"/>
+    <str id="installer.hideDetails" txt="Skrýt podrobnosti"/>
+    <str id="installer.copy" txt="Kopírovat"/>
+    <str id="installer.sendReport" txt="Poslat report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Tato operace odstraní nainstalovanou aplikaci !"/>

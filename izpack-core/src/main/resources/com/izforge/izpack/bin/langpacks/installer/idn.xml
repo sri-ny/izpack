@@ -51,6 +51,12 @@
     <str id="installer.of" txt="dari"/>
     <str id="installer.step" txt="Langkah"/>
     <str id="installer.Message" txt="Pesan"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Ini akan menghapus aplikasi terpasang!"/>

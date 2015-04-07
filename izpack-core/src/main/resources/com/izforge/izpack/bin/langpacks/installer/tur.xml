@@ -2,12 +2,12 @@
 
 <!-- The Turkish langpack -->
 
-<!-- 
-	ATTENTION - Do not edit with an editor which can not handle UTF-8 properly !!
-	Modifying this file with a wrong editor can corrupt this file!
-    
-	DİKKAT - lütfen UTF-8 dosyalarını doğru şekilde edit edemeyen editorler kullanarak
-	bu dosya üzerinde çalışmayın, dosyanın içeriğini bozabilir siniz.
+<!--
+  ATTENTION - Do not edit with an editor which can not handle UTF-8 properly !!
+  Modifying this file with a wrong editor can corrupt this file!
+
+  DİKKAT - lütfen UTF-8 dosyalarını doğru şekilde edit edemeyen editorler kullanarak
+  bu dosya üzerinde çalışmayın, dosyanın içeriğini bozabilir siniz.
 -->
 
 <izpack:langpack version="5.0"
@@ -51,6 +51,12 @@
     <str id="installer.no" txt="Hayır"/>
     <str id="installer.cancel" txt="İptal"/>
     <str id="installer.error" txt="Hata"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Bu kurulmuş olan program(lar)ı kaldıracaktır!"/>

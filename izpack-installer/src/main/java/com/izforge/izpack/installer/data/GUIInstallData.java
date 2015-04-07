@@ -70,6 +70,11 @@ public class GUIInstallData extends InstallData implements Serializable
         UIManager.put("OptionPane.yesButtonText", messages.get("installer.yes"));
         UIManager.put("OptionPane.noButtonText", messages.get("installer.no"));
         UIManager.put("OptionPane.cancelButtonText", messages.get("installer.cancel"));
+        UIManager.put("OptionPane.closeButtonText", messages.get("installer.close"));
+        UIManager.put("OptionPane.showDetailsButtonText", messages.get("installer.showDetails"));
+        UIManager.put("OptionPane.hideDetailsButtonText", messages.get("installer.hideDetails"));
+        UIManager.put("OptionPane.copyButtonText", messages.get("installer.copy"));
+        UIManager.put("OptionPane.sendReportButtonText", messages.get("installer.sendReport"));
     }
 
     /**

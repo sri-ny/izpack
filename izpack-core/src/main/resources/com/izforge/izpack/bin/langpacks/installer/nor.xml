@@ -57,10 +57,15 @@
     <str id="installer.error" txt="Feil"/>
     <str id="installer.help" txt="Hjelp"/>
     <str id="installer.help.close" txt="Lukk"/>
-
     <str id="installer.step" txt="Steg"/>
     <str id="installer.of" txt="av"/>
     <str id="installer.Message" txt="Melding"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Dette vil fjerne installerte programmer!"/>
