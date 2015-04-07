@@ -57,6 +57,12 @@
     <str id="installer.of" txt="von"/>
     <str id="installer.Message" txt="Meldung"/>
     <str id="installer.uninstall.writefailed" txt="Schreiben der Deinstallationsinformation fehlgeschlagen."/>
+    <str id="installer.errorMessage" txt="Ein Fehler ist aufgetreten"/>
+    <str id="installer.close" txt="Schließen"/>
+    <str id="installer.showDetails" txt="Details anzeigen"/>
+    <str id="installer.hideDetails" txt="Details ausblenden"/>
+    <str id="installer.copy" txt="Kopieren"/>
+    <str id="installer.sendReport" txt="Report senden"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Jetzt werden die installierten Anwendungen entfernt!"/>

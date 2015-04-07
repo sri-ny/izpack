@@ -21,6 +21,12 @@
     <str id="installer.no" txt="Nej"/>
     <str id="installer.cancel" txt="Annuller"/>
     <str id="installer.error" txt="Fejl"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Dette vil fjerne installerede applikationer !"/>

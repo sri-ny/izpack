@@ -89,7 +89,13 @@
     <str id="installer.title" txt="IzPack - Instalacja programu "/>
     <str id="installer.warning" txt="Ostrzeżenie!"/>
     <str id="installer.yes" txt="Tak"/>
-    <str id="InstallPanel.begin" txt=" "/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
+W    <str id="InstallPanel.begin" txt=" "/>
     <str id="InstallPanel.finished" txt="[Zakończono]"/>
     <str id="InstallPanel.headline" txt="Instalacja"/>
     <str id="InstallPanel.info" txt="Wybierz 'Instaluj', aby rozpocząć instalację"/>

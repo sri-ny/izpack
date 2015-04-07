@@ -56,6 +56,12 @@
     <str id="installer.step" txt="Paso"/>
     <str id="installer.of" txt="de"/>
     <str id="installer.Message" txt="Mensaxe"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="¡Esto eliminará a(s) aplicación(s) instalada(s)!"/>

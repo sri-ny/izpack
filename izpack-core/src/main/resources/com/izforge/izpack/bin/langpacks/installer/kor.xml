@@ -21,6 +21,12 @@
     <str id="installer.no" txt="아니오"/>
     <str id="installer.cancel" txt="취소"/>
     <str id="installer.error" txt="오류"/>
+    <str id="installer.errorMessage" txt="An error occured"/>
+    <str id="installer.close" txt="Close"/>
+    <str id="installer.showDetails" txt="Show Details"/>
+    <str id="installer.hideDetails" txt="Hide Details"/>
+    <str id="installer.copy" txt="Copy"/>
+    <str id="installer.sendReport" txt="Send Report"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="설치된 어플리케이션이 제거됩니다!"/>

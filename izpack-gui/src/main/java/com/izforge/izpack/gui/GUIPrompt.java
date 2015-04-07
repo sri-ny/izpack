@@ -89,6 +89,31 @@ public class GUIPrompt extends AbstractPrompt
     private static final String NO_BUTTON = "OptionPane.noButtonText";
 
     /**
+     * Default JOptionPane Close button key.
+     */
+    private static final String CLOSE_BUTTON = "OptionPane.closeButtonText";
+
+    /**
+     * Default JOptionPane Show Details button key.
+     */
+    private static final String SHOW_DETAILS_BUTTON = "OptionPane.showDetailsButtonText";
+
+    /**
+     * Default JOptionPane Hide Details button key.
+     */
+    private static final String HIDE_DETAILS_BUTTON = "OptionPane.hideDetailsButtonText";
+
+    /**
+     * Default JOptionPane Copy button key.
+     */
+    private static final String COPY_BUTTON = "OptionPane.copyButtonText";
+
+    /**
+     * Default JOptionPane Send Report button key.
+     */
+    private static final String SEND_REPORT_BUTTON = "OptionPane.sendReportButtonText";
+
+    /**
      * Default constructor.
      */
     public GUIPrompt()
@@ -238,15 +263,15 @@ public class GUIPrompt extends AbstractPrompt
     {
         final List<Object> buttons = new ArrayList<Object>();
         String throwMessage = null;
-        final JButton detailsButton = new JButton("Show Details");;
-        final JButton copyButton = new JButton("Copy");;
+        final JButton detailsButton = new JButton(UIManager.getString(SHOW_DETAILS_BUTTON));;
+        final JButton copyButton = new JButton(UIManager.getString(COPY_BUTTON));;
         if (throwable != null)
         {
             throwMessage = throwable.getMessage();
             buttons.add(detailsButton);
             buttons.add(copyButton);
         }
-        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : "An error occured") );
+        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")) );
 
         final JPanel topPanel = new JPanel();
         final JLabel messageLabel = new JLabel();
@@ -270,12 +295,12 @@ public class GUIPrompt extends AbstractPrompt
         jPanel.add(topPanel, BorderLayout.NORTH);
         jPanel.add(centerPanel, BorderLayout.CENTER);
 
-        final JButton reportButton = new JButton("Send Report");
+        final JButton reportButton = new JButton(UIManager.getString(SEND_REPORT_BUTTON));
         if (submissionURL != null)
         {
             buttons.add(reportButton);
         }
-        buttons.add("Close");
+        buttons.add(UIManager.getString(CLOSE_BUTTON));
         JOptionPane pane = new JOptionPane(jPanel, type,
                 JOptionPane.YES_NO_OPTION, null,
                 buttons.toArray());
@@ -289,18 +314,18 @@ public class GUIPrompt extends AbstractPrompt
                 {
                     // Show or hide error details based on state of button
                     String label = detailsButton.getText();
-                    if (label.startsWith("Show"))
+                    if (label.startsWith(UIManager.getString(SHOW_DETAILS_BUTTON)))
                     {
                         messageLabel.setText(basicMessage);
                         centerPanel.setVisible(true);
-                        detailsButton.setText("Hide Details");
+                        detailsButton.setText(UIManager.getString(HIDE_DETAILS_BUTTON));
                         dialog.pack(); // resize dialog to fit details
                     }
                     else
                     {
                         messageLabel.setText(basicMessage);
                         centerPanel.setVisible(false);
-                        detailsButton.setText("Show Details");
+                        detailsButton.setText(UIManager.getString(SHOW_DETAILS_BUTTON));
                         dialog.pack();
                     }
                 }
@@ -549,6 +574,11 @@ public class GUIPrompt extends AbstractPrompt
         public static void main(String[] args)
         {
             UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
+            UIManager.put("OptionPane.closeButtonText", "Close");
+            UIManager.put("OptionPane.showDetailsButtonText", "Show Details");
+            UIManager.put("OptionPane.hideDetailsButtonText", "Hide Details");
+            UIManager.put("OptionPane.copyButtonText", "Copy");
+            UIManager.put("OptionPane.sendReportButtonText", "Send Report");
             String url = (args.length > 0) ? args[0] : null;
             try
             {
