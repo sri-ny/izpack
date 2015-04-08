@@ -9,9 +9,9 @@
             <unpack>true</unpack>
             <scope>runtime</scope>
             <includes>
-                <include>org.codehaus.izpack:izpack-native</include>
-                <include>org.codehaus.izpack:izpack-util</include>
-                <include>org.codehaus.izpack:izpack-core</include>
+                <include>${project.groupId}:izpack-native</include>
+                <include>${project.groupId}:izpack-util</include>
+                <include>${project.groupId}:izpack-core</include>
             </includes>
             <useStrictFiltering>true</useStrictFiltering>
             <outputDirectory>/</outputDirectory>
@@ -24,9 +24,9 @@
             <unpack>true</unpack>
             <scope>runtime</scope>
             <excludes>
-                <exclude>org.codehaus.izpack:izpack-util</exclude>
-                <exclude>org.codehaus.izpack:izpack-compiler</exclude>
-                <exclude>org.codehaus.izpack:izpack-native</exclude>
+                <exclude>${project.groupId}:izpack-util</exclude>
+                <exclude>${project.groupId}:izpack-compiler</exclude>
+                <exclude>${project.groupId}:izpack-native</exclude>
             </excludes>
             <!--
             <outputDirectory>lib</outputDirectory>
