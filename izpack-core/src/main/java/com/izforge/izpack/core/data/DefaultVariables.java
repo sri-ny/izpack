@@ -320,12 +320,12 @@ public class DefaultVariables implements Variables
         boolean changed = true;
         while (changed) {
             changed = false;
-            count--;		// decrement number of remaining loops
+            count--;        // decrement number of remaining loops
             if (count<0) {
-            	throw new InstallerException(
-            		String.format("Refresh of dynamic variables seem to produce a loop. "
-            				     +"Stopped after %1s iterations. "
-            				     +"(Maybe a cyclic dependency of variables?)", maxCount));
+                throw new InstallerException(
+                    String.format("Refresh of dynamic variables seem to produce a loop. "
+                                +"Stopped after %1s iterations. "
+                                +"(Maybe a cyclic dependency of variables?)", maxCount));
             }
             Properties setVariables = new Properties();
             Set<String> unsetVariables = new HashSet<String>();
@@ -362,7 +362,7 @@ public class DefaultVariables implements Variables
                             {
                                 setVariables.put(name, newValue);
                             }
-                            if (newValue==null || ! newValue.contains("$"))
+                            if (!(newValue == null || newValue.contains("$")))
                             {
                                 variable.setChecked();
                             } else {
