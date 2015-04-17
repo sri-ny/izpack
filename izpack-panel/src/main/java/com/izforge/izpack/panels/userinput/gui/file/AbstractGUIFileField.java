@@ -133,7 +133,7 @@ public abstract class AbstractGUIFileField extends GUIField
     @Override
     public JComponent getFirstFocusableComponent()
     {
-        return this.fileInput;
+        return this.fileInput.filetxt;
     }
 
 }
