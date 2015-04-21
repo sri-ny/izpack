@@ -158,4 +158,35 @@ public class RegularExpressionFilter implements ValueFilter
         return processor.execute();
     }
 
+    @Override
+    public String toString()
+    {
+        return "(regexp: " + regexp
+                + ", replace: " + replace
+                + ", select: " + select
+                + ", default: " + defaultValue
+                + ", casesensitive: " + casesensitive
+                + ", global: " + global + ")"
+                ;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if ((obj == null) || !(obj instanceof RegularExpressionFilter))
+        {
+            return false;
+        }
+        String compareRegexp = ((RegularExpressionFilter)obj).getRegexp();
+        String compareReplace = ((RegularExpressionFilter)obj).getReplace();
+        String compareSelect = ((RegularExpressionFilter)obj).getSelect();
+        String compareDefaultValue = ((RegularExpressionFilter)obj).getDefaultValue();
+        return regexp!=null?regexp.equals(compareRegexp):compareRegexp==null
+                && replace!=null?replace.equals(compareReplace):compareReplace==null
+                && select!=null?select.equals(compareSelect):compareSelect==null
+                && defaultValue!=null?defaultValue.equals(compareDefaultValue):compareDefaultValue==null
+                && Boolean.valueOf(casesensitive).equals(((RegularExpressionFilter)obj).getCasesensitive())
+                && Boolean.valueOf(global).equals(((RegularExpressionFilter)obj).getGlobal())
+                ;
+    }
 }

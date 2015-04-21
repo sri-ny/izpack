@@ -10,15 +10,15 @@ public class CaseStyleFilter implements ValueFilter
 
     public enum Style {LOWER,UPPER};
     private Style style;
-    
-    public CaseStyleFilter(Style style) 
+
+    public CaseStyleFilter(Style style)
     {
-       this.style = style; 
+       this.style = style;
     }
 
     public CaseStyleFilter(String style)
     {
-        try 
+        try
         {
             this.style = Style.valueOf(style.toUpperCase());
         }
@@ -28,10 +28,15 @@ public class CaseStyleFilter implements ValueFilter
         }
     }
 
+    public Style getStyle()
+    {
+        return style;
+    }
+
     @Override
     public void validate() throws Exception
     {
-        if (style==null) 
+        if (style==null)
         {
             throw new CompilerException("case Filter has been initialized with unknown style");
         }
@@ -46,5 +51,21 @@ public class CaseStyleFilter implements ValueFilter
         case UPPER: return value.toUpperCase();
         default:        throw new CompilerException("case Filter has been initialized with unimplemented style");
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "(style: " + style.toString()+ ")";
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if ((obj == null) || !(obj instanceof CaseStyleFilter))
+        {
+            return false;
+        }
+        return style.equals(((CaseStyleFilter)obj).getStyle());
     }
 }

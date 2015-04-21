@@ -1992,7 +1992,7 @@ public class CompilerConfig extends Thread
                         e);
             }
         }
-        
+
         // validate and insert (and require if -web kind) web dir
         IXMLElement webDirURL = root.getFirstChildNamed("webdir");
         if (webDirURL != null)
@@ -2538,7 +2538,7 @@ public class CompilerConfig extends Thread
     private void addDynamicVariable(IXMLElement varXml, int index, String name, DynamicVariable dynamicVariable)
     {
         Map<String, List<DynamicVariable>> dynamicvariables = packager.getDynamicVariables();
-        List<DynamicVariable> dynamicValues = new ArrayList<DynamicVariable>();
+        List<DynamicVariable> dynamicValues;
 
         if (dynamicvariables.containsKey(name))
         {
@@ -2546,12 +2546,13 @@ public class CompilerConfig extends Thread
         }
         else
         {
+            dynamicValues = new ArrayList<DynamicVariable>();
             dynamicvariables.put(name, dynamicValues);
         }
 
         if (dynamicValues.remove(dynamicVariable))
         {
-            assertionHelper.parseWarn(varXml, "Variable '" + name + "' will be overwritten");
+            assertionHelper.parseWarn(varXml, "Variable definition '" + dynamicVariable.toString() + "' will be overwritten");
         }
         if (index < 0)
         {
@@ -3165,7 +3166,7 @@ public class CompilerConfig extends Thread
         try
         {
             if (dir_attr != null)
-            {   
+            {
                 File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
                 // if the path does not exist, maybe it contains variables
                 if (! dir.exists()) {
