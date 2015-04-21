@@ -256,27 +256,49 @@ public class DynamicVariableImpl implements DynamicVariable
             return false;
         }
         DynamicVariable compareObj = (DynamicVariable) obj;
-        return (name.equals(compareObj.getName())
-                && (   (conditionid == null && compareObj.getConditionid() == null)
-                    || (conditionid != null && conditionid.equals(compareObj.getConditionid()))
-                   ));
+        if (!name.equals(compareObj.getName())) { return false; }
+        if (!((conditionid == null && compareObj.getConditionid() == null)
+                || (conditionid != null && conditionid.equals(compareObj.getConditionid())))) { return false; }
+        if (checkonce != compareObj.isCheckonce()) { return false; }
+        if (!((value == null && compareObj.getValue() == null)
+                || (value != null && value.equals(compareObj.getValue())))) { return false; }
+        List<ValueFilter> compareFilters = compareObj.getFilters();
+        if (filters != null && compareFilters != null)
+        {
+            if (!(filters.containsAll(compareFilters) && compareFilters.containsAll(filters)))
+            {
+                return false;
+            }
+        }
+        else if ((filters != null && compareFilters == null) || (filters == null && compareFilters != null)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString()
     {
-        return "name: " + name + ", condition: " + conditionid;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int condidHashCode = 0;
-        if (conditionid != null)
+        StringBuffer ret = new StringBuffer("name: " + name + ", condition: " + conditionid + ", checkonce: " + checkonce);
+        if (value != null)
         {
-            condidHashCode = conditionid.hashCode();
+            ret.append(", value: " + value.toString());
         }
-        return name.hashCode() ^ condidHashCode;
+        if (filters != null)
+        {
+            ret.append(", filters: ");
+            boolean appended = false;
+            for (ValueFilter valueFilter : filters)
+            {
+                if (appended)
+                {
+                    ret.append(",");
+                }
+                ret.append(valueFilter.toString());
+                appended = true;
+            }
+        }
+        return ret.toString();
     }
 
     @Override

@@ -49,4 +49,20 @@ public abstract class ValueImpl implements Value
     {
         this.installData = installData;
     }
+
+    @Override
+    public String toString()
+    {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if ((obj == null) || !(obj instanceof ValueImpl))
+        {
+            return false;
+        }
+        return true;
+    }
 }

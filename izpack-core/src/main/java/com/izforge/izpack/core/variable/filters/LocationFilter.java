@@ -43,4 +43,21 @@ public class LocationFilter implements ValueFilter
 
         return FilenameUtils.concat(_baseDir_, value);
     }
+
+    @Override
+    public String toString()
+    {
+        return "(location: " + baseDir + ")";
+    }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if ((obj == null) || !(obj instanceof LocationFilter))
+        {
+            return false;
+        }
+        return baseDir.equals(((LocationFilter)obj).getBaseDir());
+    }
 }

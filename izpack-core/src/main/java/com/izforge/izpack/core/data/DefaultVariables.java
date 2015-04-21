@@ -312,6 +312,8 @@ public class DefaultVariables implements Variables
     {
         logger.fine("Refreshing dynamic variables");
         Set<DynamicVariable> checkedVariables = new HashSet<DynamicVariable>();
+        Properties setVariables = new Properties();
+        Set<String> unsetVariables = new HashSet<String>();
         // for dependent dynamic variables a size of dynamicVariables.size()+1 would be enough
         // in case of conditions, which depend on dynamic variables also, we need more iterations
         // to be on the safe side, we take 10*dynamicVariables.size()+1
@@ -327,9 +329,6 @@ public class DefaultVariables implements Variables
                                 +"Stopped after %1s iterations. "
                                 +"(Maybe a cyclic dependency of variables?)", maxCount));
             }
-            Properties setVariables = new Properties();
-            Set<String> unsetVariables = new HashSet<String>();
-
             for (DynamicVariable variable : dynamicVariables)
             {
                 String name = variable.getName();
