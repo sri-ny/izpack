@@ -17,6 +17,9 @@ $Id$
     -->
     <!ELEMENT pack (key*,value*)>
         <!ATTLIST pack name CDATA #REQUIRED>
+        <!-- Every pack is allowed to have a condition
+        -->
+        <!ATTLIST pack condition CDATA #IMPLIED>
         <!-- The key section. It defines, what key should be created
         -->
         <!ELEMENT key EMPTY>
@@ -24,6 +27,8 @@ $Id$
             <!ATTLIST key keypath CDATA #REQUIRED>
             <!-- Root of the key as symbol. -->
             <!ATTLIST key root (HKCR|HKCU|HKLM|HKU|HKPD|HKCC|HKDDS) #REQUIRED>
+            <!-- Every key is allowed to have a condition --> 
+            <!ATTLIST key condition CDATA #IMPLIED>
         <!-- The value section. It defines, what value should be created or modified
              with what contents. The type of contents will be implicit determined
              by the setting. Only one setting of the types are valid.
@@ -31,6 +36,8 @@ $Id$
         <!ELEMENT value (bin*, multi*)>
             <!-- Name of the value to be set or modified-->
             <!ATTLIST value name CDATA #REQUIRED>
+            <!-- Every value is allowed to have a condition -->
+            <!ATTLIST value condition CDATA #IMPLIED>
             <!-- The key path under which the value should be placed 
                  in Windows syntax without the root. 
             -->
