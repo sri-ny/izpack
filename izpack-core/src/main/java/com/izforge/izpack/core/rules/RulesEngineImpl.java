@@ -313,8 +313,7 @@ public class RulesEngineImpl implements RulesEngine
         {
             return isConditionTrue(cond, installData);
         }
-        logger.warning("Condition " + id + " not found");
-        return false;
+        throw new IzPackException("Condition " + id + " not found");
     }
 
     @Override
@@ -385,10 +384,15 @@ public class RulesEngineImpl implements RulesEngine
         String panelCondString = panel.getCondition();
         if (panelCondString != null)
         {
+            Condition panelCondition = getCondition(panelCondString);
+            if (panelCondition == null)
+            {
+                throw new IzPackException("Condition '" + panelCondString + "' of panel '" + panel.getPanelId() + "'" + "cannot be evaluated");
+            }
             AndCondition andCondition = new AndCondition(this);
             andCondition.setId(andCondition.toString());
             andCondition.addOperands(newCondition);
-            andCondition.addOperands(getCondition(panelCondString));
+            andCondition.addOperands(panelCondition);
             newCondition = andCondition;
         }
 

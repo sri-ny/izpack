@@ -318,9 +318,9 @@ public class CompilerConfig extends Thread
 
         // We add all the information
         addVariables(data);
+        addConditions(data);
         addDynamicVariables(data);
         addDynamicInstallerRequirement(data);
-        addConditions(data);
         addInfo(data);
         addGUIPrefs(data);
         addLangpacks(data);
@@ -364,9 +364,17 @@ public class CompilerConfig extends Thread
             for (IXMLElement installerrequirement : installerrequirementsels)
             {
                 InstallerRequirement basicInstallerCondition = new InstallerRequirement();
-                String condition = installerrequirement.getAttribute("condition");
-                basicInstallerCondition.setCondition(condition);
+                String conditionId = readAndCheckConditionAttribute(installerrequirement);
+                if (conditionId == null)
+                {
+                  assertionHelper.parseError(installerrequirement, "Missing condition attribute");
+                }
+                basicInstallerCondition.setCondition(conditionId);
                 String message = installerrequirement.getAttribute("message");
+                if (message == null)
+                {
+                  assertionHelper.parseError(installerrequirement, "Missing message attribute");
+                }
                 basicInstallerCondition.setMessage(message);
                 installerrequirements.add(basicInstallerCondition);
             }
@@ -756,7 +764,7 @@ public class CompilerConfig extends Thread
             String parent = packElement.getAttribute("parent");
             boolean hidden = Boolean.parseBoolean(packElement.getAttribute("hidden", "false"));
 
-            String conditionid = packElement.getAttribute("condition");
+            String conditionId = readAndCheckConditionAttribute(packElement);
 
             if (required && excludeGroup != null)
             {
@@ -769,7 +777,10 @@ public class CompilerConfig extends Thread
                                          uninstall, size);
             pack.setOsConstraints(OsConstraintHelper.getOsList(packElement)); // TODO:
             pack.setParent(parent);
-            pack.setCondition(conditionid);
+            if (conditionId != null)
+            {
+                pack.setCondition(conditionId);
+            }
             pack.setHidden(hidden);
 
             // unverified
@@ -983,8 +994,8 @@ public class CompilerConfig extends Thread
         for (IXMLElement selectNode : packElement.getChildrenNamed("onSelect"))
         {
             String name = xmlCompilerHelper.requireAttribute(selectNode, "name");
-            String condition = selectNode.getAttribute("condition");
-            pack.addOnSelect(name, condition);
+            String conditionId = readAndCheckConditionAttribute(selectNode);
+            pack.addOnSelect(name, conditionId);
         }
     }
 
@@ -998,7 +1009,7 @@ public class CompilerConfig extends Thread
         for (IXMLElement deselectNode : packElement.getChildrenNamed("onDeselect"))
         {
             String name = xmlCompilerHelper.requireAttribute(deselectNode, "name");
-            String condition = deselectNode.getAttribute("condition");
+            String condition = readAndCheckConditionAttribute(deselectNode);
             pack.addOnDeselect(name, condition);
         }
     }
@@ -1015,7 +1026,7 @@ public class CompilerConfig extends Thread
             String overrideRenameTo = getOverrideRenameToValue(singleFileNode);
             Blockable blockable = getBlockableValue(singleFileNode, osList);
             Map additionals = getAdditionals(singleFileNode);
-            String condition = singleFileNode.getAttribute("condition");
+            String conditionId = readAndCheckConditionAttribute(singleFileNode);
             File file = new File(src);
             if (!file.isAbsolute())
             {
@@ -1040,7 +1051,7 @@ public class CompilerConfig extends Thread
             {
                 logger.info("Adding file: " + file + ", as target file=" + target);
                 pack.addFile(baseDir, file, target, osList, override, overrideRenameTo, blockable,
-                             additionals, condition);
+                             additionals, conditionId);
             }
             catch (IOException x)
             {
@@ -1087,7 +1098,7 @@ public class CompilerConfig extends Thread
                 fs.setOverrideRenameTo(getOverrideRenameToValue(fileNode));
                 fs.setBlockable(getBlockableValue(fileNode, osList));
                 fs.setAdditionals(getAdditionals(fileNode));
-                fs.setCondition(fileNode.getAttribute("condition"));
+                fs.setCondition(readAndCheckConditionAttribute(fileNode));
 
                 String boolval = fileNode.getAttribute("casesensitive");
                 if (boolval != null)
@@ -1145,7 +1156,7 @@ public class CompilerConfig extends Thread
         for (IXMLElement executableNode : childrenNamed)
         {
             String target = executableNode.getAttribute("targetfile");
-            String condition = executableNode.getAttribute("condition");
+            String conditionId = readAndCheckConditionAttribute(executableNode);
             List<OsModel> osList = OsConstraintHelper.getOsList(executableNode); // TODO: unverified
             int executionStage = ExecutableFile.NEVER, type = ExecutableFile.BIN, onFailure = ExecutableFile.ASK;
             String mainClass = null;
@@ -1201,7 +1212,7 @@ public class CompilerConfig extends Thread
 
             if (target != null)
             {
-                addNewExecutableFile(pack, target, condition, osList, executionStage, type, mainClass,
+                addNewExecutableFile(pack, target, conditionId, osList, executionStage, type, mainClass,
                         onFailure, keepFile, argsList);
                 logger.info("Marked target file executable: " + target);
             }
@@ -1211,7 +1222,7 @@ public class CompilerConfig extends Thread
                 Set<String> includedFiles = getFilesetIncludedFiles(pack, fileSetElement, targetdir);
                 for (String filePath : includedFiles)
                 {
-                    addNewExecutableFile(pack, filePath, condition, osList, executionStage, type, mainClass,
+                    addNewExecutableFile(pack, filePath, conditionId, osList, executionStage, type, mainClass,
                             onFailure, keepFile, argsList);
                     logger.info("Marked target file executable: " + filePath);
                 }
@@ -1248,11 +1259,14 @@ public class CompilerConfig extends Thread
             SubstitutionType type = SubstitutionType.lookup(parsableNode.getAttribute("type", "plain"));
             String encoding = parsableNode.getAttribute("encoding", null);
             List<OsModel> osList = OsConstraintHelper.getOsList(parsableNode); // TODO: unverified
-            String condition = parsableNode.getAttribute("condition");
+            String conditionId = readAndCheckConditionAttribute(parsableNode);
             if (target != null)
             {
                 ParsableFile parsable = new ParsableFile(target, type, encoding, osList);
-                parsable.setCondition(condition);
+                if (conditionId != null)
+                {
+                    parsable.setCondition(conditionId);
+                }
                 pack.addParsable(parsable);
                 logger.info("Marked target file parsable: " + target);
             }
@@ -1263,7 +1277,10 @@ public class CompilerConfig extends Thread
                 for (String filePath : includedFiles)
                 {
                     ParsableFile parsable = new ParsableFile(filePath, type, encoding, osList);
-                    parsable.setCondition(condition);
+                    if (conditionId != null)
+                    {
+                        parsable.setCondition(conditionId);
+                    }
                     pack.addParsable(parsable);
                     logger.info("Marked target file parsable: " + filePath);
                 }
@@ -1569,9 +1586,11 @@ public class CompilerConfig extends Thread
                 id = className + "_" + Integer.valueOf(panelCounter - 1);
             }
             panel.setPanelId(id);
-
-            String condition = panelElement.getAttribute("condition");
-            panel.setCondition(condition);
+            String conditionId = readAndCheckConditionAttribute(panelElement);
+            if (conditionId != null)
+            {
+                panel.setCondition(conditionId);
+            }
 
             String allowCloseStr = panelElement.getAttribute("allowClose");
             if (allowCloseStr != null)
@@ -1632,7 +1651,7 @@ public class CompilerConfig extends Thread
                     {
                         value = xmlCompilerHelper.requireContent(param);
                         option = new ConfigurationOption(value,
-                                param.getAttribute("condition"),
+                                readAndCheckConditionAttribute(param),
                                 param.getAttribute("defaultValue"));
                     }
                     logger.fine("-> Adding configuration option " + name + " (" + option + ")");
@@ -2023,7 +2042,7 @@ public class CompilerConfig extends Thread
         info.setRequirePrivilegedExecution(privileged != null);
         if (privileged != null && privileged.hasAttribute("condition"))
         {
-            info.setPrivilegedExecutionConditionID(privileged.getAttribute("condition"));
+            info.setPrivilegedExecutionConditionID(readAndCheckConditionAttribute(privileged));
         }
 
         // Reboot if necessary
@@ -2052,9 +2071,10 @@ public class CompilerConfig extends Thread
                 throw new CompilerException("Invalid value ''" + content + "'' of element ''reboot''");
             }
 
-            if (reboot.hasAttribute("condition"))
+            String conditionId = readAndCheckConditionAttribute(reboot);
+            if (conditionId != null)
             {
-                info.setRebootActionConditionID(reboot.getAttribute("condition"));
+                info.setRebootActionConditionID(conditionId);
             }
         }
 
@@ -2088,11 +2108,11 @@ public class CompilerConfig extends Thread
                 {
                     info.setUninstallerPath(uninstallerPath);
                 }
-                if (uninstallInfo.hasAttribute("condition"))
+                String conditionId = readAndCheckConditionAttribute(uninstallInfo);
+                if (conditionId != null)
                 {
-                    // there's a condition for uninstaller
-                    String uninstallerCondition = uninstallInfo.getAttribute("condition");
-                    info.setUninstallerCondition(uninstallerCondition);
+                  // there's a condition for uninstaller
+                  info.setUninstallerCondition(conditionId);
                 }
             }
         }
@@ -2527,8 +2547,11 @@ public class CompilerConfig extends Thread
                         "Error in definition of dynamic variable " + name + ": " + e.getMessage());
             }
 
-            String conditionid = var.getAttribute("condition");
-            dynamicVariable.setConditionid(conditionid);
+            String conditionId = readAndCheckConditionAttribute(var);
+            if (conditionId != null)
+            {
+                dynamicVariable.setConditionid(conditionId);
+            }
 
             addDynamicVariable(var, name, dynamicVariable);
         }
@@ -3160,7 +3183,11 @@ public class CompilerConfig extends Thread
         fs.setOverrideRenameTo(getOverrideRenameToValue(fileSetNode));
         fs.setBlockable(getBlockableValue(fileSetNode, osList));
         fs.setAdditionals(getAdditionals(fileSetNode));
-        fs.setCondition(fileSetNode.getAttribute("condition"));
+        String conditionId = readAndCheckConditionAttribute(fileSetNode);
+        if (conditionId != null)
+        {
+            fs.setCondition(conditionId);
+        }
 
         String dir_attr = xmlCompilerHelper.requireAttribute(fileSetNode, "dir");
         try
@@ -3254,6 +3281,16 @@ public class CompilerConfig extends Thread
                     variableSubstitutor.substitute(
                             xmlCompilerHelper.requireAttribute(f, "name")));
         }
+    }
+
+    private String readAndCheckConditionAttribute(IXMLElement element)
+    {
+        String conditionId = element.getAttribute("condition");
+        if (conditionId != null && rules.getCondition(conditionId) == null)
+        {
+            assertionHelper.parseError(element, "Invalid condition expression '" + conditionId + "'");
+        }
+        return conditionId;
     }
 
 }
