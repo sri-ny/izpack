@@ -17,8 +17,7 @@ $Id$
     -->
     <!ELEMENT pack (key*,value*)>
         <!ATTLIST pack name CDATA #REQUIRED>
-        <!-- Every pack is allowed to have a condition
-        -->
+        <!-- Every pack is allowed to have a condition -->
         <!ATTLIST pack condition CDATA #IMPLIED>
         <!-- The key section. It defines, what key should be created
         -->
@@ -46,6 +45,8 @@ $Id$
             <!ATTLIST value root (HKCR|HKCU|HKLM|HKU|HKPD|HKCC|HKDDS) #REQUIRED>
             <!-- Override an existent value or not -->
             <!ATTLIST value override (true|false) "true">
+            <!-- Remember the previous value if one exists -->
+			<!ATTLIST value saveprevious (true|false) "true">
             <!-- Contents part. Only one entry of it should be done !!
             -->
             <!-- Contents for value of type STRING -->
