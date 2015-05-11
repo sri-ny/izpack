@@ -117,7 +117,7 @@ public class ConsolePanelView extends AbstractPanelView<ConsolePanel>
     @Override
     public void createInstallationRecord(IXMLElement panelRoot)
     {
-        // TODO Auto-generated method stub
         getView().createInstallationRecord(panelRoot);
     }
+
 }
