@@ -21,6 +21,8 @@
 
 package com.izforge.izpack.core.handler;
 
+import jline.TerminalFactory;
+
 import com.izforge.izpack.api.handler.AbstractPrompt;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
@@ -154,7 +156,15 @@ public class ConsolePrompt extends AbstractPrompt
     public Option confirm(Type type, String title, String message, Options options, Option defaultOption)
     {
         Option result;
+        final int maxlength = TerminalFactory.get().getWidth();
+        final String hline = new String(new char[maxlength]).replace("\0", "\u2500");
+        console.println(hline);
+        if (title != null)
+        {
+            console.println(title);
+        }
         console.println(message);
+        console.println(hline);
         if (options == Options.OK_CANCEL)
         {
             String defaultValue = (defaultOption != null && defaultOption == Option.OK) ? ok : cancel;
