@@ -93,6 +93,16 @@ public abstract class ConsoleField extends AbstractFieldView
     }
 
     /**
+     * Prints a message to the console without a new line.
+     *
+     * @param message the message to print
+     */
+    protected void print(String message)
+    {
+        console.print(message);
+    }
+
+    /**
      * Displays an error message.
      *
      * @param message the message

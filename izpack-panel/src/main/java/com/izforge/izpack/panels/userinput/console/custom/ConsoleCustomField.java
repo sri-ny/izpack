@@ -1,5 +1,10 @@
 package com.izforge.izpack.panels.userinput.console.custom;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.userinput.FieldCommand;
@@ -11,11 +16,6 @@ import com.izforge.izpack.panels.userinput.field.custom.Column;
 import com.izforge.izpack.panels.userinput.field.custom.CustomField;
 import com.izforge.izpack.panels.userinput.field.custom.CustomFieldType;
 import com.izforge.izpack.util.Console;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ConsoleCustomField extends ConsoleField implements CustomFieldType
 {
@@ -32,16 +32,10 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
     private final CustomField customInfoField;
 
     private final int maxRow;
-
     private final int minRow;
 
-    private final static int INVALID = -1;
-
     private final static int CONTINUE = 1;
-
-    private final static int ADD_MODULE = 2;
-
-    private final static int REDISPLAY = 3;
+    private final static int REDISPLAY = 2;
 
     Map<Integer, List<ConsoleField>> consoleFields;
 
@@ -79,91 +73,96 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
     /**
      * Ensure to display the minimum amount of rows required.
      */
-    private void addInitialRows(boolean readonly)
+    private void addInitialRows()
     {
-        for (int count = minRow; count > 1; count--)
+        for (int count = minRow; count >= 1; count--)
         {
-            addRow(true);
+            addRow();
         }
     }
 
-    /**
-     * Display the fields within the row to the console.
-     * At the end prompt to add another module, redisplay the module, or continue with the installation.
-     *
-     * @param initial If it is part of the initial rows then do no prompt to add another module
-     *                As there must be at least one more module to follow.
-     * @return true if the user requested another row, false if the user wants to continue with the installation
-     */
-    public boolean addRow(boolean initial)
+    private void showInitialRows()
     {
+        for (int i = 1; i <= numberOfRows; i++)
+        {
+            editRow(i, true);
+        }
+    }
+
+    private boolean editRow(int rowNumber, boolean initial)
+    {
+        List<ConsoleField> fields = consoleFields.get(Integer.valueOf(rowNumber));
+        print("--> Row " + rowNumber + ": ");
+        for (ConsoleField field : fields)
+        {
+            field.setDisplayed(true);
+            final boolean ro = field.isReadonly();
+            if (initial)
+            {
+                // Switch display mode temporarily
+                field.setReadonly(true);
+                // Avoid initial null values after initializing the first row
+                field.getField().setValue(field.getField().getInitialValue());
+            }
+            while (!field.display())
+            {
+                // loop unless we have a valid value
+            }
+            if (initial)
+            {
+                field.setReadonly(ro);
+            }
+        }
+
+        return true;
+    }
+
+    private boolean canAddRow()
+    {
+        return numberOfRows < maxRow;
+    }
+
+    /**
+     * Add a new row to the panel.
+     *
+     * @return true if the row could be added
+     */
+    private boolean addRow()
+    {
+        if (!canAddRow())
+        {
+            return false;
+        }
         numberOfRows++;
-        boolean onModule = true;
         List<ConsoleField> fields = new ArrayList<ConsoleField>();
 
         for (Field field : createCustomField(userInputPanelSpec, spec).getFields())
         {
             field.setVariable(field.getVariable() + "." + numberOfRows);
             ConsoleField consoleField = createField.createConsoleField(field);
+            consoleField.setReadonly(isReadonly());
             fields.add(consoleField);
         }
 
-        consoleFields.put(numberOfRows, fields);
+        consoleFields.put(Integer.valueOf(numberOfRows), fields);
 
-        int value = INVALID;
-        while (onModule)
-        {
-            value = INVALID;
-            for (ConsoleField field : fields)
-            {
-                field.setDisplayed(true);
-                while (!field.display())
-                {
-                    //Continue to ask for input if it was invalid
-                }
-            }
-
-
-            if (isReadonly())
-            {
-                return false;
-            }
-            else
-            {
-                while (value == INVALID)
-                {
-                    // Only give options to continue or redisplay when you need to meet the minimum amount of rows
-                    // or you are at the max amount of rows
-                    if (initial || numberOfRows == maxRow)
-                    {
-                        value = getConsole().prompt("Enter 1 continue, or 2 to redisplay", 1, 2, -1, -1);
-                        if (value == 2)
-                        {
-                            value = REDISPLAY;
-                        }
-                    } else
-                    {
-                        value = getConsole().prompt("Enter 1 continue, or 2 to add another module, 3 to redisplay", 1, 3, -1, -1);
-                    }
-                }
-                if (value != REDISPLAY)
-                {
-                    onModule = false;
-                }
-            }
-        }
-
-        if (value == ADD_MODULE)
-        {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
-    public boolean addRow()
+    private boolean canRemoveRow()
     {
-        return addRow(false);
+        return numberOfRows > minRow;
+    }
+
+    private boolean removeRow()
+    {
+        if (!canRemoveRow())
+        {
+            return false;
+        }
+        consoleFields.remove(Integer.valueOf(numberOfRows));
+        numberOfRows--;
+        return true;
     }
 
     /**
@@ -176,14 +175,66 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
     {
         numberOfRows = 0;
         consoleFields = new HashMap<Integer, List<ConsoleField>>();
-        boolean readonly = isReadonly();
 
-        addInitialRows(readonly);
-        while (addRow(readonly))
+        addInitialRows();
+
+        int value = REDISPLAY;
+        do
         {
-            //Keep adding rows until the user is done or max limit is reached
-        }
-        customInfoField.setValue(numberOfRows + "");
+            int userValue;
+            showInitialRows();
+            if (isReadonly())
+            {
+                userValue = getConsole().prompt("Enter 1 to continue, 2 to redisplay", 1, 2, 2, -1);
+                switch (userValue)
+                {
+                    case 1:
+                        value = CONTINUE;
+                        break;
+                    default:
+                        value = REDISPLAY;
+                        break;
+                }
+            }
+            else
+            {
+                userValue = getConsole().prompt("Enter the row number (" + 1 + ".." + numberOfRows + ") to edit, "
+                        + Integer.toString(numberOfRows+1) + " to accept all, "
+                        + Integer.toString(numberOfRows+2) + " to redisplay"
+                        + (canAddRow()?", " + Integer.toString(numberOfRows+3) + " to add a row":"")
+                        + (canRemoveRow()?", " + Integer.toString(numberOfRows+4) + " to remove the last row":""),
+                        1, numberOfRows+4, numberOfRows+4, -1);
+                if (userValue <= numberOfRows)
+                {
+                    editRow(userValue, false);
+                    value = REDISPLAY;
+                }
+                else if (userValue == numberOfRows+1)
+                {
+                    value = CONTINUE;
+                }
+                else if (userValue == numberOfRows+3)
+                {
+                    if (addRow())
+                    {
+                        editRow(numberOfRows, false);
+                    }
+                    value = REDISPLAY;
+                }
+                else if (userValue == numberOfRows+4)
+                {
+                    removeRow();
+                    value = REDISPLAY;
+                }
+                else
+                {
+                    value = REDISPLAY;
+                }
+            }
+
+        } while (value != CONTINUE);
+
+        customInfoField.setValue(Integer.toString(numberOfRows));
 
         if (!columnsAreValid())
         {
@@ -219,7 +270,7 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
             columnVariables[col] = "";
             for (int row = 1; row <= numberOfRows; row++)
             {
-                ConsoleField consoleField = consoleFields.get(row).get(col);
+                ConsoleField consoleField = consoleFields.get(Integer.valueOf(row)).get(col);
                 if (consoleField.isDisplayed())
                 {
                     columnVariables[col] += getField().getInstallData().getVariable(consoleField.getVariable()) + ",";
@@ -238,13 +289,14 @@ public class ConsoleCustomField extends ConsoleField implements CustomFieldType
      * Get the variables associated with this custom field.
      * @return
      */
+    @Override
     public List<String> getVariables()
     {
         List<String> countedVariables = new ArrayList<String>();
 
         for (int i = 1; i <= numberOfRows; i++)
         {
-            for(ConsoleField consoleField : consoleFields.get(i))
+            for(ConsoleField consoleField : consoleFields.get(Integer.valueOf(i)))
             {
                 if (consoleField.isDisplayed())
                 {

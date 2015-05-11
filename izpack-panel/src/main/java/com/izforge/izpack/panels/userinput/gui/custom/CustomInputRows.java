@@ -1,5 +1,16 @@
 package com.izforge.izpack.panels.userinput.gui.custom;
 
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.installer.data.GUIInstallData;
@@ -11,13 +22,6 @@ import com.izforge.izpack.panels.userinput.field.custom.Column;
 import com.izforge.izpack.panels.userinput.field.custom.CustomField;
 import com.izforge.izpack.panels.userinput.gui.Component;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * JPanel that contains the possible rows of fields defined by the user.
@@ -173,7 +177,7 @@ public class CustomInputRows extends JPanel
      * @param prompt
      * @return
      */
-    public boolean updateField(Prompt prompt)
+    public boolean updateField(Prompt prompt, boolean skipValidation)
     {
         installData.setVariable(customInfoField.getVariable(), numberOfRows+"");
         for (int i = 1; i <= numberOfRows; i++)
@@ -182,7 +186,7 @@ public class CustomInputRows extends JPanel
             {
                 if (guiField.isDisplayed())
                 {
-                    if (!guiField.updateField(prompt))
+                    if (!guiField.updateField(prompt, skipValidation))
                     {
                         return false;
                     }
@@ -193,11 +197,14 @@ public class CustomInputRows extends JPanel
         String [] columnVariables = getVariablesByColumn();
         for (int i = 0; i < columnVariables.length; i++)
         {
-            ValidationStatus status = columns.get(i).validate(columnVariables[i]);
-            if (!status.isValid())
+            if (!skipValidation)
             {
-                prompt.warn(status.getMessage());
-                return false;
+                ValidationStatus status = columns.get(i).validate(columnVariables[i]);
+                if (!status.isValid())
+                {
+                    prompt.warn(status.getMessage());
+                    return false;
+                }
             }
         }
 
@@ -316,6 +323,7 @@ public class CustomInputRows extends JPanel
         }
         return header;
     }
+
     @Override
     public void setEnabled(boolean enabled)
     {
@@ -324,4 +332,5 @@ public class CustomInputRows extends JPanel
             component.setEnabled(enabled);
         }
     }
+
 }
