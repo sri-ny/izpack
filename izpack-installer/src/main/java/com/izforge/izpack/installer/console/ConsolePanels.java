@@ -77,14 +77,7 @@ public class ConsolePanels extends AbstractPanels<ConsolePanelView, ConsolePanel
         newPanel.executePreActivationActions();
         if (action != null)
         {
-            do
-            {
-                result = action.run(newPanel);
-                if (!result)
-                {
-                    break;
-                }
-            } while (!newPanel.isValid(false));
+            result = action.run(newPanel);
         }
 
         return result;

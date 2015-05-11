@@ -85,17 +85,10 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     {
         boolean result;
 
-        if (panel == null || panel.isValid(false))
-        {
-            String prompt = installData.getMessages().get("ConsoleInstaller.continueQuitRedisplay");
-            console.println();
-            int value = console.prompt(prompt, 1, 3, 2);
-            result = value == 1 || value != 2 && run(installData, console);
-        }
-        else
-        {
-            result = promptRerunPanel(installData, console);
-        }
+        String prompt = installData.getMessages().get("ConsoleInstaller.continueQuitRedisplay");
+        console.println();
+        int value = console.prompt(prompt, 1, 3, 2);
+        result = value == 1 || value != 2 && run(installData, console);
         return result;
     }
 
