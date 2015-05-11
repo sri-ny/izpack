@@ -1,5 +1,17 @@
 package com.izforge.izpack.panels.userinput.gui.custom;
 
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.installer.data.GUIInstallData;
@@ -8,12 +20,6 @@ import com.izforge.izpack.panels.userinput.FieldCommand;
 import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.panels.userinput.field.custom.CustomField;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
 /**
  * JPanel that contains the possible rows of fields defined by the user,
@@ -33,6 +39,11 @@ import java.util.List;
  */
 public class CustomInputField extends JPanel implements ActionListener
 {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -5954748826095621101L;
+
     private GUIInstallData installData;
 
     private IzPanel parent;
@@ -53,16 +64,15 @@ public class CustomInputField extends JPanel implements ActionListener
     {
         this.parent = parent;
         this.installData = installData;
+
         this.rows = new CustomInputRows(customField, createField, userInputPanelSpec, spec, installData);
         this.header = rows.getHeader();
         this.controlPanel = initializeControlPanel();
 
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.columnWidths = new int[] { 190 };
-        gridBagLayout.columnWeights = new double[] { 0.0, 1.0 };
-        gridBagLayout.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-        
+
         this.setLayout(gridBagLayout);
+
         this.addComponents(rows, controlPanel);
         updateControlPanel();
     }
@@ -91,12 +101,13 @@ public class CustomInputField extends JPanel implements ActionListener
 
         add(rows, rowConstraints);
 
-
         GridBagConstraints controlPanelConstraints = new GridBagConstraints();
         controlPanelConstraints.fill = GridBagConstraints.NONE;
-        controlPanelConstraints.anchor = GridBagConstraints.EAST;
+        controlPanelConstraints.anchor = GridBagConstraints.SOUTHEAST;
         controlPanelConstraints.gridx = 0;
         controlPanelConstraints.gridy = 2;
+        controlPanelConstraints.weighty = 1.0; //request any extra vertical space
+        controlPanelConstraints.insets = new Insets(5,0,0,0); //top padding
 
         add(controlPanel, controlPanelConstraints);
     }
@@ -110,15 +121,14 @@ public class CustomInputField extends JPanel implements ActionListener
     {
         JPanel controlPanel = new JPanel(new GridLayout(1, 2));
 
-        JButton addButton = new JButton("add");
+        JButton addButton = new JButton("Add");
         addButton.setActionCommand(addCommand);
         addButton.addActionListener(this);
 
-        JButton removeButton = new JButton("remove");
+        JButton removeButton = new JButton("Remove");
         removeButton.setEnabled(false);
         removeButton.setActionCommand(removeCommand);
         removeButton.addActionListener(this);
-
 
         controlPanel.add(addButton);
         controlPanel.add(removeButton);
@@ -166,9 +176,9 @@ public class CustomInputField extends JPanel implements ActionListener
         repaint();
     }
 
-    public boolean updateField(Prompt prompt)
+    public boolean updateField(Prompt prompt, boolean skipValidation)
     {
-        return rows.updateField(prompt);
+        return rows.updateField(prompt, skipValidation);
     }
 
     public List<String> getLabels()

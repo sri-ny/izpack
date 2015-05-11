@@ -52,9 +52,9 @@ public class GUICustomField extends GUIField implements CustomFieldType
     }
 
     @Override
-    public boolean updateField(Prompt prompt)
+    public boolean updateField(Prompt prompt, boolean skipValidation)
     {
-        return customInputField.updateField(prompt);
+        return customInputField.updateField(prompt, skipValidation);
     }
 
     @Override
