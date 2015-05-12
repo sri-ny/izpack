@@ -239,6 +239,8 @@ file we looked for -->
     <str id="UserInputPanel.search.wrongselection.message"
          txt="Die gewählte Datei oder das Verzeichnis existiert nicht oder ist unpassend."/>
     <str id="UserInputPanel.search.wrongselection.caption" txt="Ungültige Auswahl."/>
+    <str id="UserInputPanel.custom.swing.buttonlabel.add" txt="Hinzufügen"/>
+    <str id="UserInputPanel.custom.swing.buttonlabel.remove" txt="Entfernen"/>
 
     <!-- UserPathPanel strings -->
     <str id="UserPathPanel.required" txt="Das ausgewählte Verzeichnis sollte existieren."/>
