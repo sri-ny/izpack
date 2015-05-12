@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.handler.Prompt;
+import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.gui.ButtonFactory;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.panels.userinput.FieldCommand;
@@ -120,12 +122,15 @@ public class CustomInputField extends JPanel implements ActionListener
     private JPanel initializeControlPanel()
     {
         JPanel controlPanel = new JPanel(new GridLayout(1, 2));
+        Messages messages = installData.getMessages();
 
-        JButton addButton = new JButton("Add");
+        JButton addButton = ButtonFactory.createButton(messages.get("UserInputPanel.custom.swing.buttonlabel.add"),
+                installData.buttonsHColor);
         addButton.setActionCommand(addCommand);
         addButton.addActionListener(this);
 
-        JButton removeButton = new JButton("Remove");
+        JButton removeButton = ButtonFactory.createButton(messages.get("UserInputPanel.custom.swing.buttonlabel.remove"),
+                installData.buttonsHColor);
         removeButton.setEnabled(false);
         removeButton.setActionCommand(removeCommand);
         removeButton.addActionListener(this);

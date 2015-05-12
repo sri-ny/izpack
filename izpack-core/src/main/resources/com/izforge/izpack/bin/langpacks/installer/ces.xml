@@ -149,6 +149,8 @@ file we looked for -->
     <str id="UserInputPanel.search.wrongselection.message"
          txt="Vybraný soubor či adresář neexistuje nebo není správný."/>
     <str id="UserInputPanel.search.wrongselection.caption" txt="Nesprávný výběr."/>
+    <str id="UserInputPanel.custom.swing.buttonlabel.add" txt="Přidat"/>
+    <str id="UserInputPanel.custom.swing.buttonlabel.remove" txt="Odebrat"/>
 
     <str id="CompilePanel.heading" txt="Kompilace"/>
     <str id="CompilePanel.tip" txt="Průběh kompilace úlohy:"/>
