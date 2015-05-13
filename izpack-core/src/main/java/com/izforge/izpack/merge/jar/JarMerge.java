@@ -66,7 +66,7 @@ public class JarMerge extends AbstractMerge
     {
         this.jarPath = jarPath;
         this.mergeContent = mergeContent;
-        destination = FileUtil.convertUrlToFilePath(resource).replaceAll(this.jarPath, "").replaceAll("file:",
+        destination = FileUtil.convertUrlToFilePath(resource).replace(this.jarPath, "").replaceAll("file:",
                                                                                                       "").replaceAll(
                 "!/?", "").replaceAll("//", "/");
 
