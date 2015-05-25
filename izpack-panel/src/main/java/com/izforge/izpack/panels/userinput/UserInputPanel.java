@@ -237,6 +237,7 @@ public class UserInputPanel extends IzPanel
         if (firstFocusedComponent != null)
         {
             setInitialFocus(firstFocusedComponent);
+            firstFocusedComponent.requestFocusInWindow();
         }
     }
 
@@ -333,11 +334,6 @@ public class UserInputPanel extends IzPanel
 
             updated |= view.translateStaticText();
             updated |= view.updateView();
-        }
-
-        if (firstFocusedComponent != null)
-        {
-            firstFocusedComponent.requestFocusInWindow();
         }
 
         if (updated)
