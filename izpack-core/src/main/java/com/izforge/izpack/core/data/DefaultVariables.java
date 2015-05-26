@@ -379,8 +379,11 @@ public class DefaultVariables implements Variables
                     }
                     else
                     {
-                        // Mark unset if condition is not true
-                        unsetVariables.add(name);
+                        if (variable.isAutoUnset())
+                        {
+                            // Mark unset if condition is not true
+                            unsetVariables.add(name);
+                        }
                     }
                 }
                 else {

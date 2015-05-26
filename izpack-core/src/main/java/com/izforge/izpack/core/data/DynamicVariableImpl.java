@@ -50,6 +50,8 @@ public class DynamicVariableImpl implements DynamicVariable
 
     private boolean checkonce = false;
 
+    private boolean autounset = true;
+
     private boolean ignorefailure = true;
 
     private transient String currentValue;
@@ -237,6 +239,18 @@ public class DynamicVariableImpl implements DynamicVariable
         this.checkonce = checkonce;
     }
 
+    @Override
+    public boolean isAutoUnset()
+    {
+        return autounset;
+    }
+
+    @Override
+    public void setAutoUnset(boolean autounset)
+    {
+        this.autounset = autounset;
+    }
+
     public boolean isIgnoreFailure()
     {
         return ignorefailure;
@@ -260,6 +274,7 @@ public class DynamicVariableImpl implements DynamicVariable
         if (!((conditionid == null && compareObj.getConditionid() == null)
                 || (conditionid != null && conditionid.equals(compareObj.getConditionid())))) { return false; }
         if (checkonce != compareObj.isCheckonce()) { return false; }
+        if (autounset != compareObj.isAutoUnset()) { return false; }
         if (!((value == null && compareObj.getValue() == null)
                 || (value != null && value.equals(compareObj.getValue())))) { return false; }
         List<ValueFilter> compareFilters = compareObj.getFilters();
@@ -279,7 +294,10 @@ public class DynamicVariableImpl implements DynamicVariable
     @Override
     public String toString()
     {
-        StringBuffer ret = new StringBuffer("name: " + name + ", condition: " + conditionid + ", checkonce: " + checkonce);
+        StringBuffer ret = new StringBuffer("name: " + name
+                + ", condition: " + conditionid
+                + ", checkonce: " + checkonce
+                + ", unset: " + autounset);
         if (value != null)
         {
             ret.append(", value: " + value.toString());

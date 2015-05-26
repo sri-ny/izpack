@@ -74,6 +74,17 @@ public interface DynamicVariable extends Serializable
     boolean isChecked();
     void setChecked();
 
+    /**
+     * Check whether this dynamic variable should be automatically unset if its condition is not met.
+     * @return true if the variable is to be automatically unset
+     */
+    boolean isAutoUnset();
+    /**
+     * Configure whether this dynamic variable should be automatically unset if its condition is not met.
+     * @param autounset true if the variable is to be automatically unset
+     */
+    void setAutoUnset(boolean autounset);
+
     void setIgnoreFailure(boolean ignore);
 
     void addFilter(ValueFilter filter);

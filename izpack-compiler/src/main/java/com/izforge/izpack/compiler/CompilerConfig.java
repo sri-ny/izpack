@@ -2491,6 +2491,13 @@ public class CompilerConfig extends Thread
                 dynamicVariable.setCheckonce(Boolean.valueOf(value));
             }
 
+            // Check whether dynamic variable should be automatically unset if its condition is not met
+            value = var.getAttribute("unset");
+            if (value != null)
+            {
+                dynamicVariable.setAutoUnset(Boolean.valueOf(value));
+            }
+
             // Check whether evaluation failures of the dynamic variable should be ignored
             value = var.getAttribute("ignorefailure");
             if (value != null)
