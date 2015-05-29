@@ -119,8 +119,14 @@ public class XmlMergeTest
             outputChannel = new FileOutputStream(targetFile).getChannel();
             outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
         } finally {
-            inputChannel.close();
-            outputChannel.close();
+            if (inputChannel != null)
+            {
+                inputChannel.close();
+            }
+            if (outputChannel != null)
+            {
+                outputChannel.close();
+            }
         }
 
         XmlMerge xmlMerge;
