@@ -842,6 +842,15 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     }
 
     /**
+     * Locks the 'Quit' button.
+     */
+    @Override
+    public void lockQuitButton()
+    {
+        navigator.setQuitEnabled(false);
+    }
+
+    /**
      * Unlocks the 'previous' button.
      */
     @Override
@@ -858,6 +867,16 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     {
         unlockNextButton(true);
     }
+
+    /**
+     * Unlocks the 'Quit' button.
+     */
+    @Override
+    public void unlockQuitButton()
+    {
+        navigator.setQuitEnabled(true);
+    }
+
 
     /**
      * Unlocks the 'next' button.

@@ -133,6 +133,7 @@ public class InstallPanel extends IzPanel implements ProgressListener
      *
      * @return The validation state.
      */
+    @Override
     public boolean isValidated()
     {
         return this.validated;
@@ -141,11 +142,13 @@ public class InstallPanel extends IzPanel implements ProgressListener
     /**
      * The unpacker starts.
      */
+    @Override
     public void startAction(String name, int noOfJobs)
     {
         this.noOfPacks = noOfJobs;
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 parent.blockGUI();
@@ -165,10 +168,12 @@ public class InstallPanel extends IzPanel implements ProgressListener
     /**
      * The unpacker stops.
      */
+    @Override
     public void stopAction()
     {
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 parent.releaseGUI();
@@ -210,6 +215,7 @@ public class InstallPanel extends IzPanel implements ProgressListener
                         installData.getPanels().indexOf(InstallPanel.this) != (installData.getPanels().size() - 1))
                 {
                     parent.unlockNextButton();
+                    parent.unlockQuitButton();
                 }
             }
         });
@@ -221,11 +227,13 @@ public class InstallPanel extends IzPanel implements ProgressListener
      * @param val The progression value.
      * @param msg The progression message.
      */
+    @Override
     public void progress(final int val, final String msg)
     {
         currentStep++;
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 packProgressBar.setValue(val + 1);
@@ -241,11 +249,13 @@ public class InstallPanel extends IzPanel implements ProgressListener
      * @param stepno   The number of the pack.
      * @param max      The new maximum progress.
      */
+    @Override
     public void nextStep(final String packName, final int stepno, final int max)
     {
         currentStep = 0;
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 packProgressBar.setValue(0);
@@ -262,10 +272,12 @@ public class InstallPanel extends IzPanel implements ProgressListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setSubStepNo(final int no_of_substeps)
     {
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 packProgressBar.setMaximum(no_of_substeps);
@@ -308,6 +320,7 @@ public class InstallPanel extends IzPanel implements ProgressListener
     /**
      * Called when the panel becomes active.
      */
+    @Override
     public void panelActivate()
     {
         // We clip the panel
@@ -319,6 +332,7 @@ public class InstallPanel extends IzPanel implements ProgressListener
         setPreferredSize(dimension);
         parent.lockNextButton();
         parent.lockPrevButton();
+        parent.lockQuitButton();
 
         parent.install(this);
     }
