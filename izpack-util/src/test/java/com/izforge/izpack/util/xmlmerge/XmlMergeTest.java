@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.Properties;
@@ -97,9 +98,10 @@ public class XmlMergeTest
      * @throws AbstractXmlMergeException
      * @throws SAXException
      * @throws ParserConfigurationException
+     * @throws URISyntaxException
      */
     @Test
-    public void testMergeFilesWithXPathTagMatcherReplace2Files() throws IOException, AbstractXmlMergeException, SAXException, ParserConfigurationException
+    public void testMergeFilesWithXPathTagMatcherReplace2Files() throws IOException, AbstractXmlMergeException, SAXException, ParserConfigurationException, URISyntaxException
     {
         URL patchSourceFileUrl = getClass().getResource("maps_resources_patch.xml");
         URL patchTargetFileUrl = getClass().getResource("maps_resources_original.xml");
@@ -115,18 +117,12 @@ public class XmlMergeTest
         FileChannel inputChannel = null;
         FileChannel outputChannel = null;
         try {
-            inputChannel = new FileInputStream(new File(patchTargetFileUrl.getFile())).getChannel();
+            inputChannel = new FileInputStream(new File(patchTargetFileUrl.toURI())).getChannel();
             outputChannel = new FileOutputStream(targetFile).getChannel();
             outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
         } finally {
-            if (inputChannel != null)
-            {
-                inputChannel.close();
-            }
-            if (outputChannel != null)
-            {
-                outputChannel.close();
-            }
+            inputChannel.close();
+            outputChannel.close();
         }
 
         XmlMerge xmlMerge;
