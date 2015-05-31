@@ -12,13 +12,15 @@
 
     <dependencies>
 
+        <!-- still required by IzpackGenerationTest? -->
+        <!--
         <dependency>
-            <!-- required by IzpackGenerationTest -->
             <groupId>${project.groupId}</groupId>
             <artifactId>izpack-dist</artifactId>
             <classifier>sources</classifier>
             <scope>test</scope>
         </dependency>
+        -->
 
         <dependency>
             <groupId>${project.groupId}</groupId>
