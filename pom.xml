@@ -24,7 +24,7 @@
   <scm>
     <url>https://github.com/izpack/izpack</url>
     <connection>scm:git:git://github.com/izpack/izpack.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:izpack/izpack.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:izpack/izpack.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
