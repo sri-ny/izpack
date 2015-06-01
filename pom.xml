@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.izpack</groupId>
   <artifactId>izpack</artifactId>
@@ -34,26 +32,20 @@
       <name>Sonatype Nexus snapshot repository</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+    <!-- We do not deploy directly to the staging repository, but via the Nexus staging plugin -->
     <!--
     <repository>
       <id>sonatype-nexus-staging</id>
       <name>Sonatype Nexus release repository</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
-     -->
+    -->
   </distributionManagement>
-
-  <!-- The following is marked as deprecated for Maven 3. so using maven-enforcer-plugin
-    as well -->
-  <!-- http://jira.codehaus.org/browse/MNG-4840 -->
-  <!-- http://jira.codehaus.org/browse/MNG-5297 -->
-  <prerequisites>
-    <maven>${mavenVersion}</maven>
-  </prerequisites>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mavenVersion>2.2.1</mavenVersion>
+    <!-- Maven 2 confuses the usage of the Nexus staging plugin and would require further customization -->
+    <mavenVersion>3.0</mavenVersion>
   </properties>
 
   <modules>
@@ -280,9 +272,6 @@
         <version>${project.version}</version>
         <classifier>tests</classifier>
       </dependency>
-      <!--<dependency> <artifactId>izpack-installer</artifactId> <groupId>${project.groupId}</groupId>
-        <version>${project.version}</version> <classifier>tests</classifier> <scope>test</scope>
-        </dependency> -->
 
       <dependency>
         <artifactId>izpack-compiler</artifactId>
@@ -456,8 +445,7 @@
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
             </manifest>
-            <!-- will put some additional entries into META-INF/MANIFEST.MF
-              file -->
+            <!-- will put some additional entries into META-INF/MANIFEST.MF file -->
             <manifestEntries>
               <Implementation-Build>${buildNumber}</Implementation-Build>
             </manifestEntries>
@@ -717,7 +705,7 @@
             <executions>
               <execution>
                 <id>attach-javadoc</id>
-                <phase>verify</phase>
+                <!--<phase>verify</phase>-->
                 <goals>
                   <goal>jar</goal>
                 </goals>
@@ -730,7 +718,7 @@
             <executions>
               <execution>
                 <id>attach-sources</id>
-                <phase>verify</phase>
+                <!--<phase>verify</phase>-->
                 <goals>
                   <goal>jar-no-fork</goal>
                 </goals>
