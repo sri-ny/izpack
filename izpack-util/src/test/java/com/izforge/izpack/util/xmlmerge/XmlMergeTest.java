@@ -136,7 +136,7 @@ public class XmlMergeTest
         xmlMerge = new ConfigurableXmlMerge(new PropertyXPathConfigurer(confProps));
         xmlMerge.merge( new File[]{
                 targetFile,
-                new File(patchSourceFileUrl.getFile())
+                new File(patchSourceFileUrl.toURI())
                 },
                 targetFile);
 
@@ -151,7 +151,7 @@ public class XmlMergeTest
         Document resultDocument = db.parse(targetFile);
         resultDocument.normalizeDocument();
 
-        Document expectedDocument = db.parse(new File(expectedFileUrl.getFile()));
+        Document expectedDocument = db.parse(new File(expectedFileUrl.toURI()));
         expectedDocument.normalizeDocument();
 
         assertTrue("Result document does not match expected result", resultDocument.isEqualNode(expectedDocument));
