@@ -34,11 +34,13 @@
       <name>Sonatype Nexus snapshot repository</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+    <!--
     <repository>
       <id>sonatype-nexus-staging</id>
       <name>Sonatype Nexus release repository</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
+     -->
   </distributionManagement>
 
   <!-- The following is marked as deprecated for Maven 3. so using maven-enforcer-plugin
@@ -494,7 +496,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.4</version>
+        <version>1.6.5</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>sonatype-nexus-staging</serverId>
