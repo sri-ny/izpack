@@ -3,7 +3,7 @@
     <parent>
         <artifactId>izpack</artifactId>
         <groupId>org.codehaus.izpack</groupId>
-        <version>5.0.0-rc5-SNAPSHOT</version>
+        <version>5.0.0-rc5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -144,7 +144,7 @@
                   </goals>
                   <configuration>
                     <tasks>
-                      <mkdir dir="${project.build.directory}/apidocs"/>
+                      <mkdir dir="${project.build.directory}/apidocs" />
                     </tasks>
                   </configuration>
                 </execution>
