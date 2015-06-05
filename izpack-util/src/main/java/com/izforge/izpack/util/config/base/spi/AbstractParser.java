@@ -84,6 +84,7 @@ abstract class AbstractParser
             if (getConfig().isEmptyOption())
             {
                 name = line;
+                value = line;
             }
             else
             {
@@ -123,22 +124,30 @@ abstract class AbstractParser
         boolean inQuotes = line.charAt(0) == '"';
         while( inQuotes ) {
         	start = line.indexOf('"', start + 1);
-        	if( line.charAt(start - 1) != '\\' || line.charAt(start - 2) == '\\' ) {
+    		if (start > 2) {
+	        	if( line.charAt(start - 1) != '\\' || line.charAt(start - 2) == '\\' ) {
+	        		inQuotes = false;
+	        		start++;
+	        	}
+    		}
+    		else if (start < 0) {
         		inQuotes = false;
-        		start++;
-        	}
+    		}
         }
 
-        for (char c : _operators.toCharArray())
+        if (start > -1) 
         {
-            int index = line.indexOf(c, start);
-
-            if ((index >= 0) && ((idx == -1) || (index < idx)))
-            {
-                idx = index;
-            }
+	        for (char c : _operators.toCharArray())
+	        {
+	            int index = line.indexOf(c, start);
+	
+	            if ((index >= 0) && ((idx == -1) || (index < idx)))
+	            {
+	                idx = index;
+	            }
+	        }
         }
-
+        
         return idx;
     }
 }
