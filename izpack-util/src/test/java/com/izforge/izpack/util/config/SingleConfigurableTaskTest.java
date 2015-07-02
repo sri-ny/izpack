@@ -12,9 +12,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
+import com.izforge.izpack.util.config.base.Config;
+import com.izforge.izpack.util.config.base.Options;
+import com.izforge.izpack.util.config.base.spi.OptionsBuilder;
 
 public class SingleConfigurableTaskTest
 {
@@ -24,7 +30,7 @@ public class SingleConfigurableTaskTest
 //    @Test
 //    public void testPropertiesCommentsAtEnd() throws IOException
 //    {
-//        SingleOptionFileTask task = new SingleOptionFileTask();
+//        SingleOptionFileTestTask task = new SingleOptionFileTestTask();
 //
 //        URL oldFileUrl = getClass().getResource("oldversion.properties");
 //        URL newFileUrl = getClass().getResource("newversion.properties");
@@ -65,7 +71,7 @@ public class SingleConfigurableTaskTest
 //    @Test
 //    public void testWrapperCommentsAtEnd() throws IOException
 //    {
-//        SingleOptionFileTask task = new SingleOptionFileTask();
+//        SingleOptionFileTestTask task = new SingleOptionFileTestTask();
 //
 //        URL oldFileUrl = getClass().getResource("oldversion.wrapper.conf");
 //        URL newFileUrl = getClass().getResource("newversion.wrapper.conf");
@@ -105,6 +111,140 @@ public class SingleConfigurableTaskTest
 //        printFileContent(expectedFile);
 //        assertEquals(FileUtils.contentEqualsIgnoreEOL(expectedFile, toFile, "UTF-8"), true);
 //    }
+
+    @Test
+    public void testAutoNumberingPatchPreserveEntries() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.xyz0.0", "value0");
+        ob.handleOption("abc.xyz0.1", "value1");
+        ob.handleOption("abc.xyz0.2", "value2");
+
+        Options toOptions = new Options(config);
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(false);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0."));
+        assertEquals( 3, result.length("abc.xyz0.") );
+        assertEquals("value0", result.get("abc.xyz0.", 0));
+        assertEquals("value1", result.get("abc.xyz0.", 1));
+        assertEquals("value2", result.get("abc.xyz0.", 2));
+    }
+
+    @Test
+    public void testAutoNumberingPatchPreserveEntriesAndMoreValues() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.xyz0.0", "value0");
+        ob.handleOption("abc.xyz0.1", "value1");
+        ob.handleOption("abc.xyz0.2", "value2");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder ob2 = OptionsBuilder.newInstance(fromOptions);
+        ob2.handleOption("abc.xyz0.0", "value3");
+        ob2.handleOption("abc.xyz0.1", "value4");
+        ob2.handleOption("abc.xyz0.2", "value5");
+        ob2.handleOption("abc.xyz0.3", "value6");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0."));
+        assertEquals(4, result.length("abc.xyz0.") );
+        assertEquals("value3", result.get("abc.xyz0.", 0));
+        assertEquals("value4", result.get("abc.xyz0.", 1));
+        assertEquals("value5", result.get("abc.xyz0.", 2));
+        assertEquals("value6", result.get("abc.xyz0.", 3));
+    }
+
+    @Test
+    public void testAutoNumberingPatchPreserveEntriesAndLessValues() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.xyz0.0", "value0");
+        ob.handleOption("abc.xyz0.1", "value1");
+        ob.handleOption("abc.xyz0.2", "value2");
+        ob.handleOption("abc.xyz0.3", "value3");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder ob2 = OptionsBuilder.newInstance(fromOptions);
+        ob2.handleOption("abc.xyz0.0", "value3");
+        ob2.handleOption("abc.xyz0.1", "value4");
+        ob2.handleOption("abc.xyz0.2", "value5");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0."));
+        assertEquals( 4, result.length("abc.xyz0.") );
+        assertEquals("value3", result.get("abc.xyz0.", 0));
+        assertEquals("value4", result.get("abc.xyz0.", 1));
+        assertEquals("value5", result.get("abc.xyz0.", 2));
+    }
+
+    @Test
+    public void testAutoNumberingPatchPreserveEntriesAndValuesWithOverride() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.xyz0.0", "value0");
+        ob.handleOption("abc.xyz0.1", "value1");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder ob2 = OptionsBuilder.newInstance(fromOptions);
+        ob2.handleOption("abc.xyz0.0", "value3");
+        ob2.handleOption("abc.xyz0.1", "value4");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        Entry entry = new Entry();
+        entry.setKey("abc.xyz0.0");
+        entry.setValue("value0_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.xyz0.1");
+        entry.setValue("value1_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.xyz.unnumbered");
+        entry.setValue("value_unnumbered_overridden");
+        task.addEntry(entry);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0."));
+        assertEquals( 2, result.length("abc.xyz0.") );
+        Assert.assertNull(result.get("abc.xyz0.0"));
+        Assert.assertNull(result.get("abc.xyz0.1"));
+        Assert.assertNotNull(result.get("abc.xyz0.", 0));
+        Assert.assertNotNull(result.get("abc.xyz0.", 1));
+        Assert.assertNotNull(result.get("abc.xyz.unnumbered"));
+        assertEquals("value0_overridden", result.get("abc.xyz0.", 0));
+        assertEquals("value1_overridden", result.get("abc.xyz0.", 1));
+        assertEquals("value_unnumbered_overridden", result.get("abc.xyz.unnumbered"));
+    }
+
 
     @Test
     public void testIniCommentsAtEnd() throws IOException, URISyntaxException
@@ -157,7 +297,7 @@ public class SingleConfigurableTaskTest
         assertNotNull("Old file missing", oldFileUrl);
         assertNotNull("New file missing", newFileUrl);
         assertNotNull("Expected result file missing", expectedFileUrl);
-        
+
         System.out.println("The oldFileUrl: "+ oldFileUrl.toURI().toString());
 
         File oldFile = new File(oldFileUrl.toURI());

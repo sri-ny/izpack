@@ -63,7 +63,7 @@ public class OptionsBuilder implements OptionsHandler
     @Override public void handleOption(String name, String value)
     {
         String newName = name;
-        if (getConfig().isAutoNumbering() && name.matches("([^\\d]+\\.)+[\\d]+"))
+        if (getConfig().isAutoNumbering() && name.matches("(.+\\.)+[\\d]+"))
         {
             String[] parts = name.split("\\.");
             newName = name.substring(0, name.length() - parts[parts.length - 1].length() - 1) + ".";
