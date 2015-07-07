@@ -464,19 +464,60 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                 fromKeySet = ((Options) fromConfigurable).keySet();
                 for (String key : fromKeySet)
                 {
-                    String fromValue = (patchResolveVariables ? ((Options) fromConfigurable)
-                            .fetch(key)
-                            : ((Options) fromConfigurable).get(key));
-                    if (patchPreserveEntries && !toKeySet.contains(key))
+                    if (fromConfigurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+"))
                     {
-                        logger.fine("Preserve option file entry \"" + key + "\"");
-                        ((Options) configurable).add(key, fromValue);
+                        boolean keyFound = toKeySet.contains(key);
+                        if (patchPreserveValues && keyFound)
+                        {
+                            // Replace all key values with the preserved values instead of mixing them
+                            ((Options) configurable).remove(key);
+                        }
+                        int i = 0;
+                        String fromValue;
+                        do
+                        {
+                            fromValue = null;
+                            try
+                            {
+                                fromValue = (patchResolveVariables
+                                        ? ((Options) fromConfigurable).fetch(key, i)
+                                        : ((Options) fromConfigurable).get(key, i));
+                                if (patchPreserveEntries && !keyFound)
+                                {
+                                    logger.fine("Preserve auto-numbered  option file entry \"" + key + i + "\"");
+                                    ((Options) configurable).add(key, fromValue, i);
+                                }
+                                else if (patchPreserveValues && keyFound)
+                                {
+                                    logger.fine("Preserve option value for auto-numbered key \"" + key + i + "\": \"" + fromValue
+                                            + "\"");
+                                    ((Options) configurable).add(key, fromValue, i);
+                                }
+                                i++;
+                            }
+                            catch (IndexOutOfBoundsException e)
+                            {
+                                fromValue = null;
+                            }
+                        }
+                        while (fromValue != null);
                     }
-                    else if (patchPreserveValues && ((Options) configurable).keySet().contains(key))
+                    else
                     {
-                        logger.fine("Preserve option value for key \"" + key + "\": \"" + fromValue
-                                + "\"");
-                        ((Options) configurable).put(key, fromValue);
+                        String fromValue = (patchResolveVariables
+                                ? ((Options) fromConfigurable).fetch(key)
+                                : ((Options) fromConfigurable).get(key));
+                        if (patchPreserveEntries && !toKeySet.contains(key))
+                        {
+                            logger.fine("Preserve option file entry \"" + key + "\"");
+                            ((Options) configurable).add(key, fromValue);
+                        }
+                        else if (patchPreserveValues && toKeySet.contains(key))
+                        {
+                            logger.fine("Preserve option value for key \"" + key + "\": \"" + fromValue
+                                    + "\"");
+                            ((Options) configurable).put(key, fromValue);
+                        }
                     }
                 }
             }
@@ -760,8 +801,20 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
 
         private void executeOnOptions(Options configurable) throws Exception
         {
-            List<String> values = configurable.getAll(key);
-            String newValue;
+            String newKey, newValue;
+            int pos = -1;
+            if (configurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+[\\d]+"))
+            {
+                String[] parts = key.split("\\.");
+                newKey = key.substring(0, key.length() - parts[parts.length - 1].length() - 1) + ".";
+                pos = Integer.parseInt(parts[parts.length - 1]);
+            }
+            else
+            {
+                newKey = key;
+            }
+
+            List<String> values = configurable.getAll(newKey);
             boolean contains = false;
             if (values != null)
             {
@@ -777,9 +830,18 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                             case REGEXP:
                                 if (origValue.matches(value))
                                 {
-                                    logger.fine("Set option value for key \"" + key + "\": \""
-                                            + newValue + "\"");
-                                    configurable.put(key, newValue, i);
+                                    logger.fine("Set option value for key \"" + newKey + "\": \""
+                                            + newValue + "\" (found by regular expression)"
+                                            + (pos<0?"":" at position "+pos));
+                                    if (pos < 0)
+                                    {
+                                        configurable.put(newKey, newValue);
+                                    }
+                                    else
+                                    {
+                                        configurable.remove(newKey, i);
+                                        configurable.add(newKey, newValue, pos);
+                                    }
                                     contains = true;
                                 }
                                 break;
@@ -787,9 +849,18 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                             default:
                                 if (origValue.equals(value))
                                 {
-                                    logger.fine("Set option value for key \"" + key + "\": \""
-                                            + newValue + "\"");
-                                    configurable.put(key, newValue, i);
+                                    logger.fine("Override option value for key \"" + newKey + "\": \""
+                                            + newValue + "\" (found by value)"
+                                            + (pos<0?"":" at position "+pos));
+                                    if (pos < 0)
+                                    {
+                                        configurable.put(newKey, newValue);
+                                    }
+                                    else
+                                    {
+                                        configurable.remove(newKey, i);
+                                        configurable.add(newKey, newValue, pos);
+                                    }
                                     contains = true;
                                 }
                                 break;
@@ -800,10 +871,17 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
             if (!contains)
             {
                 newValue = execute(value);
-                logger.fine("Set option value for key \"" + key + "\": \"" + newValue + "\"");
-                configurable.put(key, newValue);
+                logger.fine("Set option value for key \"" + newKey + "\": \"" + newValue + "\""
+                        + (pos<0?"":" at position "+pos));
+                if (pos < 0)
+                {
+                    configurable.put(newKey, newValue);
+                }
+                else
+                {
+                    configurable.put(newKey, newValue, pos);
+                }
             }
-
         }
 
         private void executeOnProfile(BasicProfile profile) throws Exception
