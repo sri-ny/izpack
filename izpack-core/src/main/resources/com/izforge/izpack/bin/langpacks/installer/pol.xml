@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	Author: Kamil Dybicz
-	E-mail: galdrian@o2.pl
-	Created by: IzPack Translation Helper
-	Created at: 2009-04-22 12:36
+  Author: Kamil Dybicz
+  E-mail: galdrian@o2.pl
+  Created by: IzPack Translation Helper
+  Created at: 2009-04-22 12:36
 -->
 
 <!-- The Polish langpack -->
@@ -95,7 +95,10 @@
     <str id="installer.hideDetails" txt="Hide Details"/>
     <str id="installer.copy" txt="Copy"/>
     <str id="installer.sendReport" txt="Send Report"/>
-W    <str id="InstallPanel.begin" txt=" "/>
+    <str id="installer.continueQuestion" txt="Continue anyway?"/>
+    <str id="installer.cancelled" txt="Installation cancelled"/>
+
+    <str id="InstallPanel.begin" txt=" "/>
     <str id="InstallPanel.finished" txt="[Zakończono]"/>
     <str id="InstallPanel.headline" txt="Instalacja"/>
     <str id="InstallPanel.info" txt="Wybierz 'Instaluj', aby rozpocząć instalację"/>
