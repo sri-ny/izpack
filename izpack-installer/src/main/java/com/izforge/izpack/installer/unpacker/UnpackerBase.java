@@ -257,12 +257,13 @@ public abstract class UnpackerBase implements IUnpacker
         {
             setResult(false);
             logger.log(Level.SEVERE, exception.getMessage(), exception);
+            Messages messages = installData.getMessages();
 
             listener.stopAction();
 
             if (exception instanceof ResourceInterruptedException)
             {
-                prompt.message(Type.INFORMATION, "Installation cancelled");
+                prompt.message(Type.INFORMATION, messages.get("installer.cancelled"));
             }
             else
             {
@@ -271,11 +272,18 @@ public abstract class UnpackerBase implements IUnpacker
                 {
                     InstallerException ie = (InstallerException) exception;
                     ize = (IzPackException)ie.getCause();
+                    if (ize == null)
+                    {
+                        ize = new IzPackException(messages.get("installer.errorMessage"), exception);
+                    }
+                }
+                else if (exception instanceof IzPackException)
+                {
+                    ize = (IzPackException)exception;
                 }
                 else
                 {
-                    // IzPackException
-                    ize = (IzPackException)exception;
+                    ize = new IzPackException(exception.getMessage(), exception);
                 }
                 switch (ize.getPromptType())
                 {
@@ -286,7 +294,7 @@ public abstract class UnpackerBase implements IUnpacker
                     case WARNING:
                         AbstractUIHandler handler = new PromptUIHandler(prompt);
                         if (handler.askWarningQuestion(null,
-                                AbstractPrompt.getThrowableMessage(ize) + "\nContinue Installation?",
+                                AbstractPrompt.getThrowableMessage(ize) + "\n" + messages.get("installer.continueQuestion"),
                                 AbstractUIHandler.CHOICES_YES_NO,
                                 AbstractUIHandler.ANSWER_NO)
                                 == AbstractUIHandler.ANSWER_YES)

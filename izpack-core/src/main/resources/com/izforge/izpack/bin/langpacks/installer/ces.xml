@@ -32,6 +32,8 @@
     <str id="installer.hideDetails" txt="Skrýt podrobnosti"/>
     <str id="installer.copy" txt="Kopírovat"/>
     <str id="installer.sendReport" txt="Poslat report"/>
+    <str id="installer.cancelled" txt="Instalace byla zrušena"/>
+    <str id="installer.continueQuestion" txt="Přesto pokračovat?"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Tato operace odstraní nainstalovanou aplikaci !"/>

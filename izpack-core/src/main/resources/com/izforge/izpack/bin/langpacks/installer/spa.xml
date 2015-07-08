@@ -87,6 +87,8 @@
     <str id="installer.hideDetails" txt="Ocultar detalles "/>
     <str id="installer.copy" txt="Copiar"/>
     <str id="installer.sendReport" txt="Enviar un informe"/>
+    <str id="installer.continueQuestion" txt="Continue anyway?"/>
+    <str id="installer.cancelled" txt="Installation cancelled"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="¡Se eliminarán la(s) aplicacion(es) instalada(s)!"/>

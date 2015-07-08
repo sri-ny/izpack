@@ -63,6 +63,8 @@
     <str id="installer.hideDetails" txt="Details ausblenden"/>
     <str id="installer.copy" txt="Kopieren"/>
     <str id="installer.sendReport" txt="Report senden"/>
+    <str id="installer.cancelled" txt="Installation abgebrochen"/>
+    <str id="installer.continueQuestion" txt="Trotzdem fortsetzen?"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Jetzt werden die installierten Anwendungen entfernt!"/>

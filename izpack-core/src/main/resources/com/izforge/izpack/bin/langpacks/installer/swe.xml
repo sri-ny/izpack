@@ -27,6 +27,8 @@
     <str id="installer.hideDetails" txt="Hide Details"/>
     <str id="installer.copy" txt="Copy"/>
     <str id="installer.sendReport" txt="Send Report"/>
+    <str id="installer.continueQuestion" txt="Continue anyway?"/>
+    <str id="installer.cancelled" txt="Installation cancelled"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Detta kommer att ta bort den installerade applikationen!"/>
