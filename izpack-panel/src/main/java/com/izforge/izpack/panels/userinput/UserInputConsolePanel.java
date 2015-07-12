@@ -254,12 +254,11 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                 ConsoleField consoleField = factory.create(fieldDefinition, model, spec);
                 consoleField.setReadonly(readonly);
                 fields.add(consoleField);
-            }
-
-            String var = fieldDefinition.getVariable();
-            if (var != null)
-            {
-                variables.add(var);
+                String var = fieldDefinition.getVariable();
+                if (var != null)
+                {
+                    variables.add(var);
+                }
             }
         }
         panel.setAffectedVariableNames(variables);

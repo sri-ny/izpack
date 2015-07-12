@@ -77,7 +77,6 @@ public class UserInputPanel extends IzPanel
 
     private boolean eventsActivated = false;
 
-    private final Set<String> variables = new HashSet<String>();
     private List<GUIField> views = new ArrayList<GUIField>();
 
     private JPanel panel;
@@ -296,13 +295,7 @@ public class UserInputPanel extends IzPanel
             GUIField view = viewFactory.create(field, userInputModel, spec);
             view.setUpdateListener(listener);
             views.add(view);
-            String var = field.getVariable();
-            if (var != null)
-            {
-                variables.add(var);
-            }
         }
-        getMetadata().setAffectedVariableNames(variables);
         eventsActivated = true;
     }
 
@@ -312,7 +305,6 @@ public class UserInputPanel extends IzPanel
     protected void updateUIElements()
     {
         boolean updated = false;
-
         firstFocusedComponent = null;
 
         for (GUIField view : views)
@@ -347,6 +339,8 @@ public class UserInputPanel extends IzPanel
      */
     private void buildUI()
     {
+        Set<String> affectedVariables = new HashSet<String>();
+
         // need to recreate the panel as TwoColumnLayout doesn't correctly support component removal
         panel.removeAll();
         panel.setLayout(createPanelLayout());
@@ -389,18 +383,21 @@ public class UserInputPanel extends IzPanel
                 view.setDisplayed(false);
             }
 
-
-
-
             if (addToPanel)
             {
                 for (Component component : view.getComponents())
                 {
                     component.setEnabled(enabled);
                     panel.add(component.getComponent(), component.getConstraints());
+                    String var = view.getVariable();
+                    if (var != null)
+                    {
+                        affectedVariables.add(var);
+                    }
                 }
             }
         }
+        getMetadata().setAffectedVariableNames(affectedVariables);
     }
 
     /**
