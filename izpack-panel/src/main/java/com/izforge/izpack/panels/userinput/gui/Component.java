@@ -55,24 +55,22 @@ public class Component
         return constraints;
     }
 
-    public void setEnabled(boolean enabled)
+    public boolean setEnabled(boolean enabled)
     {
         if (component instanceof JLabel || component instanceof JPanel || component instanceof JTextPane)
         {
-            enabled = false;
-            return;
+           return false;
         }
         if (component instanceof JTextComponent)
         {
             JTextComponent textComponent = ((JTextComponent)component);
             if (!textComponent.isFocusable() || !textComponent.isEditable())
             {
-                enabled = false;
-                return;
+                return false;
             }
         }
-        enabled = true;
-        component.setEnabled(true);
+        component.setEnabled(enabled);
+        return true;
     }
 
     public boolean isEnabled()
