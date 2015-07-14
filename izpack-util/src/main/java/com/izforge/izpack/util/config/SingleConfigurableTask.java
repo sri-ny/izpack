@@ -879,6 +879,8 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                 }
                 else
                 {
+                    // Allocate empty elements to support indexes beginning from a number > 0
+                    while (configurable.length(newKey) <= pos) {configurable.add(newKey, null);}
                     configurable.put(newKey, newValue, pos);
                 }
             }

@@ -245,6 +245,38 @@ public class SingleConfigurableTaskTest
         assertEquals("value_unnumbered_overridden", result.get("abc.xyz.unnumbered"));
     }
 
+    @Test
+    public void testAutoNumberingPatchPreserveEntriesAndValuesFromIndex1() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        Options toOptions = new Options(config);
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        Entry entry = new Entry();
+        entry.setKey("abc.xyz0.1");
+        entry.setValue("value1_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.xyz0.2");
+        entry.setValue("value2_overridden");
+        task.addEntry(entry);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0."));
+        assertEquals( 3, result.length("abc.xyz0.") );
+        Assert.assertNull(result.get("abc.xyz0.1"));
+        Assert.assertNull(result.get("abc.xyz0.2"));
+        Assert.assertNull(result.get("abc.xyz0.", 0));
+        Assert.assertNotNull(result.get("abc.xyz0.", 1));
+        Assert.assertNotNull(result.get("abc.xyz0.", 2));
+        assertEquals("value1_overridden", result.get("abc.xyz0.", 1));
+        assertEquals("value2_overridden", result.get("abc.xyz0.", 2));
+    }
 
     @Test
     public void testIniCommentsAtEnd() throws IOException, URISyntaxException
