@@ -271,11 +271,9 @@ public abstract class UnpackerBase implements IUnpacker
                 if (exception instanceof InstallerException)
                 {
                     InstallerException ie = (InstallerException) exception;
-                    ize = (IzPackException)ie.getCause();
-                    if (ize == null)
-                    {
-                        ize = new IzPackException(messages.get("installer.errorMessage"), exception);
-                    }
+                    Throwable t = ie.getCause();
+                    ize = new IzPackException(messages.get("installer.errorMessage"),
+                            t != null ? t : exception);
                 }
                 else if (exception instanceof IzPackException)
                 {
