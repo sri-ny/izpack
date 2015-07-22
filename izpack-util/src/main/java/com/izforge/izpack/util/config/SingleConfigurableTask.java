@@ -472,7 +472,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                             // Replace all key values with the preserved values instead of mixing them
                             ((Options) configurable).remove(key);
                         }
-                        int i = 0;
+                        int i = 0, firstIndex = -1;
                         String fromValue;
                         do
                         {
@@ -482,6 +482,10 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                                 fromValue = (patchResolveVariables
                                         ? ((Options) fromConfigurable).fetch(key, i)
                                         : ((Options) fromConfigurable).get(key, i));
+                                if (fromValue != null && firstIndex < 0)
+                                {
+                                    firstIndex = i;
+                                }
                                 if (patchPreserveEntries && !keyFound)
                                 {
                                     logger.fine("Preserve auto-numbered  option file entry \"" + key + i + "\"");
@@ -500,7 +504,8 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                                 fromValue = null;
                             }
                         }
-                        while (fromValue != null);
+                        // until the last value has been reached or as long as the first index hasn't been reached
+                        while (fromValue != null || firstIndex < 0);
                     }
                     else
                     {
