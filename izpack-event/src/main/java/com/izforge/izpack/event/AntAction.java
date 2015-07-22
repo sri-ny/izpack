@@ -25,13 +25,13 @@ package com.izforge.izpack.event;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildLogger;
@@ -56,6 +56,7 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class AntAction extends ActionBase
 {
+    private static final transient Logger logger = Logger.getLogger(AntAction.class.getName());
 
     // --------AntAction specific String constants for ------------
     // --- parsing the XML specification ------------
@@ -507,30 +508,33 @@ public class AntAction extends ActionBase
         {
             logLevel = AntLogLevel.WARNING;
         }
-        BuildLogger logger = new DefaultLogger();
-        logger.setMessageOutputLevel(logLevel.getLevel());
+        BuildLogger buildLogger = new DefaultLogger();
+        buildLogger.setMessageOutputLevel(logLevel.getLevel());
         if (logFile != null)
         {
             PrintStream printStream;
             try
             {
-                logFile.getParentFile().mkdirs();
-                printStream = new PrintStream(new FileOutputStream(logFile, logFileAppend));
-                logger.setOutputPrintStream(printStream);
-                logger.setErrorPrintStream(printStream);
+                final File canonicalLogFile = logFile.getCanonicalFile();
+                org.apache.commons.io.FileUtils.forceMkdir(canonicalLogFile.getParentFile());
+                org.apache.commons.io.FileUtils.touch(canonicalLogFile);
+                printStream = new PrintStream(new FileOutputStream(canonicalLogFile, logFileAppend));
+                buildLogger.setOutputPrintStream(printStream);
+                buildLogger.setErrorPrintStream(printStream);
             }
-            catch (FileNotFoundException e)
+            catch (IOException e)
             {
-                logger.setOutputPrintStream(System.out);
-                logger.setErrorPrintStream(System.err);
+                logger.warning("Cannot log to file '" + logFile + "': " + e.getMessage());
+                buildLogger.setOutputPrintStream(System.out);
+                buildLogger.setErrorPrintStream(System.err);
             }
         }
         else
         {
-            logger.setOutputPrintStream(System.out);
-            logger.setErrorPrintStream(System.err);
+            buildLogger.setOutputPrintStream(System.out);
+            buildLogger.setErrorPrintStream(System.err);
         }
-        return logger;
+        return buildLogger;
     }
 
     private void addProperties(Project proj, Properties props)
