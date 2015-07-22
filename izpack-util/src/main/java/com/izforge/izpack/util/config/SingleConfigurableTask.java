@@ -467,11 +467,6 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                     if (fromConfigurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+"))
                     {
                         boolean keyFound = toKeySet.contains(key);
-                        if (patchPreserveValues && keyFound)
-                        {
-                            // Replace all key values with the preserved values instead of mixing them
-                            ((Options) configurable).remove(key);
-                        }
                         int i = 0, firstIndex = -1;
                         String fromValue;
                         do
@@ -495,7 +490,14 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                                 {
                                     logger.fine("Preserve option value for auto-numbered key \"" + key + i + "\": \"" + fromValue
                                             + "\"");
-                                    ((Options) configurable).add(key, fromValue, i);
+                                    if (((Options) configurable).length(key) <= i)
+                                    {
+                                        ((Options) configurable).add(key, fromValue, i);
+                                    }
+                                    else
+                                    {
+                                        ((Options) configurable).put(key, fromValue, i);
+                                    }
                                 }
                                 i++;
                             }
@@ -506,6 +508,14 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                         }
                         // until the last value has been reached or as long as the first index hasn't been reached
                         while (fromValue != null || firstIndex < 0);
+                        // Consolidate result
+                        for (int j = i; j < ((Options) configurable).length(key); j++)
+                        {
+                            if (((Options) configurable).get(key, j) == null)
+                            {
+                                ((Options) configurable).remove(key, j);
+                            }
+                        }
                     }
                     else
                     {
