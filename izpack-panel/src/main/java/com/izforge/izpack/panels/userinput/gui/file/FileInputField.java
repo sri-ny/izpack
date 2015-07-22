@@ -87,14 +87,25 @@ public class FileInputField extends JPanel implements ActionListener
     {
         if (arg0.getSource() == browseBtn)
         {
-            logger.fine("Show directory chooser");
-            String initialPath = ".";
-            if (filetxt.getText() != null)
+            logger.fine("Show file/directory chooser");
+            File initialPath = null;
+            String initialText = filetxt.getText();
+            if (initialText != null)
             {
-                initialPath = filetxt.getText();
+                initialPath = new File(initialText);
             }
-            JFileChooser filechooser = new JFileChooser(initialPath);
+            JFileChooser filechooser = new JFileChooser();
             prepareFileChooser(filechooser);
+
+            File prev = null;
+            while (!filechooser.isTraversable(initialPath) && prev != initialPath) {
+                prev = initialPath;
+                if (initialPath != null)
+                {
+                    initialPath = initialPath.getParentFile();
+                }
+            }
+            filechooser.setCurrentDirectory(initialPath);
 
             if (filechooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION)
             {
