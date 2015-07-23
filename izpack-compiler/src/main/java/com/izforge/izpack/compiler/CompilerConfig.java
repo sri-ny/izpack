@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,7 @@ import com.izforge.izpack.compiler.util.AntPathMatcher;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.core.data.DynamicInstallerRequirementValidatorImpl;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
+import com.izforge.izpack.core.rules.process.PackSelectionCondition;
 import com.izforge.izpack.core.variable.ConfigFileValue;
 import com.izforge.izpack.core.variable.EnvironmentValue;
 import com.izforge.izpack.core.variable.ExecValue;
@@ -185,6 +187,12 @@ public class CompilerConfig extends Thread
      * @see #mergePacksLangFiles()
      */
     private Map<String, List<URL>> packsLangUrlMap = new HashMap<String, List<URL>>();
+
+    /**
+     * Maps condition IDs to XML elements referring to them for checking at the end of compilation
+     * whether referenced conditions exist for all elements.
+     */
+    private Map<String, List<IXMLElement>> referencedConditions = new HashMap<String, List<IXMLElement>>();
 
     /**
      * UserInputPanel IDs for cross check whether given user input panel
@@ -333,6 +341,7 @@ public class CompilerConfig extends Thread
         addListeners(data);
         addPacks(data);
         addInstallerRequirement(data);
+        checkReferencedConditions();
 
         // merge multiple packlang.xml files
         mergePacksLangFiles();
@@ -364,7 +373,7 @@ public class CompilerConfig extends Thread
             for (IXMLElement installerrequirement : installerrequirementsels)
             {
                 InstallerRequirement basicInstallerCondition = new InstallerRequirement();
-                String conditionId = readAndCheckConditionAttribute(installerrequirement);
+                String conditionId = parseConditionAttribute(installerrequirement);
                 if (conditionId == null)
                 {
                   assertionHelper.parseError(installerrequirement, "Missing condition attribute");
@@ -764,7 +773,7 @@ public class CompilerConfig extends Thread
             String parent = packElement.getAttribute("parent");
             boolean hidden = Boolean.parseBoolean(packElement.getAttribute("hidden", "false"));
 
-            String conditionId = readAndCheckConditionAttribute(packElement);
+            String conditionId = parseConditionAttribute(packElement);
 
             if (required && excludeGroup != null)
             {
@@ -848,6 +857,11 @@ public class CompilerConfig extends Thread
                                                                   PackValidator.class);
                 pack.addValidator(type.getName());
             }
+
+            PackSelectionCondition selectionCondition = new PackSelectionCondition();
+            selectionCondition.setId("izpack.selected." + name);
+            selectionCondition.setPack(name);
+            rules.addCondition(selectionCondition);
 
             // We add the pack
             packager.addPack(pack);
@@ -994,7 +1008,7 @@ public class CompilerConfig extends Thread
         for (IXMLElement selectNode : packElement.getChildrenNamed("onSelect"))
         {
             String name = xmlCompilerHelper.requireAttribute(selectNode, "name");
-            String conditionId = readAndCheckConditionAttribute(selectNode);
+            String conditionId = parseConditionAttribute(selectNode);
             pack.addOnSelect(name, conditionId);
         }
     }
@@ -1009,7 +1023,7 @@ public class CompilerConfig extends Thread
         for (IXMLElement deselectNode : packElement.getChildrenNamed("onDeselect"))
         {
             String name = xmlCompilerHelper.requireAttribute(deselectNode, "name");
-            String condition = readAndCheckConditionAttribute(deselectNode);
+            String condition = parseConditionAttribute(deselectNode);
             pack.addOnDeselect(name, condition);
         }
     }
@@ -1026,7 +1040,7 @@ public class CompilerConfig extends Thread
             String overrideRenameTo = getOverrideRenameToValue(singleFileNode);
             Blockable blockable = getBlockableValue(singleFileNode, osList);
             Map additionals = getAdditionals(singleFileNode);
-            String conditionId = readAndCheckConditionAttribute(singleFileNode);
+            String conditionId = parseConditionAttribute(singleFileNode);
             File file = new File(src);
             if (!file.isAbsolute())
             {
@@ -1098,7 +1112,7 @@ public class CompilerConfig extends Thread
                 fs.setOverrideRenameTo(getOverrideRenameToValue(fileNode));
                 fs.setBlockable(getBlockableValue(fileNode, osList));
                 fs.setAdditionals(getAdditionals(fileNode));
-                fs.setCondition(readAndCheckConditionAttribute(fileNode));
+                fs.setCondition(parseConditionAttribute(fileNode));
 
                 String boolval = fileNode.getAttribute("casesensitive");
                 if (boolval != null)
@@ -1156,7 +1170,7 @@ public class CompilerConfig extends Thread
         for (IXMLElement executableNode : childrenNamed)
         {
             String target = executableNode.getAttribute("targetfile");
-            String conditionId = readAndCheckConditionAttribute(executableNode);
+            String conditionId = parseConditionAttribute(executableNode);
             List<OsModel> osList = OsConstraintHelper.getOsList(executableNode); // TODO: unverified
             int executionStage = ExecutableFile.NEVER, type = ExecutableFile.BIN, onFailure = ExecutableFile.ASK;
             String mainClass = null;
@@ -1259,7 +1273,7 @@ public class CompilerConfig extends Thread
             SubstitutionType type = SubstitutionType.lookup(parsableNode.getAttribute("type", "plain"));
             String encoding = parsableNode.getAttribute("encoding", null);
             List<OsModel> osList = OsConstraintHelper.getOsList(parsableNode); // TODO: unverified
-            String conditionId = readAndCheckConditionAttribute(parsableNode);
+            String conditionId = parseConditionAttribute(parsableNode);
             if (target != null)
             {
                 ParsableFile parsable = new ParsableFile(target, type, encoding, osList);
@@ -1586,7 +1600,7 @@ public class CompilerConfig extends Thread
                 id = className + "_" + Integer.valueOf(panelCounter - 1);
             }
             panel.setPanelId(id);
-            String conditionId = readAndCheckConditionAttribute(panelElement);
+            String conditionId = parseConditionAttribute(panelElement);
             if (conditionId != null)
             {
                 panel.setCondition(conditionId);
@@ -1651,7 +1665,7 @@ public class CompilerConfig extends Thread
                     {
                         value = xmlCompilerHelper.requireContent(param);
                         option = new ConfigurationOption(value,
-                                readAndCheckConditionAttribute(param),
+                                parseConditionAttribute(param),
                                 param.getAttribute("defaultValue"));
                     }
                     logger.fine("-> Adding configuration option " + name + " (" + option + ")");
@@ -2042,7 +2056,7 @@ public class CompilerConfig extends Thread
         info.setRequirePrivilegedExecution(privileged != null);
         if (privileged != null && privileged.hasAttribute("condition"))
         {
-            info.setPrivilegedExecutionConditionID(readAndCheckConditionAttribute(privileged));
+            info.setPrivilegedExecutionConditionID(parseConditionAttribute(privileged));
         }
 
         // Reboot if necessary
@@ -2071,7 +2085,7 @@ public class CompilerConfig extends Thread
                 throw new CompilerException("Invalid value ''" + content + "'' of element ''reboot''");
             }
 
-            String conditionId = readAndCheckConditionAttribute(reboot);
+            String conditionId = parseConditionAttribute(reboot);
             if (conditionId != null)
             {
                 info.setRebootActionConditionID(conditionId);
@@ -2108,7 +2122,7 @@ public class CompilerConfig extends Thread
                 {
                     info.setUninstallerPath(uninstallerPath);
                 }
-                String conditionId = readAndCheckConditionAttribute(uninstallInfo);
+                String conditionId = parseConditionAttribute(uninstallInfo);
                 if (conditionId != null)
                 {
                   // there's a condition for uninstaller
@@ -2554,7 +2568,7 @@ public class CompilerConfig extends Thread
                         "Error in definition of dynamic variable " + name + ": " + e.getMessage());
             }
 
-            String conditionId = readAndCheckConditionAttribute(var);
+            String conditionId = parseConditionAttribute(var);
             if (conditionId != null)
             {
                 dynamicVariable.setConditionid(conditionId);
@@ -3190,7 +3204,7 @@ public class CompilerConfig extends Thread
         fs.setOverrideRenameTo(getOverrideRenameToValue(fileSetNode));
         fs.setBlockable(getBlockableValue(fileSetNode, osList));
         fs.setAdditionals(getAdditionals(fileSetNode));
-        String conditionId = readAndCheckConditionAttribute(fileSetNode);
+        String conditionId = parseConditionAttribute(fileSetNode);
         if (conditionId != null)
         {
             fs.setCondition(conditionId);
@@ -3290,14 +3304,34 @@ public class CompilerConfig extends Thread
         }
     }
 
-    private String readAndCheckConditionAttribute(IXMLElement element)
+    private String parseConditionAttribute(IXMLElement element)
     {
         String conditionId = element.getAttribute("condition");
-        if (conditionId != null && rules.getCondition(conditionId) == null)
+        if (conditionId != null)
         {
-            assertionHelper.parseError(element, "Invalid condition expression '" + conditionId + "'");
+            List<IXMLElement> elList = referencedConditions.get(conditionId);
+            if (elList == null)
+            {
+                elList = new ArrayList<IXMLElement>();
+                referencedConditions.put(conditionId, elList);
+            }
+            elList.add(element);
         }
         return conditionId;
     }
 
+    private void checkReferencedConditions()
+    {
+        for (String conditionId : referencedConditions.keySet())
+        {
+            if (rules.getCondition(conditionId) == null)
+            {
+                List<IXMLElement> elList = referencedConditions.get(conditionId);
+                for (IXMLElement element : elList)
+                {
+                    assertionHelper.parseError(element, "Reference to undefined condition '" + conditionId + "' not allowed");
+                }
+            }
+        }
+    }
 }
