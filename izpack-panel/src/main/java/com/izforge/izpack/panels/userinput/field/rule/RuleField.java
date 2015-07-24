@@ -226,7 +226,12 @@ public class RuleField extends Field
     public ValidationStatus validate(String... values)
     {
         String value = formatDisplay(values); // format the values into one long string, and validate it.
-        return validateFormatted(value);
+        ValidationStatus status = validateFormatted(value);
+        if (status.isValid())
+        {
+            status = super.validate(value);
+        }
+        return status;
     }
 
     /**
