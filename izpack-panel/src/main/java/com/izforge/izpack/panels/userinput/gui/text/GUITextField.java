@@ -81,10 +81,11 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
     {
         boolean result = false;
         String text = this.text.getText();
-        ValidationStatus status = getField().validate(text);
+        Field field = getField();
+        ValidationStatus status = field.validate(text);
         if (skipValidation || status.isValid())
         {
-            getField().setValue(text);
+            field.setValue(text);
             result = true;
         }
         else
