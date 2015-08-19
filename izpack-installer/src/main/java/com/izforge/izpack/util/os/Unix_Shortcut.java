@@ -519,7 +519,6 @@ public class Unix_Shortcut extends Shortcut
 
             if (shortCutLocation == null)
                 shortCutLocation = new File(installData.getInstallPath());
-            System.out.printf("Unix_shortcut.save: desktop shortCutLocation=\"%s\"\n", shortCutLocation);
 
             // write the App ShortCut
             File writtenDesktopFile = writeAppShortcutWithOutSpace(shortCutLocation.toString(),
