@@ -78,7 +78,6 @@ public class Unix_ShortcutTest
     @Before
     public void setUp() throws Exception
     {
-//        Container container = new AbstractContainer()
         container = new AbstractContainer()
         {
             {
@@ -183,18 +182,19 @@ public class Unix_ShortcutTest
 
     
     /**
-     * Verifies that the correct desktop file contents are created for a simple shortcut.
-     * This does <b>not</b> verify that the produced desktop file launches the intended program.
+     * Verifies that the correct desktop file contents are created for a simple 
+     * shortcut.
+     *
+     * This does <b>not</b> verify that the produced desktop file launches the 
+     * intended program.
+     *
      * @throws Exception for any error
      */
     @Test
     public void testSimple() throws Exception
     {
       Platform platform = new Platform(Platform.Name.LINUX);
-//      Unix_Shortcut shortcut = factory.create(Unix_Shortcut.class, platform);
       Unix_Shortcut shortcut = (Unix_Shortcut) factory.create(Shortcut.class, platform);
-//      Unix_Shortcut shortcut = new Unix_Shortcut(
-//                                        container.getComponent(Resources.class));
 
       final String arguments        = "abc";
       final String categories       = "Office;";
@@ -244,8 +244,6 @@ public class Unix_ShortcutTest
       
       assertTrue(result.startsWith("[Desktop Entry]"));
       
-      //assertEquals(arguments, getValue(result, Unix_ShortcutConstants.))
-      
       assertEquals(categories, getValue(result, "Categories"));
       assertEquals(description, getValue(result, "Comment"));
       assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
@@ -253,9 +251,6 @@ public class Unix_ShortcutTest
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
       
-//      String exec = Unix_ShortcutConstants.$E_QUOT + targetPath + Unix_ShortcutConstants.$E_QUOT + 
-//                    " " + arguments;
-//      String exec = "\"" + targetPath + "\"" + " " + arguments;
       // since targetPath contains no spaces, it will not be quoted
       String exec = targetPath + " " + arguments;
       assertEquals(exec, getValue(result, "Exec"));
@@ -283,17 +278,18 @@ public class Unix_ShortcutTest
     /**
      * Verifies that the correct desktop file contents are created for a 
      * shortcut with a space in the path.
-     * This does <b>not</b> verify that the produced desktop file launches the intended program.
+     *
+     * This does <b>not</b> verify that the produced desktop file launches the 
+     * intended program.
+     *
      * @throws Exception for any error
      */
     @Test
     public void testSpaceInPath() throws Exception
     {
       Platform platform = new Platform(Platform.Name.LINUX);
-//      Unix_Shortcut shortcut = factory.create(Unix_Shortcut.class, platform);
       Unix_Shortcut shortcut = (Unix_Shortcut) factory.create(Shortcut.class, platform);
-//      Unix_Shortcut shortcut = new Unix_Shortcut(
-//                                        container.getComponent(Resources.class));
+
       final String workingDirectory = "/home/bill/folder with spaces";
 
       final String arguments        = "abc";
@@ -343,8 +339,6 @@ public class Unix_ShortcutTest
       
       assertTrue(result.startsWith("[Desktop Entry]"));
       
-      //assertEquals(arguments, getValue(result, Unix_ShortcutConstants.))
-      
       assertEquals(categories, getValue(result, "Categories"));
       assertEquals(description, getValue(result, "Comment"));
       assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
@@ -352,12 +346,8 @@ public class Unix_ShortcutTest
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
       
-//      String exec = Unix_ShortcutConstants.$E_QUOT + targetPath + Unix_ShortcutConstants.$E_QUOT + 
-//                    " " + arguments;
-//      String exec = "\"" + targetPath + "\"" + " " + arguments;
       String exec = "'" + targetPath + "'" + " " + arguments;
       // since targetPath contains no spaces, it will not be quoted
-      //String exec = targetPath + " " + arguments;
       assertEquals(exec, getValue(result, "Exec"));
 
       assertEquals("", getValue(result, "GenericName"));
