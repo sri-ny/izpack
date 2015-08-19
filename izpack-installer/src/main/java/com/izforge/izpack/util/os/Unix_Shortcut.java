@@ -263,7 +263,6 @@ public class Unix_Shortcut extends Shortcut
         // this causes too many problems
         // result.append("TryExec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
 
-        //result.append("Exec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
         result.append("Exec=");
         if (targetPath.contains(S))
             result.append("'").append(targetPath).append("'");
