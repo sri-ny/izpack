@@ -430,6 +430,20 @@ public class Unix_Shortcut extends Shortcut
 
     }
 
+    
+    /**
+     * Makes a filename usable in a script by escaping spaces.
+     * This should <b>not</b> be used for filenames passed to Java filesystem 
+     * methods.
+     * @param filename
+     * @return 
+     */
+    private String makeFilenameScriptable(String filename)
+    {
+        return filename.replace(" ", "\\ ");
+    }
+    
+    
     /**
      * overridden method
      *
@@ -520,11 +534,17 @@ public class Unix_Shortcut extends Shortcut
             {
                 createExtXdgDesktopIconCmd(shortCutLocation);
                 // / TODO: DELETE the ScriptFiles
-                myInstallScript.appendln(new String[]{myXdgDesktopIconCmd, "install",
-                        "--novendor", StringTool.escapeSpaces(writtenDesktopFile.toString())});
+                myInstallScript.appendln(new String[]{
+                    makeFilenameScriptable(myXdgDesktopIconCmd), 
+                    "install",
+                    "--novendor", 
+                    StringTool.escapeSpaces(writtenDesktopFile.toString())});
                 ShellScript myUninstallScript = new ShellScript();
-                myUninstallScript.appendln(new String[]{myXdgDesktopIconCmd, "uninstall",
-                        "--novendor", StringTool.escapeSpaces(writtenDesktopFile.toString())});
+                myUninstallScript.appendln(new String[]{
+                    makeFilenameScriptable(myXdgDesktopIconCmd), 
+                    "uninstall",
+                    "--novendor", 
+                    StringTool.escapeSpaces(writtenDesktopFile.toString())});
                 uninstaller.addUninstallScript(myUninstallScript.getContentAsString());
             }
             else
