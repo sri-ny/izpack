@@ -289,7 +289,7 @@ public class Unix_Shortcut extends Shortcut
         result.append("SwallowTitle=").append(N);
         
         result.append("Terminal=").append(terminal).append(N);
-        if (!terminal.equals("true") && !terminal.equals("false"))
+        if (!terminal.isEmpty() && !terminal.equals("true") && !terminal.equals("false"))
             logger.warning(String.format("Shortcut '%s' has terminal '%s' but should be 'true' or 'false'", linkName, terminal));
         
         result.append("TerminalOptions=").append(terminalOptions).append(N);
