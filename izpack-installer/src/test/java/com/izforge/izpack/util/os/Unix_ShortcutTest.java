@@ -182,6 +182,97 @@ public class Unix_ShortcutTest
 
     
     /**
+     * Verifies that the correct desktop file contents are created for a link 
+     * shortcut.
+     *
+     * This does <b>not</b> verify that the produced desktop file launches the 
+     * intended link.
+     *
+     * @throws Exception for any error
+     */
+    @Test
+    public void testLink() throws Exception
+    {
+      Platform platform = new Platform(Platform.Name.LINUX);
+      Unix_Shortcut shortcut = (Unix_Shortcut) factory.create(Shortcut.class, platform);
+
+      final String arguments        = "";
+      final String categories       = "Office;";
+      final String description      = "This is the description";
+      final String encoding         = "UTF-8";
+      final String iconLocation     = "/home/bill/folder/the_icon.png";
+      final int    iconIndex        = 1;
+      final String targetPath       = "";
+      final String terminal         = "false";
+      final String kdeSubstUID      = "false";
+      final String kdeUserName      = "bill";
+      final String linkName         = "testLink";
+      final int    linkType         = Shortcut.DESKTOP;
+      final String mimeType         = "application/x-dummy";
+      final String programGroup     = "MyProgramGroup";
+      final int    showCommand      = Shortcut.NORMAL;
+      final String terminalOptions  = "not used";
+      final String tryExec          = "ignored";
+      final String type             = "Link";
+      final String url              = "/home/bill/folder/document.html";
+      final int    userType         = Shortcut.ALL_USERS;
+      final String workingDirectory = "/home/bill/folder";
+              
+      shortcut.setArguments(arguments);
+      shortcut.setCategories(categories);
+      shortcut.setDescription(description);
+      shortcut.setEncoding(encoding);
+      shortcut.setIconLocation(iconLocation, iconIndex);
+      shortcut.setKdeSubstUID(kdeSubstUID);
+      shortcut.setKdeUserName(kdeUserName);
+      shortcut.setLinkName(linkName);
+      shortcut.setLinkType(linkType);
+      shortcut.setMimetype(mimeType);
+      shortcut.setProgramGroup(programGroup);
+      shortcut.setShowCommand(showCommand);
+      shortcut.setTargetPath(targetPath);
+      shortcut.setTerminal(terminal);
+      shortcut.setTerminalOptions(terminalOptions);
+      shortcut.setTryExec(tryExec);
+      shortcut.setType(type);
+      shortcut.setURL(url);
+      shortcut.setUserType(userType);
+      shortcut.setWorkingDirectory(workingDirectory);
+
+      final String result = shortcut.build();
+      final String userLanguage = System.getProperty("user.language", "en");
+      
+      assertTrue(result.startsWith("[Desktop Entry]"));
+      
+      assertEquals(categories, getValue(result, "Categories"));
+      assertEquals(description, getValue(result, "Comment"));
+      assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
+      assertEquals(encoding, getValue(result, "Encoding"));
+      // TryExec is not used -- "causes too many problems"
+      assertEquals(NOT_FOUND, getValue(result, "TryExec"));
+      
+      assertEquals(NOT_FOUND, getValue(result, "Exec"));
+
+      assertEquals("", getValue(result, "GenericName"));
+      assertEquals("", getValue(result, "GenericName[" + userLanguage + "]"));
+      assertEquals(iconLocation, getValue(result, "Icon"));
+      assertEquals(mimeType, getValue(result, "MimeType"));
+      assertEquals(linkName, getValue(result, "Name"));
+      assertEquals(linkName, getValue(result, "Name[" + userLanguage + "]"));
+      assertEquals(workingDirectory, getValue(result, "Path"));
+      assertEquals("", getValue(result, "ServiceTypes"));
+      assertEquals("", getValue(result, "SwallowExec"));
+      assertEquals("", getValue(result, "SwallowTitle"));
+      assertEquals(terminal, getValue(result, "Terminal"));
+      assertEquals(terminalOptions, getValue(result, "TerminalOptions"));
+      assertEquals(type, getValue(result, "Type"));
+      assertEquals(url, getValue(result, "URL"));
+      assertEquals(kdeSubstUID, getValue(result, "X-KDE-SubstituteUID"));
+      assertEquals(kdeUserName, getValue(result, "X-KDE-Username"));
+    }
+   
+
+    /**
      * Verifies that the correct desktop file contents are created for a simple 
      * shortcut.
      *
@@ -206,7 +297,7 @@ public class Unix_ShortcutTest
       final String terminal         = "false";
       final String kdeSubstUID      = "false";
       final String kdeUserName      = "bill";
-      final String linkName         = "not used";
+      final String linkName         = "testSimple";
       final int    linkType         = Shortcut.DESKTOP;
       final String mimeType         = "application/x-dummy";
       final String programGroup     = "MyProgramGroup";
@@ -214,7 +305,7 @@ public class Unix_ShortcutTest
       final String terminalOptions  = "not used";
       final String tryExec          = "ignored";
       final String type             = "Application";
-      final String url              = "only used for type 'Link'";
+      final String url              = "";
       final int    userType         = Shortcut.ALL_USERS;
       final String workingDirectory = "/home/bill/folder";
               
@@ -268,13 +359,12 @@ public class Unix_ShortcutTest
       assertEquals(terminal, getValue(result, "Terminal"));
       assertEquals(terminalOptions, getValue(result, "TerminalOptions"));
       assertEquals(type, getValue(result, "Type"));
-      assertEquals(url, getValue(result, "URL"));
+      assertEquals(NOT_FOUND, getValue(result, "URL"));
       assertEquals(kdeSubstUID, getValue(result, "X-KDE-SubstituteUID"));
       assertEquals(kdeUserName, getValue(result, "X-KDE-Username"));
     }
    
 
-    
     /**
      * Verifies that the correct desktop file contents are created for a 
      * shortcut with a space in the path.
@@ -302,7 +392,7 @@ public class Unix_ShortcutTest
       final String terminal         = "false";
       final String kdeSubstUID      = "false";
       final String kdeUserName      = "bill";
-      final String linkName         = "not used";
+      final String linkName         = "testSpaceInPath";
       final int    linkType         = Shortcut.DESKTOP;
       final String mimeType         = "application/x-dummy";
       final String programGroup     = "MyProgramGroup";
@@ -310,7 +400,7 @@ public class Unix_ShortcutTest
       final String terminalOptions  = "not used";
       final String tryExec          = "ignored";
       final String type             = "Application";
-      final String url              = "only used for type 'Link'";
+      final String url              = "";
       final int    userType         = Shortcut.ALL_USERS;
               
       shortcut.setArguments(arguments);
@@ -363,7 +453,7 @@ public class Unix_ShortcutTest
       assertEquals(terminal, getValue(result, "Terminal"));
       assertEquals(terminalOptions, getValue(result, "TerminalOptions"));
       assertEquals(type, getValue(result, "Type"));
-      assertEquals(url, getValue(result, "URL"));
+      assertEquals(NOT_FOUND, getValue(result, "URL"));
       assertEquals(kdeSubstUID, getValue(result, "X-KDE-SubstituteUID"));
       assertEquals(kdeUserName, getValue(result, "X-KDE-Username"));
     }
