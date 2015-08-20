@@ -582,22 +582,44 @@ public class DefaultVariablesTest
     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
     */
    @Test
-   public void testMixedVariablesFromIniFile()
+   public void testMixedVariablesFromIniFileUnsetTrue()
    {
+       testMixedVariablesFromIniFileUnset(true);
+       // variable "var6" is static defined, but dynamic reference is not found in ini file. 
+       // with unset="true" (Default) the static variable is overwritten with null
+       assertNull("undefined reference givess <null>", variables.get("var6"));
+   }
+
+   /**
+    * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
+    */
+   @Test
+   public void testMixedVariablesFromIniFileUnsetFalse()
+   {
+       testMixedVariablesFromIniFileUnset(false);
+       // variable "var6" is static defined, but dynamic reference is not found in ini file. 
+       // with unset="false" the static variable is conserved and can be used as default
+       assertEquals("undefined reference gives static value", "static", variables.get("var6"));
+   }
+
+   private void testMixedVariablesFromIniFileUnset(boolean unset)
+   {
+       // setup for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
        variables.set("var1", "static");
        variables.set("var2", "static");
        variables.set("var3", "static");
        variables.set("var4", "static");
        variables.set("var5", "static");
        variables.set("var6", "static");
-       variables.add(createDynamicFromIni("found"));
-       variables.add(createDynamicFromIni("var1"));
-       variables.add(createDynamicFromIni("var2"));
-       variables.add(createDynamicFromIni("var3"));
-       variables.add(createDynamicFromIni("var4"));
-       variables.add(createDynamicFromIni("var5"));
-       variables.add(createDynamicFromIni("var6"));
+       variables.add(createDynamicFromIni("found",unset));
+       variables.add(createDynamicFromIni("var1",unset));
+       variables.add(createDynamicFromIni("var2",unset));
+       variables.add(createDynamicFromIni("var3",unset));
+       variables.add(createDynamicFromIni("var4",unset));
+       variables.add(createDynamicFromIni("var5",unset));
+       variables.add(createDynamicFromIni("var6",unset));
 
+       // common tests for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
        assertEquals("static value", "static", variables.get("var1"));       // dynamic variable not resolved till variables refreshed
        variables.refresh();
        assertEquals("ini not found","true",   variables.get("found"));      // check, whether ini was found at all
@@ -606,14 +628,8 @@ public class DefaultVariablesTest
        assertEquals("value from ini", "ini1", variables.get("var1"));
        assertEquals("value from ini with spaces", "ini2", variables.get("var2")); 
        assertEquals("value from ini with spaces in value", "ini with spaces", variables.get("var3"));
-       assertEquals("empty value from ini", "", variables.get("var4"));       
+       assertEquals("empty value from ini", "", variables.get("var4"));
        assertEquals("empty value with spaces in ini", "", variables.get("var5"));
-
-       // variable "var6" is static defined, but dynamic reference is not found in ini file. 
-       // One could whish to get the static value, like the following test ...
-       // assertEquals("undefined reference gives static value", "static", variables.get("var6"));
-       // but (as of izpack-5.0) we do get a <null> from ini file
-       assertNull("undefined reference givess <null>", variables.get("var6"));
    }
 
    /**
@@ -722,11 +738,12 @@ public class DefaultVariablesTest
      * Creates a dynamic variable from the ini file "src/test/resources/com/izforge/izpack/core/variable/test.ini".
      *
      * @param name        the variable name
+     * @param autounset   whether to unset, when undefined 
      * @return a new variable
      */
-    private DynamicVariable createDynamicFromIni(String name)
+    private DynamicVariable createDynamicFromIni(String name, boolean autounset)
     {
-        return createDynamicFromIni(name, "src/test/resources/com/izforge/izpack/core/variable/test.ini", "test", name);
+        return createDynamicFromIni(name, "src/test/resources/com/izforge/izpack/core/variable/test.ini", "test", name, autounset);
     }
 
     /**
@@ -736,14 +753,16 @@ public class DefaultVariablesTest
      * @param value       the variable value
      * @param filesection the section in the ini file
      * @param filekey     the key in the ini file
+     * @param autounset   whether to unset, when undefined
      * @return a new variable
      */
-    private DynamicVariable createDynamicFromIni(String name, String file, String filesection, String filekey)
+    private DynamicVariable createDynamicFromIni(String name, String file, String filesection, String filekey, boolean autounset)
     {
         DynamicVariableImpl result = new DynamicVariableImpl();
         result.setName(name);
         boolean escape = true;
         result.setValue(new PlainConfigFileValue(file, ConfigFileValue.CONFIGFILE_TYPE_INI, filesection, filekey, escape));
+        result.setAutoUnset(autounset);
         return result;
     }
 
