@@ -263,14 +263,17 @@ public class Unix_Shortcut extends Shortcut
         // this causes too many problems
         // result.append("TryExec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
 
-        result.append("Exec=");
-        if (targetPath.contains(S))
-            result.append("'").append(targetPath).append("'");
-        else
-            result.append(targetPath);
-        if (!arguments.isEmpty())
-            result.append(S).append(arguments);
-        result.append(N);
+        if (!targetPath.isEmpty() || !arguments.isEmpty())
+        {
+            result.append("Exec=");
+            if (targetPath.contains(S))
+                result.append("'").append(targetPath).append("'");
+            else
+                result.append(targetPath);
+            if (!arguments.isEmpty())
+                result.append(S).append(arguments);
+            result.append(N);
+        }
         
         result.append("GenericName=").append(N);
         result.append("GenericName[").append(userLanguage).append("]=").append(N);
@@ -284,12 +287,24 @@ public class Unix_Shortcut extends Shortcut
         result.append("ServiceTypes=").append(N);
         result.append("SwallowExec=").append(N);
         result.append("SwallowTitle=").append(N);
+        
         result.append("Terminal=").append(terminal).append(N);
-
+        if (!terminal.equals("true") && !terminal.equals("false"))
+            logger.warning(String.format("Shortcut '%s' has terminal '%s' but should be 'true' or 'false'", linkName, terminal));
+        
         result.append("TerminalOptions=").append(terminalOptions).append(N);
+        
         result.append("Type=").append(type).append(N);
+        if (type.equalsIgnoreCase("Link") && url.isEmpty())
+                logger.warning(String.format("Shortcut '%s' has type '%s' but URL is empty", linkName, type));
 
-        result.append("URL=").append(url).append(N);
+        if (!url.isEmpty())
+        {
+            result.append("URL=").append(url).append(N);
+            if (!type.equalsIgnoreCase("Link"))
+                logger.warning(String.format("Shortcut '%s' has URL but type ('%s') is not 'Link'", linkName, type));
+        }
+        
         result.append("X-KDE-SubstituteUID=").append(kdeSubstituteUID).append(N);
         result.append("X-KDE-Username=").append(kdeUserName).append(N);
         result.append(N);
