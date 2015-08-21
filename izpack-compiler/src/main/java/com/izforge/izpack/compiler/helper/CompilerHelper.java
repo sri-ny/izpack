@@ -105,6 +105,7 @@ public class CompilerHelper
             if (nonCasePos != -1 && name.length() == nonCasePos + className.length() + 6)
             // "Main" class with different case found
             {
+                jis.close();
                 throw new IllegalArgumentException(
                         "Fatal error! The declared panel name in the xml file (" + className
                                 + ") differs in case to the founded class file (" + name + ").");
