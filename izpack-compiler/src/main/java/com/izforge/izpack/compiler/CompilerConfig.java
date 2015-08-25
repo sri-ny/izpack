@@ -1068,7 +1068,7 @@ public class CompilerConfig extends Thread
                 }
                 if (!abssrcfile.exists())
                 {
-                    throw new FileNotFoundException("Source file " + relsrcfile + " not found");
+                    throw new FileNotFoundException("Source file " + relsrcfile + " (" + abssrcfile + ") not found");
                 }
                 if (relsrcfile.isDirectory())
                 {
