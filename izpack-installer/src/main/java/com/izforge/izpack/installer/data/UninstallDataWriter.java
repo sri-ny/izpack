@@ -205,6 +205,10 @@ public class UninstallDataWriter
 
         // indirectly required by Librarian, which pulls in IoHelper. TODO
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/apache/tools/zip/"));
+		
+		//required by console uninstaller
+        uninstallerMerge.addAll(pathResolver.getMergeableFromPath("jline/console/completer/"));
+        uninstallerMerge.addAll(pathResolver.getMergeableFromPath("jline/internal/"));
 
         if (!uninstallData.getUninstallerListeners().isEmpty())
         {
