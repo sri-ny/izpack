@@ -587,7 +587,7 @@ public class DefaultVariablesTest
        testMixedVariablesFromIniFileUnset(true);
        // variable "var6" is static defined, but dynamic reference is not found in ini file. 
        // with unset="true" (Default) the static variable is overwritten with null
-       assertNull("undefined reference givess <null>", variables.get("var6"));
+       assertNull("undefined reference gives <null>", variables.get("var6"));
    }
 
    /**
