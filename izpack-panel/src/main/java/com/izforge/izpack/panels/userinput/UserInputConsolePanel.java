@@ -172,15 +172,58 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         else
         {
             boolean rerun = false;
+            Panel panel = getPanel();
+            Set<String> variables = new HashSet<String>();
             for (ConsoleField field : fields)
             {
-                if (!field.display())
+                Field fieldDefinition = field.getField();
+                boolean readonly = false;
+                boolean addToPanel = false;
+                boolean required = FieldHelper.isRequired(fieldDefinition, installData, matcher);
+
+                if (required && fieldDefinition.isConditionTrue())
                 {
-                    // field is invalid
-                    rerun = true;
-                    break;
+                    readonly = fieldDefinition.isEffectiveReadonly(
+                            panel.isReadonly()
+                            || (panel.getReadonlyCondition() != null && rules.isConditionTrue(panel.getReadonlyCondition())),
+                            rules);
+                    addToPanel = true;
+                }
+                else if (required
+                        && (
+                                fieldDefinition.isEffectiveDisplayHidden(
+                                        panel.isDisplayHidden()
+                                        || (panel.getDisplayHiddenCondition() != null && rules.isConditionTrue(panel.getDisplayHiddenCondition())),
+                                        rules)
+                           )
+                        )
+                {
+                    readonly = true;
+                    addToPanel = true;
+                }
+                else
+                {
+                    readonly = true;
+                    addToPanel = false;
+                }
+
+                if (addToPanel)
+                {
+                    field.setReadonly(readonly);
+                    if (!field.display())
+                    {
+                        // field is invalid
+                        rerun = true;
+                        break;
+                    }
+                    String var = fieldDefinition.getVariable();
+                    if (var != null)
+                    {
+                        variables.add(var);
+                    }
                 }
             }
+            panel.setAffectedVariableNames(variables);
 
             if (rerun)
             {
@@ -213,55 +256,14 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             return false;
         }
 
-        Set<String> variables = new HashSet<String>();
         fields.clear();
 
         ConsoleFieldFactory factory = new ConsoleFieldFactory(console, prompt);
         for (Field fieldDefinition : model.createFields(spec))
         {
-            boolean readonly = false;
-            boolean addToPanel = false;
-            boolean required = FieldHelper.isRequired(fieldDefinition, installData, matcher);
-
-            if (required && fieldDefinition.isConditionTrue())
-            {
-                readonly = fieldDefinition.isEffectiveReadonly(
-                        panel.isReadonly()
-                        || (panel.getReadonlyCondition() != null && rules.isConditionTrue(panel.getReadonlyCondition())),
-                        rules);
-                addToPanel = true;
-            }
-            else if (required
-                    && (
-                            fieldDefinition.isEffectiveDisplayHidden(
-                                    panel.isDisplayHidden()
-                                    || (panel.getDisplayHiddenCondition() != null && rules.isConditionTrue(panel.getDisplayHiddenCondition())),
-                                    rules)
-                       )
-                    )
-            {
-                readonly = true;
-                addToPanel = true;
-            }
-            else
-            {
-                readonly = true;
-                addToPanel = false;
-            }
-
-            if (addToPanel)
-            {
-                ConsoleField consoleField = factory.create(fieldDefinition, model, spec);
-                consoleField.setReadonly(readonly);
-                fields.add(consoleField);
-                String var = fieldDefinition.getVariable();
-                if (var != null)
-                {
-                    variables.add(var);
-                }
-            }
+            ConsoleField consoleField = factory.create(fieldDefinition, model, spec);
+            fields.add(consoleField);
         }
-        panel.setAffectedVariableNames(variables);
         return true;
     }
 
