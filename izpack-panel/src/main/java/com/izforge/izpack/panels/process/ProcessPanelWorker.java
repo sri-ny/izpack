@@ -11,6 +11,7 @@ import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.util.IoHelper;
+import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
@@ -751,44 +752,68 @@ public class ProcessPanelWorker implements Runnable
             {
                 myHandler.emitError("Post Processing Error",
                                     "Security exception thrown when processing class: " + myClassName);
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Security exception thrown when processing class: " + myClassName, e);
+                }
             }
             catch (ClassNotFoundException e)
             {
                 myHandler.emitError("Post Processing Error", "Cannot find processing class: "
                         + myClassName);
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Cannot find processing class: " + myClassName, e);
+                }
             }
             catch (NoSuchMethodException e)
             {
                 myHandler.emitError("Post Processing Error",
                                     "Processing class does not have 'run' method: " + myClassName);
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Processing class does not have 'run' method: " + myClassName, e);
+                }
             }
             catch (IllegalAccessException e)
             {
                 myHandler.emitError("Post Processing Error", "Error accessing processing class: "
                         + myClassName);
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Error accessing processing class: " + myClassName, e);
+                }
             }
             catch (InvocationTargetException e)
             {
-                myHandler.emitError("Post Processing Error", "Invocation Problem calling : "
+                myHandler.emitError("Post Processing Error", "Invocation Problem calling: "
                         + myClassName + ", " + e.getCause().getMessage());
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Invocation Problem calling: " + myClassName, e);
+                }
             }
             catch (Exception e)
             {
                 myHandler.emitError("Post Processing Error",
                                     "Exception when running processing class: " + myClassName + ", "
                                             + e.getMessage());
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Exception when running processing class: " + myClassName, e);
+                }
             }
             catch (Error e)
             {
                 myHandler.emitError("Post Processing Error",
                                     "Error when running processing class: " + myClassName + ", "
                                             + e.getMessage());
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Error when running processing class: " + myClassName, e);
+                }
             }
             catch (Throwable e)
             {
                 myHandler.emitError("Post Processing Error",
                                     "Error when running processing class: " + myClassName + ", "
                                             + e.getMessage());
+                if (Debug.isSTACKTRACE()) {
+                    logger.log(Level.SEVERE, "Error when running processing class: " + myClassName, e);
+                }
             }
             return result;
         }
