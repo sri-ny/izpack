@@ -25,11 +25,9 @@ import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.FieldProcessor;
 import com.izforge.izpack.panels.userinput.field.ValidationStatus;
-import com.izforge.izpack.panels.userinput.processor.Processor;
 
 
 /**
@@ -76,14 +74,13 @@ public class RuleField extends Field
      *
      * @param config      the field configuration
      * @param installData the installation data
-     * @param factory     the factory for creating {@link Processor} instances
      * @throws IzPackException if the field cannot be read
      */
-    public RuleField(RuleFieldConfig config, InstallData installData, ObjectFactory factory)
+    public RuleField(RuleFieldConfig config, InstallData installData)
     {
         super(config, installData);
         this.layout = new FieldLayout(config.getLayout());
-        String value = super.getInitialValue();
+        String value = config.getInitialValue();
         if (value != null)
         {
             ValidationStatus status = validateFormatted(value);
@@ -93,7 +90,7 @@ public class RuleField extends Field
         {
             this.initialValues = null;
         }
-        value = super.getDefaultValue();
+        value = config.getDefaultValue();
         if (value != null)
         {
             ValidationStatus status = validateFormatted(value);
@@ -125,7 +122,12 @@ public class RuleField extends Field
     @Override
     public String getInitialValue()
     {
-        String result = format(initialValues);
+        String result = null;
+        if (!getInstallData().getVariables().isBlockedVariableName(getVariable()))
+        {
+            result = getInstallData().getVariables().replace(format(initialValues));
+        }
+
         if (result == null)
         {
             result = getValue();

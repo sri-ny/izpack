@@ -28,11 +28,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.core.container.DefaultContainer;
 import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.core.factory.DefaultObjectFactory;
 import com.izforge.izpack.core.rules.ConditionContainer;
 import com.izforge.izpack.core.rules.RulesEngineImpl;
 import com.izforge.izpack.installer.data.GUIInstallData;
@@ -57,11 +55,6 @@ public class GUIRuleFieldTest
      */
     private GUIInstallData installData;
 
-    /**
-     * The object factory.
-     */
-    private ObjectFactory factory;
-
 
     /**
      * Default constructor.
@@ -72,7 +65,6 @@ public class GUIRuleFieldTest
         RulesEngine rules = new RulesEngineImpl(new ConditionContainer(new DefaultContainer()),
                                                 installData.getPlatform());
         installData.setRules(rules);
-        factory = new DefaultObjectFactory(new DefaultContainer());
     }
 
     /**
@@ -89,7 +81,7 @@ public class GUIRuleFieldTest
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
 
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
 
         GUIRuleField field = new GUIRuleField(model);
         assertFalse(field.updateView());               // should be nothing to update
@@ -129,7 +121,7 @@ public class GUIRuleFieldTest
         String separator = null;
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue("localhost");
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
 
         GUIRuleField field = new GUIRuleField(model);
         assertEquals("localhost", field.getValue());

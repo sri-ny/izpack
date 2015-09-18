@@ -26,9 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.izforge.izpack.api.factory.ObjectFactory;
-import com.izforge.izpack.core.container.DefaultContainer;
-import com.izforge.izpack.core.factory.DefaultObjectFactory;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.rule.RuleField;
 import com.izforge.izpack.panels.userinput.field.rule.RuleFormat;
@@ -42,20 +39,6 @@ import com.izforge.izpack.panels.userinput.field.rule.TestRuleFieldConfig;
  */
 public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
 {
-
-    /**
-     * The object factory.
-     */
-    private final ObjectFactory factory;
-
-    /**
-     * Default constructor.
-     */
-    public ConsoleRuleFieldTest()
-    {
-        factory = new DefaultObjectFactory(new DefaultContainer());
-    }
-
     /**
      * Tests selection of the default value.
      */
@@ -70,7 +53,7 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
 
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
 
         ConsoleRuleField field = new ConsoleRuleField(model, console, prompt);
         console.addScript("Select default", "\n");
@@ -92,7 +75,7 @@ public class ConsoleRuleFieldTest extends AbstractConsoleFieldTest
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setInitialValue(initialValue);
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
 
         ConsoleRuleField field = new ConsoleRuleField(model, console, prompt);
         console.addScript("Set value", "127.0.0.1");
