@@ -154,7 +154,7 @@ public class FieldFactory
                 result = new RadioField(new SimpleChoiceReader(element, config, installData), installData);
                 break;
             case RULE:
-                result = new RuleField(new RuleFieldReader(element, config), installData, config.getFactory());
+                result = new RuleField(new RuleFieldReader(element, config), installData);
                 break;
             case SEARCH:
                 result = new SearchField(new SearchFieldReader(element, config, matcher), installData);

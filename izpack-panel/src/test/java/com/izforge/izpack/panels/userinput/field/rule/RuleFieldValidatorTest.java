@@ -90,7 +90,7 @@ public class RuleFieldValidatorTest
         parameters.put(RegularExpressionValidator.PATTERN_PARAM, "\\b.*\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3})\\b");
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), parameters, "Regex validation failed", factory);
         config.addValidator(fieldValidator);
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
         ValidationStatus status = model.validate(new String[] {"127.0.0.1", "1234"});
         assertTrue(status.isValid());
     }
@@ -107,7 +107,7 @@ public class RuleFieldValidatorTest
         config.setInitialValue(initialValue);
         FieldValidator fieldValidator = new FieldValidator( HostAddressValidator.class, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
         ValidationStatus status = model.validate(new String[] {"127.0.0.1", "1234"});
         assertTrue(status.isValid());
     }
@@ -130,7 +130,7 @@ public class RuleFieldValidatorTest
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
 
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
 
         assertArrayEquals(new String[] { "abc", "1234"}, model.getInitialValues());
     }
@@ -153,7 +153,7 @@ public class RuleFieldValidatorTest
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
 
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
         model.setValue("my-second-server:1234");
 
         assertArrayEquals(model.getInitialValues(), new String[] { "my-second-server", "1234"});
@@ -181,10 +181,11 @@ public class RuleFieldValidatorTest
         FieldValidator fieldValidator = new FieldValidator( RegularExpressionValidator.class.getName(), regexp, "Host address validation failed", factory);
         config.addValidator(fieldValidator);
 
-        RuleField model = new RuleField(config, installData, factory);
+        RuleField model = new RuleField(config, installData);
         model.setValue("my-second-server:4321");
 
-        assertArrayEquals(model.getInitialValues(), new String[] { "my-server", "1234"});
+        assertArrayEquals(model.getInitialValues(), new String[] { "${host}", "1234"});
+        assertEquals(model.getInitialValue(), "my-server:1234");
         assertEquals(model.getValue(), "my-second-server:4321");
     }
 

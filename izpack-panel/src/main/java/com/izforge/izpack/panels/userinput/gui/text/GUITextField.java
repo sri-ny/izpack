@@ -109,7 +109,8 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
     public boolean updateView()
     {
         boolean result = false;
-        String value = getField().getInitialValue();
+        Field f = getField();
+        String value = f.getInitialValue();
 
         if (value != null)
         {
@@ -119,7 +120,6 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
         else
         {
             // Set default value here for getting current variable values replaced
-            Field f = getField();
             String defaultValue = f.getDefaultValue();
             if (defaultValue != null)
             {
