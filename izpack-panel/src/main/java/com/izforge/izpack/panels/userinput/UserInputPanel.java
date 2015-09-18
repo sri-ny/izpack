@@ -229,9 +229,13 @@ public class UserInputPanel extends IzPanel
         }
         else
         {
+            eventsActivated = false;
             buildUI();
             updateUIElements();
+            eventsActivated = true;
         }
+        
+        updateDialog();
 
         if (firstFocusedComponent != null)
         {
