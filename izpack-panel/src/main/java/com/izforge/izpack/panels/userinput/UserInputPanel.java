@@ -235,6 +235,8 @@ public class UserInputPanel extends IzPanel
             eventsActivated = true;
         }
 
+        updateDialog();
+
         if (firstFocusedComponent != null)
         {
             setInitialFocus(firstFocusedComponent);
