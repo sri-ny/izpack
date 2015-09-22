@@ -354,8 +354,11 @@ public class DefaultVariables implements Variables
                             }
                             if (newValue == null)
                             {
-                                // Mark unset if dynamic variable cannot be evaluated and failOnError set
-                                unsetVariables.add(name);
+                                if (variable.isAutoUnset())
+                                {
+                                    // Mark unset if dynamic variable cannot be evaluated and failOnError set
+                                    unsetVariables.add(name);
+                                }
                             }
                             else
                             {
