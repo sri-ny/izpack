@@ -91,7 +91,7 @@ The central entry point to IzPack Confluence is at https://izpack.atlassian.net/
 
 ### IzPack@Google
 
-Google Groups - mailing lists
+#### Google Groups - mailing lists
 
 Regarding the mailing lists we ended up in reusing the existing mailing lists at Google Groups. There is a main reason - we kept all the old messages and subscribers from the Codehaus mailing lists mirrored there automatically and can continue to use it slightly.
 
@@ -100,25 +100,27 @@ Please note in advance that these are real mailing lists and you do not need nec
 The existing subscribers have been left and don't probably have to re-subscribe. All existing lists have been left, just the mail addresses change.
 
 In particular, there are activated the following lists:
-- izpack-announce@googlegroups.com
-Read more about the izpack-announce group.
+- [izpack-announce@googlegroups.com](mailto:izpack-announce@googlegroups.com)
+[Read more about the izpack-announce group](https://groups.google.com/forum/#!aboutgroup/izpack-announce).
 Do no longer use the former list ~~announce@izpack.codehaus.org~~!
 If you are not a member you can subscribe by sending an e-mail to:
-izpack-announce+subscribe@googlegroups.com.
-- izpack-user@googlegroups.com
-Read more about the izpack-user group.
+[izpack-announce+subscribe@googlegroups.com](mailto:izpack-announce+subscribe@googlegroups.com).
+- [izpack-user@googlegroups.com](mailto:izpack-user@googlegroups.com)
+[Read more about the izpack-user group](https://groups.google.com/forum/#!aboutgroup/izpack-user).
 Do no longer use the former list ~~user@izpack.codehaus.org~~!
 If you are not a member you can subscribe by sending an e-mail to:
-izpack-user+subscribe@googlegroups.com.
-izpack-dev@googlegroups.com
-Read more about the izpack-dev group.
+[izpack-user+subscribe@googlegroups.com](mailto:izpack-user+subscribe@googlegroups.com).
+- [izpack-dev@googlegroups.com](mailto:izpack-dev@googlegroups.com)
+[Read more about the izpack-dev group](https://groups.google.com/forum/#!aboutgroup/izpack-dev).
 Do no longer use the former list ~~dev@izpack.codehaus.org~~!
 If you are not a member you can subscribe by sending an e-mail to:
-- izpack-dev+subscribe@googlegroups.com.
+[izpack-dev+subscribe@googlegroups.com](mailto:izpack-dev+subscribe@googlegroups.com).
+
 If you are not a member of one of the above groups of your interest you may subscribe to them with or without being logged on as Google user on the web interface or by mail. For more help on Google Groups visit the according help center.
 
 Be invited to join us again.
-Google Plus - Social Networking
+
+#### Google Plus - Social Networking
 
 IzPack has its own page at Google+. We will forward blog posts there and it is open for discussions for registered Google users.
 
