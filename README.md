@@ -31,7 +31,7 @@ We very much prefer pull requests over attaching patches in a JIRA issues.
 
 ## Resources
 
-During the migration from the Codehaus services, which were shut down, We had do divide different services to separate providers, there hasn't been available a compact offer comparable to the services the Codehaus in such a short time. There are some smaller drawbacks which couldn't be avoided, see below.
+During the migration from the Codehaus services, which were shut down, we had do divide different services to separate providers, there hasn't been available a compact offer comparable to the services the Codehaus in such a short time. There are some smaller drawbacks which couldn't be avoided, see below.
 
 If you are wondering where to find some service the project offers visit out web site http://izpack.org/.
 This domain is still kindly provided and paid by Julien Ponge, the project founder.
@@ -82,8 +82,6 @@ IzPack issues will continue to be tracked to JIRA. The central address is https:
 By the way, the former Codehaus administrators kindly offered a HTTP redirection from the old Codehaus issues to the new address at Codehaus itself in case there are still old links. This has been activated for all former IZPACK issues and their issues IDs have been kept.
 
 I will deactivate the Github issue tracking to not confuse anyone and because it is just too plain at the moment. There is no real advantage for us at the moment in using Github issues.
-
-Special thanks to Tom Helpstone for helping out migrating the old issues the best way possible.
 
 #### Confluence - Wiki
 
