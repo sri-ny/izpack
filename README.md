@@ -100,19 +100,19 @@ Please note in advance that these are real mailing lists and you do not need nec
 The existing subscribers have been left and don't probably have to re-subscribe. All existing lists have been left, just the mail addresses change.
 
 In particular, there are activated the following lists:
-- [izpack-announce@googlegroups.com](mailto:izpack-announce@googlegroups.com)
-[Read more about the izpack-announce group](https://groups.google.com/forum/#!aboutgroup/izpack-announce).
-Do no longer use the former list ~~announce@izpack.codehaus.org~~!
+- [izpack-announce@googlegroups.com](mailto:izpack-announce@googlegroups.com)<br>
+[Read more about the izpack-announce group](https://groups.google.com/forum/#!aboutgroup/izpack-announce).<br>
+Do no longer use the former list ~~announce@izpack.codehaus.org~~!<br>
 If you are not a member you can subscribe by sending an e-mail to:
 [izpack-announce+subscribe@googlegroups.com](mailto:izpack-announce+subscribe@googlegroups.com).
-- [izpack-user@googlegroups.com](mailto:izpack-user@googlegroups.com)
-[Read more about the izpack-user group](https://groups.google.com/forum/#!aboutgroup/izpack-user).
-Do no longer use the former list ~~user@izpack.codehaus.org~~!
+- [izpack-user@googlegroups.com](mailto:izpack-user@googlegroups.com)<br>
+[Read more about the izpack-user group](https://groups.google.com/forum/#!aboutgroup/izpack-user).<br>
+Do no longer use the former list ~~user@izpack.codehaus.org~~!<br>
 If you are not a member you can subscribe by sending an e-mail to:
 [izpack-user+subscribe@googlegroups.com](mailto:izpack-user+subscribe@googlegroups.com).
-- [izpack-dev@googlegroups.com](mailto:izpack-dev@googlegroups.com)
-[Read more about the izpack-dev group](https://groups.google.com/forum/#!aboutgroup/izpack-dev).
-Do no longer use the former list ~~dev@izpack.codehaus.org~~!
+- [izpack-dev@googlegroups.com](mailto:izpack-dev@googlegroups.com)<br>
+[Read more about the izpack-dev group](https://groups.google.com/forum/#!aboutgroup/izpack-dev).<br>
+Do no longer use the former list ~~dev@izpack.codehaus.org~~!<br>
 If you are not a member you can subscribe by sending an e-mail to:
 [izpack-dev+subscribe@googlegroups.com](mailto:izpack-dev+subscribe@googlegroups.com).
 
