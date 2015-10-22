@@ -81,13 +81,13 @@ IzPack issues will continue to be tracked to JIRA. The central address is https:
 
 By the way, the former Codehaus administrators kindly offered a HTTP redirection from the old Codehaus issues to the new address at Codehaus itself in case there are still old links. This has been activated for all former IZPACK issues and their issues IDs have been kept.
 
-I will deactivate the Github issue tracking to not confuse anyone and because it is just too plain at the moment. There is no real advantage for us at the moment in using Github issues.
+The Github issue tracking has been deactivated to not confuse anyone and because it is just too plain at the moment. There is no real advantage for us at the moment in using Github issues.
 
 #### Confluence - Wiki
 
 The IzPack Wiki has been reimported and left on Confluence. It seems to be the more comfortable choice and better user experience compared to the Github Wiki at the moment.
 
-The central entry point to IzPack Confluence is at https://izpack.atlassian.net/wiki, or check the IzPack documentation directly. The content is considered to be up to date for Izpack 5, feel free to help us directly improving the documentation.
+The central entry point to IzPack Confluence is at https://izpack.atlassian.net/wiki, or check the [IzPack documentation](https://izpack.atlassian.net/wiki/display/IZPACK/) directly. The content is considered to be up to date for Izpack 5, feel free to help us directly improving the documentation.
 
 ### IzPack@Google
 
@@ -95,7 +95,7 @@ The central entry point to IzPack Confluence is at https://izpack.atlassian.net/
 
 Regarding the mailing lists we ended up in reusing the existing mailing lists at Google Groups. There is a main reason - we kept all the old messages and subscribers from the Codehaus mailing lists mirrored there automatically and can continue to use it slightly.
 
-Please note in advance that these are real mailing lists and you do not need necessarily an Google account at all to join them, see this support notice.
+Please note in advance that these are real mailing lists and you do not need necessarily an Google account at all to join them, see [this support notice](https://support.google.com/groups/answer/46438).
 
 The existing subscribers have been left and don't probably have to re-subscribe. All existing lists have been left, just the mail addresses change.
 
@@ -116,7 +116,7 @@ Do no longer use the former list ~~dev@izpack.codehaus.org~~!
 If you are not a member you can subscribe by sending an e-mail to:
 [izpack-dev+subscribe@googlegroups.com](mailto:izpack-dev+subscribe@googlegroups.com).
 
-If you are not a member of one of the above groups of your interest you may subscribe to them with or without being logged on as Google user on the web interface or by mail. For more help on Google Groups visit the according help center.
+If you are not a member of one of the above groups of your interest you may subscribe to them with or without being logged on as Google user on the web interface or by mail. For more help on Google Groups [visit the according help center](https://support.google.com/groups).
 
 Be invited to join us again.
 
@@ -128,4 +128,4 @@ The address is https://plus.google.com/+izpack/.
 
 ### IzPack@Twitter
 
-IzPack has a Twitter account. We will forward blog posts there and it is open for your tweets for registered Twitter users. Or just follow us to get the latest news.
+IzPack has a [Twitter account](https://twitter.com/izpack). We will forward blog posts there and it is open for your tweets for registered Twitter users. Or just follow us to get the latest news.
