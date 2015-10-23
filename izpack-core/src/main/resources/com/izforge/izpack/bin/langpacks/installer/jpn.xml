@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <!-- The Japanese langpack -->
 
@@ -39,261 +39,261 @@
 
 
     <!-- Heading messages START -->
-    <str id="CheckedHelloPanel.headline" txt="�悤����"/>
-    <str id="CompilePanel.headline" txt="Java �̃\�[�X���R���p�C��"/>
-    <str id="ConditionalUserInputPanel.headline" txt="���[�U�f�[�^"/>
-    <str id="ExtendedInstallPanel.headline" txt="�C���X�g�[���Ɛݒ�"/>
-    <str id="FinishPanel.headline" txt="�C���X�g�[������"/>
-    <str id="HelloPanel.headline" txt="�悤����"/>
-    <str id="HTMLInfoPanel.headline" txt="����"/>
-    <str id="HTMLLicencePanel.headline" txt="���C�Z���X�_��"/>
-    <str id="ImgPacksPanel.headline" txt="�C���X�g�[���p�b�P�[�W�̑I��"/>
-    <str id="InfoPanel.headline" txt="����"/>
-    <str id="InstallPanel.headline" txt="�C���X�g�[��"/>
-    <str id="JDKPathPanel.headline" txt="JDK �p�X"/>
-    <str id="LicencePanel.headline" txt="���C�Z���X�_��"/>
-    <str id="PacksPanel.headline" txt="�C���X�g�[���p�b�P�[�W�̑I��"/>
-    <str id="ProcessPanel.headline" txt="�O���v���Z�X�̎�s"/>
-    <str id="ShortcutPanel.headline" txt="�V���[�g�J�b�g�̃Z�b�g�A�b�v"/>
-    <str id="SimpleFinishPanel.headline" txt="�C���X�g�[������"/>
-    <str id="SummaryPanel.headline" txt="�ݒ��f�[�^�̃T�}��"/>
-    <str id="TargetPanel.headline" txt="�C���X�g�[����"/>
-    <str id="TreePacksPanel.headline" txt="�C���X�g�[���p�b�P�[�W�̑I��"/>
-    <str id="UserInputPanel.headline" txt="���[�U�f�[�^"/>
-    <str id="UserPathPanel.headline" txt="�p�X�̑I��"/>
-    <str id="InstallationTypePanel.headline" txt="�C���X�g�[���̎���"/>
+    <str id="CheckedHelloPanel.headline" txt="ようこそ"/>
+    <str id="CompilePanel.headline" txt="Java のソースをコンパイル"/>
+    <str id="ConditionalUserInputPanel.headline" txt="ユーザデータ"/>
+    <str id="ExtendedInstallPanel.headline" txt="インストールと設定"/>
+    <str id="FinishPanel.headline" txt="インストール完了"/>
+    <str id="HelloPanel.headline" txt="ようこそ"/>
+    <str id="HTMLInfoPanel.headline" txt="情報"/>
+    <str id="HTMLLicencePanel.headline" txt="ライセンス契約"/>
+    <str id="ImgPacksPanel.headline" txt="インストールパッケージの選択"/>
+    <str id="InfoPanel.headline" txt="情報"/>
+    <str id="InstallPanel.headline" txt="インストール"/>
+    <str id="JDKPathPanel.headline" txt="JDK パス"/>
+    <str id="LicencePanel.headline" txt="ライセンス契約"/>
+    <str id="PacksPanel.headline" txt="インストールパッケージの選択"/>
+    <str id="ProcessPanel.headline" txt="外部プロセスの実行"/>
+    <str id="ShortcutPanel.headline" txt="ショートカットのセットアップ"/>
+    <str id="SimpleFinishPanel.headline" txt="インストール完了"/>
+    <str id="SummaryPanel.headline" txt="設定データのサマリ"/>
+    <str id="TargetPanel.headline" txt="インストール先"/>
+    <str id="TreePacksPanel.headline" txt="インストールパッケージの選択"/>
+    <str id="UserInputPanel.headline" txt="ユーザデータ"/>
+    <str id="UserPathPanel.headline" txt="パスの選択"/>
+    <str id="InstallationTypePanel.headline" txt="インストールの種類"/>
 
     <!-- General installer strings -->
     <!-- Notice! more natural Japanese requires string after product name -->
-    <str id="installer.title" txt="IzPack - �C���X�g�[�� - "/>
-    <str id="installer.next" txt="����"/>
-    <str id="installer.prev" txt="�O��"/>
-    <str id="installer.quit" txt="�I��"/>
-    <str id="installer.madewith" txt="(IzPack�ɂč쐬�����܂��� - http://izpack.org/)"/>
-    <str id="installer.quit.title" txt="�C���X�g�[���̒��~"/>
-    <str id="installer.quit.message" txt="�C���X�g�[�����I�����܂�!"/>
-    <str id="installer.warning" txt="�x�� !"/>
-    <str id="installer.yes" txt="�͂�"/>
-    <str id="installer.no" txt="������"/>
-    <str id="installer.cancel" txt="�L�����Z��"/>
-    <str id="installer.error" txt="�G���["/>
-    <str id="installer.help" txt="�w���v"/>
-    <str id="installer.step" txt="�X�e�b�v"/>
+    <str id="installer.title" txt="IzPack - インストール - "/>
+    <str id="installer.next" txt="次へ"/>
+    <str id="installer.prev" txt="前へ"/>
+    <str id="installer.quit" txt="終了"/>
+    <str id="installer.madewith" txt="(IzPackにて作成されました - http://izpack.org/)"/>
+    <str id="installer.quit.title" txt="インストールの中止"/>
+    <str id="installer.quit.message" txt="インストーラを終了します!"/>
+    <str id="installer.warning" txt="警告 !"/>
+    <str id="installer.yes" txt="はい"/>
+    <str id="installer.no" txt="いいえ"/>
+    <str id="installer.cancel" txt="キャンセル"/>
+    <str id="installer.error" txt="エラー"/>
+    <str id="installer.help" txt="ヘルプ"/>
+    <str id="installer.step" txt="ステップ"/>
     <str id="installer.of" txt="/"/>
-    <str id="installer.Message" txt="���b�Z�[�W"/>
+    <str id="installer.Message" txt="メッセージ"/>
 
     <!-- Uninstaller specific strings -->
-    <str id="uninstaller.warning" txt="���̑����́A�C���X�g�[���ς̃A�v���P�[�V�������폜���܂�!"/>
-    <str id="uninstaller.destroytarget" txt=" �����폜 - "/>
-    <str id="uninstaller.uninstall" txt="�A���C���X�g�[��"/>
+    <str id="uninstaller.warning" txt="この操作は、インストール済のアプリケーションを削除します!"/>
+    <str id="uninstaller.destroytarget" txt=" 強制削除 - "/>
+    <str id="uninstaller.uninstall" txt="アンインストール"/>
+
 
     <!-- The strings for the 'official' IzPack plugins -->
     <str id="HelloPanel.welcome1" txt=""/>
-    <str id="HelloPanel.welcome2" txt="�̃C���X�g�[���ւ悤���� !"/>
-    <str id="HelloPanel.authors" txt="���̃\�t�g�E�F�A�̒��� : "/>
-    <str id="HelloPanel.url" txt="���̃\�t�g�E�F�A�̃E�F�u�T�C�g : "/>
+    <str id="HelloPanel.welcome2" txt="のインストールへようこそ !"/>
+    <str id="HelloPanel.authors" txt="このソフトウェアの著者 : "/>
+    <str id="HelloPanel.url" txt="このソフトウェアのウェブサイト : "/>
 
-    <str id="LicencePanel.info" txt="�ȉ��̃��C�Z���X���p������ǂ݂������� :"/>
-    <str id="LicencePanel.agree" txt="���C�Z���X���p�����ɓ��ӂ��܂�"/>
-    <str id="LicencePanel.notagree" txt="���C�Z���X���p�����ɓ��ӂ��܂���"/>
-    <str id="LicencePanel.yes" txt="�͂�"/>
-    <str id="LicencePanel.no" txt="������"/>
+    <str id="LicencePanel.info" txt="以下のライセンス利用許諾をお読みください :"/>
+    <str id="LicencePanel.agree" txt="ライセンス利用許諾に同意します"/>
+    <str id="LicencePanel.notagree" txt="ライセンス利用許諾に同意しません"/>
+    <str id="LicencePanel.yes" txt="はい"/>
+    <str id="LicencePanel.no" txt="いいえ"/>
 
     <!-- PrinterSelect Panel -->
-    <str id="PrinterSelectPanel.select_printer" txt="�����ݒ肨���уe�X�g�Ɏg�p�����v�����^���I��Ă��������B"/>
+    <str id="PrinterSelectPanel.select_printer" txt="初期設定およびテストに使用するプリンタを選択してください。"/>
 
-    <str id="InfoPanel.info" txt="�ȉ��̏�����ǂ݂������� :"/>
+    <str id="InfoPanel.info" txt="以下の情報をお読みください :"/>
 
     <!-- PathInputPanel strings -->
-    <str id="PathInputPanel.required" txt="���݂����f�B���N�g�����I��Ă��������B"/>
-    <str id="PathInputPanel.required.forModificationInstallation" txt="���݂����f�B���N�g�����I��Ă��������B"/>
-    <str id="PathInputPanel.notValid" txt="�I����f�B���N�g���ɂ͕K�v�Ȑ��i���܂܂��Ă��܂����B"/>
+    <str id="PathInputPanel.required" txt="存在するディレクトリを選択してください。"/>
+    <str id="PathInputPanel.required.forModificationInstallation" txt="存在するディレクトリを選択してください。"/>
+    <str id="PathInputPanel.notValid" txt="選択したディレクトリには必要な製品が含まれていません。"/>
 
-    <str id="TargetPanel.info" txt="�C���X�g�[�������p�X���I��Ă������� :"/>
-    <str id="TargetPanel.browse" txt="�Q�� ..."/>
+    <str id="TargetPanel.info" txt="インストールするパスを選択してください :"/>
+    <str id="TargetPanel.browse" txt="参照 ..."/>
     <str id="TargetPanel.warn"
-         txt="�w�肳�ꂽ�f�B���N�g���͊��ɑ��݂��܂�! ���̂܂ܑ������ƃt�@�C�����㏑�����邩�����܂��񂪂����ł���?"/>
+         txt="指定されたディレクトリは既に存在します! このまま続けるとファイルを上書きするかもしれませんがいいですか?"/>
     <str id="TargetPanel.empty_target"
-         txt="�������C���X�g�[�������w�肵�Ă�������! ���̃p�X�͖{���ɑ��݂��Ă��܂���?"/>
-    <str id="TargetPanel.createdir" txt="�C���X�g�[�����f�B���N�g�����쐬���܂�: "/>
-    <str id="TargetPanel.nodir" txt="���̃p�X�̓f�B���N�g���ł͂����܂���! �f�B���N�g�����I��Ă�������!"/>
-    <str id="TargetPanel.notwritable" txt="���̃f�B���N�g���ɏ������ނ��Ƃ��ł��܂���! �ʂ̃f�B���N�g�����I��Ă�������!"/>
+         txt="正しいインストール先を指定してください! このパスは本当に存在していますか?"/>
+    <str id="TargetPanel.createdir" txt="インストール先ディレクトリを作成します: "/>
+    <str id="TargetPanel.nodir" txt="このパスはディレクトリではありません! ディレクトリを選択してください!"/>
+    <str id="TargetPanel.notwritable" txt="このディレクトリに書き込むことができません! 別のディレクトリを選択してください!"/>
 
     <!-- JDKPathPanel strings -->
     <str id="JDKPathPanel.extendedIntro"
-         txt="�C���X�g�[�������A�v���P�[�V�����ɂ� JDK ${JDKPathPanel.minVersion} - ${JDKPathPanel.maxVersion} ���K�v�ł��BJava ��s�� (JRE) �ł͕s�\���ł��B"/>
-    <str id="JDKPathPanel.intro"
-         txt="�C���X�g�[�������A�v���P�[�V�����ɂ� JDK ���K�v�ł��BJava ��s�� (JRE) �ł͕s�\���ł��B"/>
-    <str id="JDKPathPanel.info" txt="JDK �p�X�̑I��:"/>
-    <str id="JDKPathPanel.badVersion1" txt="�I��� JDK �̃o�[�W�������Ԉ���Ă��܂� (���p�\: "/>
-    <str id="JDKPathPanel.badVersion2" txt=" �K�{: "/>
-    <str id="JDKPathPanel.badVersion3" txt=") ���� JDK ���g�p���܂���?"/>
+         txt="インストールするアプリケーションには JDK ${JDKPathPanel.minVersion} - ${JDKPathPanel.maxVersion} が必要です。Java 実行環境 (JRE) では不十分です。"/>
+    <str id="JDKPathPanel.intro" txt="インストールするアプリケーションには JDK が必要です。Java 実行環境 (JRE) では不十分です。"/>
+    <str id="JDKPathPanel.info" txt="JDK パスの選択:"/>
+    <str id="JDKPathPanel.badVersion1" txt="選択した JDK のバージョンが間違っています (利用可能: "/>
+    <str id="JDKPathPanel.badVersion2" txt=" 必須: "/>
+    <str id="JDKPathPanel.badVersion3" txt=") この JDK を使用しますか?"/>
     <str id="JDKPathPanel.nonValidPathInReg"
-         txt="Windows ���W�X�g�����L���ł͂Ȃ� JDK �̃p�X���܂��ł��܂��B���� JDK ���g�p���܂���?"/>
+         txt="Windows レジストリが有効ではない JDK のパスを含んでいます。この JDK を使用しますか?"/>
 
-    <str id="PacksPanel.info" txt="�C���X�g�[�����������ڂ��I��Ă������� :"/>
-    <str id="PacksPanel.tip" txt="����: �D�F�ŕ\�������Ă��鍀�ڂ́A�K�{���ڂł��B"/>
-    <str id="PacksPanel.space" txt="�K�v�ȃf�B�X�N�e��: "/>
-    <str id="PacksPanel.freespace" txt="�󂫃f�B�X�N�e��: "/>
-    <str id="PacksPanel.description" txt="��"/>
-    <str id="PacksPanel.dependencyList" txt="�I������ڂ͈ȉ��̈ˑ��܂��͏��O���ڂ��܂��ł��܂�"/>
-    <str id="PacksPanel.dependencies" txt="�ˑ�����: "/>
-    <str id="PacksPanel.excludes" txt="���O����: "/>
-    <str id="PacksPanel.notEnoughSpace" txt="�K�v�ȃf�B�X�N�e�ʂ��󂫃f�B�X�N�e�ʂ��z���Ă��܂��B"/>
-    <str id="PacksPanel.notAscertainable" txt="�s��"/>
+    <str id="PacksPanel.info" txt="インストールしたい項目を選択してください :"/>
+    <str id="PacksPanel.tip" txt="注意: 灰色で表示されている項目は、必須項目です。"/>
+    <str id="PacksPanel.space" txt="必要なディスク容量: "/>
+    <str id="PacksPanel.freespace" txt="空きディスク容量: "/>
+    <str id="PacksPanel.description" txt="説明"/>
+    <str id="PacksPanel.dependencyList" txt="選択した項目は以下の依存または除外項目を含んでいます"/>
+    <str id="PacksPanel.dependencies" txt="依存項目: "/>
+    <str id="PacksPanel.excludes" txt="除外項目: "/>
+    <str id="PacksPanel.notEnoughSpace" txt="必要なディスク容量が空きディスク容量を越えています。"/>
+    <str id="PacksPanel.notAscertainable" txt="不明"/>
 
-    <str id="InstallPanel.info" txt="�C���X�g�[�����J�n�����ɂ́A'�C���X�g�[��!'����Ă�������"/>
-    <str id="InstallPanel.install" txt="�C���X�g�[��!"/>
-    <str id="InstallPanel.tip" txt="�C���X�g�[������ :"/>
-    <str id="InstallPanel.begin" txt="[���C���X�g�[��]"/>
-    <str id="InstallPanel.finished" txt="[����]"/>
-    <str id="InstallPanel.progress" txt="�S�̂̃C���X�g�[���i������:"/>
-    <str id="InstallPanel.overwrite.title" txt="�t�@�C�������ɑ��݂��Ă��܂�"/>
-    <str id="InstallPanel.overwrite.question" txt="�ȉ��̃t�@�C�������ɑ��݂��Ă��܂��B�㏑�����܂���?"/>
+    <str id="InstallPanel.info" txt="インストールを開始するには、'インストール!'を押してください"/>
+    <str id="InstallPanel.install" txt="インストール!"/>
+    <str id="InstallPanel.tip" txt="インストール状況 :"/>
+    <str id="InstallPanel.begin" txt="[未インストール]"/>
+    <str id="InstallPanel.finished" txt="[完了]"/>
+    <str id="InstallPanel.progress" txt="全体のインストール進捗状況:"/>
+    <str id="InstallPanel.overwrite.title" txt="ファイルが既に存在しています"/>
+    <str id="InstallPanel.overwrite.question" txt="以下のファイルが既に存在しています。上書きしますか?"/>
 
     <!-- InstallationGroupPanel strings -->
-    <str id="InstallationGroupPanel.colNameSelected" txt="�I��"/>
-    <str id="InstallationGroupPanel.colNameInstallType" txt="�C���X�g�[���̎���"/>
-    <str id="InstallationGroupPanel.colNameSize" txt="�T�C�Y"/>
+    <str id="InstallationGroupPanel.colNameSelected" txt="選択"/>
+    <str id="InstallationGroupPanel.colNameInstallType" txt="インストールの種類"/>
+    <str id="InstallationGroupPanel.colNameSize" txt="サイズ"/>
 
     <!-- InstallationTypePanel strings -->
-    <str id="InstallationTypePanel.info" txt="�C���X�g�[���̎��ނ��I��Ă�������:"/>
-    <str id="InstallationTypePanel.normal" txt="�V�K�C���X�g�[��"/>
-    <str id="InstallationTypePanel.modify" txt="�C���C���X�g�[��"/>
+    <str id="InstallationTypePanel.info" txt="インストールの種類を選択してください:"/>
+    <str id="InstallationTypePanel.normal" txt="新規インストール"/>
+    <str id="InstallationTypePanel.modify" txt="修正インストール"/>
 
-    <str id="FinishPanel.success" txt="�C���X�g�[���͐����ɏI�����܂����B"/>
-    <str id="FinishPanel.done" txt="����"/>
-    <str id="FinishPanel.fail" txt="�C���X�g�[���Ɏ��s���܂���!"/>
-    <str id="FinishPanel.uninst.info" txt="�A���C���X�g�[�����ȉ��̏ꏊ�ɍ쐬�����܂���:"/>
-    <str id="FinishPanel.auto" txt="�����C���X�g�[���X�N���v�g�𐶐����܂�"/>
+    <str id="FinishPanel.success" txt="インストールは正常に終了しました。"/>
+    <str id="FinishPanel.done" txt="完了"/>
+    <str id="FinishPanel.fail" txt="インストールに失敗しました!"/>
+    <str id="FinishPanel.uninst.info" txt="アンインストーラが以下の場所に作成されました:"/>
+    <str id="FinishPanel.auto" txt="自動インストールスクリプトを生成します"/>
     <str id="FinishPanel.auto.tip"
-         txt="�������e�̃C���X�g�[���𑼂̃R���s���[�^�ŌJ���Ԃ������Ƃ��ɁA���̃X�N���v�g���g���܂��B"/>
-    <str id="FinishPanel.auto.dialog.filterdesc" txt="XML �t�@�C��"/>
+         txt="同じ内容のインストールを他のコンピュータで繰り返したいときに、このスクリプトが使えます。"/>
+    <str id="FinishPanel.auto.dialog.filterdesc" txt="XML ファイル"/>
 
     <!-- ImgPacksPanel strings -->
-    <str id="ImgPacksPanel.dependencyList" txt="�ˑ��܂��͏��O����"/>
-    <str id="ImgPacksPanel.packs" txt="�ȉ��̍��ڂ��I���ł��܂� :"/>
-    <str id="ImgPacksPanel.snap" txt="�p�b�P�[�W�̃X�i�b�v�V���b�g  :"/>
-    <str id="ImgPacksPanel.checkbox" txt=" ���̍��ڂ��C���X�g�[��"/>
+    <str id="ImgPacksPanel.dependencyList" txt="依存または除外項目"/>
+    <str id="ImgPacksPanel.packs" txt="以下の項目を選択できます :"/>
+    <str id="ImgPacksPanel.snap" txt="パッケージのスナップショット  :"/>
+    <str id="ImgPacksPanel.checkbox" txt=" この項目をインストール"/>
 
-    <str id="ShortcutPanel.regular.list" txt="�X�^�[�g���j���[�̃t�H���_���I��Ă�������:"/>
-    <str id="ShortcutPanel.regular.default" txt="���Z�b�g"/>
-    <str id="ShortcutPanel.regular.desktop" txt="�f�X�N�g�b�v�ɃV���[�g�J�b�g���쐬���܂�"/>
-    <str id="ShortcutPanel.regular.create" txt="StartMenu�ɃV���[�g�J�b�g���쐬���܂�"/>
-    <str id="ShortcutPanel.regular.userIntro" txt="�V���[�g�J�b�g���쐬���郆�[�U:"/>
-    <str id="ShortcutPanel.regular.currentUser" txt="���݂̃��[�U"/>
-    <str id="ShortcutPanel.regular.allUsers" txt="���ׂẴ��[�U"/>
+    <str id="ShortcutPanel.regular.list" txt="スタートメニューのフォルダを選択してください:"/>
+    <str id="ShortcutPanel.regular.default" txt="リセット"/>
+    <str id="ShortcutPanel.regular.desktop" txt="デスクトップにショートカットを作成します"/>
+    <str id="ShortcutPanel.regular.create" txt="StartMenuにショートカットを作成します"/>
+    <str id="ShortcutPanel.regular.userIntro" txt="ショートカットを作成するユーザ:"/>
+    <str id="ShortcutPanel.regular.currentUser" txt="現在のユーザ"/>
+    <str id="ShortcutPanel.regular.allUsers" txt="すべてのユーザ"/>
 
     <str id="ShortcutPanel.alternate.apology"
-         txt="IzPack�ł́A���g���̃I�y���[�e�B���O�V�X�e���ł̃V���[�g�J�b�g�̍쐬���T�|�[�g���Ă��܂����B�V���[�g�J�b�g���쐬�����ɂ́A���g���̃I�y���[�e�B���O�V�X�e���̃}�j���A�����Q�Ƃ��Ă��������B"/>
+         txt="IzPackでは、お使いのオペレーティングシステムでのショートカットの作成をサポートしていません。ショートカットを作成するには、お使いのオペレーティングシステムのマニュアルを参照してください。"/>
     <str id="ShortcutPanel.alternate.targetsLabel"
-         txt="�ȉ��́A���̃\�t�g�E�F�A�̐��������A�\�t�g�E�F�A�����삷�邽�߂ɕK�v�ȃt�@�C���ւ̃A�N�Z�X���񋓂������̂ł��B"/>
+         txt="以下は、このソフトウェアの製造元が、ソフトウェアが動作するために必要なファイルへのアクセスを列挙したものです。"/>
     <str id="ShortcutPanel.alternate.textFileExplanation"
-         txt="���ƂŎQ�Ƃ��邽�߂ɁA�^�[�Q�b�g�A�v���P�[�V�����̏ڍ׏������e�L�X�g�t�@�C���ɕۑ����邱�Ƃ��ł��܂��B"/>
-    <str id="ShortcutPanel.alternate.saveButton" txt="�e�L�X�g�t�@�C���ɕۑ�"/>
+         txt="あとで参照するために、ターゲットアプリケーションの詳細情報をテキストファイルに保存することができます。"/>
+    <str id="ShortcutPanel.alternate.saveButton" txt="テキストファイルに保存"/>
 
     <str id="ShortcutPanel.textFile.header"
-         txt="�V���[�g�J�b�g����\n====================\n\n�ȉ��́A�ȉ��́A�쐬�������ׂ��V���[�g�J�b�g�Ɋւ��������ł��B\n���̏����ɂ���āA�蓮�ő��������V���[�g�J�b�g���쐬���邱�Ƃ��ł��܂��B\n"/>
+         txt="ショートカット情報\n====================\n\n以下は、以下は、作成されるべきショートカットに関する情報です。\nこの情報によって、手動で相当するショートカットを作成することができます。\n"/>
 
-    <str id="ShortcutPanel.textFile.name" txt="�V���[�g�J�b�g    : "/>
-    <str id="ShortcutPanel.textFile.location" txt="�ړI�̃p�X        : "/>
-    <str id="ShortcutPanel.textFile.description" txt="��              : "/>
-    <str id="ShortcutPanel.textFile.target" txt="�V���[�g�J�b�g��  : "/>
-    <str id="ShortcutPanel.textFile.command" txt="�R�}���h���C��    : "/>
-    <str id="ShortcutPanel.textFile.iconName" txt="�A�C�R���t�@�C��  : "/>
-    <str id="ShortcutPanel.textFile.iconIndex" txt="�A�C�R���C���f�N�X: "/>
-    <str id="ShortcutPanel.textFile.work" txt="���ƃf�B���N�g��  : "/>
+    <str id="ShortcutPanel.textFile.name" txt="ショートカット    : "/>
+    <str id="ShortcutPanel.textFile.location" txt="目的のパス        : "/>
+    <str id="ShortcutPanel.textFile.description" txt="説明              : "/>
+    <str id="ShortcutPanel.textFile.target" txt="ショートカット先  : "/>
+    <str id="ShortcutPanel.textFile.command" txt="コマンドライン    : "/>
+    <str id="ShortcutPanel.textFile.iconName" txt="アイコンファイル  : "/>
+    <str id="ShortcutPanel.textFile.iconIndex" txt="アイコンインデクス: "/>
+    <str id="ShortcutPanel.textFile.work" txt="作業ディレクトリ  : "/>
 
-    <str id="ShortcutPanel.location.desktop" txt="�f�X�N�g�b�v"/>
-    <str id="ShortcutPanel.location.applications" txt="�v���O����"/>
-    <str id="ShortcutPanel.location.startMenu" txt="�X�^�[�g ���j���["/>
-    <str id="ShortcutPanel.location.startup" txt="�X�^�[�g�A�b�v"/>
+    <str id="ShortcutPanel.location.desktop" txt="デスクトップ"/>
+    <str id="ShortcutPanel.location.applications" txt="プログラム"/>
+    <str id="ShortcutPanel.location.startMenu" txt="スタート メニュー"/>
+    <str id="ShortcutPanel.location.startup" txt="スタートアップ"/>
 
-    <str id="ShortcutPanel.regular.StartMenu:Start-Menu" txt="�X�^�[�g ���j���["/>
-    <str id="ShortcutPanel.regular.StartMenu:K-Menu" txt="K ���j���["/>
+    <str id="ShortcutPanel.regular.StartMenu:Start-Menu" txt="スタート メニュー"/>
+    <str id="ShortcutPanel.regular.StartMenu:K-Menu" txt="K メニュー"/>
 
     <!-- UserInputPanel strings -->
-    <str id="UserInputPanel.error.caption" txt="���͂̌���"/>
-    <str id="UserInputPanel.dir.nodirectory.message" txt="�L���ȃf�B���N�g�����I��Ă��������B"/>
-    <str id="UserInputPanel.dir.nodirectory.caption" txt="�f�B���N�g�����I��Ă��܂���"/>
-    <str id="UserInputPanel.dir.notdirectory.message" txt="�I����f�B���N�g���͑��݂��Ȃ����A�܂��͖����ł��B"/>
-    <str id="UserInputPanel.dir.notdirectory.caption" txt="�����ȃf�B���N�g��"/>
-    <str id="UserInputPanel.file.nofile.message" txt="�L���ȃt�@�C�����I��Ă��������B"/>
-    <str id="UserInputPanel.file.nofile.caption" txt="�t�@�C�����I��Ă��܂���"/>
-    <str id="UserInputPanel.file.notfile.message" txt="�I����t�@�C���͑��݂��Ȃ����A�܂��͖����ł��B"/>
-    <str id="UserInputPanel.file.notfile.caption" txt="�����ȃt�@�C��"/>
+    <str id="UserInputPanel.error.caption" txt="入力の誤り"/>
+    <str id="UserInputPanel.dir.nodirectory.message" txt="有効なディレクトリを選択してください。"/>
+    <str id="UserInputPanel.dir.nodirectory.caption" txt="ディレクトリを選択していません"/>
+    <str id="UserInputPanel.dir.notdirectory.message" txt="選択したディレクトリは存在しないか、または無効です。"/>
+    <str id="UserInputPanel.dir.notdirectory.caption" txt="無効なディレクトリ"/>
+    <str id="UserInputPanel.file.nofile.message" txt="有効なファイルを選択してください。"/>
+    <str id="UserInputPanel.file.nofile.caption" txt="ファイルを選択していません"/>
+    <str id="UserInputPanel.file.notfile.message" txt="選択したファイルは存在しないか、または無効です。"/>
+    <str id="UserInputPanel.file.notfile.caption" txt="無効なファイル"/>
     <!-- more descriptive error message would be cool, like specifying what file we looked for -->
-    <str id="UserInputPanel.search.autodetect" txt="�������o"/>
-    <str id="UserInputPanel.search.autodetect.failed.message" txt="�������o�Ɏ��s���܂����B"/>
-    <str id="UserInputPanel.search.autodetect.failed.caption" txt="�������o���s"/>
-    <str id="UserInputPanel.search.autodetect.tooltip" txt="���L�p�X�̃t�@�C���܂��̓f�B���N�g�����m�F���Ă��������B"/>
-    <str id="UserInputPanel.search.location" txt="{0} �̏ꏊ�����͂��Ă��������B"/>
-    <str id="UserInputPanel.search.location.checkedfile" txt="{0} �̑��݂��m�F���܂��B"/>
-    <str id="UserInputPanel.search.browse" txt="�Q�� ..."/>
+    <str id="UserInputPanel.search.autodetect" txt="自動検出"/>
+    <str id="UserInputPanel.search.autodetect.failed.message" txt="自動検出に失敗しました。"/>
+    <str id="UserInputPanel.search.autodetect.failed.caption" txt="自動検出失敗"/>
+    <str id="UserInputPanel.search.autodetect.tooltip" txt="上記パスのファイルまたはディレクトリを確認してください。"/>
+    <str id="UserInputPanel.search.location" txt="{0} の場所を入力してください。"/>
+    <str id="UserInputPanel.search.location.checkedfile" txt="{0} の存在を確認します。"/>
+    <str id="UserInputPanel.search.browse" txt="参照 ..."/>
     <str id="UserInputPanel.search.wrongselection.message"
-         txt="�I����t�@�C���܂��̓f�B���N�g���͑��݂��Ȃ����A�K�؂ł͂����܂����B"/>
-    <str id="UserInputPanel.search.wrongselection.caption" txt="�����ȑI��"/>
+         txt="選択したファイルまたはディレクトリは存在しないか、適切ではありません。"/>
+    <str id="UserInputPanel.search.wrongselection.caption" txt="無効な選択"/>
 
     <!-- UserPathPanel strings -->
-    <str id="UserPathPanel.required" txt="���݂����f�B���N�g�����I��Ă��������B"/>
-    <str id="UserPathPanel.info" txt="�p�X�̑I��: "/>
-    <str id="UserPathPanel.browse" txt="�Q�� ..."/>
+    <str id="UserPathPanel.required" txt="存在するディレクトリを選択してください。"/>
+    <str id="UserPathPanel.info" txt="パスの選択: "/>
+    <str id="UserPathPanel.browse" txt="参照 ..."/>
     <str id="UserPathPanel.exists_warn"
-         txt="���ɑ��݂����f�B���N�g���ł�! ���̃f�B���N�g���ɃC���X�g�[�����A�����̃t�@�C�����㏑�����Ă��悢�ł���?"/>
-    <str id="UserPathPanel.empty_target" txt="�f�B���N�g�����w�肵�Ă��܂���! ���̎w���͐������ł���?"/>
-    <str id="UserPathPanel.createdir" txt="�I����f�B���N�g�����쐬���܂�: "/>
-    <str id="UserPathPanel.nodir" txt="�I����p�X�̓f�B���N�g���ł͂����܂���! �f�B���N�g�����I��Ă�������!"/>
-    <str id="UserPathPanel.notwritable" txt="���̃f�B���N�g���ɏ������Ƃ��ł��܂���! ���̃f�B���N�g�����I��Ă�������!"/>
+         txt="既に存在するディレクトリです! このディレクトリにインストールし、既存のファイルを上書きしてもよいですか?"/>
+    <str id="UserPathPanel.empty_target" txt="ディレクトリを指定していません! この指定は正しいですか?"/>
+    <str id="UserPathPanel.createdir" txt="選択したディレクトリを作成します: "/>
+    <str id="UserPathPanel.nodir" txt="選択したパスはディレクトリではありません! ディレクトリを選択してください!"/>
+    <str id="UserPathPanel.notwritable" txt="このディレクトリに書くことができません! 他のディレクトリを選択してください!"/>
 
     <!-- CompilePanel strings -->
-    <str id="CompilePanel.heading" txt="�R���p�C��"/>
-    <str id="CompilePanel.tip" txt="�R���p�C���̐i��:"/>
-    <str id="CompilePanel.browse" txt="�Q�� ..."/>
-    <str id="CompilePanel.browse.approve" txt="�R���p�C���Ƃ��Ďg�p"/>
-    <str id="CompilePanel.start" txt="�J�n"/>
-    <str id="CompilePanel.progress.initial" txt="[�J�n�{�^������Ă�������]"/>
-    <str id="CompilePanel.progress.finished" txt="[����]"/>
-    <str id="CompilePanel.progress.overall" txt="�S�̂̃R���p�C���i��:"/>
-    <str id="CompilePanel.error" txt="�R���p�C���Ɏ��s���܂���"/>
-    <str id="CompilePanel.error.reconfigure" txt="�Đݒ�"/>
-    <str id="CompilePanel.error.ignore" txt="����"/>
-    <str id="CompilePanel.error.abort" txt="���~"/>
-    <str id="CompilePanel.error.seebelow" txt="�ȉ��̎��s�����R�}���h�ƁA���̏o�͂��Q�Ƃ��Ă��������B"/>
-    <str id="CompilePanel.error.nofiles" txt="�R���p�C�������t�@�C���̃X�L���j���O���̃G���[�ł��B"/>
-    <str id="CompilePanel.error.compilernotfound" txt="�R���p�C������s�ł��܂����B"/>
-    <str id="CompilePanel.error.invalidarguments" txt="�����Ȉ������R���p�C���ɓn���Ă��܂��B"/>
-    <str id="CompilePanel.error.noclassfile" txt="�R���p�C���̓\�[�X�t�@�C���ɑ΂����N���X�t�@�C���𐶐����܂����ł��� "/>
-    <str id="CompilePanel.choose_compiler" txt="�g�p�����R���p�C��:"/>
-    <str id="CompilePanel.additional_arguments" txt="�ǉ�R���p�C������:"/>
+    <str id="CompilePanel.heading" txt="コンパイル"/>
+    <str id="CompilePanel.tip" txt="コンパイルの進捗:"/>
+    <str id="CompilePanel.browse" txt="参照 ..."/>
+    <str id="CompilePanel.browse.approve" txt="コンパイラとして使用"/>
+    <str id="CompilePanel.start" txt="開始"/>
+    <str id="CompilePanel.progress.initial" txt="[開始ボタンを押してください]"/>
+    <str id="CompilePanel.progress.finished" txt="[完了]"/>
+    <str id="CompilePanel.progress.overall" txt="全体のコンパイル進捗:"/>
+    <str id="CompilePanel.error" txt="コンパイルに失敗しました"/>
+    <str id="CompilePanel.error.reconfigure" txt="再設定"/>
+    <str id="CompilePanel.error.ignore" txt="無視"/>
+    <str id="CompilePanel.error.abort" txt="中止"/>
+    <str id="CompilePanel.error.seebelow" txt="以下の失敗したコマンドと、その出力を参照してください。"/>
+    <str id="CompilePanel.error.nofiles" txt="コンパイルするファイルのスキャニング中のエラーです。"/>
+    <str id="CompilePanel.error.compilernotfound" txt="コンパイラを実行できません。"/>
+    <str id="CompilePanel.error.invalidarguments" txt="無効な引数をコンパイラに渡しています。"/>
+    <str id="CompilePanel.error.noclassfile"    txt="コンパイラはソースファイルに対するクラスファイルを生成しませんでした "/>
+    <str id="CompilePanel.choose_compiler"      txt="使用したコンパイラ:"/>
+    <str id="CompilePanel.additional_arguments" txt="追加コンパイル引数:"/>
 
     <!-- ProcessPanel strings -->
-    <str id="ProcessPanel.heading" txt="����"/>
+    <str id="ProcessPanel.heading" txt="処理"/>
 
     <!-- SummaryPanel strings -->
-    <str id="SummaryPanel.info" txt="���̐ݒ��ŃC���X�g�[�����܂��B�悯���Ύ��փ{�^������Ă��������B"/>
-    <str id="TargetPanel.summaryCaption" txt="�C���X�g�[���p�X"/>
-    <str id="JDKPathPanel.summaryCaption" txt="JDK �p�X"/>
-    <str id="PacksPanel.summaryCaption" txt="�I����C���X�g�[������"/>
-    <str id="ImgPacksPanel.summaryCaption" txt="�I����C���X�g�[������"/>
-    <str id="TreePacksPanel.summaryCaption" txt="�I����C���X�g�[������"/>
-    <str id="UserPathPanel.summaryCaption" txt="�I����p�X"/>
+    <str id="SummaryPanel.info" txt="次の設定でインストールします。よければ次へボタンを押してください。"/>
+    <str id="TargetPanel.summaryCaption" txt="インストールパス"/>
+    <str id="JDKPathPanel.summaryCaption" txt="JDK パス"/>
+    <str id="PacksPanel.summaryCaption" txt="選択したインストール項目"/>
+    <str id="ImgPacksPanel.summaryCaption" txt="選択したインストール項目"/>
+    <str id="TreePacksPanel.summaryCaption" txt="選択したインストール項目"/>
+    <str id="UserPathPanel.summaryCaption" txt="選択したパス"/>
 
     <!-- Strings for the Registry -->
-    <str id="functionFailed.RegOpenKeyEx" txt="���W�X�g���L�[���J���܂���: {0}\\{1}."/>
+    <str id="functionFailed.RegOpenKeyEx" txt="レジストリキーを開けません: {0}\\{1}."/>
 
     <!-- CheckedHelloPanel strings -->
-    <str id="CheckedHelloPanel.productAlreadyExist0" txt="���̃R���s���[�^�̃p�X "/>
-    <str id="CheckedHelloPanel.productAlreadyExist1" txt=" �ɐ��i�����ɃC���X�g�[�����Ă��܂��B�����ɃC���X�g�[�����܂���?"/>
-    <str id="CheckedHelloPanel.infoOverUninstallKey" txt="�A���C���X�g�[���L�[�̖���: "/>
+    <str id="CheckedHelloPanel.productAlreadyExist0" txt="このコンピュータのパス "/>
+    <str id="CheckedHelloPanel.productAlreadyExist1" txt=" に製品を既にインストールしています。さらにインストールしますか?"/>
+    <str id="CheckedHelloPanel.infoOverUninstallKey" txt="アンインストールキーの名称: "/>
 
     <!-- Next Media Strings -->
-    <str id="nextmedia.title" txt="���̃C���X�g�[�����f�B�A"/>
-    <str id="nextmedia.msg" txt="���̃C���X�g�[�����f�B�A���I��Ă��������B"/>
-    <str id="nextmedia.browsebtn" txt="�Q�� ..."/>
-    <str id="nextmedia.okbtn" txt="�K�p"/>
-    <str id="nextmedia.cancelbtn" txt="�L�����Z��"/>
-    <str id="nextmedia.choosertitle" txt="�C���X�g�[�����f�B�A�̑I��"/>
-    <str id="nextmedia.filedesc" txt="�C���X�g�[������ (.pak*)"/>
+    <str id="nextmedia.title" txt="次のインストールメディア"/>
+    <str id="nextmedia.msg" txt="次のインストールメディアを選択してください。"/>
+    <str id="nextmedia.browsebtn" txt="参照 ..."/>
+    <str id="nextmedia.okbtn" txt="適用"/>
+    <str id="nextmedia.cancelbtn" txt="キャンセル"/>
+    <str id="nextmedia.choosertitle" txt="インストールメディアの選択"/>
+    <str id="nextmedia.filedesc" txt="インストール項目 (.pak*)"/>
 
     <!-- This string defines the time stamp format in the installation report.
          The format details are documented in java.text.SimpleDateFormat -->
