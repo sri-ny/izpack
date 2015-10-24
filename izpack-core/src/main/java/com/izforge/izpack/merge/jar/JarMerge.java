@@ -239,7 +239,7 @@ public class JarMerge extends AbstractMerge
         }
         catch (IOException e)
         {
-            throw new IzPackException(e);
+            throw new IzPackException("Error accessing file: " + jarPath, e.getCause());
         }
         finally {
             if (jarFile != null)
