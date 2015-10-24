@@ -33,8 +33,10 @@ import java.util.Properties;
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.merge.Mergeable;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
+import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.installer.automation.PanelAutomationHelper;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
+import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
@@ -83,16 +85,16 @@ public class CompilerPathResolver extends PathResolver
      */
     public PanelMerge getPanelMerge(String className)
     {
-        Class type = loader.loadClass(className, IzPanel.class);
+        Class<IzPanel> type = loader.loadClass(className, IzPanel.class);
         Map<String, List<Mergeable>> mergeableByPackage = new HashMap<String, List<Mergeable>>();
         List<Mergeable> mergeable = new ArrayList<Mergeable>();
         getMergeableByPackage(type, mergeableByPackage);
-        Class consoleType = PanelHelper.getConsolePanel(className, loader);
+        Class<ConsolePanel> consoleType = PanelHelper.getConsolePanel(className, loader);
         if (consoleType != null)
         {
             getMergeableByPackage(consoleType, mergeableByPackage);
         }
-        Class automatedType = PanelHelper.getAutomatedPanel(className, loader);
+        Class<PanelAutomation> automatedType = PanelHelper.getAutomatedPanel(className, loader);
         if (automatedType != null)
         {
             getMergeableByPackage(automatedType, mergeableByPackage);
