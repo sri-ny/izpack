@@ -29,8 +29,22 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.net.URL;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
@@ -84,15 +98,13 @@ public class AutomatedInstallerTest extends AbstractInstallationTest
 
         URL url = getClass().getResource("/samples/basicInstall/auto.xml");
         assertNotNull(url);
-        String config = FileUtil.convertUrlToFilePath(url);
-        installer.init(config, null, new String[0]);
+        String recordfile = FileUtil.convertUrlToFilePath(url);
+        String installPath =  new File(temporaryFolder.getRoot(), "basicapp").getAbsolutePath();
+        replaceInstallPathInAutoInstall(recordfile, installPath);
+
+        installer.init(recordfile, null, new String[0]);
         installer.doInstall();
 
-        // verify the installation thinks it was successful
-        assertTrue(installData.isInstallSuccess());
-
-        // verify expected files exist
-        String installPath = getInstallPath();
         File dir = new File(installPath);
         assertFileExists(dir, "Licence.txt");
         assertFileExists(dir, "Readme.txt");
@@ -104,4 +116,17 @@ public class AutomatedInstallerTest extends AbstractInstallationTest
         // verify the install directory no longer exists
         assertFalse(new File(installPath).exists());
     }
+
+    private static void replaceInstallPathInAutoInstall(String recordfile, String installpath) throws Exception {
+        // Read xml and build a DOM document
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(recordfile));
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        Node node = (Node)xpath.evaluate("//installpath", doc, XPathConstants.NODE);
+        node.setTextContent(installpath);
+
+        // Write the DOM document to the file
+        Transformer xformer = TransformerFactory.newInstance().newTransformer();
+        xformer.transform(new DOMSource(doc), new StreamResult(new File(recordfile)));
+   }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
-<!-- 
+<!--
     A sample installation file.
     Use it as a base for your own installers :-)
-    
+
     To compile it :
     - go in the bin directory where you installed IzPack
     - call "compile ../sample/install.xml -b ../sample"
@@ -14,7 +14,7 @@
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
 
-    <!-- 
+    <!--
         The info section.
         The meaning of the tags should be natural ...
     -->
@@ -59,21 +59,21 @@
         <res id="InfoPanel.info" src="Readme.txt"/>
     </resources>
 
-    <!-- 
+    <!--
         The panels section.
         We indicate here which panels we want to use. The order will be respected.
     -->
     <panels>
-        <panel classname="HelloPanel"/>
-        <panel classname="InfoPanel"/>
-        <panel classname="LicencePanel"/>
-        <panel classname="TargetPanel"/>
-        <panel classname="PacksPanel"/>
-        <panel classname="InstallPanel"/>
-        <panel classname="FinishPanel"/>
+        <panel classname="HelloPanel" id="panel.hello"/>
+        <panel classname="InfoPanel" id="panel.info"/>
+        <panel classname="LicencePanel" id="panel.licence"/>
+        <panel classname="TargetPanel" id="panel.target"/>
+        <panel classname="PacksPanel" id="panel.packs"/>
+        <panel classname="InstallPanel" id="panel.install"/>
+        <panel classname="FinishPanel" id="panel.finish"/>
     </panels>
 
-    <!-- 
+    <!--
         The packs section.
         We specify here our packs.
     -->
@@ -84,7 +84,6 @@
             <file src="Licence.txt" targetdir="$INSTALL_PATH"/>
             <file src="script.bat" targetdir="$myPath"/>
             <parsable targetfile="$INSTALL_PATH/test/$scriptFile"/>
-            <!-- The file will be parsed -->
         </pack>
         <pack name="Docs" required="no">
             <description>The documentation</description>

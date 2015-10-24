@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.fest.swing.fixture.DialogFixture;
@@ -57,7 +58,7 @@ public class IzpackInstallationTest
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
-    public TestRule globalTimeout = new org.junit.rules.Timeout(HelperTestMethod.TIMEOUT);
+    public TestRule globalTimeout = new org.junit.rules.Timeout(HelperTestMethod.TIMEOUT, TimeUnit.MILLISECONDS);
 
     private DialogFixture dialogFrameFixture;
     private FrameFixture installerFrameFixture;

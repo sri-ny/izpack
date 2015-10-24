@@ -291,7 +291,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <version>4.12</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -401,27 +401,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/integration/**</exclude>
-            <exclude>**/Abstract*</exclude>
-            <exclude>**/Test*Container*</exclude>
-            <exclude>**/LanguageDialogTest.java</exclude>
-            <exclude>**/PanelDisplayTest.java</exclude>
-            <exclude>**/ProcessPanelTest.java</exclude>
-            <exclude>**/DefaultTargetPanelTest.java</exclude>
-            <exclude>**/TargetPanelTest.java</exclude>
-            <exclude>**/UserInputPanelTest.java</exclude>
-            <exclude>**/ConditionCheckTest.java</exclude>
-          </excludes>
-          <parallel>both</parallel>
-          <perCoreThreadCount>true</perCoreThreadCount>
-          <threadCount>4</threadCount>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
         <configuration>
           <workspace>${basedir}</workspace>
@@ -451,6 +430,19 @@
             </manifestEntries>
           </archive>
         </configuration>
+      </plugin>
+
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+              <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
+              <forkMode>always</forkMode>
+          </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
 
       <plugin>
@@ -561,11 +553,6 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.7.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-eclipse-plugin</artifactId>
           <version>2.8</version>
         </plugin>
@@ -584,6 +571,71 @@
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.4</version>
         </plugin>
+        <!-- Testing -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.19</version>
+          <configuration>
+            <!-- <workingDirectory>${project.build.directory}</workingDirectory> -->
+            <systemPropertyVariables>
+              <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+            </systemPropertyVariables>
+            <excludes>
+              <exclude>**/integration/**</exclude>
+              <exclude>**/Abstract*</exclude>
+              <exclude>**/Test*Container*</exclude>
+              <exclude>**/LanguageDialogTest.java</exclude>
+              <exclude>**/PanelDisplayTest.java</exclude>
+              <exclude>**/ProcessPanelTest.java</exclude>
+              <exclude>**/DefaultTargetPanelTest.java</exclude>
+              <exclude>**/TargetPanelTest.java</exclude>
+              <exclude>**/UserInputPanelTest.java</exclude>
+              <exclude>**/ConditionCheckTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>2.19</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <systemPropertyVariables>
+              <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+            </systemPropertyVariables>
+            <includes>
+              <include>**/integration/**</include>
+            </includes>
+            <excludes>
+              <exclude>**/Abstract*</exclude>
+              <exclude>**/Test*Container*</exclude>
+              <exclude>**/InstallationTest.java</exclude>
+              <exclude>**/EventTest.java</exclude>
+              <exclude>**/ExecutableFileTest.java</exclude>
+              <exclude>**/IzpackGenerationTest.java</exclude>
+              <exclude>**/IzpackInstallationTest.java</exclude>
+              <exclude>**/InstallerListenerTest.java</exclude>
+              <exclude>**/UninstallerListenerTest.java</exclude>
+              <exclude>**/WindowsInstallationTest.java</exclude>
+              <exclude>**/PanelActionTest.java</exclude>
+              <exclude>**/DataValidatorTest.java</exclude>
+              <exclude>**/PackValidatorTest.java</exclude>
+              <exclude>**/PackagingTest.java</exclude>
+              <exclude>**/PanelActionTest.java</exclude>
+              <exclude>**/MultiVolumeInstallationTest.java</exclude>
+              <!--  FIXME: AbstractMultiVolumeInstallationTest breaks other tests by messing up JUnit TemporaryFolder -->
+              <exclude>**/MultiVolumeConsoleInstallationTest.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
         <!-- Releasing -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -599,41 +651,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.17</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>integration-test</goal>
-                <goal>verify</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <includes>
-              <include>**/integration/**</include>
-            </includes>
-            <excludes>
-              <exclude>**/Abstract*</exclude>
-              <exclude>**/Test*Container*</exclude>
-              <exclude>**/InstallationTest.java</exclude>
-              <exclude>**/EventTest.java</exclude>
-              <exclude>**/ExecutableFileTest.java</exclude>
-              <exclude>**/IzpackInstallationTest.java</exclude>
-              <exclude>**/InstallerListenerTest.java</exclude>
-              <exclude>**/UninstallerListenerTest.java</exclude>
-              <exclude>**/WindowsInstallationTest.java</exclude>
-              <exclude>**/PanelActionTest.java</exclude>
-              <exclude>**/DataValidatorTest.java</exclude>
-              <exclude>**/PackValidatorTest.java</exclude>
-              <exclude>**/PackagingTest.java</exclude>
-              <exclude>**/PanelActionTest.java</exclude>
-              <exclude>**/MultiVolumeInstallationTest.java</exclude>
-            </excludes>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -756,7 +773,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.17</version>
             <executions>
               <execution>
                 <goals>
@@ -771,6 +787,7 @@
                 <exclude>**/InstallationTest.java</exclude>
                 <exclude>**/EventTest.java</exclude>
                 <exclude>**/ExecutableFileTest.java</exclude>
+                <exclude>**/IzpackGenerationTest.java</exclude>
                 <exclude>**/IzpackInstallationTest.java</exclude>
                 <exclude>**/InstallerListenerTest.java</exclude>
                 <exclude>**/UninstallerListenerTest.java</exclude>

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,12 +44,11 @@ public class EventTest
 
     @Test
     @InstallFile("samples/event/event.xml")
-    @SuppressWarnings("unchecked")
     public void eventInitialization() throws Exception
     {
         assertThat(listeners.size(), Is.is(2));
-        assertThat(listeners.get(0), Is.is(SummaryLoggerInstallerListener.class));
-        assertThat(listeners.get(1), Is.is(RegistryInstallerListener.class));
+        assertThat(listeners.get(0), IsInstanceOf.instanceOf(SummaryLoggerInstallerListener.class));
+        assertThat(listeners.get(1), IsInstanceOf.instanceOf(RegistryInstallerListener.class));
 
         List<CustomData> uninstallListeners = uninstallData.getUninstallerListeners();
         assertNotNull(uninstallListeners);
