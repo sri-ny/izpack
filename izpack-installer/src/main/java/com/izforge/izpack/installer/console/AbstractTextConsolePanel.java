@@ -21,8 +21,8 @@
 
 package com.izforge.izpack.installer.console;
 
+import java.io.IOException;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
@@ -77,18 +77,23 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        boolean result;
         String text = getText();
         if (text != null)
         {
-            result = paginateText(text, console);
+            try
+            {
+                console.paginate(text);
+            }
+            catch (IOException e)
+            {
+                logger.warning("Text pagination failed: " + e.getMessage());
+            }
         }
         else
         {
             logger.warning("No text to display");
-            result = false;
         }
-        return result && promptEndPanel(installData, console);
+        return promptEndPanel(installData, console);
     }
 
     /**
@@ -97,51 +102,6 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
      * @return the text. A <tt>null</tt> indicates failure
      */
     protected abstract String getText();
-
-    /**
-     * Pages through the supplied text.
-     *
-     * @param text    the text to display
-     * @param console the console to display to
-     * @return <tt>true</tt> if paginated through, <tt>false</tt> if terminated
-     */
-    protected boolean paginateText(String text, Console console)
-    {
-        boolean result = true;
-        int lines = 22; // the no. of lines to display at a time
-        int line = 0;
-
-        StringTokenizer tokens = new StringTokenizer(text, "\n");
-        while (tokens.hasMoreTokens())
-        {
-            String token = tokens.nextToken();
-            console.println(token);
-            line++;
-            if (line >= lines && tokens.hasMoreTokens())
-            {
-                if (!promptContinue(console))
-                {
-                    result = false;
-                    break;
-                }
-                line = 0;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Displays a prompt to continue, providing the option to terminate installation.
-     *
-     * @param console the console to perform I/O
-     * @return <tt>true</tt> if the installation should continue, <tt>false</tt> if it should terminate
-     */
-    protected boolean promptContinue(Console console)
-    {
-        String value = console.prompt("\nPress Enter to continue, X to exit", "x");
-        console.println();
-        return !value.equalsIgnoreCase("x");
-    }
 
     /**
      * Helper to strip HTML from text.
