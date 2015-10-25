@@ -30,6 +30,7 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.installer.console.ConsolePanelView;
 import com.izforge.izpack.installer.console.ConsolePanels;
+import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
@@ -53,7 +54,7 @@ public class ConsolePanelsProvider extends PanelsProvider
      * @param matcher     the platform-model matcher
      * @throws IzPackException if a panel doesn't have unique identifier
      */
-    public ConsolePanels provide(ObjectFactory factory, AutomatedInstallData installData, Console console,
+    public ConsolePanels provide(ObjectFactory factory, InstallerContainer container, AutomatedInstallData installData, Console console,
                                  PlatformModelMatcher matcher)
     {
         List<ConsolePanelView> panels = new ArrayList<ConsolePanelView>();
@@ -63,7 +64,7 @@ public class ConsolePanelsProvider extends PanelsProvider
             ConsolePanelView panelView = new ConsolePanelView(panel, factory, installData, console);
             panels.add(panelView);
         }
-        return new ConsolePanels(panels, installData);
+        return new ConsolePanels(panels, container, installData);
     }
 
 }

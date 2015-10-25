@@ -109,25 +109,6 @@ public class ConsoleInstaller implements InstallerBase
     }
 
     /**
-     * Determines if console installation is supported.
-     *
-     * @return <tt>true</tt> if there are {@link ConsolePanel} implementations for each panel
-     */
-    public boolean canInstall()
-    {
-        boolean success = true;
-        for (ConsolePanelView panel : panels.getPanelViews())
-        {
-            if (panel.getViewClass() == null)
-            {
-                success = false;
-                logger.warning("No console implementation of panel: " + panel.getPanel().getClassName());
-            }
-        }
-        return success;
-    }
-
-    /**
      * Sets the media path for multi-volume installations.
      *
      * @param path the media path. May be <tt>null</tt>
@@ -164,53 +145,48 @@ public class ConsoleInstaller implements InstallerBase
 
         boolean success = false;
         ConsoleAction action = null;
-        if (!canInstall())
+
+        panels.initialise();
+
+        try
         {
-            console.println("Console installation is not supported by this installer");
-            shutdown(false, false);
-        }
-        else
-        {
-            try
+            // refresh variables so they may be used by
+            if (requirements.check())
             {
-                // refresh variables so they may be used by
-                if (requirements.check())
+                action = createConsoleAction(type, path, console);
+                panels.setAction(action);
+                while (panels.hasNext())
                 {
-                    action = createConsoleAction(type, path, console);
-                    panels.setAction(action);
-                    while (panels.hasNext())
+                    success = panels.next();
+                    if (!success)
                     {
-                        success = panels.next();
-                        if (!success)
-                        {
-                            break;
-                        }
+                        break;
                     }
+                }
+                if (success)
+                {
+                    success = panels.isValid(); // last panel needs to be validated
                     if (success)
                     {
-                        success = panels.isValid(); // last panel needs to be validated
-                        if (success)
-                        {
-                            success = action.complete();
-                        }
+                        success = action.complete();
                     }
                 }
             }
-            catch (Throwable t)
+        }
+        catch (Throwable t)
+        {
+            success = false;
+            logger.log(Level.SEVERE, t.getMessage(), t);
+        }
+        finally
+        {
+            if (action != null && action.isInstall())
             {
-                success = false;
-                logger.log(Level.SEVERE, t.getMessage(), t);
+                shutdown(success, console);
             }
-            finally
+            else
             {
-                if (action != null && action.isInstall())
-                {
-                    shutdown(success, console);
-                }
-                else
-                {
-                    shutdown(success, false);
-                }
+                shutdown(success, false);
             }
         }
     }
