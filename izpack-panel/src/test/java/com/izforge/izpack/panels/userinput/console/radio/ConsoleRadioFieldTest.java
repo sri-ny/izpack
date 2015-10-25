@@ -28,6 +28,10 @@ import java.util.List;
 import com.izforge.izpack.panels.userinput.field.Choice;
 import org.junit.Test;
 
+import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.rules.Condition;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.ChoiceFieldConfig;
 import com.izforge.izpack.panels.userinput.field.choice.TestChoiceFieldConfig;
@@ -41,6 +45,7 @@ import com.izforge.izpack.panels.userinput.field.radio.RadioField;
  */
 public class ConsoleRadioFieldTest extends AbstractConsoleFieldTest
 {
+    private final RulesEngine rules = installData.getRules();
 
     /**
      * Tests selection of the default value.
@@ -48,11 +53,11 @@ public class ConsoleRadioFieldTest extends AbstractConsoleFieldTest
     @Test
     public void testSelectDefaultValue()
     {
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
         ConsoleRadioField field = createField(1);
         checkValid(field, "\n");
         assertEquals("B", installData.getVariable("radio"));
     }
-
 
     /**
      * Tests selection of a particular value.
@@ -60,9 +65,34 @@ public class ConsoleRadioFieldTest extends AbstractConsoleFieldTest
     @Test
     public void testSetValue()
     {
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
         ConsoleRadioField field = createField(-1);
         checkValid(field, "2");
         assertEquals("C", installData.getVariable("radio"));
+    }
+
+    /**
+     * Tests choice not available due to false condition
+     */
+    @Test
+    public void testConditionalValueFalse()
+    {
+        rules.addCondition(new BooleanCondition("showCondChoice", false, installData));
+        ConsoleRadioField field = createField(1);
+        checkValid(field, "3");
+        assertEquals("D", installData.getVariable("radio"));
+    }
+
+    /**
+     * Tests choice available due to true condition
+     */
+    @Test
+    public void testConditionalValueTrue()
+    {
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
+        ConsoleRadioField field = createField(1);
+        checkValid(field, "3");
+        assertEquals("X", installData.getVariable("radio"));
     }
 
     /**
@@ -77,9 +107,30 @@ public class ConsoleRadioFieldTest extends AbstractConsoleFieldTest
         choices.add(new Choice("A", "A Choice"));
         choices.add(new Choice("B", "B Choice"));
         choices.add(new Choice("C", "C Choice"));
-        ChoiceFieldConfig config = new TestChoiceFieldConfig("radio", choices, selected);
+        Choice conditionalChoice = new Choice("X", "X Choice", "showCondChoice");
+        choices.add(conditionalChoice);
+        choices.add(new Choice("D", "D Choice"));
+        ChoiceFieldConfig config = new TestChoiceFieldConfig<Choice>("radio", choices, selected);
 
         RadioField model = new RadioField(config, installData);
         return new ConsoleRadioField(model, console, prompt);
+    }
+
+    private static class BooleanCondition extends Condition
+    {
+        private final boolean value;
+
+        BooleanCondition(String id, boolean value, InstallData installData)
+        {
+            this.value = value;
+            super.setId(id);
+            super.setInstallData(installData);
+        }
+        @Override
+        public void readFromXML(IXMLElement xmlcondition) throws Exception {}
+        @Override
+        public void makeXMLData(IXMLElement conditionRoot) {}
+        @Override
+        public boolean isTrue() { return this.value; }
     }
 }
