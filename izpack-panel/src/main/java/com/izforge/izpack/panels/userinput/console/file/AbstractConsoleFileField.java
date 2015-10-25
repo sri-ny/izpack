@@ -81,7 +81,7 @@ public class AbstractConsoleFileField extends ConsoleField
         else
         {
             String prompt = label + (label.isEmpty()?" ":"") + "[" + ((initialValue != null) ? initialValue : "") + "] ";
-            String path = getConsole().promptLocation(prompt, null);
+            String path = getConsole().promptLocation(prompt, "");
             if (path != null)
             {
                 path = path.trim();

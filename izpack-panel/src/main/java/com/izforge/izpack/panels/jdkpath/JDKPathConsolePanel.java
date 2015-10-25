@@ -108,16 +108,12 @@ public class JDKPathConsolePanel extends AbstractConsolePanel
         while (bKeepAsking)
         {
             Messages messages = installData.getMessages();
-            strPath = console.promptLocation("Select JDK path [" + defaultValue + "] ", null);
+            strPath = console.promptLocation("Select JDK path [" + defaultValue + "] ", defaultValue);
             if (strPath == null)
             {
                 return false;
             }
             strPath = strPath.trim();
-            if (strPath.equals(""))
-            {
-                strPath = defaultValue;
-            }
 
             strPath = PathInputBase.normalizePath(strPath);
             detectedJavaVersion = JDKPathPanelHelper.getCurrentJavaVersion(strPath, installData.getPlatform());
@@ -128,7 +124,7 @@ public class JDKPathConsolePanel extends AbstractConsolePanel
                 if (errorMessage.endsWith("?"))
                 {
                     errorMessage += "\n" + messages.get("JDKPathPanel.badVersion4");
-                    String strIn = console.prompt(errorMessage, null);
+                    String strIn = console.prompt(errorMessage, (String)null);
                     if (strIn == null)
                     {
                         return false;
