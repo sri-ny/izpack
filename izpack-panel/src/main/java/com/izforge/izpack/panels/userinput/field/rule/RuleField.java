@@ -55,12 +55,12 @@ public class RuleField extends Field
     /**
      * The initial values.
      */
-    private final String[] initialValues;
+    private String[] initialValues;
 
     /**
      * The default values.
      */
-    private final String[] defaultValues;
+    private String[] defaultValues;
 
 
     /**
@@ -80,26 +80,6 @@ public class RuleField extends Field
     {
         super(config, installData);
         this.layout = new FieldLayout(config.getLayout());
-        String value = config.getInitialValue();
-        if (value != null)
-        {
-            ValidationStatus status = validateFormatted(value);
-            this.initialValues = status.isValid()?status.getValues():null;
-        }
-        else
-        {
-            this.initialValues = null;
-        }
-        value = config.getDefaultValue();
-        if (value != null)
-        {
-            ValidationStatus status = validateFormatted(value);
-            this.defaultValues = status.isValid()?status.getValues():null;
-        }
-        else
-        {
-            this.defaultValues = null;
-        }
         this.format = config.getFormat();
         this.separator = config.getSeparator();
     }
@@ -123,6 +103,19 @@ public class RuleField extends Field
     public String getInitialValue()
     {
         String result = null;
+
+        String value = super.getInitialValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.initialValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            // Maybe an unresolved variable, for example <spec set="${abc}"/>
+            this.initialValues = null;
+        }
+
         if (!getInstallData().getVariables().isBlockedVariableName(getVariable()))
         {
             result = getInstallData().getVariables().replace(format(initialValues));
@@ -147,41 +140,23 @@ public class RuleField extends Field
     @Override
     public String getDefaultValue()
     {
+        String value = super.getDefaultValue();
+        if (value != null)
+        {
+            ValidationStatus status = validateFormatted(value);
+            this.defaultValues = status.isValid()?status.getValues():null;
+        }
+        else
+        {
+            // Maybe an unresolved variable, for example <spec default="${abc}"/>
+            this.defaultValues = null;
+        }
+
         if (defaultValues != null)
         {
             return getInstallData().getVariables().replace(format(defaultValues));
         }
         return null;
-    }
-
-    /**
-     * Returns the initial values for each sub-field.
-     * Field validators are not activated here, this method just verifies whether the value matches the layout.
-     *
-     * @return the initial values
-     */
-    public String[] getInitialValues()
-    {
-        String[] result = initialValues;
-        if (result == null)
-        {
-            String value = getValue();
-            if (value != null)
-            {
-                ValidationStatus status = validateFormatted(value);
-                result = status.isValid()?status.getValues():null;
-            }
-            if (result == null)
-            {
-                result = defaultValues;
-            }
-        }
-        if (result != null)
-        {
-            return result;
-        }
-
-        return new String[0];
     }
 
     /**

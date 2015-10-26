@@ -20,9 +20,7 @@
  */
 package com.izforge.izpack.panels.userpath;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Properties;
 
@@ -53,7 +51,6 @@ public class UserPathConsolePanel extends AbstractConsolePanel
     public static final String USER_PATH_EXISTS;
 
     private static final String EMPTY;
-    private static final BufferedReader br;
 
     private Messages messages;
     private final InstallData installData;
@@ -67,7 +64,6 @@ public class UserPathConsolePanel extends AbstractConsolePanel
         USER_PATH_NODIR = "UserPathPanel.nodir";
         USER_PATH_EXISTS = "UserPathPanel.exists_warn";
         EMPTY = "";
-        br = new BufferedReader(new InputStreamReader(System.in));
     }
 
     /**
@@ -126,7 +122,7 @@ public class UserPathConsolePanel extends AbstractConsolePanel
             defaultUserPathPanel = vs.substitute(defaultUserPathPanel, null);
         }
 
-        userPathPanel = console.promptLocation(pathMessage + " [" + defaultUserPathPanel + "]",defaultUserPathPanel,  null);
+        userPathPanel = console.promptLocation(pathMessage + " [" + defaultUserPathPanel + "]", defaultUserPathPanel);
 
         // check what the userPathPanel value should be
         if (userPathPanel == null)
@@ -205,7 +201,7 @@ public class UserPathConsolePanel extends AbstractConsolePanel
     @Override
     public void createInstallationRecord(IXMLElement panelRoot)
     {
-        //TOD: Check if skip
+        //TODO: Check if skip
         new UserPathPanelAutomationHelper().createInstallationRecord(installData, panelRoot);
     }
 }

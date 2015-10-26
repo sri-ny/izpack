@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.compiler.container.TestConsoleInstallationContainer;
 import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
@@ -220,20 +221,20 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
     @InstallFile("samples/console/dummy.xml")
     public void testUnsupportedInstaller()
     {
-        InstallData installData = getInstallData();
+        boolean success = true;
 
-        File installPath = new File(temporaryFolder.getRoot(), "izpackTest");
-        installData.setInstallPath(installPath.getAbsolutePath());
-
-        // verify installation isn't supported
-        assertFalse(installer.canInstall());
-
-        // try it anyway
-        installer.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+        try
+        {
+            installer.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+        }
+        catch (IzPackException e)
+        {
+            success = false;
+            System.out.println("Installer failed with message: " + e.getMessage());
+        }
 
         // verify installation failed
-        assertFalse(installData.isInstallSuccess());
-        assertFalse(installPath.exists());
+        assertFalse(success);
     }
 
     /**

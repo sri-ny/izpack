@@ -23,6 +23,7 @@ package com.izforge.izpack.installer.console;
 
 import java.util.List;
 
+import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.panel.AbstractPanels;
 import com.izforge.izpack.installer.panel.Panels;
@@ -37,10 +38,14 @@ public class ConsolePanels extends AbstractPanels<ConsolePanelView, ConsolePanel
 {
 
     /**
+     * The container to add {@link ConsolePanel}s to.
+     */
+    private final Container container;
+
+    /**
      * The action to run when switching panels.
      */
     private ConsoleAction action;
-
 
     /**
      * Constructs a {@code ConsolePanels}.
@@ -48,9 +53,28 @@ public class ConsolePanels extends AbstractPanels<ConsolePanelView, ConsolePanel
      * @param panels    the panels
      * @param variables the variables. These are refreshed prior to each panel switch
      */
-    public ConsolePanels(List<ConsolePanelView> panels, InstallData installData)
+    public ConsolePanels(List<ConsolePanelView> panels, Container container, InstallData installData)
     {
         super(panels, installData);
+        this.container = container;
+    }
+
+    /**
+     * Initialises the {@link ConsolePanelView} instances.
+     */
+    public void initialise()
+    {
+        for (ConsolePanelView panel : getPanelViews())
+        {
+            // Prefetch extra panel conditions for UserInputPanel (os, createForPack)
+            ConsolePanel view = panel.getView();
+            String panelId = panel.getPanelId();
+            if (panelId == null)
+            {
+                panelId = view.getClass().getName();
+            }
+            container.addComponent(panelId, view);
+        }
     }
 
     /**

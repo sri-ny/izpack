@@ -21,7 +21,9 @@
 
 package com.izforge.izpack.panels.userinput.console;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.userinput.field.Choice;
@@ -80,14 +82,16 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
         else
         {
             List<Choice> choices = field.getChoices();
-            listChoices(choices, field.getSelectedIndex());
+            final int selectedRealIndex = field.getSelectedIndex();
+            MappedSelection visibleToRealMapping = listChoices(choices, selectedRealIndex);
 
-            int selected = getConsole().prompt(getMessage("ConsoleInstaller.inputSelection"), 0, choices.size() - 1, field.getSelectedIndex(), -1);
-            if (selected == -1)
+            int selectedVisibleIndex = getConsole().prompt(getMessage("ConsoleInstaller.inputSelection"), 0,
+                    visibleToRealMapping.size() - 1, visibleToRealMapping.getDefaultVisibleIndex(), -1);
+            if (selectedVisibleIndex == -1)
             {
                 return false;
             }
-            field.setValue(choices.get(selected).getKey());
+            field.setValue(choices.get(visibleToRealMapping.getRealFromVisible(selectedVisibleIndex)).getKey());
             return true;
         }
     }
@@ -98,13 +102,58 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
      * @param choices  the choices
      * @param selected the selected choice, or {@code -1} if no choice is selected
      */
-    protected void listChoices(List<Choice> choices, int selected)
+    private MappedSelection listChoices(List<Choice> choices, int selectedRealIndex)
     {
+        int visibleIndex = 0;
+        MappedSelection visibleToRealMapping = new MappedSelection();
         for (int i = 0; i < choices.size(); ++i)
         {
             Choice choice = choices.get(i);
-            println(i + "  [" + (i == selected ? "x" : " ") + "] " + choice.getValue());
+            String conditionId = choice.getConditionId();
+            if (conditionId == null || getField().getInstallData().getRules().isConditionTrue(conditionId))
+            {
+                boolean isSelected = (i == selectedRealIndex);
+                println(visibleIndex + "  [" + (isSelected ? "x" : " ") + "] " + choice.getValue());
+                visibleToRealMapping.put(Integer.valueOf(visibleIndex), Integer.valueOf(i));
+                if (isSelected)
+                {
+                    // The default when the user hits just ENTER without entering an explicit value
+                    visibleToRealMapping.setDefaultVisibleIndex(visibleIndex);
+                }
+                visibleIndex++;
+            }
         }
+        return visibleToRealMapping;
     }
 
+    private static class MappedSelection
+    {
+        private Map<Integer, Integer> visibleToRealIndexes = new HashMap<Integer, Integer>();
+        private int defaultVisibleIndex = -1;
+
+        public Integer put(Integer visibleIndex, Integer realIndex)
+        {
+            return visibleToRealIndexes.put(visibleIndex, realIndex);
+        }
+
+        public int size()
+        {
+            return visibleToRealIndexes.size();
+        }
+
+        public Integer getRealFromVisible(int visibleIndex)
+        {
+            return visibleToRealIndexes.get(visibleIndex);
+        }
+
+        public void setDefaultVisibleIndex(int defaultVisibleIndex)
+        {
+            this.defaultVisibleIndex = defaultVisibleIndex;
+        }
+
+        public int getDefaultVisibleIndex()
+        {
+            return defaultVisibleIndex;
+        }
+    }
 }

@@ -7,12 +7,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.izforge.izpack.api.exception.UserInterruptException;
 
 import jline.Terminal;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
+import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.FileNameCompleter;
 import jline.internal.Log;
 
@@ -57,6 +66,7 @@ public class Console
             }));
             this.consoleReader = new ConsoleReader("IzPack", new FileInputStream(FileDescriptor.in), System.out, null);
             this.consoleReader.setHandleUserInterrupt(true);
+            this.consoleReader.setPaginationEnabled(true);
             Terminal terminal = consoleReader.getTerminal();
             if (terminal == null || terminal instanceof UnsupportedTerminal)
             {
@@ -70,6 +80,23 @@ public class Console
             logger.log(Level.WARNING, "Cannot initialize the console reader. Default to regular input stream.", t);
         }
 
+    }
+
+    /**
+     * Read a character from the console.
+     * @return The character, or -1 if an EOF is received.
+     * @throws IOException If an I/O error occurs
+     */
+    public int read() throws IOException
+    {
+        if (consoleReaderFailed)
+        {
+            return console.reader().read();
+        }
+        else
+        {
+            return consoleReader.readCharacter();
+        }
     }
 
     /**
@@ -89,7 +116,130 @@ public class Console
         }
         else
         {
-            return consoleReader.readLine();
+            try
+            {
+                return consoleReader.readLine();
+            }
+            catch (jline.console.UserInterruptException e)
+            {
+                throw new UserInterruptException("CTRL-C pressed", e);
+            }
+        }
+    }
+
+    /**
+     * Flush the console output stream.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void flush() throws IOException
+    {
+        if (consoleReaderFailed)
+        {
+            console.flush();
+        }
+        else
+        {
+            consoleReader.flush();
+        }
+    }
+
+    public void paginate(String text) throws IOException
+    {
+        if (consoleReaderFailed)
+        {
+            paginateText(text);
+        }
+        else
+        {
+            consoleReader.printColumns(getLines(text));
+        }
+        flush();
+    }
+
+    private List<CharSequence> getLines(String text)
+    {
+        List<CharSequence> lines = new LinkedList<CharSequence>();
+        StringTokenizer line = new StringTokenizer(text, "\n");
+        while (line.hasMoreTokens())
+        {
+            String token = line.nextToken();
+            lines.add(token);
+        }
+        return lines;
+    }
+
+    /**
+     * Pages through the supplied text.
+     * This simulates the behavior of {@link ConsoleReader} when paginating text to get the same look & feel
+     * regardless whether it can be initialized.
+     *
+     * @param text    the text to display
+     * @return <tt>true</tt> if paginated through, <tt>false</tt> if terminated
+     * @throws IOException
+     */
+    private void paginateText(String text) throws IOException
+    {
+        final ResourceBundle resources = ResourceBundle.getBundle(CandidateListCompletionHandler.class.getName());
+        final Collection<? extends CharSequence> items = getLines(text);
+
+        int width = 80;
+        int height = 24;
+
+        int maxWidth = 0;
+        for (CharSequence item : items) {
+            maxWidth = Math.max(maxWidth, item.length());
+        }
+        maxWidth = maxWidth + 3;
+
+        int showLines = height - 1; // page limit
+        StringBuilder buff = new StringBuilder();
+        for (CharSequence item : items) {
+            if ((buff.length() + maxWidth) > width) {
+                println(buff.toString());
+                buff.setLength(0);
+
+                if (--showLines == 0) {
+                    // Overflow
+                    print(resources.getString("DISPLAY_MORE"));
+                    int c = read();
+                    if (c == '\r' || c == '\n') {
+                        // one step forward
+                        showLines = 1;
+                    }
+                    else if (c != 'q') {
+                        // page forward
+                        showLines = height - 1;
+                    }
+
+                    print('\b', resources.getString("DISPLAY_MORE").length());
+                    if (c == 'q') {
+                        // cancel
+                        break;
+                    }
+                }
+            }
+
+            // NOTE: toString() is important here due to AnsiString being retarded
+            buff.append(item.toString());
+            for (int i = 0; i < (maxWidth - item.length()); i++) {
+                buff.append(' ');
+            }
+        }
+
+        if (buff.length() > 0) {
+            println(buff.toString());
+        }
+    }
+
+    private void print(final char c, final int num) throws IOException {
+        if (num == 1) {
+            print(String.valueOf(c));
+        }
+        else {
+            char[] chars = new char[num];
+            Arrays.fill(chars, c);
+            print(String.copyValueOf(chars));
         }
     }
 
@@ -183,7 +333,7 @@ public class Console
                 if (value != null)
                 {
                     value = value.trim();
-                    if (value.equals("") && defaultValue >= min)
+                    if (value.isEmpty() && defaultValue >= min)
                     {
                         // use the default value
                         result = defaultValue;
@@ -222,33 +372,15 @@ public class Console
      * Ensure to expand the tilde character to the user's home directory.
      * If the input ends with a file separator we will trim it to keep consistency.
      *
-     * @param prompt the prompt to display
-     * @param eof the value to return if end of stream is reached
-     * @return the input value or <tt>eof</tt> if the end of stream is reached
-     */
-    public String promptLocation(String prompt, String eof)
-    {
-        return promptLocation(prompt, "", eof);
-    }
-
-    /**
-     * Displays a prompt and waits for input.
-     * Allows auto completion of files and directories.
-     * Except a path to a file or directory.
-     * Ensure to expand the tilde character to the user's home directory.
-     * If the input ends with a file separator we will trim it to keep consistency.
-     * TODO: Perhaps have file separator at the end for directories and no file separator at the end for files
-     *
      * @param prompt       the prompt to display
      * @param defaultValue the default value to use, if no input is entered
-     * @param eof          the value to return if end of stream is reached
-     * @return the input value or {@code eof} if the end of stream is reached
+     * @return the user input value; if the user input is empty (return key pressed) return defaultValue
      */
-    public String promptLocation(String prompt, String defaultValue, String eof)
+    public String promptLocation(String prompt, String defaultValue)
     {
         if (consoleReaderFailed)
         {
-            return prompt(prompt, defaultValue, eof);
+            return prompt(prompt, defaultValue);
         }
         String result;
         consoleReader.addCompleter(fileNameCompleter);
@@ -275,7 +407,7 @@ public class Console
         }
         catch (IOException e)
         {
-            result = eof;
+            result = null;
             logger.log(Level.WARNING, e.getMessage(), e);
         }
         finally
@@ -289,25 +421,12 @@ public class Console
     /**
      * Displays a prompt and waits for input.
      * Expects a password, characters with be mased with the echoCharacter "*"
-     * @param prompt the prompt to display
-     * @param eof    the value to return if end of stream is reached
-     * @return the input value or <tt>eof</tt> if the end of stream is reached
-     */
-    public String promptPassword(String prompt, String eof)
-    {
-        return promptPassword(prompt, "", eof);
-    }
-
-    /**
-     * Displays a prompt and waits for input.
-     * Expects a password, characters with be mased with the echoCharacter "*"
      *
      * @param prompt       the prompt to display
      * @param defaultValue the default value to use, if no input is entered
-     * @param eof          the value to return if end of stream is reached
-     * @return the input value or {@code eof} if the end of stream is reached
+     * @return the user input value; if the user input is empty (return key pressed) return defaultValue
      */
-    public String promptPassword(String prompt, String defaultValue, String eof)
+    public String promptPassword(String prompt, String defaultValue)
     {
         if (consoleReaderFailed)
         {
@@ -361,11 +480,11 @@ public class Console
         }
         catch (IOException e)
         {
-            result = eof;
+            result = null;
             logger.log(Level.WARNING, e.getMessage(), e);
         }
 
-        if(result.isEmpty())
+        if(result != null && result.isEmpty())
         {
             result = defaultValue;
         }
@@ -375,42 +494,25 @@ public class Console
     /**
      * Displays a prompt and waits for input.
      *
-     * @param prompt the prompt to display
-     * @param eof    the value to return if end of stream is reached
-     * @return the input value or <tt>eof</tt> if the end of stream is reached
-     */
-    public String prompt(String prompt, String eof)
-    {
-        return prompt(prompt, "", eof);
-    }
-
-    /**
-     * Displays a prompt and waits for input.
-     *
      * @param prompt       the prompt to display
      * @param defaultValue the default value to use, if no input is entered
-     * @param eof          the value to return if end of stream is reached
-     * @return the input value or {@code eof} if the end of stream is reached
+     * @return the user input value; if the user input is empty (return key pressed) return defaultValue
      */
-    public String prompt(String prompt, String defaultValue, String eof)
+    public String prompt(String prompt, String defaultValue)
     {
-        String result;
+        String result = null;
         try
         {
             println(prompt);
             result = readLine();
-            if (result == null)
-            {
-                result = eof;
-            }
-            else if (result.equals(""))
+            if (result != null && result.isEmpty())
             {
                 result = defaultValue;
             }
         }
         catch (IOException e)
         {
-            result = eof;
+            result = null;
             logger.log(Level.WARNING, e.getMessage(), e);
         }
         return result;
@@ -421,15 +523,27 @@ public class Console
      *
      * @param prompt the prompt to display
      * @param values the valid values
-     * @param eof    the value to return if end of stream is reached
-     * @return the input value or <tt>eof</tt> if the end of stream is reached
+     * @return the user input value; if the user input is empty (return key pressed) return defaultValue
      */
-    public String prompt(String prompt, String[] values, String eof)
+    public String prompt(String prompt, String[] values)
+    {
+        return prompt(prompt, values, "");
+    }
+
+    /**
+     * Prompts for a value from a set of values.
+     *
+     * @param prompt the prompt to display
+     * @param values the valid values
+     * @param defaultValue  the default value to return when the user input is empty
+     * @return the user input value; if the user input is empty (return key pressed) return defaultValue
+     */
+    public String prompt(String prompt, String[] values, String defaultValue)
     {
         while (true)
         {
-            String input = prompt(prompt, eof);
-            if (input == null || input.equals(eof))
+            String input = prompt(prompt, defaultValue);
+            if (input == null)
             {
                 return input;
             }
@@ -458,13 +572,14 @@ public class Console
            result = console.readPassword(format, args);
            if (result.length == 0)
            {
-               result = defaultValue.toCharArray();
+               result = defaultValue!=null?defaultValue.toCharArray():null;
            }
         }
         else
         {
             // Fix ConsolePasswordGroupFieldTest
-            result = readLine().toCharArray();
+            String line = readLine();
+            result = line!=null ? line.toCharArray() : null;
         }
         return result;
     }

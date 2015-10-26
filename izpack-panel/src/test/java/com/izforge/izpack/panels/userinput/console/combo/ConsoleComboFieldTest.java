@@ -22,15 +22,19 @@
 package com.izforge.izpack.panels.userinput.console.combo;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.rules.Condition;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.Choice;
+import com.izforge.izpack.panels.userinput.field.ChoiceFieldConfig;
 import com.izforge.izpack.panels.userinput.field.choice.TestChoiceFieldConfig;
 import com.izforge.izpack.panels.userinput.field.combo.ComboField;
 
@@ -42,21 +46,7 @@ import com.izforge.izpack.panels.userinput.field.combo.ComboField;
  */
 public class ConsoleComboFieldTest extends AbstractConsoleFieldTest
 {
-
-    /**
-     * The choices.
-     */
-    private List<Choice> choices;
-
-    /**
-     * Default constructor.
-     */
-    public ConsoleComboFieldTest()
-    {
-    	super();
-    	
-        choices = Arrays.asList(new Choice("A", "A String"), new Choice("B", "B String"), new Choice("C", "C String"));
-    }
+    private final RulesEngine rules = installData.getRules();
 
     /**
      * Tests selection of the default value.
@@ -64,30 +54,84 @@ public class ConsoleComboFieldTest extends AbstractConsoleFieldTest
     @Test
     public void testSelectDefaultValue()
     {
-        String variable = "combo";
-        ComboField model = new ComboField(new TestChoiceFieldConfig<Choice>(variable, choices, 1), installData);
-        ConsoleComboField field = new ConsoleComboField(model, console, prompt);
-
-        console.addScript("Select default", "\n");
-        assertTrue(field.display());
-
-        assertEquals("B", installData.getVariable(variable));
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
+        ConsoleComboField field = createField(1);
+        checkValid(field, "\n");
+        assertEquals("B", installData.getVariable("combo"));
     }
 
     /**
-     * Tests selection of a choice.
+     * Tests selection of a particular value.
      */
     @Test
-    public void testSelect()
+    public void testSetValue()
     {
-        String variable = "combo";
-        ComboField model = new ComboField(new TestChoiceFieldConfig<Choice>(variable, choices, 1), installData);
-        ConsoleComboField field = new ConsoleComboField(model, console, prompt);
-
-        console.addScript("Select C", "2");
-        assertTrue(field.display());
-
-        assertEquals("C", installData.getVariable(variable));
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
+        ConsoleComboField field = createField(-1);
+        checkValid(field, "2");
+        assertEquals("C", installData.getVariable("combo"));
     }
 
+    /**
+     * Tests choice not available due to false condition
+     */
+    @Test
+    public void testConditionalValueFalse()
+    {
+        rules.addCondition(new BooleanCondition("showCondChoice", false, installData));
+        ConsoleComboField field = createField(1);
+        checkValid(field, "3");
+        assertEquals("D", installData.getVariable("combo"));
+    }
+
+    /**
+     * Tests choice available due to true condition
+     */
+    @Test
+    public void testConditionalValueTrue()
+    {
+        rules.addCondition(new BooleanCondition("showCondChoice", true, installData));
+        ConsoleComboField field = createField(1);
+        checkValid(field, "3");
+        assertEquals("X", installData.getVariable("combo"));
+    }
+
+    /**
+     * Creates a new {@link ConsoleComboField} that updates the "radio" variable.
+     *
+     * @param selected the initial selection
+     * @return a new field
+     */
+    private ConsoleComboField createField(int selected)
+    {
+        List<Choice> choices = new ArrayList<Choice>();
+        choices.add(new Choice("A", "A Choice"));
+        choices.add(new Choice("B", "B Choice"));
+        choices.add(new Choice("C", "C Choice"));
+        Choice conditionalChoice = new Choice("X", "X Choice", "showCondChoice");
+        choices.add(conditionalChoice);
+        choices.add(new Choice("D", "D Choice"));
+        ChoiceFieldConfig config = new TestChoiceFieldConfig<Choice>("combo", choices, selected);
+
+        ComboField model = new ComboField(config, installData);
+        return new ConsoleComboField(model, console, prompt);
+    }
+
+    private static class BooleanCondition extends Condition
+    {
+        private final boolean value;
+
+        BooleanCondition(String id, boolean value, InstallData installData)
+        {
+            this.value = value;
+            super.setId(id);
+            super.setInstallData(installData);
+        }
+        @Override
+        public void readFromXML(IXMLElement xmlcondition) throws Exception {}
+        @Override
+        public void makeXMLData(IXMLElement conditionRoot) {}
+        @Override
+        public boolean isTrue() { return this.value; }
+    }
 }

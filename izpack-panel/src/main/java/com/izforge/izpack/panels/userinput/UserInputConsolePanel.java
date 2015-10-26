@@ -31,10 +31,10 @@ import java.util.Set;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Resources;
+import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
@@ -55,6 +55,10 @@ import com.izforge.izpack.util.PlatformModelMatcher;
  */
 public class UserInputConsolePanel extends AbstractConsolePanel
 {
+    private static final String DISPLAY_HIDDEN = "displayHidden";
+    private static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
+    private static final String READONLY = "readonly";
+    private static final String READONLY_CONDITION = "readonlyCondition";
 
     /**
      * The resources.
@@ -107,9 +111,9 @@ public class UserInputConsolePanel extends AbstractConsolePanel
      */
     public UserInputConsolePanel(Resources resources, ObjectFactory factory,
                                  RulesEngine rules, PlatformModelMatcher matcher, Console console, Prompt prompt,
-                                 PanelView<ConsolePanel> panel, InstallData installData)
+                                 PanelView<ConsolePanel> panelView, InstallData installData)
     {
-        super(panel);
+        super(panelView);
         this.installData = installData;
         this.resources = resources;
         this.factory = factory;
@@ -117,6 +121,53 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         this.matcher = matcher;
         this.console = console;
         this.prompt = prompt;
+
+        //FIXME Initialize conditions like in UserInputPanel
+        UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
+        Panel panel = getPanel();
+        IXMLElement spec = model.getPanelSpec(panel);
+
+        boolean isDisplayingHidden = false;
+        try
+        {
+            isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
+        }
+        catch (Exception ignore)
+        {
+            isDisplayingHidden = false;
+        }
+        panel.setDisplayHidden(isDisplayingHidden);
+
+        String condition = spec.getAttribute(DISPLAY_HIDDEN_CONDITION);
+        if (condition != null && !condition.isEmpty())
+        {
+            panel.setDisplayHiddenCondition(condition);
+        }
+
+        // Prevent activating on certain global conditions
+        ElementReader reader = new ElementReader(model.getConfig());
+        Condition globalConstraint = reader.getComplexPanelCondition(spec, matcher, installData, rules);
+        if (globalConstraint != null)
+        {
+            rules.addPanelCondition(panel, globalConstraint);
+        }
+
+        boolean readonly = false;
+        try
+        {
+            readonly = Boolean.parseBoolean(spec.getAttribute(READONLY));
+        }
+        catch (Exception ignore)
+        {
+            readonly = false;
+        }
+        panel.setReadonly(readonly);
+
+        condition = spec.getAttribute(READONLY_CONDITION);
+        if (condition != null && !condition.isEmpty())
+        {
+            panel.setReadonlyCondition(condition);
+        }
     }
 
     @Override
@@ -243,18 +294,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
         Panel panel = getPanel();
         IXMLElement spec = model.getPanelSpec(panel);
-
-        ElementReader reader = new ElementReader(model.getConfig());
-        List<String> forPacks = reader.getPacks(spec);
-        List<String> forUnselectedPacks = reader.getUnselectedPacks(spec);
-        List<OsModel> forOs = reader.getOsModels(spec);
-
-        if (!FieldHelper.isRequiredForPacks(forPacks, installData.getSelectedPacks())
-                || !FieldHelper.isRequiredForUnselectedPacks(forUnselectedPacks, installData.getSelectedPacks())
-                || !matcher.matchesCurrentPlatform(forOs))
-        {
-            return false;
-        }
 
         fields.clear();
 

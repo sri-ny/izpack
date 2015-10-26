@@ -148,7 +148,7 @@ public class FinishConsolePanel extends AbstractConsolePanel
 
             String filePath;
             filePath = console.promptLocation("Select the installation script (path must be absolute)["
-                    + file.getAbsolutePath() + "]", file.getAbsolutePath(), null);
+                    + file.getAbsolutePath() + "]", file.getAbsolutePath());
 
             File newFile;
             newFile = new File(filePath);

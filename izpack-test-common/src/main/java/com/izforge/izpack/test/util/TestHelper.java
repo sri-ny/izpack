@@ -70,7 +70,14 @@ public class TestHelper
         Random random = new Random();
         random.nextBytes(data);
         FileOutputStream stream = new FileOutputStream(file);
-        stream.write(data);
+        try
+        {
+            stream.write(data);
+        }
+        finally
+        {
+            stream.close();
+        }
         return file;
     }
 
@@ -106,7 +113,7 @@ public class TestHelper
      */
     public static void assertFileExists(File file)
     {
-        assertTrue(file.exists());
+        assertTrue("File or directory " + file + " expected but not found", file.exists());
     }
 
     /**
@@ -117,7 +124,8 @@ public class TestHelper
      */
     public static void assertFileNotExists(File dir, String name)
     {
-        assertFalse(new File(dir, name).exists());
+        File file = new File(dir, name);
+        assertFalse("File or directory " + file + " not expected but not found", file.exists());
     }
 
     /**
@@ -127,7 +135,7 @@ public class TestHelper
      */
     public static void assertFileNotExists(File file)
     {
-        assertFalse(file.exists());
+        assertFalse("File or directory " + file + " not expected but found", file.exists());
     }
 
     /**

@@ -107,12 +107,6 @@ public class RuleInputField extends JComponent implements KeyListener, FocusList
         // ----------------------------------------------------
         createItems();
 
-        String[] initialValues = field.getInitialValues();
-        for (int i = 0; i < initialValues.length; ++i)
-        {
-            inputFields.get(i).setText(initialValues[i]);
-        }
-
         // ----------------------------------------------------
         // set the focus to the first field
         // ----------------------------------------------------

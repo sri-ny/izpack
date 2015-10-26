@@ -45,7 +45,7 @@ public class ConsoleButtonField  extends ConsoleField
         }
         else
         {
-            String value = getConsole().prompt(field.getButtonName() + " [y/n]: [n]", "n", "n");
+            String value = getConsole().prompt(field.getButtonName() + " [y/n]: [n]", "n");
 
             if(value.equalsIgnoreCase("y"))
             {

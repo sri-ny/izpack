@@ -2,6 +2,7 @@ package com.izforge.izpack.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
 
@@ -27,7 +28,7 @@ import com.izforge.izpack.test.junit.PicoRunner;
 public class IzpackGenerationTest
 {
     @Rule
-    public TestRule globalTimeout = new Timeout(HelperTestMethod.TIMEOUT);
+    public TestRule globalTimeout = new Timeout(HelperTestMethod.TIMEOUT, TimeUnit.MILLISECONDS);
 
     private JarFile jar;
 

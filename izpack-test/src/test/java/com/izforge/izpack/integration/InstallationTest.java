@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.awt.Image;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.fest.swing.fixture.FrameFixture;
 import org.hamcrest.core.Is;
@@ -38,7 +39,8 @@ import com.izforge.izpack.test.junit.PicoRunner;
 public class InstallationTest
 {
     @Rule
-    public TestRule globalTimeout = new Timeout(HelperTestMethod.TIMEOUT);
+    public TestRule globalTimeout = new Timeout(HelperTestMethod.TIMEOUT, TimeUnit.MILLISECONDS);
+
     private FrameFixture installerFrameFixture;
     private IconsDatabase icons;
     private LanguageDialog languageDialog;
@@ -52,7 +54,6 @@ public class InstallationTest
                             InstallerController installerController, InstallerContainer installerContainer)
     {
         this.installerController = installerController;
-//        this.resourceManager = resourceManager;
         this.icons = icons;
         this.languageDialog = languageDialog;
         this.installData = installData;
@@ -75,7 +76,7 @@ public class InstallationTest
     public void testHelloAndFinishPanels() throws Exception
     {
         Image image = icons.get("JFrameIcon").getImage();
-        assertThat(image, IsNull.<Object>notNullValue());
+        assertThat(image, IsNull.notNullValue());
 
         languageDialog.initLangPack();
         installerFrameFixture = HelperTestMethod.prepareFrameFixture(installerFrame, installerController);

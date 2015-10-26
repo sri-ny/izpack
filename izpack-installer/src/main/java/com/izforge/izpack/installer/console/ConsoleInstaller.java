@@ -31,6 +31,7 @@ import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.installer.base.InstallerBase;
 import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.UninstallData;
@@ -49,6 +50,10 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class ConsoleInstaller implements InstallerBase
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(ConsoleInstaller.class.getName());
 
     /**
      * The panels.
@@ -81,9 +86,9 @@ public class ConsoleInstaller implements InstallerBase
     private final Housekeeper housekeeper;
 
     /**
-     * The logger.
+     * Whether the console installation has been aborted by the user
      */
-    private static final Logger logger = Logger.getLogger(ConsoleInstaller.class.getName());
+    private boolean interrupted = false;
 
 
     /**
@@ -106,25 +111,6 @@ public class ConsoleInstaller implements InstallerBase
         this.uninstallDataWriter = uninstallDataWriter;
         this.console = console;
         this.housekeeper = housekeeper;
-    }
-
-    /**
-     * Determines if console installation is supported.
-     *
-     * @return <tt>true</tt> if there are {@link ConsolePanel} implementations for each panel
-     */
-    public boolean canInstall()
-    {
-        boolean success = true;
-        for (ConsolePanelView panel : panels.getPanelViews())
-        {
-            if (panel.getViewClass() == null)
-            {
-                success = false;
-                logger.warning("No console implementation of panel: " + panel.getPanel().getClassName());
-            }
-        }
-        return success;
     }
 
     /**
@@ -164,53 +150,54 @@ public class ConsoleInstaller implements InstallerBase
 
         boolean success = false;
         ConsoleAction action = null;
-        if (!canInstall())
+
+        panels.initialise();
+
+        try
         {
-            console.println("Console installation is not supported by this installer");
-            shutdown(false, false);
-        }
-        else
-        {
-            try
+            // refresh variables so they may be used by
+            if (requirements.check())
             {
-                // refresh variables so they may be used by
-                if (requirements.check())
+                action = createConsoleAction(type, path, console);
+                panels.setAction(action);
+                while (panels.hasNext())
                 {
-                    action = createConsoleAction(type, path, console);
-                    panels.setAction(action);
-                    while (panels.hasNext())
+                    success = panels.next();
+                    if (!success)
                     {
-                        success = panels.next();
-                        if (!success)
-                        {
-                            break;
-                        }
+                        break;
                     }
+                }
+                if (success)
+                {
+                    success = panels.isValid(); // last panel needs to be validated
                     if (success)
                     {
-                        success = panels.isValid(); // last panel needs to be validated
-                        if (success)
-                        {
-                            success = action.complete();
-                        }
+                        success = action.complete();
                     }
                 }
             }
-            catch (Throwable t)
+        }
+        catch (UserInterruptException uie)
+        {
+            interrupted = true;
+            success = false;
+            console.println(uie.getMessage());
+        }
+        catch (Throwable t)
+        {
+            success = false;
+            logger.log(Level.SEVERE, t.getMessage(), t);
+        }
+        finally
+        {
+            if (action != null && action.isInstall())
             {
-                success = false;
-                logger.log(Level.SEVERE, t.getMessage(), t);
+                shutdown(success, console);
             }
-            finally
+            else
             {
-                if (action != null && action.isInstall())
-                {
-                    shutdown(success, console);
-                }
-                else
-                {
-                    shutdown(success, false);
-                }
+                shutdown(success, false);
             }
         }
     }
@@ -261,7 +248,14 @@ public class ConsoleInstaller implements InstallerBase
         }
         else
         {
-            console.println("[ Console installation FAILED! ]");
+            if (interrupted)
+            {
+                console.println("[ Console installation ABORTED by the user! ]");
+            }
+            else
+            {
+                console.println("[ Console installation FAILED! ]");
+            }
         }
 
         terminate(exitSuccess, reboot);

@@ -149,6 +149,7 @@ public class FileUtils
      * @throws MalformedURLException if the URL representation cannot be
      *                               formed.
      */
+    @Deprecated
     public URL getFileURL(File file) throws MalformedURLException
     {
         return new URL(toURI(file.getAbsolutePath()));
@@ -500,6 +501,7 @@ public class FileUtils
      * @param f The <code>File</code> to get the VMS path for.
      * @return The absolute VMS path to <code>f</code>.
      */
+    @Deprecated
     public String toVMSPath(File f) throws Exception
     {
         // format: "DEVICE:[DIR.SUBDIR]FILE"
@@ -582,6 +584,7 @@ public class FileUtils
      *                  java.io.tmpdir used if not specified.
      * @return a File reference to the new temporary file.
      */
+    @Deprecated
     public File createTempFile(String prefix, String suffix, File parentDir)
     {
         File result = null;
@@ -897,6 +900,7 @@ public class FileUtils
      * @param path the path in the local file system.
      * @return the URI version of the local path.
      */
+    @Deprecated
     public String toURI(String path)
     {
         boolean isDir = (new File(path)).isDirectory();

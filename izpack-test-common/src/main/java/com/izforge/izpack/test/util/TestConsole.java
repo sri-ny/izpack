@@ -109,6 +109,13 @@ public class TestConsole extends Console
         return scriptIndex == scripts.size() && (scripts.isEmpty() || index == scripts.get(scriptIndex - 1).size());
     }
 
+    @Override
+    public int read() throws IOException
+    {
+        String line = this.readLine();
+        return (line!=null && !line.isEmpty()) ? line.charAt(0) : -1;
+    }
+
     /**
      * Reads a line of text.  A line is considered to be terminated by any one of a line feed ('\\n'),
      * a carriage return ('\\r'), or a carriage return followed immediately by a linefeed.
@@ -162,6 +169,12 @@ public class TestConsole extends Console
     public int getReads()
     {
         return reads;
+    }
+
+    @Override
+    public void flush() throws IOException
+    {
+        // Ignore in tests
     }
 
     /**
