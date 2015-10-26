@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.console.AbstractTextConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
@@ -95,7 +96,19 @@ public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePan
         String prompt = installData.getMessages().get("ConsoleInstaller.acceptRejectRedisplay");
         console.println();
         int value = console.prompt(prompt, 1, 3, 2);
-        result = value == 1 || value != 2 && run(installData, console);
+        switch (value)
+        {
+            case 1:
+                result = true;
+                break;
+
+            case 2:
+                throw new UserInterruptException("License rejected");
+
+            default:
+                result =  run(installData, console);
+                break;
+        }
         return result;
     }
 

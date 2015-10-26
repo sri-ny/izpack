@@ -16,6 +16,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.izforge.izpack.api.exception.UserInterruptException;
+
 import jline.Terminal;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
@@ -114,7 +116,14 @@ public class Console
         }
         else
         {
-            return consoleReader.readLine();
+            try
+            {
+                return consoleReader.readLine();
+            }
+            catch (jline.console.UserInterruptException e)
+            {
+                throw new UserInterruptException("CTRL-C pressed", e);
+            }
         }
     }
 

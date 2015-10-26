@@ -31,6 +31,7 @@ import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.installer.base.InstallerBase;
 import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.UninstallData;
@@ -49,6 +50,10 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class ConsoleInstaller implements InstallerBase
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(ConsoleInstaller.class.getName());
 
     /**
      * The panels.
@@ -81,9 +86,9 @@ public class ConsoleInstaller implements InstallerBase
     private final Housekeeper housekeeper;
 
     /**
-     * The logger.
+     * Whether the console installation has been aborted by the user
      */
-    private static final Logger logger = Logger.getLogger(ConsoleInstaller.class.getName());
+    private boolean interrupted = false;
 
 
     /**
@@ -173,6 +178,12 @@ public class ConsoleInstaller implements InstallerBase
                 }
             }
         }
+        catch (UserInterruptException uie)
+        {
+            interrupted = true;
+            success = false;
+            console.println(uie.getMessage());
+        }
         catch (Throwable t)
         {
             success = false;
@@ -237,7 +248,14 @@ public class ConsoleInstaller implements InstallerBase
         }
         else
         {
-            console.println("[ Console installation FAILED! ]");
+            if (interrupted)
+            {
+                console.println("[ Console installation ABORTED by the user! ]");
+            }
+            else
+            {
+                console.println("[ Console installation FAILED! ]");
+            }
         }
 
         terminate(exitSuccess, reboot);

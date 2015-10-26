@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
 
@@ -88,7 +89,19 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         String prompt = installData.getMessages().get("ConsoleInstaller.continueQuitRedisplay");
         console.println();
         int value = console.prompt(prompt, 1, 3, 2);
-        result = value == 1 || value != 2 && run(installData, console);
+        switch (value)
+        {
+            case 1:
+                result = true;
+                break;
+
+            case 2:
+                throw new UserInterruptException("Quit pressed");
+
+            default:
+                result =  run(installData, console);
+                break;
+        }
         return result;
     }
 
@@ -109,7 +122,15 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         String prompt = installData.getMessages().get("ConsoleInstaller.redisplayQuit");
         console.println();
         int value = console.prompt(prompt, 1, 2, 2);
-        result = value != 2 && run(installData, console);
+        switch (value)
+        {
+            case 2:
+                throw new UserInterruptException("Quit pressed");
+
+            default:
+                result = run(installData, console);
+                break;
+        }
         return result;
     }
 
