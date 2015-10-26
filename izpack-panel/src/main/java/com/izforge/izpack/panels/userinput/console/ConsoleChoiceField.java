@@ -86,7 +86,7 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
             MappedSelection visibleToRealMapping = listChoices(choices, selectedRealIndex);
 
             int selectedVisibleIndex = getConsole().prompt(getMessage("ConsoleInstaller.inputSelection"), 0,
-                    visibleToRealMapping.size() - 1, selectedRealIndex, -1);
+                    visibleToRealMapping.size() - 1, visibleToRealMapping.getDefaultVisibleIndex(), -1);
             if (selectedVisibleIndex == -1)
             {
                 return false;
@@ -112,8 +112,14 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
             String conditionId = choice.getConditionId();
             if (conditionId == null || getField().getInstallData().getRules().isConditionTrue(conditionId))
             {
-                println(visibleIndex + "  [" + (i == selectedRealIndex ? "x" : " ") + "] " + choice.getValue());
+                boolean isSelected = (i == selectedRealIndex);
+                println(visibleIndex + "  [" + (isSelected ? "x" : " ") + "] " + choice.getValue());
                 visibleToRealMapping.put(Integer.valueOf(visibleIndex), Integer.valueOf(i));
+                if (isSelected)
+                {
+                    // The default when the user hits just ENTER without entering an explicit value
+                    visibleToRealMapping.setDefaultVisibleIndex(visibleIndex);
+                }
                 visibleIndex++;
             }
         }
@@ -123,6 +129,7 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
     private static class MappedSelection
     {
         private Map<Integer, Integer> visibleToRealIndexes = new HashMap<Integer, Integer>();
+        private int defaultVisibleIndex = -1;
 
         public Integer put(Integer visibleIndex, Integer realIndex)
         {
@@ -137,6 +144,16 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
         public Integer getRealFromVisible(int visibleIndex)
         {
             return visibleToRealIndexes.get(visibleIndex);
+        }
+
+        public void setDefaultVisibleIndex(int defaultVisibleIndex)
+        {
+            this.defaultVisibleIndex = defaultVisibleIndex;
+        }
+
+        public int getDefaultVisibleIndex()
+        {
+            return defaultVisibleIndex;
         }
     }
 }
