@@ -42,7 +42,6 @@ import com.izforge.izpack.panels.userinput.validator.HostAddressValidator;
 import com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator;
 import com.izforge.izpack.util.Platforms;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 
@@ -118,7 +117,7 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "abc:1234";
+        final String defaultValue = "abc:1234";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setDefaultValue(defaultValue);
@@ -132,7 +131,7 @@ public class RuleFieldValidatorTest
 
         RuleField model = new RuleField(config, installData);
 
-        assertArrayEquals(new String[] { "abc", "1234"}, model.getInitialValues());
+        assertEquals(defaultValue, model.getInitialValue());
     }
 
     @Test
@@ -141,7 +140,8 @@ public class RuleFieldValidatorTest
         String layout = "O:15:U : N:5:5"; // host : port format
         String variable = "server.address";
         String separator = null;
-        String defaultValue = "127.0.0.1:1234";
+        final String defaultValue = "127.0.0.1:1234";
+        final String newValue = "my-second-server:1234";
 
         TestRuleFieldConfig config = new TestRuleFieldConfig(variable, layout, separator, RuleFormat.DISPLAY_FORMAT);
         config.setDefaultValue(defaultValue);
@@ -154,9 +154,9 @@ public class RuleFieldValidatorTest
         config.addValidator(fieldValidator);
 
         RuleField model = new RuleField(config, installData);
-        model.setValue("my-second-server:1234");
+        model.setValue(newValue);
 
-        assertArrayEquals(model.getInitialValues(), new String[] { "my-second-server", "1234"});
+        assertEquals(newValue, model.getInitialValue());
     }
 
     @Test
@@ -166,7 +166,8 @@ public class RuleFieldValidatorTest
         String variable = "server.address";
         String separator = null;
         String initialValue = "${host}:1234";
-        String defaultValue = "localhost:1234";
+        final String defaultValue = "localhost:1234";
+        final String newValue = "my-second-server:4321";
 
         installData.setVariable("host", "my-server");
 
@@ -182,11 +183,10 @@ public class RuleFieldValidatorTest
         config.addValidator(fieldValidator);
 
         RuleField model = new RuleField(config, installData);
-        model.setValue("my-second-server:4321");
+        model.setValue(newValue);
 
-        assertArrayEquals(model.getInitialValues(), new String[] { "${host}", "1234"});
-        assertEquals(model.getInitialValue(), "my-server:1234");
-        assertEquals(model.getValue(), "my-second-server:4321");
+        assertEquals("my-server:1234", model.getInitialValue());
+        assertEquals(newValue, model.getValue());
     }
 
 }

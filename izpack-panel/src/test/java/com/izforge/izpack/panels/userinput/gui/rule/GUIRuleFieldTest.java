@@ -84,7 +84,8 @@ public class GUIRuleFieldTest
         RuleField model = new RuleField(config, installData);
 
         GUIRuleField field = new GUIRuleField(model);
-        assertFalse(field.updateView());               // should be nothing to update
+        assertTrue(field.updateView()); // Update: Empty field -> initial value
+        assertFalse(field.updateView()); // should be nothing to update
 
         // check default value
         assertEquals("192.168.0.1", field.getValue());
@@ -124,6 +125,8 @@ public class GUIRuleFieldTest
         RuleField model = new RuleField(config, installData);
 
         GUIRuleField field = new GUIRuleField(model);
+        assertTrue(field.updateView()); // Update: Empty field -> initial value
+        assertFalse(field.updateView()); // should be nothing to update
         assertEquals("localhost", field.getValue());
 
         assertNull(installData.getVariable("variable1"));
