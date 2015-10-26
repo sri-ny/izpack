@@ -624,6 +624,7 @@
               <exclude>**/IzpackInstallationTest.java</exclude>
               <exclude>**/InstallerListenerTest.java</exclude>
               <exclude>**/UninstallerListenerTest.java</exclude>
+              <exclude>**/UninstallDataWriterTest.java</exclude>
               <exclude>**/WindowsInstallationTest.java</exclude>
               <exclude>**/PanelActionTest.java</exclude>
               <exclude>**/DataValidatorTest.java</exclude>
