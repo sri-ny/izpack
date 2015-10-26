@@ -20,6 +20,7 @@
 package com.izforge.izpack.panels.packs;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -209,7 +210,7 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
      */
     private void computePacks(List<Pack> packs)
     {
-        names = new HashMap<String, Pack>();
+        names = new LinkedHashMap<String, Pack>();
         for (Pack pack : packs)
         {
             names.put(pack.getName(), pack);
