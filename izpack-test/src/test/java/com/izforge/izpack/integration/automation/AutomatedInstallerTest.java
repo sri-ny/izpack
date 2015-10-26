@@ -24,7 +24,6 @@ package com.izforge.izpack.integration.automation;
 import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
@@ -38,12 +37,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
@@ -106,6 +103,7 @@ public class AutomatedInstallerTest extends AbstractInstallationTest
         installer.doInstall();
 
         File dir = new File(installPath);
+        assertFileExists(dir);
         assertFileExists(dir, "Licence.txt");
         assertFileExists(dir, "Readme.txt");
         assertFileExists(dir, "Uninstaller/uninstaller.jar");
