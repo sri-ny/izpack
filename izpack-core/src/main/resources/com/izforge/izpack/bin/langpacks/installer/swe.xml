@@ -8,6 +8,55 @@
                  xsi:schemaLocation="http://izpack.org/schema/langpack http://izpack.org/schema/5.0/izpack-langpack-5.0.xsd">
 
 
+    <!-- Heading messages START -->
+    <str id="CheckedHelloPanel.headline" txt="Välkommen"/>
+    <str id="CompilePanel.headline" txt="Komilera Java-källkod"/>
+    <str id="ConditionalUserInputPanel.headline" txt="Användardata"/>
+    <str id="ExtendedInstallPanel.headline" txt="Installation and Konfiguration"/>
+    <str id="FinishPanel.headline" txt="Installationen slutförd"/>
+    <str id="HelloPanel.headline" txt="Välkommen"/>
+    <str id="HTMLInfoPanel.headline" txt="Information"/>
+    <str id="HTMLLicencePanel.headline" txt="Licensavtal"/>
+    <str id="ImgPacksPanel.headline" txt="Select Installationspaket"/>
+    <str id="InfoPanel.headline" txt="Information"/>
+    <str id="InstallPanel.headline" txt="Installation"/>
+    <str id="JDKPathPanel.headline" txt="JDK-sökväg"/>
+    <str id="LicencePanel.headline" txt="Licensavtal"/>
+    <str id="PacksPanel.headline" txt="Välj installationspaket"/>
+    <str id="ProcessPanel.headline" txt="Utför externt kommando"/>
+    <str id="ShortcutPanel.headline" txt="Konfigurera genvägar"/>
+    <str id="SimpleFinishPanel.headline" txt="Installationen slutförd"/>
+    <str id="SummaryPanel.headline" txt="Sammanställd konfigurationsinformation"/>
+    <str id="TargetPanel.headline" txt="Sökväg"/>
+    <str id="TreePacksPanel.headline" txt="Välj installationspaket"/>
+    <str id="UserInputPanel.headline" txt="Användardata"/>
+    <str id="UserPathPanel.headline" txt="Välj sökväg"/>
+    <str id="InstallationTypePanel.headline" txt="Installationsmetod"/>
+
+    <!-- TreePacksPanel Strings -->
+    <str id="TreePacksPanel.confirm"
+         txt="Tryck 0 för att bekräfta dina val."/>
+    <str id="TreePacksPanel.prompt"
+         txt="Vänligen välj vilka paket som du vill installera."/>
+    <str id="TreePacksPanel.no.packs"
+         txt="Du har inte valt några paket!\nÄr du säker på att du vill fortsätta?"/>
+    <str id="TreePacksPanel.space.required"
+         txt="Totalt utrymme som krävs:"/>
+    <str id="TreePacksPanel.invalid"
+         txt="Ogiltigt paket valt"/>
+    <str id="TreePacksPanel.dependent"
+         txt="Beroenden"/>
+    <str id="TreePacksPanel.children"
+         txt="Underpaket"/>
+    <str id="TreePacksPanel.no.number"
+         txt="Vänligen mata ett av numren från listan ovan."/>
+    <str id="TreePacksPanel.required"
+         txt="Obligatorisk"/>
+    <str id="TreePacksPanel.unselectable"
+         txt="Ej valbar"/>
+    <str id="TreePacksPanel.done"
+         txt="Klar!"/>
+
     <!-- General installer strings -->
     <str id="installer.title" txt="IzPack - Installation av "/>
     <str id="installer.next" txt="Nästa"/>
@@ -21,14 +70,14 @@
     <str id="installer.no" txt="Nej"/>
     <str id="installer.cancel" txt="Avbryt"/>
     <str id="installer.error" txt="Fel"/>
-    <str id="installer.errorMessage" txt="An error occured"/>
-    <str id="installer.close" txt="Close"/>
-    <str id="installer.showDetails" txt="Show Details"/>
-    <str id="installer.hideDetails" txt="Hide Details"/>
-    <str id="installer.copy" txt="Copy"/>
-    <str id="installer.sendReport" txt="Send Report"/>
-    <str id="installer.continueQuestion" txt="Continue anyway?"/>
-    <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.errorMessage" txt="Ett fel har inträffat"/>
+    <str id="installer.close" txt="Stäng"/>
+    <str id="installer.showDetails" txt="Visa detaljer"/>
+    <str id="installer.hideDetails" txt="Dölj detaljer"/>
+    <str id="installer.copy" txt="Kopiera"/>
+    <str id="installer.sendReport" txt="Skicka rapport"/>
+    <str id="installer.continueQuestion" txt="Fortsätt ändå?"/>
+    <str id="installer.cancelled" txt="Installationen avbryten"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Detta kommer att ta bort den installerade applikationen!"/>
@@ -70,7 +119,15 @@
     <str id="JDKPathPanel.badVersion1" txt="Den valda JDK är fel version (tillgänglig: "/>
     <str id="JDKPathPanel.badVersion2" txt=" behövd: "/>
     <str id="JDKPathPanel.badVersion3" txt=") vill du använda denna JDK ändå?"/>
-
+    <str id="JDKPathPanel.badVersion4" txt="Fortsätt ändå? [y/n] [n]"/>
+    <str id="JDKPathPanel.nonValidPathInReg"
+         txt="Registret i Windows innehåller en ogiltig sökväg för denna JDK. Skall denna JDK användas ändå?"/>
+    <str id="JDKPathPanel.jdkDownload"
+         txt="&lt;html&gt;&lt;p&gt;Den här programvaran kräver åtminstonde version ${JDKPathPanel.minVersion} av Java Development Kit (JDK).&lt;p/&gt;
+         Om den inte är installerad, vänligen gå till &lt;a href='http://java.sun.com/javase/downloads/'&gt;http://java.sun.com/javase/downloads&lt;/a&gt;,
+         för att ladda ner den.&lt;/html&gt;"/>
+    
+    <!-- PacksPanel strings -->
     <str id="PacksPanel.info" txt="Välj de paket du vill installera:"/>
     <str id="PacksPanel.tip" txt="Obs: gråade paket är obligatoriska."/>
     <str id="PacksPanel.space" txt="Totalt utrymme som krävs: "/>
@@ -83,6 +140,7 @@
          txt="Det finns inte tillräckligt med utrymme för att genomföra installationen."/>
     <str id="PacksPanel.notAscertainable" txt="Inte tillgängligt"/>
 
+    <!-- InstallPanel strings -->
     <str id="InstallPanel.info" txt="Klicka på 'Installera!' för att starta installationsprocessen"/>
     <str id="InstallPanel.install" txt="Installera!"/>
     <str id="InstallPanel.tip" txt="Installationsförlopp för paket:"/>
@@ -152,6 +210,7 @@
          txt="Den fil eller mapp du har angivit finns inte, eller så är den inte lämplig."/>
     <str id="UserInputPanel.search.wrongselection.caption" txt="Felaktigt val."/>
 
+    <!-- CompilePanel strings -->
     <str id="CompilePanel.heading" txt="Kompilering"/>
     <str id="CompilePanel.tip" txt="Kompileringsstatus för jobb:"/>
     <str id="CompilePanel.browse" txt="Bläddra..."/>
@@ -183,6 +242,85 @@
     <str id="ImgPacksPanel.summaryCaption" txt="Valda paket för installering"/>
     <str id="TreePacksPanel.summaryCaption" txt="Valda paket för installering"/>
     <!-- Strings for the summary of panels - END -->
+
+    <!-- Strings for the Registry -->
+    <str id="functionFailed.RegOpenKeyEx" txt="Kan inte öppna registernyckel {0}\\{1}."/>
+
+    <!-- CheckedHelloPanel strings -->
+    <str id="CheckedHelloPanel.productAlreadyExist0"
+         txt="Den här produkten är redan installerad på den här datorn under sökvägen "/>
+    <str id="CheckedHelloPanel.productAlreadyExist1" txt="Är du säker på att du vill installera ytterligare en instans?"/>
+    <str id="CheckedHelloPanel.infoOverUninstallKey" txt="Avinstallationsnyckelns namn: "/>
+
+    <!-- ConsolePrompt strings -->
+    <str id="ConsolePrompt.okCancel" txt="Tryck O för OK, A för att Avbryta: "/>
+    <str id="ConsolePrompt.yesNo" txt="Tryck J för Ja, N för Nej: "/>
+    <str id="ConsolePrompt.yesNoCancel" txt="Tryck J för Ja, N för Nej eller A för att Avbryta: "/>
+    <str id="ConsolePrompt.ok" txt="O"/>
+    <str id="ConsolePrompt.cancel" txt="A"/>
+    <str id="ConsolePrompt.yes" txt="J"/>
+    <str id="ConsolePrompt.no" txt="N"/>
+
+    <!-- ConsoleInstaller strings -->
+    <str id="ConsoleInstaller.continueQuitRedisplay" txt="Tryck 1 för att fortsätta, 2 för att avbryta, 3 för att repetera"/>
+    <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Tryck 1 för att acceptera, 2 för att neka, 3 för att repetera"/>
+    <str id="ConsoleInstaller.redisplayQuit" txt="Tryck 1 för att repetera, 2 för att avsluta"/>
+    <str id="ConsoleInstaller.permissionError" txt="Administratörsrättigheter krävs. Väligen kör installationen med administratörsrättigheter."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Ditt val: "/>
+
+    <!-- AutomatedInstaller Strings -->
+    <str id="AutomatedInstaller.permissionError" txt="Administratörsrättigheter krävs. Väligen kör installationen med administratörsrättigheter."/>
+
+    <!-- Next Media Strings -->
+    <str id="nextmedia.title" txt="Nästa installationsmedium"/>
+    <str id="nextmedia.msg" txt="Välj nästa installationsmedium."/>
+    <str id="nextmedia.browsebtn" txt="Bläddra"/>
+    <str id="nextmedia.okbtn" txt="Värkställ"/>
+    <str id="nextmedia.cancelbtn" txt="Avbryt"/>
+    <str id="nextmedia.choosertitle" txt="Välj installationsmedium"/>
+    <str id="nextmedia.filedesc" txt="installationspaket (.pak*)"/>
+
+    <!-- This string defines the time stamp format in the installation report.
+The format details are documented in java.text.SimpleDateFormat -->
+    <str id="log.timeStamp" txt="yyyy-MM-dd [HH:mm:ss]  zzzz"/>
+
+    <!-- Strings for various purposes in the logging/reporting system -->
+    <str id="log.reportHeading" txt="                           IzPack INSTALLATIONSRAPPORT"/>
+    <str id="log.installFailed" txt="VARNING!!! Installationen misslyckades!"/>
+    <str id="log.partialInstall"
+         txt="VARNING!!! Installationen kanske inte avslutades korrekt!"/>
+    <str id="log.messageCount"
+         txt="Den här rapporten innehåller {0} allmänna meddelanden, {1} varningar och {2} fel"/>
+    <str id="log.application" txt="Installationsrapport för : {0} Version {1}"/>
+    <str id="log.timePrefix"  txt="Installationstid         : {0}"/>
+    <str id="log.pathPrefix"  txt="Installationssökväg      : {0}"/>
+    <str id="log.messageHeading" txt="                         --- Installationsmeddelanden ---"/>
+    <str id="log.warningHeading" txt="                               --- Varningar ---"/>
+    <str id="log.errorHeading"   txt="                                  --- Fel ---"/>
+    <str id="log.exceptionPrefix" txt="                 &gt;&gt; Exception: {0}"/>
+    <str id="log.messagePrefix" txt="Meddelande  [{0}] - "/>
+    <str id="log.warningPrefix" txt="Varning [{0}] - "/>
+    <str id="log.errorPrefix" txt="Fel [{0}] - "/>
+    <str id="log.reportWriteErrorTitle" txt="Fel vid rapportering"/>
+    <str id="log.reportWriteError" txt="Kunde inte skriva installationsrapport till ''{0}''"/>
+    <str id="log.informUserTitle" txt="Installationsproblem"/>
+    <str id="log.saveLogTitle" txt="Spara logfil"/>
+    <str id="log.LogFileName" txt="installLog.txt"/>
+    <str id="log.informUserFail"
+         txt="&lt;html&gt;Installationen misslyckades!&lt;br&gt;Vill du skapa en logfil?&lt;/html&gt;"/>
+    <str id="log.informUserPartial"
+         txt="&lt;html&gt;Installationen kanske inte avslutades korrekt!&lt;br&gt;Vill du skapa en logfil?&lt;/html&gt;"/>
+
+    <!-- Strings for individual messages in the logging/reporting system. Numbers
+for each category (message/warning/error) start at 0 -->
+    <str id="log.message_" txt=""/>
+    <str id="log.warning_" txt=""/>
+    <str id="log.error_0" txt="kunde inte skriva ''{0}''"/>
+    <str id="debug.changevariable" txt="modify value"/>
+
+    <str id="data.validation.error.title" txt="Validering misslyckades"/>
+    <str id="data.validation.warning.title" txt="Validering misslyckades - fortsätter installationen"/>
+
 
     <!-- Add your own panels specific strings here if you need -->
 
