@@ -21,13 +21,19 @@
  */
 package com.izforge.izpack.util.os;
 
-import com.izforge.izpack.api.container.Container;
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.injectors.ProviderAdapter;
 
-import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.core.container.AbstractContainer;
 import com.izforge.izpack.core.container.PlatformProvider;
@@ -41,12 +47,6 @@ import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
 import com.izforge.izpack.util.TargetFactory;
 import com.izforge.izpack.util.TargetPlatformFactory;
-import java.util.Properties;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import org.junit.Before;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.injectors.ProviderAdapter;
 
 
 /**
@@ -58,9 +58,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 public class Unix_ShortcutTest
 {
     private final String NOT_FOUND = "!!!NOT FOUND!!!";
-    
-    
-    private InstallData idata;
+
 
     /**
      * The factory.
@@ -68,7 +66,7 @@ public class Unix_ShortcutTest
     private TargetPlatformFactory factory;
 
     private Container container;
-    
+
 
     /**
      * Sets up the test case.
@@ -104,7 +102,7 @@ public class Unix_ShortcutTest
         factory = container.getComponent(TargetPlatformFactory.class);
     }
 
-    
+
     @Test
     @Ignore
     public void main() throws IOException, ResourceNotFoundException
@@ -162,7 +160,7 @@ public class Unix_ShortcutTest
 //        System.out.println("DONE.\n");
     }
 
-    
+
     /**
      * Returns the value for the specified keyName in a string of key=value lines.
      * @param source
@@ -176,16 +174,16 @@ public class Unix_ShortcutTest
         for (String line: lines)
             if (line.startsWith(start))
                 return line.substring(start.length());
-        
+
         return NOT_FOUND;
     }
 
-    
+
     /**
-     * Verifies that the correct desktop file contents are created for a link 
+     * Verifies that the correct desktop file contents are created for a link
      * shortcut.
      *
-     * This does <b>not</b> verify that the produced desktop file launches the 
+     * This does <b>not</b> verify that the produced desktop file launches the
      * intended link.
      *
      * @throws Exception for any error
@@ -217,7 +215,7 @@ public class Unix_ShortcutTest
       final String url              = "/home/bill/folder/document.html";
       final int    userType         = Shortcut.ALL_USERS;
       final String workingDirectory = "/home/bill/folder";
-              
+
       shortcut.setArguments(arguments);
       shortcut.setCategories(categories);
       shortcut.setDescription(description);
@@ -241,16 +239,16 @@ public class Unix_ShortcutTest
 
       final String result = shortcut.build();
       final String userLanguage = System.getProperty("user.language", "en");
-      
+
       assertTrue(result.startsWith("[Desktop Entry]"));
-      
+
       assertEquals(categories, getValue(result, "Categories"));
       assertEquals(description, getValue(result, "Comment"));
       assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
       assertEquals(encoding, getValue(result, "Encoding"));
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
-      
+
       assertEquals(NOT_FOUND, getValue(result, "Exec"));
 
       assertEquals("", getValue(result, "GenericName"));
@@ -270,13 +268,13 @@ public class Unix_ShortcutTest
       assertEquals(kdeSubstUID, getValue(result, "X-KDE-SubstituteUID"));
       assertEquals(kdeUserName, getValue(result, "X-KDE-Username"));
     }
-   
+
 
     /**
-     * Verifies that the correct desktop file contents are created for a simple 
+     * Verifies that the correct desktop file contents are created for a simple
      * shortcut.
      *
-     * This does <b>not</b> verify that the produced desktop file launches the 
+     * This does <b>not</b> verify that the produced desktop file launches the
      * intended program.
      *
      * @throws Exception for any error
@@ -308,7 +306,7 @@ public class Unix_ShortcutTest
       final String url              = "";
       final int    userType         = Shortcut.ALL_USERS;
       final String workingDirectory = "/home/bill/folder";
-              
+
       shortcut.setArguments(arguments);
       shortcut.setCategories(categories);
       shortcut.setDescription(description);
@@ -332,16 +330,16 @@ public class Unix_ShortcutTest
 
       final String result = shortcut.build();
       final String userLanguage = System.getProperty("user.language", "en");
-      
+
       assertTrue(result.startsWith("[Desktop Entry]"));
-      
+
       assertEquals(categories, getValue(result, "Categories"));
       assertEquals(description, getValue(result, "Comment"));
       assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
       assertEquals(encoding, getValue(result, "Encoding"));
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
-      
+
       // since targetPath contains no spaces, it will not be quoted
       String exec = targetPath + " " + arguments;
       assertEquals(exec, getValue(result, "Exec"));
@@ -363,13 +361,13 @@ public class Unix_ShortcutTest
       assertEquals(kdeSubstUID, getValue(result, "X-KDE-SubstituteUID"));
       assertEquals(kdeUserName, getValue(result, "X-KDE-Username"));
     }
-   
+
 
     /**
-     * Verifies that the correct desktop file contents are created for a 
+     * Verifies that the correct desktop file contents are created for a
      * shortcut with a space in the path.
      *
-     * This does <b>not</b> verify that the produced desktop file launches the 
+     * This does <b>not</b> verify that the produced desktop file launches the
      * intended program.
      *
      * @throws Exception for any error
@@ -402,7 +400,7 @@ public class Unix_ShortcutTest
       final String type             = "Application";
       final String url              = "";
       final int    userType         = Shortcut.ALL_USERS;
-              
+
       shortcut.setArguments(arguments);
       shortcut.setCategories(categories);
       shortcut.setDescription(description);
@@ -426,16 +424,16 @@ public class Unix_ShortcutTest
 
       final String result = shortcut.build();
       final String userLanguage = System.getProperty("user.language", "en");
-      
+
       assertTrue(result.startsWith("[Desktop Entry]"));
-      
+
       assertEquals(categories, getValue(result, "Categories"));
       assertEquals(description, getValue(result, "Comment"));
       assertEquals(description, getValue(result, "Comment[" + userLanguage + "]"));
       assertEquals(encoding, getValue(result, "Encoding"));
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
-      
+
       String exec = "'" + targetPath + "'" + " " + arguments;
       // since targetPath contains no spaces, it will not be quoted
       assertEquals(exec, getValue(result, "Exec"));
