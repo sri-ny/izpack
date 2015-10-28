@@ -116,10 +116,6 @@ public class InstallerTargetPlatformFactoryTest
             {
                 checkCreate(Shortcut.class, platform, Win_Shortcut.class);
             }
-            else
-            {
-                checkCreate(Shortcut.class, platform, Shortcut.class);
-            }
         }
     }
 
