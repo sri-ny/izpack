@@ -78,6 +78,7 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
     public boolean run(InstallData installData, Console console)
     {
         String text = getText();
+        text = installData.getVariables().replace(text);
         if (text != null)
         {
             try
