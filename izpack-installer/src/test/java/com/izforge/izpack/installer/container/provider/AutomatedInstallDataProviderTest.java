@@ -49,6 +49,7 @@ import com.izforge.izpack.api.data.InstallerRequirement;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.resource.DefaultLocales;
 import com.izforge.izpack.core.resource.ResourceManager;
@@ -104,7 +105,7 @@ public class AutomatedInstallDataProviderTest
                                                 "str id='overridden.message' txt='Message overridden'");
 
         mock(loader, "resources/langpacks/eng.xml", defaultPack);
-        mock(loader, "resources/" + AbstractInstallDataProvider.CUSTOM_TRANSLATIONS_RESOURCE_NAME + "_eng", customPack);
+        mock(loader, "resources/" + Resources.CUSTOM_TRANSLATIONS_RESOURCE_NAME + "_eng", customPack);
 
         // set up the locale to english because the mock resources contain only a langpack for english
         Locales locales = new DefaultLocales(resources, Locale.ENGLISH);
@@ -140,12 +141,16 @@ public class AutomatedInstallDataProviderTest
     {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(stream);
-        writer.write("<langpack>\n");
+        writer.write("<izpack:langpack");
+        writer.write(" version=\"5.0\"");
+        writer.write(" xmlns:izpack=\"http://izpack.org/schema/langpack\"");
+        writer.write(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+        writer.write(" xsi:schemaLocation=\"http://izpack.org/schema/langpack http://izpack.org/schema/5.0/izpack-langpack-5.0.xsd\">\n");
         for (String message : messages)
         {
             writer.write("<" + message + "/>\n");
         }
-        writer.write("</langpack>");
+        writer.write("</izpack:langpack>");
         writer.close();
         return new ByteArrayInputStream(stream.toByteArray());
     }

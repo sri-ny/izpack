@@ -32,6 +32,7 @@ import com.izforge.izpack.api.handler.AbstractPrompt;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.handler.ProgressHandler;
@@ -840,7 +841,7 @@ public abstract class UnpackerBase implements IUnpacker
             if (messages != null)
             {
               try {
-                packMessages = messages.newMessages(PackHelper.LANG_FILE_NAME);
+                packMessages = messages.newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
               } catch (Exception ex){
                 logger.fine(ex.getLocalizedMessage());
               }

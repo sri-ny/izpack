@@ -70,7 +70,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     /**
      * The name of the XML file that specifies the registry entries.
      */
-    static final String SPEC_FILE_NAME = "RegistrySpec.xml";
+    public static final String SPEC_FILE_NAME = "RegistrySpec.xml";
 
     private static final String REG_KEY = "key";
 

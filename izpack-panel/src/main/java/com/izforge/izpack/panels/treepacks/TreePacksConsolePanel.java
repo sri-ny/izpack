@@ -1,11 +1,11 @@
 /*
  * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- * 
+ *
  * http://izpack.org/
  * http://izpack.codehaus.org/
- * 
+ *
  * Copyright 2003 Jonathan Halliday
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@ import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.handler.Prompt.Type;
 import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
@@ -55,7 +56,6 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
     private final InstallData installData;
 
     private PacksModel packsModel;
-    private static final String LANG_FILE_NAME = "packsLang.xml";
 
     private static final String REQUIRED = "TreePacksPanel.required";
     private static final String UNSELECTABLE = "TreePacksPanel.unselectable";
@@ -68,7 +68,7 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
     private static final String PROMPT = "TreePacksPanel.prompt";
     private static final String INVALID = "TreePacksPanel.invalid";
     private static final String REQUIRED_SPACE = "TreePacksPanel.space.required";
-    
+
     /**
      * Constructs a {@code TreePacksConsolePanel}.
      *
@@ -108,7 +108,7 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
 
         try
         {
-            messages = installData.getMessages().newMessages(LANG_FILE_NAME);
+            messages = installData.getMessages().newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
         }
         catch (ResourceNotFoundException exception)
         {
@@ -216,7 +216,7 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
         String dependencies = "";
         String children = "";
         String marker = " ";
-        
+
         if (packsModel.isChecked(row))
         {
             marker = "x";

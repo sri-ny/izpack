@@ -336,23 +336,6 @@ public class AutomatedInstallData implements InstallData
         }
     }
 
-    /**
-     * Set Locale in xml, installdata, and langpack.
-     *
-     * @param locale         Locale to set
-     * @param localeDatabase database containing the desired locale
-     */
-    @Deprecated
-    public void setAndProcessLocal(String locale, LocaleDatabase localeDatabase)
-    {
-        // We add an xml data information
-        getInstallationRecord().setAttribute("langpack", locale);
-        // We load the langpack
-        setVariable(ScriptParserConstant.ISO3_LANG, getLocaleISO3());
-        setVariable(ScriptParserConstant.ISO2_LANG, getLocaleISO3());
-        setMessages(localeDatabase);
-    }
-
     @Override
     public RulesEngine getRules()
     {
@@ -428,18 +411,6 @@ public class AutomatedInstallData implements InstallData
     public Messages getMessages()
     {
         return messages;
-    }
-
-    @Deprecated
-    public LocaleDatabase getLangpack()
-    {
-        return (LocaleDatabase) messages;
-    }
-
-    @Deprecated
-    public void setLangpack(LocaleDatabase langpack)
-    {
-        setMessages(langpack);
     }
 
     @Override

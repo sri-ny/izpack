@@ -45,6 +45,7 @@ public class CliAnalyzer {
     private static final String ARG_OUTPUT = "o";
     private static final String ARG_COMPRESSION_FORMAT = "c";
     private static final String ARG_COMPRESSION_LEVEL = "l";
+    private static final String ARG_SCHEMA_VALIDATION = "v";
 
 
     /**
@@ -66,6 +67,8 @@ public class CliAnalyzer {
                 "default is the internal deflate compression\n");
         options.addOption(ARG_COMPRESSION_LEVEL, true, "compression-level : indicates the level for the used compression format"
                 + " if supported. Only integer are valid\n");
+        options.addOption(ARG_SCHEMA_VALIDATION, true, "schema-validation : indicates whether XML descriptors should " +
+                "be validated during compilation (true|false; default is true)\n");
         return options;
     }
 
@@ -147,15 +150,15 @@ public class CliAnalyzer {
             printHelp();
             throw new HelpRequestedException();
         }
-        List argList = commandLine.getArgList();
-        installFile = (String) argList.get(0);
+        List<String> argList = commandLine.getArgList();
+        installFile = argList.get(0);
         if (commandLine.hasOption(ARG_BASEDIR)) {
             baseDir = commandLine.getOptionValue(ARG_BASEDIR).trim();
         }
         if (commandLine.hasOption(ARG_OUTPUT)) {
             output = commandLine.getOptionValue(ARG_OUTPUT).trim();
         }
-        CompilerData compilerData = new CompilerData(installFile, baseDir, output, false);
+        CompilerData compilerData = new CompilerData(installFile, baseDir, output, false, true);
 
 
         if (commandLine.hasOption(ARG_COMPRESSION_FORMAT)) {
@@ -169,6 +172,9 @@ public class CliAnalyzer {
         }
         if (commandLine.hasOption(ARG_KIND)) {
             compilerData.setKind(commandLine.getOptionValue(ARG_KIND).trim());
+        }
+        if (commandLine.hasOption(ARG_SCHEMA_VALIDATION)) {
+            compilerData.setValidating(Boolean.parseBoolean(commandLine.getOptionValue(ARG_SCHEMA_VALIDATION).trim()));
         }
 
         return compilerData;

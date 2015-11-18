@@ -27,7 +27,6 @@ import java.net.URL;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
-import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
@@ -156,9 +155,8 @@ public class ResourceFinder
      *                             For problems with the installation file
      * @throws java.io.IOException for errors reading the installation file
      */
-    public IXMLElement getXMLTree() throws IOException
+    public IXMLElement getXMLTree(IXMLParser parser) throws IOException
     {
-        IXMLParser parser = new XMLParser();
         IXMLElement data;
         if (compilerData.getInstallFile() != null)
         {

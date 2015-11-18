@@ -29,6 +29,7 @@ import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackColor;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.installer.util.PackHelper;
 
@@ -78,7 +79,7 @@ public class PacksModel extends AbstractTableModel
         this.installData = idata;
         this.rules = idata.getRules();
         try{
-          this.messages = idata.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+          this.messages = idata.getMessages().newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
         } catch(com.izforge.izpack.api.exception.ResourceNotFoundException ex){
           this.messages=idata.getMessages();
         }

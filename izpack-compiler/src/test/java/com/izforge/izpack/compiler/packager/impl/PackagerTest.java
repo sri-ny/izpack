@@ -53,7 +53,7 @@ public class PackagerTest extends AbstractPackagerTest
         PackCompressor compressor = Mockito.mock(PackCompressor.class);
         CompilerPathResolver pathResolver = Mockito.mock(CompilerPathResolver.class);
         MergeableResolver resolver = Mockito.mock(MergeableResolver.class);
-        CompilerData data = new CompilerData("", "", "", true);
+        CompilerData data = new CompilerData("", "", "", true, false);
         Packager packager = new Packager(properties, listener, jar, compressor, jar, mergeManager,
                                          pathResolver, resolver, data);
         packager.setInfo(new Info());

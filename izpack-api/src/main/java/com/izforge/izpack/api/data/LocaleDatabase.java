@@ -43,20 +43,7 @@ import com.izforge.izpack.api.resource.Messages;
  */
 public class LocaleDatabase extends TreeMap<String, String> implements Messages
 {
-
     /**
-     * The directory where language packs are kept inside the installer jar file.
-     */
-    @Deprecated
-    public static final String LOCALE_DATABASE_DIRECTORY = "/langpacks/";
-
-    /**
-     * The suffix for language pack definitions (.xml).
-     */
-    @Deprecated
-    public static final String LOCALE_DATABASE_DEF_SUFFIX = ".xml";
-
-    /*
      * static character for replacing quotes
      */
     private static final char TEMP_QUOTING_CHARACTER = '\uffff';
@@ -130,7 +117,8 @@ public class LocaleDatabase extends TreeMap<String, String> implements Messages
 
         try
         {
-            IXMLParser parser = new XMLParser();
+            // Do not validate during installation, but when compiling
+            IXMLParser parser = new XMLParser(false);
             data = parser.parse(in);
         }
         catch (XMLException exception)
@@ -148,7 +136,7 @@ public class LocaleDatabase extends TreeMap<String, String> implements Messages
         for (IXMLElement child : data.getChildren())
         {
             String text = child.getContent();
-            if (text != null && !"".equals(text))
+            if (text != null && !text.isEmpty())
             {
                 put(child.getAttribute("id"), text.trim());
             }
@@ -263,27 +251,6 @@ public class LocaleDatabase extends TreeMap<String, String> implements Messages
         Messages result = new LocaleDatabase(this, locales);
         result.add(child);
         return result;
-    }
-
-    /**
-     * Convenience method to retrieve an element.
-     *
-     * @param key The key of the element to retrieve.
-     * @return The element value or the key if not found.
-     * @deprecated use {@link #get(String, Object...)}
-     */
-    @Deprecated
-    public String getString(String key)
-    {
-        String val = get(key);
-        // At a change of the return value at val == null the method
-        // com.izforge.izpack.installer.IzPanel.getI18nStringForClass
-        // should be also addapted.
-        if (val == null)
-        {
-            val = key;
-        }
-        return val;
     }
 
     /**

@@ -100,6 +100,11 @@ public class IzPackTask extends Task implements PackagerListener
     private Boolean inheritAll = false;
 
     /**
+     * should we validate XML descriptors?
+     */
+    private Boolean validating = true;
+
+    /**
      * Creates new IZPackTask
      */
     public IzPackTask()
@@ -209,7 +214,8 @@ public class IzPackTask extends Task implements PackagerListener
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
             Class runableClass = loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
             Constructor constructor = runableClass.getConstructors()[0];
-            Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
+            Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs,
+                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
             final Thread thread = new Thread((Runnable) instance);
             thread.setContextClassLoader(loader);
             thread.start();
@@ -332,10 +338,12 @@ public class IzPackTask extends Task implements PackagerListener
 
     /**
      * If true, pass all Ant properties to IzPack. Defaults to false;
+     *
+     * @param inheritAll true if all Ant properties should be passed to IzPack.
      */
-    public void setInheritAll(boolean value)
+    public void setInheritAll(boolean inheritAll)
     {
-        inheritAll = value;
+        this.inheritAll = inheritAll;
     }
 
     /**
@@ -355,6 +363,17 @@ public class IzPackTask extends Task implements PackagerListener
     {
         this.compressionLevel = compressionLevel;
     }
+
+    /**
+     * If true, all XML descriptors are validated against the according XSD during compiling. Defaults to true;
+     *
+     * @param validating true if all XML descriptors should be validated against the according XSD during compiling.
+     */
+    public void setValidating(boolean validating)
+    {
+        this.validating = validating;
+    }
+
 
     /**
      * Ant will call this for each &lt;property&gt; tag to the IzPack task.

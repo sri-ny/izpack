@@ -22,22 +22,22 @@
 
 package com.izforge.izpack.api.adaptator;
 
-import com.izforge.izpack.api.adaptator.impl.XMLParser;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import static junit.framework.Assert.assertEquals;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import com.izforge.izpack.api.adaptator.impl.XMLParser;
 
 /**
  * Test on the XMLElement
@@ -56,7 +56,7 @@ public class XMLParserTest
     private static final String parseErrorXincludeFilename = "xinclude-notvalid.xml";
 
 
-    @org.junit.Test
+    @Test
     public void testParseFile() throws Exception
     {
         InputStream input;
@@ -74,7 +74,7 @@ public class XMLParserTest
         IXMLElement spec;
         String substitutedSpec = FileUtils.readFileToString(
                 new File(XMLParserTest.class.getResource(filename).toURI()));
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
         spec = parser.parse(substitutedSpec);
         Assert.assertEquals("izpack:shortcuts", spec.getName());
     }
@@ -88,13 +88,13 @@ public class XMLParserTest
         }
     }
 
-    @org.junit.Test
+    @Test
     public void testLineNumber() throws SAXException, ParserConfigurationException, IOException, TransformerException
     {
         InputStream input = XMLParserTest.class.getResourceAsStream(lnFilename);
         IXMLElement elt;
 
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
         elt = parser.parse(input);
 
         checkEltLN(elt);
@@ -106,7 +106,7 @@ public class XMLParserTest
     {
         URL url = XMLParserTest.class.getResource(xlnFilename);
 
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
         IXMLElement elt = parser.parse(url);
 
         checkEltLN(elt);

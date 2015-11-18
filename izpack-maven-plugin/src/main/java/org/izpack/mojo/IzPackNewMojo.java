@@ -92,6 +92,14 @@ public class IzPackNewMojo extends AbstractMojo
     private boolean mkdirs;
 
     /**
+     * Specifies that the XML parser will validate each descriptor using W3C XML Schema as they are parsed.
+     * By default the value of this is set to false.
+     *
+     * @parameter default-value="true"
+     */
+    private boolean validating;
+
+    /**
      * Compression level of the installation. Deactivated by default (-1)
      *
      * @parameter default-value="-1"
@@ -282,7 +290,7 @@ public class IzPackNewMojo extends AbstractMojo
             }
         }
         return new CompilerData(comprFormat, kind, installFile, null, baseDir, jarFile.getPath(),
-                                mkdirs, comprLevel, info);
+                                mkdirs, validating, comprLevel, info);
     }
 
 }

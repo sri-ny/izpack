@@ -46,7 +46,7 @@ public class CompressorTest
                 "",
                 baseDir,
                 baseDir + "/target/output.jar",
-                false);
+                false, false);
         data.setComprFormat("bzip2");
         data.setComprLevel(5);
         JarOutputStreamProvider jarOutputStreamProvider = new JarOutputStreamProvider();

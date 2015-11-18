@@ -64,7 +64,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.JTextComponent;
 
 import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
@@ -979,30 +978,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     {
         Messages messages = locales.getMessages();
         return messages;
-    }
-
-    /**
-     * Returns the locale-specific messages.
-     *
-     * @return the messages
-     * @deprecated use {@link #getMessages()}
-     */
-    @Deprecated
-    public LocaleDatabase getLangpack()
-    {
-        Messages messages = locales.getMessages();
-        return (LocaleDatabase) messages;
-    }
-
-    /**
-     * Sets the locale specific messages.
-     *
-     * @param langpack the language pack
-     * @deprecated no replacement
-     */
-    @Deprecated
-    public void setLangpack(LocaleDatabase langpack)
-    {
     }
 
     public IconsDatabase getIcons()

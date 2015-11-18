@@ -1,26 +1,20 @@
 /*
-* IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
-*
-* http://izpack.org/
-* http://izpack.codehaus.org/
-*
-* Copyright (c) 2008, 2009 Anthonin Bonnefoy
-* Copyright (c) 2008, 2009 David Duponchel
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
-
+ * IzPack - Copyright 2001-2015 Julien Ponge, René Krell, All Rights Reserved.
+ *
+ * http://izpack.org/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.izforge.izpack.api.adaptator.impl;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
@@ -32,7 +26,9 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -41,16 +37,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-/**
- * @author Anthonin Bonnefoy
- * @author David Duponchel
- */
 public class XMLParser implements IXMLParser
 {
     public class ByteBufferInputStream extends InputStream
@@ -95,16 +88,41 @@ public class XMLParser implements IXMLParser
     private LineNumberFilter filter;
     private String parsedItem = null;
 
+
     public XMLParser()
+    {
+        this(true);
+    }
+
+    public XMLParser(boolean validating)
+    {
+        this(validating, null);
+    }
+
+    public XMLParser(boolean validating, StreamSource[] schemaSources)
     {
         try
         {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            saxParserFactory.setValidating(false); // we don't use DTD
             saxParserFactory.setNamespaceAware(true);
             saxParserFactory.setXIncludeAware(true);
-            XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
-            filter = new LineNumberFilter(xmlReader);
 
+            if (validating && (schemaSources != null && schemaSources.length > 0))
+            {
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                saxParserFactory.setSchema(schemaFactory.newSchema(schemaSources));
+            }
+
+            SAXParser parser = saxParserFactory.newSAXParser();
+            if (validating && (schemaSources == null || schemaSources.length == 0))
+            {
+                parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                        XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            }
+
+            XMLReader xmlReader = parser.getXMLReader();
+            filter = new LineNumberFilter(xmlReader);
         }
         catch (ParserConfigurationException e)
         {
@@ -190,7 +208,7 @@ public class XMLParser implements IXMLParser
     public IXMLElement parse(InputStream inputStream, String systemId)
     {
         checkNotNullStream(inputStream);
-        
+
         this.parsedItem = systemId;
         InputSource inputSource = new InputSource(inputStream);
         inputSource.setSystemId(systemId);
@@ -215,8 +233,10 @@ public class XMLParser implements IXMLParser
         return searchFirstElement(domResult);
     }
 
-    private void checkNotNullStream(InputStream inputStream) {
-        if (inputStream == null) {
+    private void checkNotNullStream(InputStream inputStream)
+    {
+        if (inputStream == null)
+        {
             throw new NullPointerException("The input stream must be not null.");
         }
     }

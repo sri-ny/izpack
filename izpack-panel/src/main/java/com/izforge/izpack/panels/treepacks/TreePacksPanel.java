@@ -70,7 +70,6 @@ public class TreePacksPanel extends IzPanel
     protected JScrollPane tableScroller;
 
     private Messages messages;
-    private static final String LANG_FILE_NAME = "packsLang.xml";
 
     private final Map<String, Pack> namesToPacks;
     private final Map<Pack, Integer> packsToRowNumbers;
@@ -666,7 +665,7 @@ public class TreePacksPanel extends IzPanel
                 try
                 {
                     java.net.URL url = new java.net.URL(
-                            webDir + "/langpacks/" + LANG_FILE_NAME + installData.getLocaleISO3());
+                            webDir + "/langpacks/" + Resources.PACK_TRANSLATIONS_RESOURCE_NAME + installData.getLocaleISO3());
                     langPackStream = new WebAccessor(null).openInputStream(url);
                     messages = new LocaleDatabase(langPackStream, messages, locales);
                     fallback = false;
@@ -682,7 +681,7 @@ public class TreePacksPanel extends IzPanel
             }
             if (fallback)
             {
-                messages = messages.newMessages(LANG_FILE_NAME);
+                messages = messages.newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
             }
         }
         catch (Throwable t)

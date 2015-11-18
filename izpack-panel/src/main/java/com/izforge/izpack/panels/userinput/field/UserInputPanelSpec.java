@@ -48,6 +48,11 @@ public class UserInputPanelSpec
     public static final String SPEC_FILE_NAME = "userInputSpec.xml";
 
     /**
+     * The user input language pack resource name.
+     */
+    public static final String LANG_FILE_NAME = "userInputLang.xml";
+
+    /**
      * Panel element name.
      */
     public static final String PANEL = "panel";
@@ -66,11 +71,6 @@ public class UserInputPanelSpec
      * The platform-model matcher.
      */
     private final PlatformModelMatcher matcher;
-
-    /**
-     * The user input language pack resource name.
-     */
-    private static final String LANG_FILE_NAME = "userInputLang.xml";
 
     /**
      * The panel identifier attribute name

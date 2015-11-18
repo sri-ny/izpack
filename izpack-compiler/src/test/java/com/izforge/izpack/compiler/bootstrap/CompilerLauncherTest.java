@@ -68,7 +68,7 @@ public class CompilerLauncherTest
                         baseDir + "src/test/resources/bindingTest.xml",
                         "",
                         baseDir + "/target/output.jar",
-                        false)
+                        false, true)
         );
         JarOutputStream jarOutputStream = compilerContainer.getComponent(JarOutputStream.class);
         assertThat(jarOutputStream, IsNull.notNullValue());
@@ -92,7 +92,7 @@ public class CompilerLauncherTest
                         baseDir + "src/test/resources/bindingTest.xml",
                         "",
                         baseDir + "/target/output.jar",
-                        false)
+                        false, true)
         );
         CompilerData data = compilerContainer.getComponent(CompilerData.class);
         assertThat(data, IsNull.notNullValue());

@@ -4,12 +4,14 @@ import java.awt.Color;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -286,10 +288,18 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
                 variant = substanceVariants.get("default");
             }
             logger.info("Using laf " + variant);
-            UIManager.setLookAndFeel(variant);
-            UIManager.getLookAndFeelDefaults().put("ClassLoader", JPanel.class.getClassLoader());
-
-            checkSubstanceLafLoaded();
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                  try {
+                      UIManager.setLookAndFeel(variant);
+                      UIManager.getLookAndFeelDefaults().put("ClassLoader", JPanel.class.getClassLoader());
+                      checkSubstanceLafLoaded();
+                  } catch (Exception e) {
+                      logger.log(Level.SEVERE, "Error loading Substance look and feel: " + e.getMessage(), e);
+                    System.out.println("Substance Graphite failed to initialize");
+                  }
+                }
+              });
         }
     }
 

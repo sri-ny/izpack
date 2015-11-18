@@ -99,6 +99,19 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>Unpack schema</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>izpack-compiler</includeArtifactIds>
+                            <excludeTransitive>true</excludeTransitive>
+                            <includes>schema/**</includes>
+                            <outputDirectory>${staging.dir}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>Copy libs</id>
                         <phase>prepare-package</phase>
                         <goals>
@@ -110,7 +123,6 @@
                             <includeScope>runtime</includeScope>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 

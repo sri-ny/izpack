@@ -62,7 +62,7 @@ public class MultiVolumePackagerTest extends AbstractPackagerTest
                 "",
                 baseDir,
                 baseDir + "/target/test.jar",
-                true);
+                true, false);
         MultiVolumePackager packager = new MultiVolumePackager(properties, listener, jar, mergeManager,
                                                                pathResolver, resolver, compressor, data);
         packager.setInfo(new Info());

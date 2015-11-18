@@ -41,7 +41,7 @@ public class ProcessPanelWorker implements Runnable
     /**
      * Name of resource for specifying processing parameters.
      */
-    private static final String SPEC_RESOURCE_NAME = "ProcessPanel.Spec.xml";
+    public static final String SPEC_RESOURCE_NAME = "ProcessPanel.Spec.xml";
 
     private AbstractUIProcessHandler handler;
 

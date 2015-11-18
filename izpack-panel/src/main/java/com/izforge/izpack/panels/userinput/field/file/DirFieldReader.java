@@ -45,9 +45,9 @@ public class DirFieldReader extends AbstractFileFieldReader implements DirFieldC
     }
 
     /**
-     * Determines if directories must exist.
+     * Determines whether the directory must in order to continue.
      *
-     * @return {@code true} if the directories must exist
+     * @return {@code true} if the directory must exist
      */
     public boolean getMustExist()
     {
@@ -55,9 +55,9 @@ public class DirFieldReader extends AbstractFileFieldReader implements DirFieldC
     }
 
     /**
-     * Determines if directories can be created if they don't exist.
+     * Determines whether the directory must be created if it doesn't exist.
      *
-     * @return {@code true} if directories can be created if they don't exist
+     * @return {@code true} if the directory must be created if they don't exist
      */
     public boolean getCreate()
     {
