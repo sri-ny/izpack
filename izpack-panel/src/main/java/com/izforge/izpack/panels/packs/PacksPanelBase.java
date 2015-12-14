@@ -63,7 +63,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
@@ -192,7 +191,7 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
 
         try
         {
-            messages = installData.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+            messages = installData.getMessages().newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
         }
         catch (ResourceNotFoundException exception)
         {
@@ -229,13 +228,6 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
     public Messages getMessages()
     {
         return messages;
-    }
-
-    @Deprecated
-    @Override
-    public LocaleDatabase getLangpack()
-    {
-        return (LocaleDatabase) messages;
     }
 
     @Override

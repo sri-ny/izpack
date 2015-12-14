@@ -322,7 +322,7 @@ public class MultiVolumeUnpackerTest
         CompilerPathResolver resolver = Mockito.mock(CompilerPathResolver.class);
         MergeableResolver mergeableResolver = Mockito.mock(MergeableResolver.class);
         PackCompressor compressor = new DefaultPackCompressor();
-        CompilerData data = new CompilerData(null, baseDir.getPath(), installerJar.getPath(), true);
+        CompilerData data = new CompilerData(null, baseDir.getPath(), installerJar.getPath(), true, false);
         MultiVolumePackager packager = new MultiVolumePackager(properties, packagerListener, jar, mergeManager,
                                                                resolver, mergeableResolver, compressor, data);
         packager.setInfo(new Info());

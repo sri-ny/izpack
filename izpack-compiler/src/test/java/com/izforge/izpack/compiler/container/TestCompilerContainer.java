@@ -116,7 +116,7 @@ public class TestCompilerContainer extends CompilerContainer
         File out = new File(baseDir, "out" + Math.random() + ".jar");
         out.deleteOnExit();
         CompilerData data = new CompilerData(installerFile.getAbsolutePath(), baseDir.getAbsolutePath(),
-                                             out.getAbsolutePath(), false);
+                                             out.getAbsolutePath(), false, true);
         addComponent(CompilerData.class, data);
         addComponent(File.class, out);
 

@@ -20,13 +20,13 @@ public class IzpackAntRunnable implements Runnable
     private final String input;
     private final Properties properties;
     private final Boolean inheritAll;
-    private Hashtable projectProps;
+    private Hashtable<String, String> projectProps;
 
     public IzpackAntRunnable(String compression, String kind, String input, String configText, String basedir,
-                             String output, boolean mkdirs, int compressionLevel, Properties properties,
-                             Boolean inheritAll, Hashtable antProjectProperties, String izPackDir)
+                             String output, boolean mkdirs, boolean validating, int compressionLevel, Properties properties,
+                             Boolean inheritAll, Hashtable<String, String> antProjectProperties, String izPackDir)
     {
-        this.compilerData = new CompilerData(compression, kind, input, configText, basedir, output, mkdirs,
+        this.compilerData = new CompilerData(compression, kind, input, configText, basedir, output, mkdirs, validating,
                                              compressionLevel);
         this.input = input;
         this.properties = properties;
@@ -48,7 +48,7 @@ public class IzpackAntRunnable implements Runnable
 
         if (properties != null)
         {
-            Enumeration e = properties.keys();
+            Enumeration<Object> e = properties.keys();
             while (e.hasMoreElements())
             {
                 String name = (String) e.nextElement();
@@ -60,11 +60,11 @@ public class IzpackAntRunnable implements Runnable
 
         if (inheritAll)
         {
-            Enumeration e = projectProps.keys();
+            Enumeration<String> e = projectProps.keys();
             while (e.hasMoreElements())
             {
-                String name = (String) e.nextElement();
-                String value = (String) projectProps.get(name);
+                String name = e.nextElement();
+                String value = projectProps.get(name);
                 value = fixPathString(value);
                 propertyManager.addProperty(name, value);
             }

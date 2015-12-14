@@ -31,7 +31,7 @@ public class ShortcutConstants
 
     static final String SEPARATOR_LINE = "--------------------------------------------------------------------------------";
 
-    static final String SPEC_FILE_NAME = "shortcutSpec.xml";
+    public static final String SPEC_FILE_NAME = "shortcutSpec.xml";
 
     // ------------------------------------------------------
     // spec file section keys

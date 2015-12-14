@@ -58,6 +58,9 @@ import com.izforge.izpack.util.Platforms;
  */
 public class CompilerConfigMockedTest
 {
+    private final String START_TAG = "<izpack:installation version=\"5.0\" xmlns:izpack=\"http://izpack.org/schema/installation\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd\">";
+    private final String END_TAG = "</izpack:installation>";
+
     private Map<String, List<DynamicVariable>> mapStringListDyn;
     private XMLParser xmlParser = new XMLParser();
     private CompilerConfig compilerConfig;
@@ -80,10 +83,14 @@ public class CompilerConfigMockedTest
         Mockito.when(packager.getVariables()).thenReturn(variable);
 
         IXMLElement element = xmlParser.parse(
-                "<root><dynamicvariables><variable name=\"myPath\" value=\"$INSTALLPATH/test\"/></dynamicvariables></root>");
+                START_TAG
+                + "<dynamicvariables><variable name=\"myPath\" value=\"$INSTALLPATH/test\"/></dynamicvariables>"
+                + END_TAG);
         compilerConfig.addDynamicVariables(element);
         element = xmlParser.parse(
-                "<root><variables><variable name=\"INSTALLPATH\" value=\"thePath\"/></variables></root>");
+                START_TAG
+                + "<variables><variable name=\"INSTALLPATH\" value=\"thePath\"/></variables>"
+                + END_TAG);
         compilerConfig.addVariables(element);
 
         verifyCallToMap(mapStringListDyn, "myPath", new PlainValue("thePath/test"));
@@ -96,7 +103,9 @@ public class CompilerConfigMockedTest
         Mockito.when(packager.getDynamicVariables()).thenReturn(mapStringListDyn);
 
         IXMLElement element = xmlParser.parse(
-                "<root><dynamicvariables><variable name=\"myPath\" value=\"$INSTALLPATH/test\"/></dynamicvariables></root>");
+                START_TAG
+                + "<dynamicvariables><variable name=\"myPath\" value=\"$INSTALLPATH/test\"/></dynamicvariables>"
+                + END_TAG);
         compilerConfig.addDynamicVariables(element);
 
         verifyCallToMap(mapStringListDyn, "myPath", new PlainValue("$INSTALLPATH/test"));
@@ -116,7 +125,9 @@ public class CompilerConfigMockedTest
     public void compilerShouldAddVariable() throws Exception
     {
         IXMLElement xmlData = xmlParser.parse(
-                "<root><variables><variable name=\"scriptFile\" value=\"script.bat\"/></variables></root>");
+                START_TAG
+                + "<variables><variable name=\"scriptFile\" value=\"script.bat\"/></variables>"
+                + END_TAG);
         Properties variable = Mockito.mock(Properties.class);
         Mockito.when(packager.getVariables()).thenReturn(variable);
         compilerConfig.addVariables(xmlData);
@@ -127,7 +138,9 @@ public class CompilerConfigMockedTest
     public void shouldAddDynamicVariable() throws Exception
     {
         IXMLElement xmlData = xmlParser.parse(
-                "<root><dynamicvariables><variable name='myPath' value='$INSTALLPATH/test'/></dynamicvariables></root>");
+                START_TAG
+                + "<dynamicvariables><variable name='myPath' value='$INSTALLPATH/test'/></dynamicvariables>"
+                + END_TAG);
         Map variable = Mockito.mock(Map.class);
 
         Mockito.when(variable.containsKey("myPath")).thenReturn(false);
@@ -135,7 +148,6 @@ public class CompilerConfigMockedTest
 
         compilerConfig.addDynamicVariables(xmlData);
 
-        new ArrayList();
         DynamicVariable dynamicVariable = new DynamicVariableImpl();
         dynamicVariable.setName("myPath");
         dynamicVariable.setValue(new PlainValue("$INSTALLPATH/test"));

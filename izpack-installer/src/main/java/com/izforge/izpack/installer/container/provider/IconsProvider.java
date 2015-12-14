@@ -23,11 +23,6 @@ public class IconsProvider implements Provider
 {
     private static final Logger logger = Logger.getLogger(IconsProvider.class.getName());
 
-    /**
-     * Resource name for custom icons
-     */
-    private static final String CUSTOM_ICONS_RESOURCEFILE = "customicons.xml";
-
     public IconsDatabase provide(Resources resources) throws Exception
     {
         IconsDatabase icons = new IconsDatabase();
@@ -64,11 +59,11 @@ public class IconsProvider implements Provider
         InputStream inXML = null;
         try
         {
-            inXML = resources.getInputStream(CUSTOM_ICONS_RESOURCEFILE);
+            inXML = resources.getInputStream(Resources.CUSTOM_ICONS_RESOURCE_NAME);
         }
         catch (Throwable exception)
         {
-            logger.warning("Resource " + CUSTOM_ICONS_RESOURCEFILE
+            logger.warning("Resource " + Resources.CUSTOM_ICONS_RESOURCE_NAME
                                    + " not defined. No custom icons available");
             return;
         }
@@ -87,7 +82,7 @@ public class IconsProvider implements Provider
     {
         ImageIcon img;
         // Initialises the parser
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
 
         // We get the data
         IXMLElement data = parser.parse(inXML);
@@ -115,7 +110,7 @@ public class IconsProvider implements Provider
 
     /**
      * Loads an icon declared in an XML file.
-     * 
+     *
      * @param icon
      *            the XML element that declares the icon
      * @return the icon or <code>null</icon> if it does not exist

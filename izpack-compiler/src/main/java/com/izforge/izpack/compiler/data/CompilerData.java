@@ -86,6 +86,12 @@ public class CompilerData
     private boolean mkdirs = false;
 
     /**
+     * Specifies that the compiler will validate each descriptor using W3C XML Schema as they are parsed.
+     * By default the value of this is set to false.
+     */
+    private boolean validating = false;
+
+    /**
      * Compression level
      */
     private int comprLevel = -1;
@@ -122,19 +128,20 @@ public class CompilerData
         }
     }
 
-    public CompilerData(String installFile, String basedir, String output, boolean mkdirs)
+    public CompilerData(String installFile, String basedir, String output, boolean mkdirs, boolean validating)
     {
         this();
         this.installFile = installFile;
         this.basedir = basedir;
         this.output = output;
         this.mkdirs = mkdirs;
+        this.validating = validating;
     }
 
     public CompilerData(String comprFormat, String kind, String installFile, String installText, String basedir,
-                        String output, boolean mkdirs, int comprLevel)
+                        String output, boolean mkdirs, boolean validating, int comprLevel)
     {
-        this(installFile, basedir, output, mkdirs);
+        this(installFile, basedir, output, mkdirs, validating);
         this.comprFormat = comprFormat;
         this.kind = kind;
         this.installText = installText;
@@ -142,9 +149,9 @@ public class CompilerData
     }
 
     public CompilerData(String comprFormat, String kind, String installFile, String installText, String basedir,
-                        String output, boolean mkdirs, int comprLevel, Info externalInfo)
+                        String output, boolean mkdirs, boolean validating, int comprLevel, Info externalInfo)
     {
-        this(comprFormat, kind, installFile, installText, basedir, output, mkdirs, comprLevel);
+        this(comprFormat, kind, installFile, installText, basedir, output, mkdirs, validating, comprLevel);
         this.externalInfo = externalInfo;
     }
 
@@ -206,6 +213,30 @@ public class CompilerData
     public void setMkdirs(boolean mkdirs)
     {
         this.mkdirs = mkdirs;
+    }
+
+    /**
+     * Indicates whether the compiler will validate each descriptor using W3C XML Schema as it is
+     * parsed.
+     *
+     * @return {@code true} if the compiler will validate each descriptor as it is parsed;
+     * {@code false} otherwise.
+     */
+    public boolean isValidating()
+    {
+        return validating;
+    }
+
+    /**
+     * Specifies that the compiler will validate each descriptor using W3C XML Schema as it is
+     * parsed. By default the value of this is set to false.
+     *
+     * @param validating {@code true} if the compiler will validate each descriptor as it is parsed;
+     * {@code false} otherwise.
+     */
+    public void setValidating(boolean validating)
+    {
+        this.validating = validating;
     }
 
     public String getComprFormat()

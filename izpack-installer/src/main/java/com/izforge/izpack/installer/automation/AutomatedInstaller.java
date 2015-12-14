@@ -230,7 +230,8 @@ public class AutomatedInstaller implements InstallerBase
         FileInputStream in = new FileInputStream(input);
 
         // Initialises the parser
-        IXMLParser parser = new XMLParser();
+        // TODO: Create an XSD for auto-install files and activate validation here
+        IXMLParser parser = new XMLParser(false);
         IXMLElement rtn = parser.parse(in, input.getAbsolutePath());
         in.close();
 

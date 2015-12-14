@@ -34,7 +34,7 @@ public class XIncludeParseURLTestCase extends BaseXIncludeTestCase
         URL inputURL = getClass().getResource(fileBase + "-input.xml");
         URL expectURL = getClass().getResource(fileBase + "-expect.xml");
         // set up a new parser to parse the input xml (with includes)
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
         IXMLElement inputElement = parser.parse(inputURL);
         IXMLElement expectedElement = parser.parse(expectURL);
         deepEqual(expectedElement, inputElement);

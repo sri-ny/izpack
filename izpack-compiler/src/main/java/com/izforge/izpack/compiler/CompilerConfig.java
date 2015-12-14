@@ -26,6 +26,8 @@
 
 package com.izforge.izpack.compiler;
 
+import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -40,12 +42,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -73,9 +75,6 @@ import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.GUIPrefs;
 import com.izforge.izpack.api.data.Info;
-
-import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
-
 import com.izforge.izpack.api.data.Info.TempDir;
 import com.izforge.izpack.api.data.InstallerRequirement;
 import com.izforge.izpack.api.data.LookAndFeels;
@@ -91,6 +90,7 @@ import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.installer.DataValidator;
 import com.izforge.izpack.api.installer.DataValidator.Status;
 import com.izforge.izpack.api.merge.Mergeable;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.SubstitutionType;
@@ -106,6 +106,15 @@ import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.resource.ResourceFinder;
 import com.izforge.izpack.compiler.util.AntPathMatcher;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
+import com.izforge.izpack.compiler.xml.AntActionSpecXmlParser;
+import com.izforge.izpack.compiler.xml.ConfigurationActionSpecXmlParser;
+import com.izforge.izpack.compiler.xml.IconsSpecXmlParser;
+import com.izforge.izpack.compiler.xml.InstallationXmlParser;
+import com.izforge.izpack.compiler.xml.LangPackXmlParser;
+import com.izforge.izpack.compiler.xml.ProcessingSpecXmlParser;
+import com.izforge.izpack.compiler.xml.RegistrySpecXmlParser;
+import com.izforge.izpack.compiler.xml.ShortcutSpecXmlParser;
+import com.izforge.izpack.compiler.xml.UserInputSpecXmlParser;
 import com.izforge.izpack.core.data.DynamicInstallerRequirementValidatorImpl;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.rules.process.PackSelectionCondition;
@@ -126,11 +135,16 @@ import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.data.PanelAction;
 import com.izforge.izpack.data.ParsableFile;
 import com.izforge.izpack.data.UpdateCheck;
+import com.izforge.izpack.event.AntActionInstallerListener;
+import com.izforge.izpack.event.ConfigurationInstallerListener;
+import com.izforge.izpack.event.RegistryInstallerListener;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.panels.extendedinstall.ExtendedInstallPanel;
 import com.izforge.izpack.panels.install.InstallPanel;
+import com.izforge.izpack.panels.process.ProcessPanelWorker;
+import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
@@ -140,8 +154,6 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.FileUtils;
-
-import java.text.ParseException;
 
 /**
  * A parser for the installer xml configuration. This parses a document conforming to the
@@ -313,7 +325,8 @@ public class CompilerConfig extends Thread
         propertyManager.setProperty("basedir", base.toString());
 
         // We get the XML data tree
-        IXMLElement data = resourceFinder.getXMLTree();
+        IXMLParser parser = compilerData.isValidating() ? new InstallationXmlParser() : new XMLParser(false);
+        IXMLElement data = resourceFinder.getXMLTree(parser);
 
         // construct compiler listeners to receive all further compiler events
         addCompilerListeners(data);
@@ -1456,12 +1469,9 @@ public class CompilerConfig extends Thread
             }
         }
 
-        IXMLParser refXMLParser = new XMLParser();
-        // We get it
-        IXMLElement refXMLData = refXMLParser.parse(specin, refXMLFile.getAbsolutePath());
+        IXMLElement refXMLData = new InstallationXmlParser().parse(specin, refXMLFile.getAbsolutePath());
 
         // Now checked the loaded XML file for basic syntax
-        // We check it
         if (! (  "izpack:installation".equalsIgnoreCase(refXMLData.getName())  // normally with the namespace prefix
             || "installation".equalsIgnoreCase(refXMLData.getName())))       // optional without
         {
@@ -1757,7 +1767,7 @@ public class CompilerConfig extends Thread
             OutputStream os = null;
             try
             {
-                if (parsexml || (!"".equals(encoding)) || (substitute && !packager.getVariables().isEmpty()))
+                if (parsexml || !encoding.isEmpty() || (substitute && !packager.getVariables().isEmpty()))
                 {
                     // make the substitutions into a temp file
                     File parsedFile = FileUtils.createTempFile("izpp", null);
@@ -1769,7 +1779,7 @@ public class CompilerConfig extends Thread
                     url = parsedFile.toURI().toURL();
                 }
 
-                if (!"".equals(encoding))
+                if (!encoding.isEmpty())
                 {
                     File recodedFile = FileUtils.createTempFile("izenc", null);
                     recodedFile.deleteOnExit();
@@ -1798,7 +1808,7 @@ public class CompilerConfig extends Thread
 
                 if (parsexml)
                 {
-                    IXMLParser parser = new XMLParser();
+                    IXMLParser parser = new XMLParser(false);
                     // this constructor will open the specified url (this is
                     // why the InputStream is not handled in a similar manner
                     // to the OutputStream)
@@ -1879,10 +1889,51 @@ public class CompilerConfig extends Thread
                 }
             }
 
+            IXMLElement userInputSpec = null;
+
+            // Just validate to avoid XML parser errors during installation later
+            if (compilerData.isValidating())
+            {
+                if (id.startsWith(Resources.CUSTOM_TRANSLATIONS_RESOURCE_NAME)
+                        || id.startsWith(UserInputPanelSpec.LANG_FILE_NAME)
+                        || id.startsWith(Resources.PACK_TRANSLATIONS_RESOURCE_NAME))
+                {
+                    new LangPackXmlParser().parse(url);
+                }
+                else if (id.endsWith(ShortcutConstants.SPEC_FILE_NAME))
+                {
+                    new ShortcutSpecXmlParser().parse(url);
+                }
+                else if (id.equals(Resources.CUSTOM_ICONS_RESOURCE_NAME))
+                {
+                    new IconsSpecXmlParser().parse(url);
+                }
+                else if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
+                {
+                    userInputSpec = new UserInputSpecXmlParser().parse(url);
+                }
+                else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
+                {
+                    new AntActionSpecXmlParser().parse(url);
+                }
+                else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
+                {
+                    new ConfigurationActionSpecXmlParser().parse(url);
+                }
+                else if (id.equals(RegistryInstallerListener.SPEC_FILE_NAME))
+                {
+                    new RegistrySpecXmlParser().parse(url);
+                }
+                else if (id.equals(ProcessPanelWorker.SPEC_RESOURCE_NAME))
+                {
+                    new ProcessingSpecXmlParser().parse(url);
+                }
+            }
+
             packager.addResource(id, url);
 
             // remembering references to all added packsLang.xml files
-            if (id.startsWith("packsLang.xml"))
+            if (id.startsWith(Resources.PACK_TRANSLATIONS_RESOURCE_NAME))
             {
                 List<URL> packsLangURLs;
                 if (packsLangUrlMap.containsKey(id))
@@ -1899,8 +1950,12 @@ public class CompilerConfig extends Thread
             else if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
             {
                 // Check user input panel definitions
-                IXMLElement xml = new XMLParser().parse(url);
-                for (IXMLElement userPanelDef : xml.getChildrenNamed(UserInputPanelSpec.PANEL))
+                if (userInputSpec == null)
+                {
+                    // Parse only if not validating for avoiding parsing twice
+                    userInputSpec = new XMLParser(false).parse(url);
+                }
+                for (IXMLElement userPanelDef : userInputSpec.getChildrenNamed(UserInputPanelSpec.PANEL))
                 {
                     String userPanelId = xmlCompilerHelper.requireAttribute(userPanelDef, "id");
                     if (userInputPanelIds == null)
@@ -1909,7 +1964,7 @@ public class CompilerConfig extends Thread
                     }
                     if (!userInputPanelIds.add(userPanelId))
                     {
-                        assertionHelper.parseError(xml, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
+                        assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
                                 + ": Duplicate user input panel identifier '"
                                 + userPanelId + "'");
                     }
@@ -3025,8 +3080,6 @@ public class CompilerConfig extends Thread
         OutputStream os = null;
         try
         {
-            IXMLParser parser = new XMLParser();
-
             // loop through all packsLang resources, e.g. packsLang.xml_eng, packsLang.xml_deu, ...
             for (String id : packsLangUrlMap.keySet())
             {
@@ -3051,7 +3104,7 @@ public class CompilerConfig extends Thread
                     for (URL packslangURL : packsLangURLs)
                     {
                         // parsing xml
-                        IXMLElement xml = parser.parse(packslangURL);
+                        IXMLElement xml = new XMLParser(false).parse(packslangURL);
                         if (mergedPacksLang == null)
                         {
                             // just keep the first file
@@ -3089,7 +3142,7 @@ public class CompilerConfig extends Thread
         }
         catch (Exception e)
         {
-            throw new CompilerException("Unable to merge multiple packsLang.xml files: "
+            throw new CompilerException("Unable to merge multiple " + Resources.PACK_TRANSLATIONS_RESOURCE_NAME + " files: "
                                                 + e.getMessage(), e);
         }
         finally

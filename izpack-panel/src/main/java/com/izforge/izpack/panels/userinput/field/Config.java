@@ -99,7 +99,7 @@ public class Config
     public Config(String path, Resources resources, InstallData installData, ObjectFactory factory,
                   Messages messages)
     {
-        IXMLParser parser = new XMLParser();
+        IXMLParser parser = new XMLParser(false);
 
         URL url = resources.getURL(path);
         this.path = url.getPath();

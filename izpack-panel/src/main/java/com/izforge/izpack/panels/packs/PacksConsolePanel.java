@@ -34,6 +34,7 @@ import com.izforge.izpack.api.handler.Prompt.Option;
 import com.izforge.izpack.api.handler.Prompt.Options;
 import com.izforge.izpack.api.handler.Prompt.Type;
 import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
@@ -62,11 +63,11 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
         super(panel);
         this.prompt = prompt;
         this.installData = installData;
-        
+
         //load the packs lang messages if exists
         try
         {
-            messages = installData.getMessages().newMessages(PackHelper.LANG_FILE_NAME);
+            messages = installData.getMessages().newMessages(Resources.PACK_TRANSLATIONS_RESOURCE_NAME);
         }
         catch (ResourceNotFoundException exception)
         {
@@ -140,10 +141,10 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     {
         Pack p = names.get(pack);
         Boolean conditionSatisfied = checkCondition(installData, p);
-        
+
         //get the pack localized name
         String packName = PackHelper.getPackName(p, messages);
-        
+
         final boolean required = p.isRequired();
         final boolean packConditionTrue = conditionSatisfied == null || conditionSatisfied.booleanValue();
 
