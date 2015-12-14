@@ -106,6 +106,7 @@ public class ShortcutConsolePanel extends AbstractConsolePanel
         {
             if (shortcutPanelLogic.isSupported())
             {
+                result = true;
             }
             else if (shortcutPanelLogic.skipIfNotSupported())
             {
