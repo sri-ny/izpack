@@ -184,8 +184,13 @@ public class Librarian implements CleanupClient
      */
     protected URL getResourcePath(String name)
     {
-        String resource = "/" + NATIVE + name + extension;
-        return getClass().getResource(resource);
+        String resource = "/" + NATIVE + "/izpack/" + name + extension;
+        URL url = getClass().getResource(resource);
+        if (url == null) {
+            resource = "/" + NATIVE + "/3rdparty/" + name + extension;
+            url = getClass().getResource(resource);
+        }
+        return url;
     }
 
     /**
