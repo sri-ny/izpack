@@ -66,7 +66,7 @@ public class Librarian implements CleanupClient
     /**
      * The default directory for native library files.
      */
-    private static final String NATIVE = "com/izforge/izpack/bin/native/";
+    private static final String NATIVE = "/com/izforge/izpack/bin/native/";
 
     /**
      * A list that is used to track all libraries that have been loaded. This list is used to ensure
@@ -184,10 +184,10 @@ public class Librarian implements CleanupClient
      */
     protected URL getResourcePath(String name)
     {
-        String resource = "/" + NATIVE + "/izpack/" + name + extension;
+        String resource = NATIVE + "izpack/" + name + extension;
         URL url = getClass().getResource(resource);
         if (url == null) {
-            resource = "/" + NATIVE + "/3rdparty/" + name + extension;
+            resource = NATIVE + "3rdparty/" + name + extension;
             url = getClass().getResource(resource);
         }
         return url;
