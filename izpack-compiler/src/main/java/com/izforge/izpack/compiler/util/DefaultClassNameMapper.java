@@ -51,6 +51,7 @@ import com.izforge.izpack.panels.installationtype.InstallationTypePanel;
 import com.izforge.izpack.panels.jdkpath.JDKPathPanel;
 import com.izforge.izpack.panels.licence.LicencePanel;
 import com.izforge.izpack.panels.packs.PacksPanel;
+import com.izforge.izpack.panels.pdflicence.PDFLicencePanel;
 import com.izforge.izpack.panels.process.ProcessPanel;
 import com.izforge.izpack.panels.selectprinter.SelectPrinterPanel;
 import com.izforge.izpack.panels.shortcut.ShortcutPanel;
@@ -106,7 +107,7 @@ public class DefaultClassNameMapper implements ClassNameMapper
                    DefaultTargetPanel.class, DownloadPanel.class, ExtendedInstallPanel.class, FinishPanel.class,
                    HTMLHelloPanel.class, HTMLInfoPanel.class, HTMLLicencePanel.class, HelloPanel.class,
                    ImgPacksPanel.class, InfoPanel.class, InstallationGroupPanel.class, InstallationTypePanel.class,
-                   InstallPanel.class, JDKPathPanel.class, LicencePanel.class, PacksPanel.class, ProcessPanel.class,
+                   InstallPanel.class, JDKPathPanel.class, LicencePanel.class, PacksPanel.class,PDFLicencePanel.class, ProcessPanel.class,
                    SelectPrinterPanel.class, ShortcutPanel.class, SimpleFinishPanel.class, SudoPanel.class,
                    SummaryPanel.class, TargetPanel.class, TreePacksPanel.class, UserInputPanel.class,
                    UserPathPanel.class, XInfoPanel.class);

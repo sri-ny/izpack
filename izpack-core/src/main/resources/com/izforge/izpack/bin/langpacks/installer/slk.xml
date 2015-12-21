@@ -17,6 +17,7 @@
     <str id="HelloPanel.headline" txt="Vitajte"/>
     <str id="HTMLInfoPanel.headline" txt="Informácie"/>
     <str id="HTMLLicencePanel.headline" txt="Potvrdenie licencie"/>
+    <str id="PDFLicencePanel.headline" txt="Potvrdenie licencie"/>
     <str id="ImgPacksPanel.headline" txt="Vyberte inštalačné balíky"/>
     <str id="InfoPanel.headline" txt="Informácie"/>
     <str id="InstallPanel.headline" txt="Inštalácia"/>

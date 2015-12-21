@@ -24,6 +24,7 @@
     <str id="HelloPanel.headline" txt="Hoşgeldiniz"/>
     <str id="HTMLInfoPanel.headline" txt="Bilgiler"/>
     <str id="HTMLLicencePanel.headline" txt="Lisans Anlaşmaları"/>
+    <str id="PDFLicencePanel.headline" txt="Lisans Anlaşmaları"/>
     <str id="ImgPacksPanel.headline" txt="Kurmak İstediğiniz Paketleri Seçiniz"/>
     <str id="InfoPanel.headline" txt="Bilgiler"/>
     <str id="InstallPanel.headline" txt="Kurulum"/>

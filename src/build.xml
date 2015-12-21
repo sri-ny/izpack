@@ -651,7 +651,13 @@
         </build-panel>
         <build-panel name="HTMLLicencePanel">
             <include name="com/izforge/izpack/panels/HTMLLicencePanel.java" />
+            <include name="com/izforge/izpack/panels/HTMLLicenceConsolePanel.java" />
             <include name="com/izforge/izpack/panels/HTMLLicenceConsolePanelHelper.java" />
+        </build-panel>
+        <build-panel name="PDFLicencePanel">
+            <include name="com/izforge/izpack/panels/PDFLicencePanel.java" />
+            <include name="com/izforge/izpack/panels/PDFLicenceConsolePanel.java" />
+            <include name="com/izforge/izpack/panels/PDFLicenceConsolePanelHelper.java" />
         </build-panel>
         <build-panel name="HTMLInfoPanel">
             <include name="com/izforge/izpack/panels/HTMLInfoPanel.java" />

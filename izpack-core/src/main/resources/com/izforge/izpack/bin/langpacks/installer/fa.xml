@@ -17,6 +17,7 @@
     <str id="HelloPanel.headline" txt="خوش آمدید"/>
     <str id="HTMLInfoPanel.headline" txt="اطلاعات"/>
     <str id="HTMLLicencePanel.headline" txt="توافقنامۀ کاربر"/>
+    <str id="PDFLicencePanel.headline" txt="توافقنامۀ کاربر"/>
     <str id="ImgPacksPanel.headline" txt="انتخاب بسته های نصب"/>
     <str id="InfoPanel.headline" txt="اطلاعات"/>
     <str id="InstallPanel.headline" txt="نصب"/>

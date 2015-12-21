@@ -17,6 +17,7 @@
     <str id="HelloPanel.headline" txt="Benvenuto"/>
     <str id="HTMLInfoPanel.headline" txt="Informazioni"/>
     <str id="HTMLLicencePanel.headline" txt="Accordo di licenza"/>
+    <str id="PDFLicencePanel.headline" txt="Accordo di licenza"/>
     <str id="ImgPacksPanel.headline" txt="Selezionare i moduli da installare"/>
     <str id="InfoPanel.headline" txt="Informazioni"/>
     <str id="InstallPanel.headline" txt="Installazione"/>
