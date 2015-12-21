@@ -19,10 +19,44 @@
 
 package com.izforge.izpack.panels.pdflicence;
 
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_DEFAULT_PAGEFIT;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_DEFAULT_ZOOM_LEVEL;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_HIDE_UTILITYPANE;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_KEYBOARD_SHORTCUTS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_STATUSBAR;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_STATUSBAR_STATUSLABEL;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_STATUSBAR_VIEWMODE;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_ANNOTATION;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_FIT;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_FORMS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_PAGENAV;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_ROTATE;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_TOOL;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_UTILITY;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_TOOLBAR_ZOOM;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_ANNOTATION;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_ANNOTATION_FLAGS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_BOOKMARKS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_LAYERS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_SEARCH;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITYPANE_THUMBNAILS;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITY_OPEN;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITY_PRINT;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITY_SAVE;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITY_SEARCH;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_SHOW_UTILITY_UPANE;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_VIEWPREF_FITWINDOW;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_VIEWPREF_FORM_HIGHLIGHT;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_VIEWPREF_HIDEMENUBAR;
+import static org.icepdf.ri.util.PropertiesManager.PROPERTY_VIEWPREF_HIDETOOLBAR;
+
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -34,6 +68,8 @@ import javax.swing.KeyStroke;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
+import org.icepdf.ri.common.views.DocumentViewController;
+import org.icepdf.ri.util.PropertiesManager;
 
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.Panel;
@@ -52,18 +88,7 @@ import com.izforge.izpack.installer.gui.IzPanel;
  */
 public class PDFLicencePanel extends IzPanel implements ActionListener {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 3256728385458746416L;
-
-	private static final float DEFAULT_ZOOM = 1.25F;
-
-	/**
-	 * The text area.
-	 */
-	// private JEditorPane textArea;
-	private JPanel documentPanel = new JPanel();
 
 	/**
 	 * The radio buttons.
@@ -92,15 +117,12 @@ public class PDFLicencePanel extends IzPanel implements ActionListener {
 		// We put our components
 		add(LabelFactory.create(getString("LicencePanel.info"), parent.getIcons().get("history"), LEADING), NEXT_LINE);
 
-		SwingController controller = new SwingController();
-		SwingViewBuilder factory = new SwingViewBuilder(controller);
-		JPanel viewerComponentPanel = factory.buildViewerPanel();
+		final SwingController controller = new SwingController();
+		final SwingViewBuilder builder = new SwingViewBuilder(controller, createProperties());
+		final JPanel viewerComponentPanel = builder.buildViewerPanel();
+
 		ComponentKeyBinding.install(controller, viewerComponentPanel);
 
-		// Open a PDF document to view
-		controller.openDocument(loadLicence());
-
-		controller.setZoom(getZoomFrom(installData));
 		ActionListener fireDefault = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -110,8 +132,17 @@ public class PDFLicencePanel extends IzPanel implements ActionListener {
 				}
 			}
 		};
-		documentPanel.registerKeyboardAction(fireDefault, null, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+		viewerComponentPanel.registerKeyboardAction(fireDefault, null, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
 				JComponent.WHEN_FOCUSED);
+
+		JPanel toolbar = new JPanel();
+		toolbar.setLayout(new FlowLayout(FlowLayout.CENTER));
+		toolbar.add(builder.buildFitToolBar());
+		toolbar.add(builder.buildPageNavigationToolBar());
+		toolbar.add(builder.buildZoomToolBar());
+
+		add(toolbar, NEXT_LINE);
+
 		add(controller.getDocumentViewController().getViewContainer(), NEXT_LINE);
 
 		ButtonGroup group = new ButtonGroup();
@@ -127,17 +158,13 @@ public class PDFLicencePanel extends IzPanel implements ActionListener {
 		group.add(noRadio);
 		add(noRadio, NEXT_LINE);
 		noRadio.addActionListener(this);
-		setInitialFocus(documentPanel);
+
+		setInitialFocus(viewerComponentPanel);
 		getLayoutHelper().completeLayout();
 
-	}
+		// Open a PDF document to view
+		controller.openDocument(loadLicence());
 
-	private float getZoomFrom(GUIInstallData installData) {
-		try {
-			return Float.valueOf(installData.getAttribute("PDFLicencePanel.zoom").toString());
-		} catch (Exception e) {
-			return DEFAULT_ZOOM;
-		}
 	}
 
 	/**
@@ -203,6 +230,91 @@ public class PDFLicencePanel extends IzPanel implements ActionListener {
 		if (!yesRadio.isSelected()) {
 			parent.lockNextButton();
 		}
+	}
+
+	private PropertiesManager createProperties() {
+
+		Properties result = new Properties();
+
+		// General
+		result.setProperty(PROPERTY_DEFAULT_PAGEFIT, Integer.toString(DocumentViewController.PAGE_FIT_WINDOW_WIDTH));
+
+		result.setProperty(PROPERTY_VIEWPREF_HIDEMENUBAR, "false");
+		// Hides the menubar. Default value false.
+		result.setProperty(PROPERTY_VIEWPREF_HIDETOOLBAR, "false");
+		// Hides the top toolbar. Default value false.
+		result.setProperty(PROPERTY_VIEWPREF_FORM_HIGHLIGHT, "false");
+		result.setProperty(PROPERTY_VIEWPREF_FITWINDOW, "true");
+		// When enabled shows the document with fit to width if the document
+		// does not already specify a default view. Default value, true.
+		result.setProperty(PROPERTY_SHOW_KEYBOARD_SHORTCUTS, "false");
+		// Enables/disables menubar key events, default is true.
+		result.setProperty("application.alwaysShowImageSplashWindow", "no");
+		// Enables/disables the splash window, default is no
+		result.setProperty("application.chromeOnStartup", "no");
+		// Start with with chrome look and feel, default value is yes.
+		result.setProperty("application.showLocalStorageDialogs", "no");
+		// Yes is default value. Show dialog to use before writing properties to
+		// disk.
+		// "application.datadir - Directory to write properties file to in users
+		// home, default .icesoft/icepdf-viewer.
+		// Toolbar - General
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_PAGENAV, "false");
+		// Show page navigation controls; first, previous, next and last.
+		// Default is true.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_FIT, "false");
+		// Shows page fit controls; normal, hight and width. Default is true.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_ZOOM, "false");
+		// Shows page zoom controls. Default is true.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_ROTATE, "false");
+		// Shows page rotation controls. Default is true.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_TOOL, "false");
+		// Hide all toolbars. Default is false.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_ANNOTATION, "false");
+		// Shows annotation creation controls. Default is true.
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_FORMS, "false");
+		// Shows utility pane control to show/hide utility pane. Default is
+		// true.
+		// Toolbar - Zoom
+		result.setProperty(PROPERTY_DEFAULT_ZOOM_LEVEL, "1.3");
+		// Float value of default page zoom. Default if 1.0
+		// Toolbar - Utility
+		result.setProperty(PROPERTY_SHOW_TOOLBAR_UTILITY, "false");
+		// show utility toolbar and children. Default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITY_SAVE, "false");
+		// Show the save control, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITY_OPEN, "false");
+		// Show the open control, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITY_SEARCH, "false");
+		// Show the search control, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITY_UPANE, "false");
+		// Show the utility pane control, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITY_PRINT, "false");
+		// Show the print control, default is true.
+
+		// Utility Pane
+		result.setProperty(PROPERTY_HIDE_UTILITYPANE, "true");
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_BOOKMARKS, "false");
+		// Show the document outline panel tab, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_SEARCH, "false");
+		// Show the search panel tab, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_ANNOTATION, "false");
+		// Show the annotation properties pane, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_THUMBNAILS, "false");
+		// Show the thumbnail view pane, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_LAYERS, "false");
+		// Show the layers view pane, default is true.
+		result.setProperty(PROPERTY_SHOW_UTILITYPANE_ANNOTATION_FLAGS, "false");
+		// Status Bar
+		result.setProperty(PROPERTY_SHOW_STATUSBAR, "false");
+		// Show the status bar and child component, default is true.
+		result.setProperty(PROPERTY_SHOW_STATUSBAR_STATUSLABEL, "false");
+		// Show the status label, default is true.
+		result.setProperty(PROPERTY_SHOW_STATUSBAR_VIEWMODE, "false");
+		// Show the view mode controls, default is true.
+
+		return new PropertiesManager(System.getProperties(), result,
+				ResourceBundle.getBundle(PropertiesManager.DEFAULT_MESSAGE_BUNDLE));
 	}
 
 }

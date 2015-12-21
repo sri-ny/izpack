@@ -59,12 +59,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.icepdf</groupId>
+			<groupId>org.icepdf.os</groupId>
 			<artifactId>icepdf-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.icepdf</groupId>
+			<groupId>org.icepdf.os</groupId>
 			<artifactId>icepdf-viewer</artifactId>
 			<scope>provided</scope>
 		</dependency>
