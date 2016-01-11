@@ -365,6 +365,10 @@ public class Console
                 break;
             }
         }
+        catch (jline.console.UserInterruptException e)
+        {
+            throw new UserInterruptException("CTRL-C pressed", e);
+        }
         catch (IOException e)
         {
             result = null;
