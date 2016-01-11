@@ -1,29 +1,18 @@
 package com.izforge.izpack.util;
 
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.exception.UserInterruptException;
-
 import jline.Terminal;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
-import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.FileNameCompleter;
 import jline.internal.Log;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * I/O streams to support prompting and keyboard input from the console.
@@ -66,7 +55,6 @@ public class Console
             }));
             this.consoleReader = new ConsoleReader("IzPack", new FileInputStream(FileDescriptor.in), System.out, null);
             this.consoleReader.setHandleUserInterrupt(true);
-            this.consoleReader.setPaginationEnabled(true);
             Terminal terminal = consoleReader.getTerminal();
             if (terminal == null || terminal instanceof UnsupportedTerminal)
             {
@@ -144,19 +132,6 @@ public class Console
         }
     }
 
-    public void paginate(String text) throws IOException
-    {
-        if (consoleReaderFailed)
-        {
-            paginateText(text);
-        }
-        else
-        {
-            consoleReader.printColumns(getLines(text));
-        }
-        flush();
-    }
-
     private List<CharSequence> getLines(String text)
     {
         List<CharSequence> lines = new LinkedList<CharSequence>();
@@ -171,65 +146,50 @@ public class Console
 
     /**
      * Pages through the supplied text.
-     * This simulates the behavior of {@link ConsoleReader} when paginating text to get the same look & feel
-     * regardless whether it can be initialized.
      *
      * @param text    the text to display
      * @return <tt>true</tt> if paginated through, <tt>false</tt> if terminated
-     * @throws IOException
      */
-    private void paginateText(String text) throws IOException
+    public boolean paginate(String text) throws IOException
     {
-        final ResourceBundle resources = ResourceBundle.getBundle(CandidateListCompletionHandler.class.getName());
-        final Collection<? extends CharSequence> items = getLines(text);
+        boolean result = true;
+        Terminal terminal = consoleReader.getTerminal();
+        int height = consoleReaderFailed?23:terminal.getHeight();
+        int showLines = height - 2; // the no. of lines to display at a time
+        int line = 0;
 
-        int width = 80;
-        int height = 24;
-
-        int maxWidth = 0;
-        for (CharSequence item : items) {
-            maxWidth = Math.max(maxWidth, item.length());
-        }
-        maxWidth = maxWidth + 3;
-
-        int showLines = height - 1; // page limit
-        StringBuilder buff = new StringBuilder();
-        for (CharSequence item : items) {
-            if ((buff.length() + maxWidth) > width) {
-                println(buff.toString());
-                buff.setLength(0);
-
-                if (--showLines == 0) {
-                    // Overflow
-                    print(resources.getString("DISPLAY_MORE"));
-                    int c = read();
-                    if (c == '\r' || c == '\n') {
-                        // one step forward
-                        showLines = 1;
-                    }
-                    else if (c != 'q') {
-                        // page forward
-                        showLines = height - 1;
-                    }
-
-                    print('\b', resources.getString("DISPLAY_MORE").length());
-                    if (c == 'q') {
-                        // cancel
-                        break;
-                    }
+        StringTokenizer tokens = new StringTokenizer(WordUtils.wrap(text, terminal.getWidth(), null, true), "\n");
+        while (tokens.hasMoreTokens())
+        {
+            String token = tokens.nextToken();
+            println(token);
+            line++;
+            if (line >= showLines && tokens.hasMoreTokens())
+            {
+                // Overflow
+                println("--More--");
+                flush();
+                int c = read();
+                if (c == '\r' || c == '\n')
+                {
+                    // one step forward
+                    showLines = 1;
+                } else if (c != 'q')
+                {
+                    // page forward
+                    showLines = height - 2;
                 }
-            }
 
-            // NOTE: toString() is important here due to AnsiString being retarded
-            buff.append(item.toString());
-            for (int i = 0; i < (maxWidth - item.length()); i++) {
-                buff.append(' ');
+                if (c == 'q')
+                {
+                    // cancel
+                    break;
+                }
+
+                line = 0;
             }
         }
-
-        if (buff.length() > 0) {
-            println(buff.toString());
-        }
+        return result;
     }
 
     private void print(final char c, final int num) throws IOException {
