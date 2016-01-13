@@ -458,7 +458,6 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
      * validation or not.
      *
      * @param validator   the validator to evaluate
-     * @param index   the index in the list of validators for finding its appropriate validator condition
      * @param installData the installation data
      * @return {@code true} if the validator evaluated successfully, or with a warning that the user chose to skip;
      *         otherwise {@code false}

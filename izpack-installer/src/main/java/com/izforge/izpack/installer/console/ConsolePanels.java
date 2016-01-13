@@ -51,7 +51,8 @@ public class ConsolePanels extends AbstractPanels<ConsolePanelView, ConsolePanel
      * Constructs a {@code ConsolePanels}.
      *
      * @param panels    the panels
-     * @param variables the variables. These are refreshed prior to each panel switch
+     * @param container the container to get instances from
+     * @param installData install data
      */
     public ConsolePanels(List<ConsolePanelView> panels, Container container, InstallData installData)
     {
