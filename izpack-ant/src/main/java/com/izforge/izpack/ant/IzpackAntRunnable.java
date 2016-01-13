@@ -40,7 +40,7 @@ public class IzpackAntRunnable implements Runnable
     public void run()
     {
         CompilerContainer compilerContainer = new CompilerContainer();
-        compilerContainer.addConfig("installFile", input);
+		compilerContainer.addConfig("installFile", input == null ? "<config>" : input);
         compilerContainer.addComponent(CompilerData.class, compilerData);
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
