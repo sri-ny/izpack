@@ -72,4 +72,15 @@ public interface ConsolePanel
      * @param rootElement
      */
     public void createInstallationRecord(IXMLElement rootElement);
+
+    /**
+     * Do some user interaction on the console depending on the result of a panel validation.
+     * This is necessary to inform the user on the console about the forbidden progress and to prevent failing the
+     * installer in case the panel data validator treats the data to be wrong. Instead the user should be asked whether
+     * to redisplay the input fields to fix the wrong values.
+     * @param valid whether the validation has been successful
+     * @return false - let the installer fail, true - let the installer continue to run
+     * @see com.izforge.izpack.api.installer.DataValidator
+     */
+    boolean handlePanelValidationResult(boolean valid);
 }

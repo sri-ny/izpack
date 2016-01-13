@@ -100,14 +100,14 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     /**
      * Constructs an {@code UserInputConsolePanel}.
      *
-     * @param panel     the panel meta-data
      * @param resources the resources
      * @param factory   the object factory
      * @param rules     the rules
      * @param matcher   the platform-model matcher
      * @param console   the console
      * @param prompt    the prompt
-     * @param panel     the parent panel/view
+     * @param panelView     the parent panel/view
+     * @param installData   the install data
      */
     public UserInputConsolePanel(Resources resources, ObjectFactory factory,
                                  RulesEngine rules, PlatformModelMatcher matcher, Console console, Prompt prompt,
@@ -122,7 +122,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         this.console = console;
         this.prompt = prompt;
 
-        //FIXME Initialize conditions like in UserInputPanel
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
         Panel panel = getPanel();
         IXMLElement spec = model.getPanelSpec(panel);
@@ -314,5 +313,15 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     public void createInstallationRecord(IXMLElement rootElement)
     {
         new UserInputPanelAutomationHelper(fields).createInstallationRecord(installData, rootElement);
+    }
+
+    @Override
+    public boolean handlePanelValidationResult(boolean valid)
+    {
+        if (!valid)
+        {
+            return promptRerunPanel(installData, console);
+        }
+        return true;
     }
 }
