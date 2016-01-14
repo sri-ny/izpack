@@ -162,7 +162,8 @@ public class ConsoleInstaller implements InstallerBase
                 panels.setAction(action);
                 while (panels.hasNext())
                 {
-                    success = panels.getView().handlePanelValidationResult(panels.next());
+                    success = panels.next();
+                    success = panels.getView().handlePanelValidationResult(success);
                     if (!success)
                     {
                         break;
