@@ -85,7 +85,13 @@ public class NotCondition extends ConditionReference
     public boolean isTrue()
     {
         Condition condition = getReferencedCondition();
-        return condition != null && !condition.isTrue();
+        if (condition != null) {
+            if (condition.getInstallData() == null) {
+                condition.setInstallData(this.getInstallData());
+            }
+            return !condition.isTrue();
+        }
+        return false;
     }
 
     @Override

@@ -67,6 +67,9 @@ public class AndCondition extends ConditionWithMultipleOperands
         boolean result = true;
         for (Condition condition : nestedConditions)
         {
+            if (condition.getInstallData() == null) {
+                condition.setInstallData(this.getInstallData());
+            }
             result = result && condition.isTrue();
         }
         return result;
