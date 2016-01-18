@@ -147,5 +147,12 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     public void createInstallationRecord(IXMLElement rootElement)
     {
         // Default method, override to record panel contents
-    };
+    }
+
+    @Override
+    public boolean handlePanelValidationResult(boolean valid)
+    {
+        // Do nothing by default - to be overwritten in console panel implementations if necessary
+        return valid;
+    }    ;
 }
