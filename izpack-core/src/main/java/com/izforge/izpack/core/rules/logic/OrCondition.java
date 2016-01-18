@@ -65,6 +65,9 @@ public class OrCondition extends ConditionWithMultipleOperands
         boolean result = false;
         for (Condition condition : nestedConditions)
         {
+            if (condition.getInstallData() == null) {
+                condition.setInstallData(this.getInstallData());
+            }
             result = result || condition.isTrue();
         }
         return result;

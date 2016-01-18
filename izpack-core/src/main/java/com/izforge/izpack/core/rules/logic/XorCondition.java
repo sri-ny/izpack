@@ -65,6 +65,9 @@ public class XorCondition extends OrCondition
         boolean marked = false;
         for (Condition condition : nestedConditions)
         {
+            if (condition.getInstallData() == null) {
+                condition.setInstallData(this.getInstallData());
+            }
             boolean currentResult = condition.isTrue();
             if (!marked)
             {
