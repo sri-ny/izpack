@@ -54,6 +54,7 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
 
     private Messages messages;
     private HashMap<String, Pack> names;
+    private List<Pack> selectedPacks;
 
     private final Prompt prompt;
     private final InstallData installData;
@@ -101,8 +102,23 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     public boolean run(InstallData installData, Console console)
     {
         out(Type.INFORMATION, "");
-        List<Pack> selectedPacks = new LinkedList<Pack>();
-        computePacks(installData.getAvailablePacks());
+        out(Type.INFORMATION, installData.getMessages().get("PacksPanel.info"));
+        out(Type.INFORMATION, "");
+
+        List<Pack> availablePacks = installData.getAvailablePacks();
+        computePacks(availablePacks);
+        if (selectedPacks == null)
+        {
+            selectedPacks = new LinkedList<Pack>();
+            for (Pack pack : availablePacks)
+            {
+                if (!pack.isHidden())
+                {
+                    // Initially, add all available packs by default
+                    selectedPacks.add(pack);
+                }
+            }
+        }
 
         // private HashMap<String, Pack> names;
         for (String key : names.keySet())
@@ -116,7 +132,7 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
         if (selectedPacks.size() == 0)
         {
             out(Type.WARNING, "You have not selected any packs!");
-            out(Type.WARNING, "Are you sure you want to continue?");
+            return promptRerunPanel(installData, console);
         }
         return promptEndPanel(installData, console);
     }
@@ -155,19 +171,31 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
             {
                 // Force selecting the pack
                 out(Type.INFORMATION, "  [x] Pack '" + packName + "' required");
-                selectedPacks.add(p);
             }
             else
             {
-                if (askUser("  [x] Include optional pack '" + packName + "'", Option.YES))
+                boolean contained = selectedPacks.contains(p);
+                String cbView = contained ? "x" : " ";
+                if (askUser("  ["+ cbView +"] Include optional pack '" + packName + "'", (contained ? Option.YES : Option.NO)))
                 {
-                    selectedPacks.add(p);
+                    if (!contained)
+                    {
+                        selectedPacks.add(p);
+                    }
+                }
+                else
+                {
+                    if (contained)
+                    {
+                        selectedPacks.remove(p);
+                    }
                 }
             }
         }
         else
         {
             // Force not selecting the pack
+            selectedPacks.remove(p);
             out(Type.INFORMATION, "  [ ] Pack '" + packName + "' not enabled");
         }
     }
