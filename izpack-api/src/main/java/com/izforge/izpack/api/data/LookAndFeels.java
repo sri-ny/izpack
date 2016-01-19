@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public enum LookAndFeels
 {
-    LIQUID("liquid"), LOOKS("looks"), SUBSTANCE("substance"), NIMBUS("nimbus"), KUNSTSTOFF("kunststoff");
+    LOOKS("looks"), SUBSTANCE("substance"), NIMBUS("nimbus"), KUNSTSTOFF("kunststoff");
 
     private String name;
 

@@ -42,8 +42,6 @@ public class InstallerGui
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
-        final SplashScreen splashScreen = installerContainer.getComponent(SplashScreen.class);
-        splashScreen.displaySplashScreen();
 
         SwingUtilities.invokeLater(new Runnable()
         {
@@ -51,6 +49,8 @@ public class InstallerGui
             {
                 try
                 {
+                    final SplashScreen splashScreen = installerContainer.getComponent(SplashScreen.class);
+                    splashScreen.displaySplashScreen();
 
                     if (mediaPath != null)
                     {

@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import javax.swing.JFrame;
 
+import com.izforge.izpack.gui.IconsDatabase;
 import org.fest.swing.fixture.DialogFixture;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -69,6 +70,11 @@ public class LanguageDialogTest
     private final Locales locales;
 
     /**
+     * The locales.
+     */
+    private final IconsDatabase icons;
+
+    /**
      * The dialog fixture.
      */
     private DialogFixture fixture;
@@ -80,11 +86,12 @@ public class LanguageDialogTest
      * @param installData the installation data
      * @param locales     the locales. Must contain locales "eng" and "fra"
      */
-    public LanguageDialogTest(Resources resources, GUIInstallData installData, Locales locales)
+    public LanguageDialogTest(Resources resources, GUIInstallData installData, Locales locales, IconsDatabase icons)
     {
         this.resources = resources;
         this.installData = installData;
         this.locales = locales;
+        this.icons = icons;
     }
 
     /**
@@ -169,9 +176,7 @@ public class LanguageDialogTest
     private LanguageDialog createDialog(String langDisplayType)
     {
         installData.guiPrefs.modifier.put("langDisplayType", langDisplayType);
-        JFrame frame = new JFrame();
-        frame.setLocationRelativeTo(null);
-        return new LanguageDialog(frame, resources, locales, installData, Mockito.mock(RequirementsChecker.class));
+        return new LanguageDialog(resources, locales, installData, icons, Mockito.mock(RequirementsChecker.class));
     }
 
 }

@@ -3,9 +3,9 @@ package com.izforge.izpack.installer.container.impl;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.*;
 
+import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.installer.gui.SplashScreen;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
@@ -89,32 +89,31 @@ public class GUIInstallerContainer extends InstallerContainer
      * @param pico the container
      */
     @Override
-    protected void resolveComponents(MutablePicoContainer pico)
+    protected void resolveComponents(final MutablePicoContainer pico)
     {
         super.resolveComponents(pico);
         InstallData installdata = pico.getComponent(InstallData.class);
         pico
-                .addConfig("title", getTitle(installdata)) // Configuration of title parameter in InstallerFrame
-                .addConfig("frame", initFrame());          // Configuration of frame parameter in languageDialog
+                .addConfig("title", getTitle(installdata)); // Configuration of title parameter in InstallerFrame
 
-        InstallerFrame frame = pico.getComponent(InstallerFrame.class);
-        IUnpacker unpacker = pico.getComponent(IUnpacker.class);
-        frame.setUnpacker(unpacker);
-    }
+        try
+        {
+            SwingUtilities.invokeAndWait(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    InstallerFrame frame = pico.getComponent(InstallerFrame.class);
+                    IUnpacker unpacker = pico.getComponent(IUnpacker.class);
+                    frame.setUnpacker(unpacker);
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            throw new IzPackException(exception);
+        }
 
-    private JFrame initFrame()
-    {
-        IconsDatabase icons = getComponent(IconsDatabase.class);
-        // Dummy Frame
-        JFrame frame = new JFrame();
-        ImageIcon imageIcon = icons.get("JFrameIcon");
-        frame.setIconImage(imageIcon.getImage());
-
-        Dimension frameSize = frame.getSize();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation((screenSize.width - frameSize.width) / 2,
-                          (screenSize.height - frameSize.height) / 2 - 10);
-        return frame;
     }
 
     private String getTitle(InstallData installData)

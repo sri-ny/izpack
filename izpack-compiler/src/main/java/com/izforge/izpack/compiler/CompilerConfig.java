@@ -511,15 +511,11 @@ public class CompilerConfig extends Thread
                     case KUNSTSTOFF:
                         mergeableList = pathResolver.getMergeableFromPackageName("com/incors/plaf");
                         break;
-                    case LIQUID:
-                        mergeableList = pathResolver.getMergeableFromPackageName("com/birosoft/liquid/");
-                        break;
                     case LOOKS:
                         mergeableList = pathResolver.getMergeableFromPackageName("com/jgoodies/looks");
                         break;
                     case SUBSTANCE:
                         mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels");
-                        mergeableList.addAll(pathResolver.getMergeableFromPackageName("nanoxml"));
                         break;
                     case NIMBUS:
                         // Nimbus was included in JDK 6u10, and in JDK7 changed packages.
