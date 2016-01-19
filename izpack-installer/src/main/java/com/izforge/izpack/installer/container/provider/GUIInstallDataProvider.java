@@ -311,9 +311,9 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         ClassLoader classLoader = (cl != null) ? cl : JPanel.class.getClassLoader();
         Class aClass = (Class) defaults.get(uiClassName);
 
-        logger.info("PanelUI : " + uiClassName);
-        logger.info("ClassLoader : " + classLoader);
-        logger.info("Cached class : " + aClass);
+        logger.fine("PanelUI: " + uiClassName);
+        logger.fine("ClassLoader: " + classLoader);
+        logger.fine("Cached class: " + aClass);
         if (aClass != null)
         {
             return;
@@ -321,23 +321,23 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
 
         if (classLoader == null)
         {
-            logger.info("Using system loader to load " + uiClassName);
+            logger.fine("Using system loader to load " + uiClassName);
             aClass = Class.forName(uiClassName, true, Thread.currentThread().getContextClassLoader());
-            logger.info("Done loading");
+            logger.fine("Done loading");
         }
         else
         {
-            logger.info("Using custom loader to load " + uiClassName);
+            logger.fine("Using custom loader to load " + uiClassName);
             aClass = classLoader.loadClass(uiClassName);
-            logger.info("Done loading");
+            logger.fine("Done loading");
         }
         if (aClass != null)
         {
-            logger.info("Loaded class : " + aClass.getName());
+            logger.fine("Loaded class: " + aClass.getName());
         }
         else
         {
-            logger.info("Couldn't load the class");
+            logger.fine("Couldn't load the class");
         }
     }
 

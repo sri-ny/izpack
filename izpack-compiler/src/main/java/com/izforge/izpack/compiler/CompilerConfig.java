@@ -519,7 +519,6 @@ public class CompilerConfig extends Thread
                         break;
                     case SUBSTANCE:
                         mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels");
-                        mergeableList.addAll(pathResolver.getMergeableFromPackageName("nanoxml"));
                         break;
                     case NIMBUS:
                         // Nimbus was included in JDK 6u10, and in JDK7 changed packages.

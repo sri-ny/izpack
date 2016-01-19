@@ -84,7 +84,7 @@
 
         <!-- lafs -->
         <dependency>
-            <groupId>org.java.net.substance</groupId>
+            <groupId>com.github.insubstantial</groupId>
             <artifactId>substance</artifactId>
         </dependency>
         <dependency>

@@ -20,22 +20,6 @@
  */
 package com.izforge.izpack.panels.process;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import javax.swing.LookAndFeel;
-import javax.swing.UIManager;
-
-import org.fest.swing.fixture.DialogFixture;
-import org.fest.swing.fixture.FrameFixture;
-import org.hamcrest.text.StringContains;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.jvnet.substance.skin.SubstanceBusinessLookAndFeel;
-
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.resource.Locales;
@@ -48,6 +32,18 @@ import com.izforge.izpack.panels.simplefinish.SimpleFinishPanel;
 import com.izforge.izpack.panels.test.AbstractPanelTest;
 import com.izforge.izpack.panels.test.TestGUIPanelContainer;
 import com.izforge.izpack.test.Container;
+import org.fest.swing.fixture.DialogFixture;
+import org.fest.swing.fixture.FrameFixture;
+import org.hamcrest.text.StringContains;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel;
+
+import javax.swing.*;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.*;
 
 
 /**
