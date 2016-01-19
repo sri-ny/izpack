@@ -198,32 +198,6 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
             return;
         }
 
-        // Liquid (http://liquidlnf.sourceforge.net/)
-        if ("liquid".equals(lookAndFeelName))
-        {
-            UIManager.setLookAndFeel("com.birosoft.liquid.LiquidLookAndFeel");
-
-            Map<String, String> params = installData.guiPrefs.lookAndFeelParams.get(lookAndFeelName);
-            if (params.containsKey("decorate.frames"))
-            {
-                String value = params.get("decorate.frames");
-                if ("yes".equals(value))
-                {
-                    JFrame.setDefaultLookAndFeelDecorated(true);
-                }
-            }
-            if (params.containsKey("decorate.dialogs"))
-            {
-                String value = params.get("decorate.dialogs");
-                if ("yes".equals(value))
-                {
-                    JDialog.setDefaultLookAndFeelDecorated(true);
-                }
-            }
-
-            return;
-        }
-
         // Metouia (http://mlf.sourceforge.net/)
         if ("metouia".equals(lookAndFeelName))
         {

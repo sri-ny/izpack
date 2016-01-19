@@ -511,9 +511,6 @@ public class CompilerConfig extends Thread
                     case KUNSTSTOFF:
                         mergeableList = pathResolver.getMergeableFromPackageName("com/incors/plaf");
                         break;
-                    case LIQUID:
-                        mergeableList = pathResolver.getMergeableFromPackageName("com/birosoft/liquid/");
-                        break;
                     case LOOKS:
                         mergeableList = pathResolver.getMergeableFromPackageName("com/jgoodies/looks");
                         break;
