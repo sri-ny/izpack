@@ -19,17 +19,13 @@
 
 package com.izforge.izpack.api.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.util.Platform;
+
+import java.util.*;
 
 /**
  * Encloses information about the install process. This implementation is not thread safe.
@@ -85,11 +81,6 @@ public class AutomatedInstallData implements InstallData
      * The panels order.
      */
     private List<Panel> panelsOrder;
-
-    /**
-     * The current panel.
-     */
-    private int curPanelNumber;
 
     /**
      * Can we close the installer ?
@@ -480,30 +471,6 @@ public class AutomatedInstallData implements InstallData
         this.panelsOrder = panelsOrder;
     }
 
-    /**
-     * Returns the current panel number.
-     *
-     * @return the current panel  number
-     * @deprecated use {@code Panels#getIndex()}.
-     */
-    @Deprecated
-    public int getCurPanelNumber()
-    {
-        return curPanelNumber;
-    }
-
-    /**
-     * Sets the current panel number.
-     *
-     * @param curPanelNumber the current panel number
-     * @deprecated no replacement
-     */
-    @Deprecated
-    public void setCurPanelNumber(int curPanelNumber)
-    {
-        this.curPanelNumber = curPanelNumber;
-    }
-
     @Override
     public boolean isCanClose()
     {
@@ -562,23 +529,6 @@ public class AutomatedInstallData implements InstallData
         this.xmlData = xmlData;
     }
 
-    @Deprecated
-    public Map<String, List> getCustomData()
-    {
-        return customData;
-    }
-
-    @Deprecated
-    public void setCustomData(Map<String, List> customData)
-    {
-        this.customData = customData;
-    }
-
-    @Deprecated
-    public void setVariables(Variables variables)
-    {
-    }
-
     public Map<String, Object> getAttributes()
     {
         return attributes;
@@ -589,27 +539,9 @@ public class AutomatedInstallData implements InstallData
         this.attributes = attributes;
     }
 
-    @Deprecated
-    public Map<String, List<DynamicVariable>> getDynamicvariables()
-    {
-        return this.dynamicvariables;
-    }
-
-    @Deprecated
-    public void setDynamicvariables(Map<String, List<DynamicVariable>> dynamicvariables)
-    {
-        this.dynamicvariables = dynamicvariables;
-    }
-
     public List<DynamicInstallerRequirementValidator> getDynamicInstallerRequirements()
     {
         return this.dynamicinstallerrequirements;
-    }
-
-    @Deprecated
-    public List<DynamicInstallerRequirementValidator> getDynamicinstallerrequirements()
-    {
-        return getDynamicInstallerRequirements();
     }
 
     public void setDynamicInstallerRequirements(List<DynamicInstallerRequirementValidator> requirements)
@@ -626,23 +558,5 @@ public class AutomatedInstallData implements InstallData
     public List<InstallerRequirement> getInstallerRequirements()
     {
         return installerrequirements;
-    }
-
-    @Deprecated
-    public List<InstallerRequirement> getInstallerrequirements()
-    {
-        return getInstallerRequirements();
-    }
-
-    @Deprecated
-    public List<InstallerListener> getInstallerListener()
-    {
-        return installerListener;
-    }
-
-    @Deprecated
-    public void setInstallerListener(List<InstallerListener> installerListener)
-    {
-        this.installerListener = installerListener;
     }
 }

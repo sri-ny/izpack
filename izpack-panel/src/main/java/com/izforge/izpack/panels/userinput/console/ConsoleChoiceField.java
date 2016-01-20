@@ -100,7 +100,7 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
      * Displays the choices.
      *
      * @param choices  the choices
-     * @param selected the selected choice, or {@code -1} if no choice is selected
+     * @param selectedRealIndex the selected choice, or {@code -1} if no choice is selected
      */
     private MappedSelection listChoices(List<Choice> choices, int selectedRealIndex)
     {
