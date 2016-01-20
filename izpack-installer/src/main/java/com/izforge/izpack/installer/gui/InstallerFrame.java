@@ -22,47 +22,6 @@
 
 package com.izforge.izpack.installer.gui;
 
-import static com.izforge.izpack.api.GuiId.BUTTON_HELP;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.KeyAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionAdapter;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.border.TitledBorder;
-import javax.swing.text.JTextComponent;
-
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
@@ -85,6 +44,19 @@ import com.izforge.izpack.installer.debugger.Debugger;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.Housekeeper;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.izforge.izpack.api.GuiId.BUTTON_HELP;
 
 /**
  * The IzPack installer frame.
@@ -572,7 +544,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             }
 
             panelsContainer.add(newView);
-            installdata.setCurPanelNumber(newPanel.getIndex());
 
             if (newView.getInitialFocus() != null)
             {
@@ -738,7 +709,8 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * Writes the installation record to a file.
      *
-     * @param out  The file to write to.
+     * @param file  The file to write to.
+     * @param uninstallData  The uninstall data.
      * @throws Exception Description of the Exception
      */
     @Override
@@ -1452,43 +1424,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             return;
         }
         this.helpButton.setVisible(show);
-    }
-
-    public void refreshDynamicVariables()
-    {
-        try
-        {
-            installdata.refreshVariables();
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.SEVERE, "Error when refreshing variable", e);
-            logger.fine("Refreshing dynamic variables failed, asking user whether to proceed.");
-            StringBuilder msg = new StringBuilder();
-            msg.append("<html>");
-            msg.append("The following error occured during refreshing panel contents:<br>");
-            msg.append("<i>").append(e.getMessage()).append("</i><br>");
-            msg.append("Are you sure you want to continue with this installation?");
-            msg.append("</html>");
-            JLabel label = new JLabel(msg.toString());
-            label.setFont(new Font("Sans Serif", Font.PLAIN, 12));
-            Object[] optionValues = {"Continue", "Exit"};
-            int selectedOption = JOptionPane.showOptionDialog(null, label, "Warning",
-                                                              JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-                                                              null, optionValues,
-                                                              optionValues[1]);
-            logger.fine("Selected option: " + selectedOption);
-            if (selectedOption == 0)
-            {
-                logger.fine("Continuing installation");
-            }
-            else
-            {
-                // TODO - shouldn't do this. Should try and clean up the installation
-                logger.fine("Exiting");
-                System.exit(1);
-            }
-        }
     }
 
     /**

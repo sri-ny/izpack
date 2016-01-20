@@ -206,7 +206,7 @@ public class Config
     public String getString(IXMLElement element, String name, String defaultValue)
     {
         String value = element.getAttribute(name);
-        if (value != null && !value.equals(""))
+        if (value != null && !value.isEmpty())
         {
             value = installData.getVariables().replace(value);
         }
@@ -286,7 +286,7 @@ public class Config
     {
         boolean result = defaultValue;
         String value = getString(element, name, null);
-        if (value != null && !value.equals(""))
+        if (value != null && !value.isEmpty())
         {
             // support "yes" for backwards compatibility, but don't encourage its use...
             result = value.equals("yes") || Boolean.valueOf(value);
