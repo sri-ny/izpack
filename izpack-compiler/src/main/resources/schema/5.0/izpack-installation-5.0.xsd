@@ -393,6 +393,20 @@
         <xs:attribute type="xs:string" name="id" use="optional"/>
         <xs:attribute type="xs:string" name="encoding" use="optional"/>
         <xs:attribute type="xs:string" name="condition" use="optional"/>
+        <xs:attribute type="xs:boolean" name="allowClose" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Determines whether confirmation is required when quitting the installer from this panel and panels
+                    defined before this panel.
+                    Set "true" to allow the installer to be closed using the "Quit" or "Done" button without
+                    confirmation on this panel, but require confirmation on previous panels without this attribute.
+                    Set "false" to prompt for confirmation when Quit or Done is pressed on this and previous panels
+                    without this attribute.
+                    If there is no "allowClose" attribute IzPack will exhibit its classic behavior, which is to prompt
+                    for confirmation until the files are copied unless the Previous and Next buttons are both disabled.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
 
