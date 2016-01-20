@@ -150,12 +150,13 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
         {
             String value = config.getAttribute(choice, "value");
             String conditionId = config.getString(choice, "conditionid", null);
-            String set = config.getAttribute(choice, "set", true);
+            boolean isSet = config.getBoolean(choice, "set", false);
             if(variableValue == null)
             {
-                if(set != null && set.equalsIgnoreCase("true"))
+                if (isSet)
                 {
                     result = selected;
+                    break;
                 }
             }
             else

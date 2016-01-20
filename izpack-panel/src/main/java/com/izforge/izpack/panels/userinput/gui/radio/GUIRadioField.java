@@ -190,7 +190,6 @@ public class GUIRadioField extends GUIField implements ActionListener
             if (value.equals(view.choice.getTrueValue()))
             {
                 view.button.setSelected(true);
-                notifyUpdateListener();
                 return true;
             }
             else
