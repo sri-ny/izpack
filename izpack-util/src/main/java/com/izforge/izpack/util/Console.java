@@ -6,11 +6,13 @@ import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import jline.internal.Log;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.awt.event.KeyEvent;
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -158,7 +160,7 @@ public class Console
         int showLines = height - 2; // the no. of lines to display at a time
         int line = 0;
 
-        StringTokenizer tokens = new StringTokenizer(WordUtils.wrap(text, terminal.getWidth(), null, true), "\n");
+        StringTokenizer tokens = new StringTokenizer(StringTool.wordWrap(text, terminal.getWidth()), "\n");
         while (tokens.hasMoreTokens())
         {
             String token = tokens.nextToken();
