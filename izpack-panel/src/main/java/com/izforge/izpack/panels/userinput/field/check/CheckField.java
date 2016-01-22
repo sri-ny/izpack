@@ -88,12 +88,36 @@ public class CheckField extends Field
      */
     public boolean getInitialSelection()
     {
-        String value = getInitialValue();
         boolean result = false;
+        String value = getInitialValue();
         if (value != null)
         {
-            result = value.equals(trueValue) || Boolean.valueOf(value);
+            result = value.equals(trueValue);
         }
         return result;
+    }
+
+    @Override
+    public String wrapInitialValue(String originalValue)
+    {
+        if (originalValue != null)
+        {
+            return Boolean.parseBoolean(originalValue)
+                    ? replaceVariables(trueValue)
+                    : replaceVariables(falseValue);
+        }
+        return null;
+    }
+
+    @Override
+    public String wrapDefaultValue(String originalValue)
+    {
+        if (originalValue != null)
+        {
+            return Boolean.parseBoolean(originalValue)
+                    ? replaceVariables(trueValue)
+                    : replaceVariables(falseValue);
+        }
+        return null;
     }
 }

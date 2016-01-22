@@ -90,6 +90,8 @@ public class UserInputConsolePanel extends AbstractConsolePanel
      */
     private final Prompt prompt;
 
+    private final Panel panel;
+
     /**
      * The fields.
      */
@@ -123,7 +125,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         this.prompt = prompt;
 
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
-        Panel panel = getPanel();
+        this.panel = getPanel();
         IXMLElement spec = model.getPanelSpec(panel);
 
         boolean isDisplayingHidden = false;
@@ -167,12 +169,13 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         {
             panel.setReadonlyCondition(condition);
         }
+
+        collectInputs(installData);
     }
 
     @Override
     public boolean run(InstallData installData, Properties properties)
     {
-        collectInputs(installData);
         for (ConsoleField field : fields)
         {
             String name = field.getVariable();
@@ -191,7 +194,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     @Override
     public boolean generateProperties(InstallData installData, PrintWriter printWriter)
     {
-        collectInputs(installData);
         for (ConsoleField field : fields)
         {
             String name = field.getVariable();
@@ -213,16 +215,10 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        boolean result;
-        if (!collectInputs(installData))
-        {
-            // no inputs
-            result = true;
-        }
-        else
+        boolean result = true;
+        if (fields != null && !fields.isEmpty())
         {
             boolean rerun = false;
-            Panel panel = getPanel();
             Set<String> variables = new HashSet<String>();
             for (ConsoleField field : fields)
             {
@@ -288,7 +284,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
         return result;
     }
 
-    private boolean collectInputs(InstallData installData)
+    private void collectInputs(InstallData installData)
     {
         UserInputPanelSpec model = new UserInputPanelSpec(resources, installData, factory, matcher);
         Panel panel = getPanel();
@@ -302,7 +298,6 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             ConsoleField consoleField = factory.create(fieldDefinition, model, spec);
             fields.add(consoleField);
         }
-        return true;
     }
 
     /**

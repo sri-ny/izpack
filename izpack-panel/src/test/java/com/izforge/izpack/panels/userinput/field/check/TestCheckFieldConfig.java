@@ -65,7 +65,7 @@ public class TestCheckFieldConfig extends TestFieldConfig implements CheckFieldC
     @Override
     public String getTrueValue()
     {
-        return trueValue;
+        return trueValue != null ? trueValue : Boolean.TRUE.toString();
     }
 
     /**
@@ -76,6 +76,6 @@ public class TestCheckFieldConfig extends TestFieldConfig implements CheckFieldC
     @Override
     public String getFalseValue()
     {
-        return falseValue;
+        return falseValue != null ? falseValue : Boolean.FALSE.toString();
     }
 }
