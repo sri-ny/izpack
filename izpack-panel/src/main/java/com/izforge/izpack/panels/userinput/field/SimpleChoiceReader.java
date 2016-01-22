@@ -14,6 +14,11 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
 {
 
     /**
+     * The choice element name.
+     */
+    public static final String CHOICE = "choice";
+
+    /**
      * The installation data.
      */
     private InstallData installData;
@@ -35,7 +40,7 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
         super(field, config);
         this.installData = installData;
 
-        for (IXMLElement choice : getSpec().getChildrenNamed("choice"))
+        for (IXMLElement choice : getSpec().getChildrenNamed(CHOICE))
         {
             if (getConfig().getBoolean(choice, "set", false))
             {
@@ -54,7 +59,7 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
     {
         List<Choice> result = new ArrayList<Choice>();
         Config config = getConfig();
-        for (IXMLElement choice : getSpec().getChildrenNamed("choice"))
+        for (IXMLElement choice : getSpec().getChildrenNamed(CHOICE))
         {
             String processorClass = choice.getAttribute("processor");
             String conditionId = config.getString(choice, "conditionid", null);
@@ -146,7 +151,7 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
         Config config = getConfig();
         RulesEngine rules = installData.getRules();
         String variableValue = installData.getVariable(variable);
-        for (IXMLElement choice : getSpec().getChildrenNamed("choice"))
+        for (IXMLElement choice : getSpec().getChildrenNamed(CHOICE))
         {
             String value = config.getAttribute(choice, "value");
             String conditionId = config.getString(choice, "conditionid", null);

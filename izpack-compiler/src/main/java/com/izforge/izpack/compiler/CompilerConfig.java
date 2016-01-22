@@ -26,62 +26,13 @@
 
 package com.izforge.izpack.compiler;
 
-import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
 import com.izforge.izpack.api.adaptator.IXMLWriter;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLWriter;
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.ConfigurationOption;
-import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
-import com.izforge.izpack.api.data.DynamicVariable;
-import com.izforge.izpack.api.data.GUIPrefs;
-import com.izforge.izpack.api.data.Info;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.data.Info.TempDir;
-import com.izforge.izpack.api.data.InstallerRequirement;
-import com.izforge.izpack.api.data.LookAndFeels;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.PackFile;
-import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.data.binding.Help;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.data.binding.Stage;
@@ -106,35 +57,15 @@ import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.resource.ResourceFinder;
 import com.izforge.izpack.compiler.util.AntPathMatcher;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
-import com.izforge.izpack.compiler.xml.AntActionSpecXmlParser;
-import com.izforge.izpack.compiler.xml.ConfigurationActionSpecXmlParser;
-import com.izforge.izpack.compiler.xml.IconsSpecXmlParser;
-import com.izforge.izpack.compiler.xml.InstallationXmlParser;
-import com.izforge.izpack.compiler.xml.LangPackXmlParser;
-import com.izforge.izpack.compiler.xml.ProcessingSpecXmlParser;
-import com.izforge.izpack.compiler.xml.RegistrySpecXmlParser;
-import com.izforge.izpack.compiler.xml.ShortcutSpecXmlParser;
-import com.izforge.izpack.compiler.xml.UserInputSpecXmlParser;
+import com.izforge.izpack.compiler.xml.*;
 import com.izforge.izpack.core.data.DynamicInstallerRequirementValidatorImpl;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.rules.process.PackSelectionCondition;
-import com.izforge.izpack.core.variable.ConfigFileValue;
-import com.izforge.izpack.core.variable.EnvironmentValue;
-import com.izforge.izpack.core.variable.ExecValue;
-import com.izforge.izpack.core.variable.JarEntryConfigValue;
-import com.izforge.izpack.core.variable.PlainConfigFileValue;
-import com.izforge.izpack.core.variable.PlainValue;
-import com.izforge.izpack.core.variable.RegistryValue;
-import com.izforge.izpack.core.variable.ZipEntryConfigFileValue;
+import com.izforge.izpack.core.variable.*;
 import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
-import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.PackInfo;
-import com.izforge.izpack.data.PanelAction;
-import com.izforge.izpack.data.ParsableFile;
-import com.izforge.izpack.data.UpdateCheck;
+import com.izforge.izpack.data.*;
 import com.izforge.izpack.event.AntActionInstallerListener;
 import com.izforge.izpack.event.ConfigurationInstallerListener;
 import com.izforge.izpack.event.RegistryInstallerListener;
@@ -147,6 +78,8 @@ import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
+import com.izforge.izpack.panels.userinput.field.FieldReader;
+import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
@@ -154,6 +87,18 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.*;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.*;
+import java.util.logging.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
 
 /**
  * A parser for the installer xml configuration. This parses a document conforming to the
@@ -164,7 +109,7 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class CompilerConfig extends Thread
 {
-    private static final Logger logger = Logger.getLogger(CompilerConfig.class.getName());
+    private static Logger logger;
 
     /**
      * Constant for checking attributes.
@@ -205,6 +150,12 @@ public class CompilerConfig extends Thread
      * whether referenced conditions exist for all elements.
      */
     private Map<String, List<IXMLElement>> referencedConditions = new HashMap<String, List<IXMLElement>>();
+
+    /**
+     * Maps condition IDs to XML elements in the UserInputSpec resource referring to them for checking at the end of
+     * compilation whether referenced conditions exist for all elements.
+     */
+    private Map<String, List<IXMLElement>> referencedConditionsUserInputSpec = new HashMap<String, List<IXMLElement>>();
 
     /**
      * UserInputPanel IDs for cross check whether given user input panel
@@ -284,6 +235,9 @@ public class CompilerConfig extends Thread
         this.factory = factory;
         this.constraints = constraints;
         this.classLoader = classLoader;
+
+        logger = Logger.getLogger(CompilerConfig.class.getName());
+        logger.info("Logging initialized at level '" + logger.getLevel() + "'");
     }
 
     /**
@@ -1964,6 +1918,39 @@ public class CompilerConfig extends Thread
                                 + ": Duplicate user input panel identifier '"
                                 + userPanelId + "'");
                     }
+                    // Collect referenced conditions in UserInputPanelSpec for checking them later
+                    for (IXMLElement fieldDef : userPanelDef.getChildrenNamed(UserInputPanelSpec.FIELD))
+                    {
+                        String fieldConditionId = fieldDef.getAttribute("conditionid");
+                        if (fieldConditionId != null)
+                        {
+                            List<IXMLElement> elList = referencedConditionsUserInputSpec.get(fieldConditionId);
+                            if (elList == null)
+                            {
+                                elList = new ArrayList<IXMLElement>();
+                                referencedConditionsUserInputSpec.put(fieldConditionId, elList);
+                            }
+                            elList.add(fieldDef);
+                        }
+                        for (IXMLElement fieldSpecDef : fieldDef.getChildrenNamed(FieldReader.SPEC))
+                        {
+                            for (IXMLElement choiceDef : fieldSpecDef.getChildrenNamed(SimpleChoiceReader.CHOICE))
+                            {
+                                String choiceConditionId = choiceDef.getAttribute("conditionid");
+                                if (choiceConditionId != null)
+                                {
+                                    List<IXMLElement> elList = referencedConditionsUserInputSpec.get(choiceConditionId);
+                                    if (elList == null)
+                                    {
+                                        elList = new ArrayList<IXMLElement>();
+                                        referencedConditionsUserInputSpec.put(choiceConditionId, elList);
+                                    }
+                                    elList.add(choiceDef);
+                                }
+                            }
+
+                        }
+                    }
                 }
             }
         }
@@ -3371,6 +3358,7 @@ public class CompilerConfig extends Thread
 
     private void checkReferencedConditions()
     {
+        boolean failure = false;
         for (String conditionId : referencedConditions.keySet())
         {
             if (rules.getCondition(conditionId) == null)
@@ -3378,9 +3366,30 @@ public class CompilerConfig extends Thread
                 List<IXMLElement> elList = referencedConditions.get(conditionId);
                 for (IXMLElement element : elList)
                 {
-                    assertionHelper.parseError(element, "Reference to undefined condition '" + conditionId + "' not allowed");
+                    assertionHelper.parseWarn(element,
+                            "Expression '" + conditionId + "' contains reference(s) to undefined condition(s)");
+                    failure = true;
                 }
             }
+        }
+        AssertionHelper userInputSpecAssertionHelper
+                = new AssertionHelper("Resource " + UserInputPanelSpec.SPEC_FILE_NAME);
+        for (String conditionId : referencedConditionsUserInputSpec.keySet())
+        {
+            if (rules.getCondition(conditionId) == null)
+            {
+                List<IXMLElement> elList = referencedConditionsUserInputSpec.get(conditionId);
+                for (IXMLElement element : elList)
+                {
+                    userInputSpecAssertionHelper.parseWarn(element,
+                            "Expression '" + conditionId + "' contains reference(s) to undefined condition(s)");
+                    failure = true;
+                }
+            }
+        }
+        if (failure)
+        {
+            throw new CompilerException("Cannot recover from reference(s) to undefined condition(s) listed above");
         }
     }
 }

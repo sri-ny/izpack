@@ -58,6 +58,11 @@ public class UserInputPanelSpec
     public static final String PANEL = "panel";
 
     /**
+     * Field element name.
+     */
+    public static final String FIELD = "field";
+
+    /**
      * Provides access to the XML configuration.
      */
     private final Config config;
@@ -89,7 +94,6 @@ public class UserInputPanelSpec
      * @param resources   the resources
      * @param installData the installation data
      * @param factory     the factory
-     * @param rules       the rules
      * @param matcher     the platform-model matcher
      */
     public UserInputPanelSpec(Resources resources, InstallData installData, ObjectFactory factory,
@@ -149,7 +153,7 @@ public class UserInputPanelSpec
     public List<Field> createFields(IXMLElement panel)
     {
         List<Field> result = new ArrayList<Field>();
-        List<IXMLElement> elements = panel.getChildrenNamed("field");
+        List<IXMLElement> elements = panel.getChildrenNamed(FIELD);
         FieldFactory factory = new FieldFactory(config, installData, matcher);
 
         for (IXMLElement element : elements)

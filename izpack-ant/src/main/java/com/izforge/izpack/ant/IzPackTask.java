@@ -22,6 +22,7 @@
 
 package com.izforge.izpack.ant;
 
+import com.izforge.izpack.ant.logging.AntHandler;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.merge.resolve.ResolveUtils;
@@ -36,6 +37,8 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A IzPack Ant task.
@@ -199,6 +202,8 @@ public class IzPackTask extends Task implements PackagerListener
      */
     public void execute() throws org.apache.tools.ant.BuildException
     {
+        initializeLogging();
+
         checkInput();
 
         String kind = (installerType == null ? null : installerType.getValue());
@@ -227,6 +232,14 @@ public class IzPackTask extends Task implements PackagerListener
             throw new BuildException(e);
         }
 
+    }
+
+    private void initializeLogging()
+    {
+        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
+        rootLogger.setUseParentHandlers(false);
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addHandler(new AntHandler(getProject()));
     }
 
     private URL[] getUrlsForClassloader() throws IOException
