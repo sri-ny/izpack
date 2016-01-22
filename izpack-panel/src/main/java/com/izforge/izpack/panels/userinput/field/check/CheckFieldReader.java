@@ -52,7 +52,7 @@ public class CheckFieldReader extends FieldReader implements CheckFieldConfig
      */
     public String getTrueValue()
     {
-        return getConfig().getString(getSpec(), "true", null);
+        return getConfig().getString(getSpec(), "true", Boolean.TRUE.toString());
     }
 
     /**
@@ -62,6 +62,6 @@ public class CheckFieldReader extends FieldReader implements CheckFieldConfig
      */
     public String getFalseValue()
     {
-        return getConfig().getString(getSpec(), "false", null);
+        return getConfig().getString(getSpec(), "false", Boolean.FALSE.toString());
     }
 }
