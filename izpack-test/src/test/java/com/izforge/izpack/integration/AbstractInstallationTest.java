@@ -22,6 +22,11 @@
 package com.izforge.izpack.integration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +48,11 @@ public class AbstractInstallationTest
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    public static final String LOGGING_CONFIGURATION = "/com/izforge/izpack/installer/logging/logging.properties";
+
+    private static Logger logger;
+
+
     /**
      * The installation data.
      */
@@ -57,6 +67,7 @@ public class AbstractInstallationTest
     public AbstractInstallationTest(InstallData installData)
     {
         this.installData = installData;
+        initializeLogging();
     }
 
     /**
@@ -91,5 +102,27 @@ public class AbstractInstallationTest
     protected InstallData getInstallData()
     {
         return installData;
+    }
+
+    private static void initializeLogging()
+    {
+        LogManager manager = LogManager.getLogManager();
+        InputStream stream;
+        try
+        {
+            stream = AbstractInstallationTest.class.getResourceAsStream(LOGGING_CONFIGURATION);
+            if (stream != null)
+            {
+                manager.readConfiguration(stream);
+            }
+        }
+        catch (IOException e) {}
+
+        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
+        rootLogger.setUseParentHandlers(false);
+        rootLogger.setLevel(Level.INFO);
+
+        logger = Logger.getLogger(AbstractInstallationTest.class.getName());
+        logger.info("Logging initialized at level '" + rootLogger.getLevel() + "'");
     }
 }

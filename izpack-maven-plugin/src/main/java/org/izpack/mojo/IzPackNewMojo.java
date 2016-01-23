@@ -31,12 +31,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.izpack.mojo.logging.MavenStyleLogFormatter;
+import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -192,8 +193,6 @@ public class IzPackNewMojo extends AbstractMojo
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        initializeLogging();
-
         File jarFile = getJarFile();
 
         CompilerData compilerData = initCompilerData(jarFile);
@@ -201,6 +200,11 @@ public class IzPackNewMojo extends AbstractMojo
         compilerContainer.addConfig("installFile", installFile);
         compilerContainer.getComponent(IzpackProjectInstaller.class);
         compilerContainer.addComponent(CompilerData.class, compilerData);
+
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.INFO);
+        consoleHandler.setFormatter(new MavenStyleLogFormatter());
+        compilerContainer.addComponent(Handler.class, consoleHandler);
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
 
@@ -236,18 +240,6 @@ public class IzPackNewMojo extends AbstractMojo
                 project.getArtifact().setFile(jarFile);
             }
         }
-    }
-
-    private static void initializeLogging()
-    {
-        final ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.INFO);
-        consoleHandler.setFormatter(new MavenStyleLogFormatter());
-
-        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
-        rootLogger.setUseParentHandlers(false);
-        rootLogger.setLevel(Level.INFO);
-        rootLogger.addHandler(consoleHandler);
     }
 
     /**

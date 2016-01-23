@@ -37,6 +37,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -202,8 +203,6 @@ public class IzPackTask extends Task implements PackagerListener
      */
     public void execute() throws org.apache.tools.ant.BuildException
     {
-        initializeLogging();
-
         checkInput();
 
         String kind = (installerType == null ? null : installerType.getValue());
@@ -214,13 +213,20 @@ public class IzPackTask extends Task implements PackagerListener
             configText = config.getText();
             input = null;
         }
+
+        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
+        rootLogger.setUseParentHandlers(false);
+        rootLogger.setLevel(Level.INFO);
+        Handler logHandler = new AntHandler(getProject());
+
         try
         {
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
             Class runableClass = loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
             Constructor constructor = runableClass.getConstructors()[0];
             Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs,
-                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
+                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir,
+                    logHandler);
             final Thread thread = new Thread((Runnable) instance);
             thread.setContextClassLoader(loader);
             thread.start();
@@ -232,14 +238,6 @@ public class IzPackTask extends Task implements PackagerListener
             throw new BuildException(e);
         }
 
-    }
-
-    private void initializeLogging()
-    {
-        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
-        rootLogger.setUseParentHandlers(false);
-        rootLogger.setLevel(Level.INFO);
-        rootLogger.addHandler(new AntHandler(getProject()));
     }
 
     private URL[] getUrlsForClassloader() throws IOException

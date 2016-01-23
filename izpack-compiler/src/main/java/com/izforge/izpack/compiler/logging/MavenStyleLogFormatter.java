@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.izpack.mojo.logging;
+package com.izforge.izpack.compiler.logging;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

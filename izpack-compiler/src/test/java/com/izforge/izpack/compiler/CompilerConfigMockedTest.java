@@ -19,15 +19,6 @@
 
 package com.izforge.izpack.compiler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.data.DynamicVariable;
@@ -40,16 +31,25 @@ import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.helper.AssertionHelper;
 import com.izforge.izpack.compiler.helper.XmlCompilerHelper;
-import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.resource.ResourceFinder;
+import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.compiler.util.DefaultClassNameMapper;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Handler;
 
 /**
  * Test of compiler config with mock
@@ -171,7 +171,8 @@ public class CompilerConfigMockedTest
                   Mockito.mock(CompilerPathResolver.class), Mockito.mock(ResourceFinder.class),
                   Mockito.mock(ObjectFactory.class),
                   new PlatformModelMatcher(new Platforms(), Platforms.WINDOWS),
-                  new CompilerClassLoader(new DefaultClassNameMapper()));
+                  new CompilerClassLoader(new DefaultClassNameMapper()),
+                  Mockito.mock(Handler.class));
             setPackager(packager);
         }
     }

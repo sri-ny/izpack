@@ -220,7 +220,7 @@ public class CompilerConfig extends Thread
                           PropertyManager propertyManager, MergeManager mergeManager,
                           AssertionHelper assertionHelper, RulesEngine rules, CompilerPathResolver pathResolver,
                           ResourceFinder resourceFinder, ObjectFactory factory, PlatformModelMatcher constraints,
-                          CompilerClassLoader classLoader)
+                          CompilerClassLoader classLoader, Handler handler)
     {
         this.assertionHelper = assertionHelper;
         this.rules = rules;
@@ -236,8 +236,32 @@ public class CompilerConfig extends Thread
         this.constraints = constraints;
         this.classLoader = classLoader;
 
+        if (handler != null)
+        {
+            Logger rootLogger = Logger.getLogger("com.izforge.izpack");
+            rootLogger.setUseParentHandlers(false);
+            rootLogger.setLevel(Level.INFO);
+            boolean found = false;
+            for (Handler rootHandler : rootLogger.getHandlers())
+            {
+                if (rootHandler.equals(handler))
+                {
+                    found = true;
+                    break;
+                }
+                else
+                {
+                    rootLogger.removeHandler(rootHandler);
+                }
+            }
+            if (!found)
+            {
+                rootLogger.addHandler(handler);
+            }
+        }
+
         logger = Logger.getLogger(CompilerConfig.class.getName());
-        logger.info("Logging initialized at level '" + logger.getLevel() + "'");
+        logger.info("Logging initialized at level '" + logger.getParent().getLevel() + "'");
     }
 
     /**
