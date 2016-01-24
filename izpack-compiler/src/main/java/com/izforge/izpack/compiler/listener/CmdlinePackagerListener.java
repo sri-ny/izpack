@@ -19,6 +19,8 @@
 
 package com.izforge.izpack.compiler.listener;
 
+import java.util.logging.Logger;
+
 /**
  * Used to handle the packager messages in the command-line mode.
  *
@@ -26,6 +28,10 @@ package com.izforge.izpack.compiler.listener;
  */
 public class CmdlinePackagerListener implements PackagerListener
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(CmdlinePackagerListener.class.getName());
 
     /**
      * Print a message to the console at default priority (MSG_INFO).
@@ -49,21 +55,19 @@ public class CmdlinePackagerListener implements PackagerListener
         switch (priority)
         {
             case MSG_DEBUG:
-                prefix = "[ DEBUG ] ";
+                logger.fine(info);
                 break;
             case MSG_ERR:
-                prefix = "[ ERROR ] ";
+                logger.severe(info);
                 break;
             case MSG_WARN:
-                prefix = "[ WARNING ] ";
+                logger.warning(info);
                 break;
             case MSG_INFO:
             case MSG_VERBOSE:
             default: // don't die, but don't prepend anything
-                prefix = "";
+                logger.info(info);
         }
-
-        System.out.println(prefix + info);
     }
 
     /**
@@ -71,8 +75,8 @@ public class CmdlinePackagerListener implements PackagerListener
      */
     public void packagerStart()
     {
-        System.out.println("[ Begin ]");
-        System.out.println();
+        logger.info("[ Begin ]");
+        logger.info("");
     }
 
     /**
@@ -80,7 +84,7 @@ public class CmdlinePackagerListener implements PackagerListener
      */
     public void packagerStop()
     {
-        System.out.println();
-        System.out.println("[ End ]");
+        logger.info("");
+        logger.info("[ End ]");
     }
 }

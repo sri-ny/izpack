@@ -22,6 +22,7 @@
 
 package com.izforge.izpack.ant;
 
+import com.izforge.izpack.ant.logging.AntHandler;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.merge.resolve.ResolveUtils;
@@ -36,6 +37,9 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A IzPack Ant task.
@@ -209,13 +213,20 @@ public class IzPackTask extends Task implements PackagerListener
             configText = config.getText();
             input = null;
         }
+
+        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
+        rootLogger.setUseParentHandlers(false);
+        rootLogger.setLevel(Level.INFO);
+        Handler logHandler = new AntHandler(getProject());
+
         try
         {
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
             Class runableClass = loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
             Constructor constructor = runableClass.getConstructors()[0];
             Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs,
-                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir);
+                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir,
+                    logHandler);
             final Thread thread = new Thread((Runnable) instance);
             thread.setContextClassLoader(loader);
             thread.start();
