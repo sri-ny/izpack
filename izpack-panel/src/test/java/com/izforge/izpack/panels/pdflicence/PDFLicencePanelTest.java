@@ -43,8 +43,7 @@ import com.izforge.izpack.util.Platform.Name;
 
 public class PDFLicencePanelTest {
 
-//	@Test
-	//FIXME IMPLEMENT HEADLESS TEST
+	@Test
 	public void testPDFLicencePanel() throws InvocationTargetException, InterruptedException {
 		Runnable runnable = new Runnable() {
 
