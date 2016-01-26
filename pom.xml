@@ -98,12 +98,30 @@
         <artifactId>xpp3</artifactId>
         <version>1.1.4c</version>
       </dependency>
-
+      
+      <!-- PDF Panel -->
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>1.8.10</version>
+      </dependency>
+      	<dependency>
+		<groupId>org.icepdf.os</groupId>
+		<artifactId>icepdf-core</artifactId>
+		<version>6.0.1</version>
+	  </dependency>
+	  <dependency>
+		<groupId>org.icepdf.os</groupId>
+		  <artifactId>icepdf-viewer</artifactId>
+		  <version>6.0.1</version>
+	  </dependency>
+	  <!-- PDF Panel -->
+      
       <!-- Commons apache -->
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.4</version>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
       </dependency>
 
       <dependency>
@@ -333,9 +351,19 @@
 
       <!-- laf -->
       <dependency>
-        <groupId>com.github.insubstantial</groupId>
+        <groupId>org.java.net.substance</groupId>
         <artifactId>substance</artifactId>
-        <version>7.3</version>
+        <version>6.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+          </exclusion>
+          <exclusion>
+            <artifactId>ant</artifactId>
+            <groupId>ant</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.incors</groupId>
@@ -350,7 +378,7 @@
       <dependency>
         <groupId>jline</groupId>
         <artifactId>jline</artifactId>
-        <version>2.13</version>
+        <version>2.12</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -582,6 +610,7 @@
               <exclude>**/TargetPanelTest.java</exclude>
               <exclude>**/UserInputPanelTest.java</exclude>
               <exclude>**/ConditionCheckTest.java</exclude>
+              <exclude>**/PDFLicencePanelTest.java</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -759,6 +788,7 @@
                 <include>**/TargetPanelTest.java</include>
                 <include>**/UserInputPanelTest.java</include>
                 <include>**/ConditionCheckTest.java</include>
+                <include>**/PDFLicencePanelTest.java</include>
               </includes>
             </configuration>
           </plugin>
@@ -923,5 +953,13 @@
     <system>jira</system>
     <url>http://izpack.atlassian.net</url>
   </issueManagement>
+  
+  	<repositories>
+		<repository>
+			<id>ice-maven-release</id>
+			<name>Ice Maven Release Repository</name>
+			<url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
+		</repository>
+	</repositories>
 
 </project>
