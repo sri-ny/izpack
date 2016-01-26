@@ -1,10 +1,5 @@
 /*
- * IzPack - Copyright 2001-2012 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2012 Tim Anderson
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +16,15 @@
 
 package com.izforge.izpack.installer.console;
 
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.rules.RulesEngine;
+import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.util.Console;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.installer.panel.PanelView;
-import com.izforge.izpack.util.Console;
 
 /**
  * Abstract console panel for displaying paginated text.
@@ -81,13 +78,20 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
         text = installData.getVariables().replace(text);
         if (text != null)
         {
+            Panel panel = getPanel();
+            RulesEngine rules = installData.getRules();
+            boolean paging = Boolean.parseBoolean(panel.getConfigurationOptionValue("console-text-paging", rules));
+            boolean wordwrap = Boolean.parseBoolean(panel.getConfigurationOptionValue("console-text-wordwrap", rules));
+            System.err.println("paging: " + paging);
+            System.err.println("wordwrap: " + wordwrap);
+
             try
             {
-                console.paginate(text);
+                console.printMultiLine(text, wordwrap, paging);
             }
             catch (IOException e)
             {
-                logger.warning("Text pagination failed: " + e.getMessage());
+                logger.warning("Displaying multiline text failed: " + e.getMessage());
             }
         }
         else

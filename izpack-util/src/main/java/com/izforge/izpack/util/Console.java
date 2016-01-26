@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.izforge.izpack.util;
 
 import com.izforge.izpack.api.exception.UserInterruptException;
@@ -146,13 +162,37 @@ public class Console
         return lines;
     }
 
+    public void printMultiLine(String text, boolean wrap, boolean paging) throws IOException
+    {
+        if (wrap)
+        {
+            int width = 80;
+            if (!consoleReaderFailed)
+            {
+                Terminal terminal = consoleReader.getTerminal();
+                width = terminal.getWidth();
+            }
+
+            text = WordUtil.wordWrap(text, width);
+        }
+
+        if (paging)
+        {
+            paging(text);
+        }
+        else
+        {
+            println(text);
+        }
+    }
+
     /**
      * Pages through the supplied text.
      *
      * @param text    the text to display
      * @return <tt>true</tt> if paginated through, <tt>false</tt> if terminated
      */
-    public boolean paginate(String text) throws IOException
+    private boolean paging(String text) throws IOException
     {
         boolean result = true;
         Terminal terminal = consoleReader.getTerminal();
@@ -160,7 +200,7 @@ public class Console
         int showLines = height - 2; // the no. of lines to display at a time
         int line = 0;
 
-        StringTokenizer tokens = new StringTokenizer(StringTool.wordWrap(text, terminal.getWidth()), "\n");
+        StringTokenizer tokens = new StringTokenizer(text, "\n");
         while (tokens.hasMoreTokens())
         {
             String token = tokens.nextToken();
