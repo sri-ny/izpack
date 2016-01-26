@@ -19,22 +19,29 @@
 
 package com.izforge.izpack.compiler.bootstrap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import java.util.Properties;
-
-import org.hamcrest.core.IsNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.compiler.Compiler;
 import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
+import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 import com.izforge.izpack.compiler.packager.impl.AbstractPackagerTest;
 import com.izforge.izpack.compiler.stream.JarOutputStream;
 import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.junit.PicoRunner;
+import org.hamcrest.core.IsNull;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Test compiler bindings
@@ -49,7 +56,13 @@ public class CompilerLauncherTest
 
     public CompilerLauncherTest(CompilerContainer compilerContainer)
     {
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.INFO);
+        consoleHandler.setFormatter(new MavenStyleLogFormatter());
+        compilerContainer.addComponent(Handler.class, consoleHandler);
+
         this.compilerContainer = compilerContainer;
+
     }
 
     @Test

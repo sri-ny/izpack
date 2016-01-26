@@ -21,19 +21,19 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.core.rules.process.ExistsCondition;
 import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
+
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Describes a user input field.
@@ -343,9 +343,10 @@ public abstract class Field
      */
     public String getDefaultValue()
     {
-        if (defaultValue != null)
+        String value = wrapDefaultValue(defaultValue);
+        if (value != null)
         {
-            return replaceVariables(defaultValue);
+            return replaceVariables(value);
         }
         return null;
     }
@@ -357,9 +358,10 @@ public abstract class Field
      */
     private String getForcedValue()
     {
-        if (initialValue != null)
+        String value = wrapInitialValue(initialValue);
+        if (value != null)
         {
-            return replaceVariables(initialValue);
+            return replaceVariables(value);
         }
         return null;
     }
@@ -417,6 +419,47 @@ public abstract class Field
             logger.fine("Field setting variable=" + variable + " to value=" + value);
         }
         installData.setVariable(variable, value);
+    }
+
+
+    /**
+     * Wrap the initial value of a field, which is the value of the <code>set</code> attribute in the field's spec to
+     * the effective value to be assigned to the variable. This can be used for enumeration type conversions.
+     * <br><br>
+     * This method can be optionally overridden by several user input field types.
+     * <br><br>
+     * Example: The <code>set</code> attribute in the checkbox user input field has a boolean value, the value should
+     * be wrapped to the value of the <code>true</code> attribute in case of <code>set="true"</code> or to the value of
+     * the <code>false</code> attribute in case of <code>set="false"</code>.
+     *
+     * @param originalValue the original value of the <code>set</code> attribute
+     * @return the wrapped value
+     * @see com.izforge.izpack.panels.userinput.field.check.CheckField
+     */
+    public String wrapInitialValue(String originalValue)
+    {
+        return originalValue;
+    }
+
+    /**
+     * Wrap the default value of a field, which is the value of the <code>default</code> attribute in the field's spec
+     * to the effective value to be assigned to the variable. This can be used for enumeration type conversions.
+     * To be overridden by several user input field types.
+     * <br><br>
+     * This method can be optionally overridden by several user input field types.
+     * <br><br>
+     * Example: The <code>set</code> attribute in the checkbox user input field has a boolean value, the value should
+     * be wrapped to the value of the <code>true</code> attribute in case of <code>default="true"</code> or to the
+     * value of the <code>false</code> attribute in case of <code>default="false"</code>.
+     * @see com.izforge.izpack.panels.userinput.field.check.CheckField
+     *
+     * @param originalValue the original value of the <code>default</code> attribute
+     * @return the wrapped value
+     * @see com.izforge.izpack.panels.userinput.field.check.CheckField
+     */
+    public String wrapDefaultValue(String originalValue)
+    {
+        return originalValue;
     }
 
     /**

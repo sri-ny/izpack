@@ -21,12 +21,6 @@
 
 package com.izforge.izpack.panels.userinput.console.check;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
@@ -36,10 +30,16 @@ import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.core.rules.ConditionContainer;
 import com.izforge.izpack.core.rules.RulesEngineImpl;
+import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.check.CheckField;
 import com.izforge.izpack.panels.userinput.field.check.TestCheckFieldConfig;
 import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.Platforms;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -47,7 +47,7 @@ import com.izforge.izpack.util.Platforms;
  *
  * @author Tim Anderson
  */
-public class ConsoleCheckFieldTest
+public class ConsoleCheckFieldTest extends AbstractConsoleFieldTest
 {
 
     /**
@@ -133,7 +133,7 @@ public class ConsoleCheckFieldTest
         assertEquals("unselected", installData.getVariable(variable));
     }
 
-    /**
+        /**
      * Tests setting the state from selected to deselected.
      */
     @Test
@@ -151,5 +151,4 @@ public class ConsoleCheckFieldTest
 
         assertEquals("unselected", installData.getVariable(variable));
     }
-
 }

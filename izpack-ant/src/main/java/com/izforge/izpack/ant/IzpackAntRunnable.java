@@ -1,15 +1,15 @@
 package com.izforge.izpack.ant;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Properties;
-
-import org.apache.tools.ant.BuildException;
-
 import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
+import org.apache.tools.ant.BuildException;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.logging.Handler;
 
 /**
  * @author Anthonin Bonnefoy
@@ -21,10 +21,12 @@ public class IzpackAntRunnable implements Runnable
     private final Properties properties;
     private final Boolean inheritAll;
     private Hashtable<String, String> projectProps;
+    private Handler logHandler;
 
     public IzpackAntRunnable(String compression, String kind, String input, String configText, String basedir,
                              String output, boolean mkdirs, boolean validating, int compressionLevel, Properties properties,
-                             Boolean inheritAll, Hashtable<String, String> antProjectProperties, String izPackDir)
+                             Boolean inheritAll, Hashtable<String, String> antProjectProperties, String izPackDir,
+                             Handler logHandler)
     {
         this.compilerData = new CompilerData(compression, kind, input, configText, basedir, output, mkdirs, validating,
                                              compressionLevel);
@@ -32,6 +34,7 @@ public class IzpackAntRunnable implements Runnable
         this.properties = properties;
         this.inheritAll = inheritAll;
         this.projectProps = antProjectProperties;
+        this.logHandler = logHandler;
         CompilerData.setIzpackHome(izPackDir);
     }
 
@@ -40,8 +43,9 @@ public class IzpackAntRunnable implements Runnable
     public void run()
     {
         CompilerContainer compilerContainer = new CompilerContainer();
-        compilerContainer.addConfig("installFile", input);
+		compilerContainer.addConfig("installFile", input == null ? "<config>" : input);
         compilerContainer.addComponent(CompilerData.class, compilerData);
+        compilerContainer.addComponent(Handler.class, logHandler);
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
         PropertyManager propertyManager = compilerContainer.getComponent(PropertyManager.class);

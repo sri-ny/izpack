@@ -31,6 +31,7 @@ import java.util.List;
  */
 public class StringTool
 {
+    private static final String NEWLINE = System.getProperty("line.separator");
 
     // ~ Constructors
     // *********************************************************************************
@@ -311,4 +312,34 @@ public class StringTool
                 && str.toUpperCase().startsWith(prefix.toUpperCase());
     }
 
+    /**
+     * Performs word wrapping. Returns the input string with long lines of
+     * text cut (between words) for readability.
+     *
+     * For the original code see
+     * <a href="https://ramblingsrobert.wordpress.com/2011/04/13/java-word-wrap-algorithm/">Java Word Wrap Algorithm</a>
+     *
+     * @param in text to be word-wrapped
+     * @param length maximum number of characters in a line
+     */
+    public static String wordWrap(String in, int length) {
+        while(in.length() > 0 && (in.charAt(0) == '\t' || in.charAt(0) == ' '))
+            in = in.substring(1);
+
+        if(in.length() < length)
+            return in;
+
+        if(in.substring(0, length).contains(NEWLINE))
+            return in.substring(0, in.indexOf(NEWLINE)).trim() + NEWLINE +
+                    wordWrap(in.substring(in.indexOf(NEWLINE) + 1), length);
+
+        int spaceIndex = Math.max(Math.max( in.lastIndexOf(" ", length),
+                in.lastIndexOf("\t", length)),
+                in.lastIndexOf("-", length));
+
+        if(spaceIndex == -1)
+            spaceIndex = length;
+
+        return in.substring(0, spaceIndex).trim() + NEWLINE + wordWrap(in.substring(spaceIndex), length);
+    }
 }

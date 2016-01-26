@@ -472,6 +472,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
     }
 
     /**
+     * TODO: validate parameter not used - refactor this
      * Switches panels.
      *
      * @param newIndex the index of the new panel

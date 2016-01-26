@@ -21,7 +21,11 @@ package com.izforge.izpack.compiler.container;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 
+import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 import org.apache.commons.io.FileUtils;
 import org.junit.runners.model.FrameworkMethod;
 import org.picocontainer.MutablePicoContainer;
@@ -122,6 +126,11 @@ public class TestCompilerContainer extends CompilerContainer
 
         container.addConfig("installFile", installerFile.getAbsolutePath());
         container.addAdapter(new JarFileProvider());
+
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.INFO);
+        consoleHandler.setFormatter(new MavenStyleLogFormatter());
+        container.addComponent(Handler.class, consoleHandler);
     }
 
     private void deleteLock() throws IOException

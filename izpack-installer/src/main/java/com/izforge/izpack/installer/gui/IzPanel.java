@@ -176,7 +176,6 @@ public abstract class IzPanel extends JPanel implements AbstractUIHandler, Layou
      * @param parent      the parent IzPack installer frame
      * @param installData the installation data
      * @param iconName    the Headline icon name
-     * @param instance    an instance counter
      * @param resources   the resources
      */
     @Deprecated
@@ -195,7 +194,6 @@ public abstract class IzPanel extends JPanel implements AbstractUIHandler, Layou
      * one of these Candidates. <p/> by marc.eppelmann&#064;gmx.de
      *
      * @param imageIconName  an Iconname
-     * @param instanceNumber an panel instance
      * @return true if successful build
      */
     @Deprecated

@@ -20,6 +20,7 @@
 package com.izforge.izpack.compiler.helper;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.exception.CompilerException;
@@ -31,11 +32,13 @@ import com.izforge.izpack.api.exception.CompilerException;
  */
 public class AssertionHelper
 {
-    private String installFile;
+    private static final Logger logger = Logger.getLogger(AssertionHelper.class.getName());
 
-    public AssertionHelper(String installFile)
+    private String parsedFile;
+
+    public AssertionHelper(String parsedFile)
     {
-        this.installFile = installFile;
+        this.parsedFile = parsedFile;
     }
 
     /**
@@ -46,7 +49,7 @@ public class AssertionHelper
      */
     public void parseError(String message) throws CompilerException
     {
-        throw new CompilerException(this.installFile + ":" + message);
+        throw new CompilerException(this.parsedFile + ":" + message);
     }
 
     /**
@@ -58,7 +61,7 @@ public class AssertionHelper
      */
     public void parseError(IXMLElement parent, String message) throws CompilerException
     {
-        throw new CompilerException(this.installFile + ":" + parent.getLineNr() + ": " + message);
+        throw new CompilerException(this.parsedFile + ":" + parent.getLineNr() + ": " + message);
     }
 
     /**
@@ -71,7 +74,7 @@ public class AssertionHelper
     public void parseError(IXMLElement parent, String message, Throwable cause)
             throws CompilerException
     {
-        throw new CompilerException(this.installFile + ":" + parent.getLineNr() + ": " + message, cause);
+        throw new CompilerException(this.parsedFile + ":" + parent.getLineNr() + ": " + message, cause);
     }
 
     /**
@@ -83,7 +86,7 @@ public class AssertionHelper
      */
     public void parseWarn(IXMLElement parent, String message)
     {
-        System.out.println("Warning: " + this.installFile + ":" + parent.getLineNr() + ": " + message);
+        logger.warning(this.parsedFile + ":" + parent.getLineNr() + ": " + message);
     }
 
     /**

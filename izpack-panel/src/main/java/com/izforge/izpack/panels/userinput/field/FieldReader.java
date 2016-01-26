@@ -48,45 +48,45 @@ public class FieldReader extends ElementReader implements FieldConfig
     /**
      * Variable attribute name.
      */
-    protected static final String VARIABLE = "variable";
+    public static final String VARIABLE = "variable";
 
     /**
      * Variable attribute name.
      */
-    protected static final String SUMMARY_KEY = "summaryKey";
+    public static final String SUMMARY_KEY = "summaryKey";
 
-    protected static final String DISPLAY_HIDDEN = "displayHidden";
+    public static final String DISPLAY_HIDDEN = "displayHidden";
 
-    protected static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
+    public static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
 
-    protected static final String READONLY = "readonly";
+    public static final String READONLY = "readonly";
 
-    protected static final String READONLY_CONDITION = "readonlyCondition";
+    public static final String READONLY_CONDITION = "readonlyCondition";
 
     /**
      * Text size attribute name.
      */
-    protected static final String TEXT_SIZE = "size";
+    public static final String TEXT_SIZE = "size";
 
     /**
      * The field specification element name.
      */
-    protected static final String SPEC = "spec";
+    public static final String SPEC = "spec";
 
     /**
      * The validator element name.
      */
-    protected static final String VALIDATOR = "validator";
+    public static final String VALIDATOR = "validator";
 
     /**
      * The tooltip attribute name.
      */
-    protected static final String TOOLTIP = "tooltip";
+    public static final String TOOLTIP = "tooltip";
 
     /**
      * The omitFromAuto attribute name.
      */
-    protected static final String OMIT_FROM_AUTO = "omitFromAuto";
+    public static final String OMIT_FROM_AUTO = "omitFromAuto";
 
     /**
      * Constructs a {@code FieldReader}.

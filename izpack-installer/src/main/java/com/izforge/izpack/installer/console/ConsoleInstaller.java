@@ -163,6 +163,7 @@ public class ConsoleInstaller implements InstallerBase
                 while (panels.hasNext())
                 {
                     success = panels.next();
+                    success = panels.getView().handlePanelValidationResult(success);
                     if (!success)
                     {
                         break;
@@ -170,7 +171,8 @@ public class ConsoleInstaller implements InstallerBase
                 }
                 if (success)
                 {
-                    success = panels.isValid(); // last panel needs to be validated
+                    // last panel needs to be validated
+                    success = panels.getView().handlePanelValidationResult(panels.isValid());
                     if (success)
                     {
                         success = action.complete();

@@ -18,13 +18,17 @@
  */
 package com.izforge.izpack.installer.language;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
+import com.izforge.izpack.api.GuiId;
+import com.izforge.izpack.api.exception.ResourceException;
+import com.izforge.izpack.api.resource.Locales;
+import com.izforge.izpack.api.resource.Resources;
+import com.izforge.izpack.gui.IconsDatabase;
+import com.izforge.izpack.installer.container.provider.AbstractInstallDataProvider;
+import com.izforge.izpack.installer.data.GUIInstallData;
+import com.izforge.izpack.installer.requirement.RequirementsChecker;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -35,28 +39,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.GrayFilter;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
-import com.izforge.izpack.api.GuiId;
-import com.izforge.izpack.api.exception.ResourceException;
-import com.izforge.izpack.api.resource.Locales;
-import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.installer.container.provider.AbstractInstallDataProvider;
-import com.izforge.izpack.installer.data.GUIInstallData;
-import com.izforge.izpack.installer.requirement.RequirementsChecker;
 
 /**
  * Used to prompt the user for the language. Languages can be displayed in iso3 or the native
@@ -70,11 +52,6 @@ import com.izforge.izpack.installer.requirement.RequirementsChecker;
 public class LanguageDialog extends JDialog
 {
     private static final long serialVersionUID = 3256443616359887667L;
-
-    /**
-     * The parent frame.
-     */
-    private final JFrame frame;
 
     /**
      * The installation data.
@@ -115,17 +92,18 @@ public class LanguageDialog extends JDialog
     /**
      * Constructs a {@code LanguageDialog}.
      *
-     * @param frame        the parent frame
+     * //@param frame        the parent frame
      * @param resources    the resources
      * @param locales      the locales
      * @param installData  the installation data
      * @param requirements the installation requirements
      */
-    public LanguageDialog(JFrame frame, Resources resources, Locales locales, GUIInstallData installData,
+    public LanguageDialog(Resources resources, Locales locales, GUIInstallData installData, IconsDatabase icons,
                           RequirementsChecker requirements)
     {
-        super(frame);
-        this.frame = frame;
+        super();
+        ImageIcon imageIcon = icons.get("JFrameIcon");
+        super.getOwner().setIconImage(imageIcon.getImage());
         this.resources = resources;
         this.locales = locales;
         this.installData = installData;
@@ -152,7 +130,7 @@ public class LanguageDialog extends JDialog
             propagateLocale(codeOfUniqueLanguage);
             break;
         default:
-            frame.setVisible(false);
+            super.getOwner().setVisible(false);
             setVisible(true);
         }
 
