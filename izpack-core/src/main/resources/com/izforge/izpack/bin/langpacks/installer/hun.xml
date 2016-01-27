@@ -14,6 +14,7 @@
     <str id="HelloPanel.headline" txt="Üdvözlöm"/>
     <str id="HTMLInfoPanel.headline" txt="Információk"/>
     <str id="HTMLLicencePanel.headline" txt="Licenc-szerzõdés"/>
+    <str id="PDFLicencePanel.headline" txt="Licenc-szerzõdés"/>
     <str id="ImgPacksPanel.headline" txt="Telepítési csomagok kiválasztása"/>
     <str id="InfoPanel.headline" txt="Információk"/>
     <str id="InstallPanel.headline" txt="Telepítés"/>

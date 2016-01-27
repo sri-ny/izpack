@@ -98,7 +98,25 @@
         <artifactId>xpp3</artifactId>
         <version>1.1.4c</version>
       </dependency>
-
+      
+      <!-- PDF Panel -->
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>1.8.10</version>
+      </dependency>
+      	<dependency>
+		<groupId>org.icepdf.os</groupId>
+		<artifactId>icepdf-core</artifactId>
+		<version>6.0.1</version>
+	  </dependency>
+	  <dependency>
+		<groupId>org.icepdf.os</groupId>
+		  <artifactId>icepdf-viewer</artifactId>
+		  <version>6.0.1</version>
+	  </dependency>
+	  <!-- PDF Panel -->
+      
       <!-- Commons apache -->
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -582,6 +600,7 @@
               <exclude>**/TargetPanelTest.java</exclude>
               <exclude>**/UserInputPanelTest.java</exclude>
               <exclude>**/ConditionCheckTest.java</exclude>
+              <exclude>**/PDFLicencePanelTest.java</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -759,6 +778,7 @@
                 <include>**/TargetPanelTest.java</include>
                 <include>**/UserInputPanelTest.java</include>
                 <include>**/ConditionCheckTest.java</include>
+                <include>**/PDFLicencePanelTest.java</include>
               </includes>
             </configuration>
           </plugin>
@@ -923,5 +943,12 @@
     <system>jira</system>
     <url>http://izpack.atlassian.net</url>
   </issueManagement>
-
+  
+  	<repositories>
+		<repository>
+			<id>ice-maven-release</id>
+			<name>Ice Maven Release Repository</name>
+			<url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
+		</repository>
+	</repositories>
 </project>

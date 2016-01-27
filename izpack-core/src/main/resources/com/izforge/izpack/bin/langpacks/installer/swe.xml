@@ -17,6 +17,7 @@
     <str id="HelloPanel.headline" txt="Välkommen"/>
     <str id="HTMLInfoPanel.headline" txt="Information"/>
     <str id="HTMLLicencePanel.headline" txt="Licensavtal"/>
+    <str id="PDFLicencePanel.headline" txt="Licensavtal"/>
     <str id="ImgPacksPanel.headline" txt="Select Installationspaket"/>
     <str id="InfoPanel.headline" txt="Information"/>
     <str id="InstallPanel.headline" txt="Installation"/>

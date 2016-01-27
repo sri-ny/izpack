@@ -47,6 +47,7 @@
     <str id="HelloPanel.headline" txt="ようこそ"/>
     <str id="HTMLInfoPanel.headline" txt="情報"/>
     <str id="HTMLLicencePanel.headline" txt="ライセンス契約"/>
+    <str id="PDFLicencePanel.headline" txt="ライセンス契約"/>
     <str id="ImgPacksPanel.headline" txt="インストールパッケージの選択"/>
     <str id="InfoPanel.headline" txt="情報"/>
     <str id="InstallPanel.headline" txt="インストール"/>
