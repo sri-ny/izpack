@@ -45,6 +45,7 @@ import com.izforge.izpack.panels.finish.FinishPanel;
 import com.izforge.izpack.panels.hello.HelloPanel;
 import com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel;
 import com.izforge.izpack.panels.licence.LicencePanel;
+import com.izforge.izpack.panels.pdflicence.PDFLicencePanel;
 import com.izforge.izpack.panels.simplefinish.SimpleFinishPanel;
 import com.izforge.izpack.panels.test.AbstractPanelTest;
 import com.izforge.izpack.panels.test.TestGUIPanelContainer;
@@ -80,7 +81,7 @@ public class PanelDisplayTest extends AbstractPanelTest
     @Test
     public void licencePanelShouldDisplayText() throws Exception
     {
-        FrameFixture frameFixture = show(LicencePanel.class, HTMLInfoPanel.class);
+        FrameFixture frameFixture = show(LicencePanel.class, HTMLInfoPanel.class,PDFLicencePanel.class);
         String textArea = frameFixture.textBox(GuiId.LICENCE_TEXT_AREA.id).text();
         assertThat(textArea, StringContains.containsString("This is a licenSe panel"));
     }

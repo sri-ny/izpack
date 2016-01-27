@@ -18,6 +18,7 @@
     <str id="HelloPanel.headline" txt="Ласкаво просимо"/>
     <str id="HTMLInfoPanel.headline" txt="Інформація"/>
     <str id="HTMLLicencePanel.headline" txt="Лізцензійні умови"/>
+    <str id="PDFLicencePanel.headline" txt="Лізцензійні умови"/>
     <str id="ImgPacksPanel.headline" txt="Виберіть пакунки для встановлення"/>
     <str id="InfoPanel.headline" txt="Інформація"/>
     <str id="InstallPanel.headline" txt="Встановлення"/>

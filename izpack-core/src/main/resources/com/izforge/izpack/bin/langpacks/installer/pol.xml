@@ -57,6 +57,7 @@
     <str id="HelloPanel.welcome2" txt="!"/>
     <str id="HTMLInfoPanel.headline" txt="Informacje"/>
     <str id="HTMLLicencePanel.headline" txt="Umowa licencyjna"/>
+    <str id="PDFLicencePanel.headline" txt="Umowa licencyjna"/>
     <str id="ImgPacksPanel.checkbox" txt=" Instaluj ten pakiet"/>
     <str id="ImgPacksPanel.dependencyList" txt="Zależności i/lub wykluczenia"/>
     <str id="ImgPacksPanel.headline" txt="Wybierz pakiety do zainstalowania"/>

@@ -17,6 +17,7 @@
     <str id="HelloPanel.headline" txt="Selamat Datang"/>
     <str id="HTMLInfoPanel.headline" txt="Informasi"/>
     <str id="HTMLLicencePanel.headline" txt="Perjanjian Lisensi"/>
+    <str id="PDFLicencePanel.headline" txt="Perjanjian Lisensi"/>
     <str id="ImgPacksPanel.headline" txt="Pilih Paket-Paket Pemasangan"/>
     <str id="InfoPanel.headline" txt="Informasi"/>
     <str id="InstallPanel.headline" txt="Pemasangan"/>
