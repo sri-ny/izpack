@@ -445,6 +445,9 @@ public abstract class UnpackerBase implements IUnpacker
                 checkInterrupt();
 
                 listeners.afterPack(pack, i, listener);
+
+                // remove all executables from current pack
+                executables.clear();
             }
         }
     }
@@ -700,8 +703,6 @@ public abstract class UnpackerBase implements IUnpacker
      *
      * @param packs        the packs
      * @param queue        the file queue, or {@code null} if queuing is not supported
-     * @param parsables    used to collect parsable files in the pack
-     * @param executables  used to collect executable files files in the pack
      * @param updateChecks used to collect update checks in the pack
      * @throws ResourceInterruptedException if installation is cancelled
      * @throws IOException                  for any I/O error
