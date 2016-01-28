@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -62,6 +63,7 @@ import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.io.VolumeLocator;
 import com.izforge.izpack.core.resource.ResourceManager;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
+import com.izforge.izpack.data.ExecutableFile;
 import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.installer.data.InstallData;
 import com.izforge.izpack.installer.data.UninstallData;
@@ -168,6 +170,102 @@ public class MultiVolumeUnpackerTest
         assertFileNotExists(installDir, file5.getName());
         assertFileNotExists(installDir, file6.getName());
     }
+    
+    /**
+     * Tests unpacking of multiple volume installation with executables in pack.
+     *
+     * @throws Exception for any error
+     */
+    @Test
+    public void testUnpackWithExecutables() throws Exception
+    {
+        File baseDir = temporaryFolder.getRoot();
+        File packageDir = new File(baseDir, "package");
+        File installerJar = new File(packageDir, "installer.jar");
+        File installDir = new File(baseDir, "install");
+        assertTrue(packageDir.mkdir());
+
+        // create some packs
+        File file1 = createFile(baseDir, "file1.dat", 1024);
+        File file2 = createFile(baseDir, "file2.dat", 2048);
+        File file3 = createFile(baseDir, "file3.dat", 4096);
+        // this is an executable
+        File file3e = createFile(baseDir, "file3.exe", 1024);
+        PackInfo base = createPack("base", baseDir, file1, file2, file3, file3e);
+
+        File file4 = createFile(baseDir, "file4.dat", 8192);
+        File file5 = createFile(baseDir, "file5.dat", 16384);
+        File file6 = createFile(baseDir, "file6.dat", 32768);
+        // this is an executable
+        File file6e = createFile(baseDir, "file6.exe", 1024);
+        PackInfo pack1 = createPack("pack1", baseDir, file4, file5, file6, file6e);
+
+        File file7 = createFile(baseDir, "file7.dat", 65536);
+        File file8 = createFile(baseDir, "file8.dat", 131072);
+        File file9 = createFile(baseDir, "file9.dat", 262144);
+        // this is an executable
+        File file9e = createFile(baseDir, "file9.exe", 1024);
+        PackInfo pack2 = createPack("pack2", baseDir, file7, file8, file9, file9e);
+
+        // pack3 is loose - i.e. content should not be stored in the volumes
+        File file10 = createFile(baseDir, "file10.dat", 100);
+        PackInfo pack3 = createPack("pack3", baseDir, file10);
+        pack3.getPack().setLoose(true);
+
+        MultiVolumePackager packager = createPackager(baseDir, installerJar);
+
+        long firstVolumeSize = 40000;
+        long maxVolumeSize = 100000;
+        packager.setMaxFirstVolumeSize(firstVolumeSize);
+        packager.setMaxVolumeSize(maxVolumeSize);
+
+        packager.addPack(base);
+        packager.addPack(pack1);
+        packager.addPack(pack2);
+        packager.addPack(pack3);
+
+        // package the installer
+        packager.createInstaller();
+
+        // verify the installer exists
+        assertTrue(installerJar.exists());
+
+        // verify the installer volumes have been created
+        Resources resources = createResources(installerJar);
+        checkVolumes(packageDir, resources, firstVolumeSize, maxVolumeSize);
+
+        // verify the loose pack files are present
+        assertTrue(new File(packageDir, file10.getName()).exists());
+
+        // unpack the installer
+        AutomatedInstallData installData = createInstallData(packageDir, installDir, resources);
+        setSelectedPacks(installData, "base", "pack2", "pack3");  // exclude pack1 from installation
+        TestMultiVolumeUnpacker unpacker = createUnpacker(resources, installData);
+        
+        TestMultiVolumeUnpacker spy = Mockito.spy(unpacker);
+        
+        spy.unpack();
+        
+        Mockito.verify(spy, Mockito.times(3)).readExecutableFiles(Mockito.any(ObjectInputStream.class), Mockito.anyList());
+
+        // verify the expected files exists in the installation directory
+        checkInstalled(installDir, file1);
+        checkInstalled(installDir, file2);
+        checkInstalled(installDir, file3);
+        checkInstalled(installDir, file7);
+        checkInstalled(installDir, file8);
+        checkInstalled(installDir, file9);
+        checkInstalled(installDir, file10); // loose pack file
+
+        // verify the pack1 files are not installed
+        assertFileNotExists(installDir, file3e.getName());
+        assertFileNotExists(installDir, file4.getName());
+        assertFileNotExists(installDir, file5.getName());
+        assertFileNotExists(installDir, file6.getName());
+        assertFileNotExists(installDir, file6e.getName());
+        assertFileNotExists(installDir, file9e.getName());
+    }
+
 
     /**
      * Helper to set the selected packs.
@@ -248,7 +346,7 @@ public class MultiVolumeUnpackerTest
      * @param installData the installation data
      * @return a new unpacker
      */
-    private MultiVolumeUnpacker createUnpacker(Resources resources, AutomatedInstallData installData)
+    private TestMultiVolumeUnpacker createUnpacker(Resources resources, AutomatedInstallData installData)
     {
         VariableSubstitutor replacer = new VariableSubstitutorImpl(installData.getVariables());
         Housekeeper housekeeper = Mockito.mock(Housekeeper.class);
@@ -261,11 +359,34 @@ public class MultiVolumeUnpackerTest
         Prompt prompt = Mockito.mock(Prompt.class);
         InstallerListeners listeners = new InstallerListeners(installData, prompt);
         PlatformModelMatcher matcher = new PlatformModelMatcher(new Platforms(), Platforms.WINDOWS);
-        MultiVolumeUnpacker unpacker = new MultiVolumeUnpacker(installData, packResources, rules, replacer,
+        TestMultiVolumeUnpacker unpacker = new TestMultiVolumeUnpacker(installData, packResources, rules, replacer,
                                                                uninstallData, queue, housekeeper,
                                                                listeners, prompt, locator, matcher);
         unpacker.setProgressListener(Mockito.mock(ProgressListener.class));
         return unpacker;
+    }
+    
+    /**
+     * This unpacker has a validation of the executables.
+     *
+     */
+    private static class TestMultiVolumeUnpacker extends MultiVolumeUnpacker {
+
+		public TestMultiVolumeUnpacker(com.izforge.izpack.api.data.InstallData installData, PackResources resources,
+				RulesEngine rules, VariableSubstitutor variableSubstitutor, UninstallData uninstallData,
+				FileQueueFactory queue, Housekeeper housekeeper, InstallerListeners listeners, Prompt prompt,
+				VolumeLocator locator, PlatformModelMatcher matcher) {
+			super(installData, resources, rules, variableSubstitutor, uninstallData, queue, housekeeper, listeners, prompt, locator,
+					matcher);
+		}
+
+		@Override
+		protected void readExecutableFiles(ObjectInputStream stream, List<ExecutableFile> executables)
+				throws IOException, ClassNotFoundException {
+			super.readExecutableFiles(stream, executables);
+			
+			assertTrue(executables.size() < 2);
+		}
     }
 
     /**
@@ -328,7 +449,8 @@ public class MultiVolumeUnpackerTest
         packager.setInfo(new Info());
         return packager;
     }
-
+    
+    
     /**
      * Helper to add files to a pack.
      *
@@ -341,8 +463,17 @@ public class MultiVolumeUnpackerTest
     {
         for (File file : files)
         {
-            pack.addFile(baseDir, file, "$INSTALL_PATH/" + file.getName(), null, OverrideType.OVERRIDE_FALSE, null,
-                         Blockable.BLOCKABLE_NONE, null, null);
+        	if ("exe".equals(FilenameUtils.getExtension(file.getName()))) {
+                ExecutableFile executable = new ExecutableFile();
+                executable.path = file.getPath();
+                executable.executionStage = ExecutableFile.UNINSTALL;
+                
+        		pack.addExecutable(executable);
+        	}
+        	else {
+	            pack.addFile(baseDir, file, "$INSTALL_PATH/" + file.getName(), null, OverrideType.OVERRIDE_FALSE, null,
+	                         Blockable.BLOCKABLE_NONE, null, null);
+        	}
         }
     }
 
