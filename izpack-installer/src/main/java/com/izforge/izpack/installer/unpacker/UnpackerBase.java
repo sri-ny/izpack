@@ -244,15 +244,12 @@ public abstract class UnpackerBase implements IUnpacker
         state = State.UNPACKING;
         try
         {
-            List<ParsableFile> parsables = new ArrayList<ParsableFile>();
-            List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
-            List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
             FileQueue queue = queueFactory.isSupported() ? queueFactory.create() : null;
 
             List<Pack> packs = installData.getSelectedPacks();
             preUnpack(packs);
-            unpack(packs, queue, parsables, executables, updateChecks);
-            postUnpack(packs, queue, updateChecks);
+            unpack(packs, queue);
+            postUnpack(packs, queue);
         }
         catch (Exception exception)
         {
@@ -413,14 +410,10 @@ public abstract class UnpackerBase implements IUnpacker
      *
      * @param packs        the packs to unpack
      * @param queue        the file queue, or {@code null} if queuing is not supported
-     * @param parsables    used to collect parsable files in the pack
-     * @param executables  used to collect executable files files in the pack
-     * @param updateChecks used to collect update checks in the pack
      * @throws ResourceInterruptedException if unpacking is cancelled
      * @throws InstallerException              for any error
      */
-    protected void unpack(List<Pack> packs, FileQueue queue, List<ParsableFile> parsables,
-                          List<ExecutableFile> executables, List<UpdateCheck> updateChecks) throws InstallerException
+    protected void unpack(List<Pack> packs, FileQueue queue) throws InstallerException
     {
         int count = packs.size();
         for (int i = 0; i < count; i++)
@@ -428,6 +421,11 @@ public abstract class UnpackerBase implements IUnpacker
             Pack pack = packs.get(i);
             if (shouldUnpack(pack))
             {
+            	
+            	List<ParsableFile> parsables = new ArrayList<ParsableFile>();
+            	List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
+            	List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
+            	
                 listeners.beforePack(pack, i, listener);
                 unpack(pack, i, queue, parsables, executables, updateChecks);
                 checkInterrupt();
@@ -700,13 +698,10 @@ public abstract class UnpackerBase implements IUnpacker
      *
      * @param packs        the packs
      * @param queue        the file queue, or {@code null} if queuing is not supported
-     * @param parsables    used to collect parsable files in the pack
-     * @param executables  used to collect executable files files in the pack
-     * @param updateChecks used to collect update checks in the pack
      * @throws ResourceInterruptedException if installation is cancelled
      * @throws IOException                  for any I/O error
      */
-    protected void postUnpack(List<Pack> packs, FileQueue queue, List<UpdateCheck> updateChecks) throws IOException, InstallerException
+    protected void postUnpack(List<Pack> packs, FileQueue queue) throws IOException, InstallerException
     {
         InstallData installData = getInstallData();
 
