@@ -82,8 +82,6 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
             RulesEngine rules = installData.getRules();
             boolean paging = Boolean.parseBoolean(panel.getConfigurationOptionValue("console-text-paging", rules));
             boolean wordwrap = Boolean.parseBoolean(panel.getConfigurationOptionValue("console-text-wordwrap", rules));
-            System.err.println("paging: " + paging);
-            System.err.println("wordwrap: " + wordwrap);
 
             try
             {
