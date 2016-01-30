@@ -84,31 +84,33 @@ public interface DataValidator
     public static final String DATA_VALIDATOR_CONDITION_ATTR = "condition";
 
     /**
-     * Method to validate an {@link InstallData}.
+     * Method to validate complex variable settings read from {@link InstallData} after a panel change.
      *
      * @param installData@return {@link Status} the result of the validation
      */
     public Status validateData(final InstallData installData);
 
     /**
-     * Returns the string with messageId for an error
+     * Returns the string with either a message if from translations or the message itself in case {@code validateData}
+     * returns {@code Status.ERROR}.
      *
-     * @return String the messageId
+     * @return String Should be the message id or the untranslated error message.
      */
     public String getErrorMessageId();
 
     /**
-     * Returns the string with messageId for a warning
+     * Returns the string with either a message if from translations or the message itself in case {@code validateData}
+     * returns {@code Status.WARNING}.
      *
-     * @return String the messageId
+     * @return String Should be the message id or the untranslated warning message.
      */
     public String getWarningMessageId();
 
     /**
-     * if Installer is run in automated mode, and validator returns a warning, this method is asked,
-     * how to go on
+     * If the installer is run in automated mode, and {@code validateData}
+     * returns {@code Status.WARNING}, this method is asked how to go on instead of an user answer.
      *
-     * @return boolean
+     * @return boolean true - ignore warning and continue to the next panel, false - don't change to the next panel, fail
      */
 
     public boolean getDefaultAnswer();
