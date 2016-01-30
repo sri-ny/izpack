@@ -1,10 +1,5 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2010 Rene Krell
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +16,63 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import java.util.Comparator;
-
+import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.rules.CompareCondition;
 import com.izforge.izpack.api.rules.ComparisonOperator;
+import com.izforge.izpack.core.data.DefaultVariables;
+import com.izforge.izpack.util.Platform;
+
+import java.util.logging.Logger;
 
 public class CompareVersionsCondition extends CompareCondition
 {
     private static final long serialVersionUID = 5605592864539142416L;
 
+    private static final transient Logger logger = Logger.getLogger(CompareVersionsCondition.class.getName());
+
+    /**
+     * Don't assume missing minor parts of some operand as 0 during comparison.
+     *
+     * Example:
+     * Version 1 = 1.8
+     * Version 2 = 1.8.0_72
+     * <ul>
+     * <li>Without {@code NOT_ASSUME_MISSING_MINOR_PARTS_AS_0}:<br>
+     *     1.8.0_0 vs. 1.8.0_72 - LESS</li>
+     * <li>With {@code NOT_ASSUME_MISSING_MINOR_PARTS_AS_0}:<br>
+     *     1.8 vs. 1.8[.0_72] - EQUALS</li>
+     * </ul>
+     */
+    protected static final int NOT_ASSUME_MISSING_MINOR_PARTS_AS_0 = 0x01;
+
+    public CompareVersionsCondition()
+    {
+        this(0);
+    }
+
+    public CompareVersionsCondition(int flags)
+    {
+        this.flags |= flags;
+    }
+
+    /**
+     * Version comparison flags.
+     */
+    protected int flags = 0;
+
+    /**
+     * Indicates whether a particular version comparison flag is set or not.
+     */
+    protected boolean hasFlag(int f) {
+        return (flags & f) != 0;
+    }
+
     @Override
     public boolean isTrue()
     {
+        logger.fine("Version comparison: " + operand1 + " " + operator + " " + operand2 + " (flags: " + flags + ")");
         boolean result = false;
         InstallData installData = getInstallData();
         if (installData != null && operand1 != null && operand2 != null)
@@ -46,8 +84,17 @@ public class CompareVersionsCondition extends CompareCondition
             {
                 operator = ComparisonOperator.EQUAL;
             }
-            int res = new VersionStringComparator().compare(arg1, arg2);
-
+            int res = 0;
+            try
+            {
+                res = new Version(arg1).compareTo(new Version(arg2));
+            }
+            catch (IllegalArgumentException e)
+            {
+                logger.warning("[" + getClass().getSimpleName() + "] " + e.getMessage());
+                return false;
+            }
+            logger.finer("Raw version comparison result: " + res);
             switch (operator)
             {
                 case EQUAL:
@@ -72,76 +119,75 @@ public class CompareVersionsCondition extends CompareCondition
                     break;
             }
         }
+        logger.fine(operand1 + " " + operator.getAttribute() + " " + operand2 + ": " + result);
         return result;
     }
 
-    private static class VersionStringComparator implements Comparator<String>
-    {
+    private class Version implements Comparable<Version> {
+
+        private String version;
+
+        /**
+         * Get the version as string
+         *
+         * @return the version string
+         */
+        public final String get() {
+            return this.version;
+        }
+
+        public Version(String version) {
+            if(version == null)
+                throw new IllegalArgumentException("Version can not be null");
+            if(!version.matches("[0-9]+([\\W_][0-9]+)*"))
+                throw new IllegalArgumentException("Invalid version format: '" + version + "'");
+            this.version = version;
+        }
+
         @Override
-        public int compare(String s1, String s2)
-        {
-            if (s1 == null && s2 == null)
-            {
-                return 0;
-            }
-            else if (s1 == null)
-            {
-                return -1;
-            }
-            else if (s2 == null)
-            {
+        public int compareTo(Version version) {
+            if(version == null)
                 return 1;
-            }
-
-            String[]
-                    arr1 = s1.split("[^a-zA-Z0-9_]+"),
-                    arr2 = s2.split("[^a-zA-Z0-9_]+");
-
-            int i1, i2, i3;
-
-            for (int ii = 0, max = Math.min(arr1.length, arr2.length); ii <= max; ii++)
-            {
-                if (ii == arr1.length)
-                {
-                    return ii == arr2.length ? 0 : -1;
-                }
-                else if (ii == arr2.length)
-                {
+            String[] parts1 = this.get().split("[\\W_]");
+            String[] parts2 = version.get().split("[\\W_]");
+            int length = hasFlag(NOT_ASSUME_MISSING_MINOR_PARTS_AS_0)
+                    ? Math.min(parts1.length, parts2.length)
+                    : Math.max(parts1.length, parts2.length);
+            logger.finer("Effective number of version parts: " + length);
+            for(int i = 0; i < length; i++) {
+                int part1 = i < parts1.length ? Integer.parseInt(parts1[i]) : 0;
+                int part2 = i < parts2.length ? Integer.parseInt(parts2[i]) : 0;
+                logger.finer("Compare version parts: " + part1 + " <-> " + part2);
+                if(part1 < part2)
+                    return -1;
+                if(part1 > part2)
                     return 1;
-                }
-
-                try
-                {
-                    i1 = Integer.parseInt(arr1[ii]);
-                }
-                catch (Exception x)
-                {
-                    i1 = Integer.MAX_VALUE;
-                }
-
-                try
-                {
-                    i2 = Integer.parseInt(arr2[ii]);
-                }
-                catch (Exception x)
-                {
-                    i2 = Integer.MAX_VALUE;
-                }
-
-                if (i1 != i2)
-                {
-                    return i1 - i2;
-                }
-
-                i3 = arr1[ii].compareTo(arr2[ii]);
-
-                if (i3 != 0)
-                {
-                    return i3;
-                }
             }
-
             return 0;
         }
+
+        @Override
+        public boolean equals(Object version) {
+            if(this == version)
+                return true;
+            if(version == null)
+                return false;
+            if(this.getClass() != version.getClass())
+                return false;
+            return this.compareTo((Version) version) == 0;
+        }
+
+    }
+
+    public static void main (String args[])
+    {
+        final String op1="1.8.0_72", op2="1.8";
+        final ComparisonOperator operator = ComparisonOperator.LESSEQUAL;
+        CompareVersionsCondition condition = new CompareVersionsCondition();
+        condition.setInstallData(new AutomatedInstallData(new DefaultVariables(), new Platform(Platform.Name.LINUX)));
+        condition.setLeftOperand(op1);
+        condition.setOperator(operator);
+        condition.setRightOperand(op2);
+        System.out.println(op1 + " " + operator.getAttribute() + " " + op2 + ": " + condition.isTrue());
     }
 }

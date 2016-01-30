@@ -49,16 +49,7 @@ import com.izforge.izpack.core.rules.logic.AndCondition;
 import com.izforge.izpack.core.rules.logic.NotCondition;
 import com.izforge.izpack.core.rules.logic.OrCondition;
 import com.izforge.izpack.core.rules.logic.XorCondition;
-import com.izforge.izpack.core.rules.process.CompareNumericsCondition;
-import com.izforge.izpack.core.rules.process.CompareVersionsCondition;
-import com.izforge.izpack.core.rules.process.ContainsCondition;
-import com.izforge.izpack.core.rules.process.EmptyCondition;
-import com.izforge.izpack.core.rules.process.ExistsCondition;
-import com.izforge.izpack.core.rules.process.JavaCondition;
-import com.izforge.izpack.core.rules.process.PackSelectionCondition;
-import com.izforge.izpack.core.rules.process.RefCondition;
-import com.izforge.izpack.core.rules.process.UserCondition;
-import com.izforge.izpack.core.rules.process.VariableCondition;
+import com.izforge.izpack.core.rules.process.*;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
 
@@ -100,6 +91,7 @@ public class RulesEngineImpl implements RulesEngine
         TYPE_CLASS_NAMES.put("xor", XorCondition.class.getName());
         TYPE_CLASS_NAMES.put("comparenumerics", CompareNumericsCondition.class.getName());
         TYPE_CLASS_NAMES.put("compareversions", CompareVersionsCondition.class.getName());
+        TYPE_CLASS_NAMES.put("compareversionsmajor", CompareVersionsMajorCondition.class.getName());
         TYPE_CLASS_NAMES.put("empty", EmptyCondition.class.getName());
         TYPE_CLASS_NAMES.put("exists", ExistsCondition.class.getName());
         TYPE_CLASS_NAMES.put("contains", ContainsCondition.class.getName());

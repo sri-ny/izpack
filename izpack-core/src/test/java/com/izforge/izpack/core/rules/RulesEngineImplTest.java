@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.izforge.izpack.core.rules.process.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,15 +55,6 @@ import com.izforge.izpack.core.rules.logic.AndCondition;
 import com.izforge.izpack.core.rules.logic.NotCondition;
 import com.izforge.izpack.core.rules.logic.OrCondition;
 import com.izforge.izpack.core.rules.logic.XorCondition;
-import com.izforge.izpack.core.rules.process.CompareNumericsCondition;
-import com.izforge.izpack.core.rules.process.CompareVersionsCondition;
-import com.izforge.izpack.core.rules.process.EmptyCondition;
-import com.izforge.izpack.core.rules.process.ExistsCondition;
-import com.izforge.izpack.core.rules.process.JavaCondition;
-import com.izforge.izpack.core.rules.process.PackSelectionCondition;
-import com.izforge.izpack.core.rules.process.RefCondition;
-import com.izforge.izpack.core.rules.process.UserCondition;
-import com.izforge.izpack.core.rules.process.VariableCondition;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
 
@@ -523,6 +515,7 @@ public class RulesEngineImplTest
         assertTrue(rules.getCondition("variable1") instanceof VariableCondition);
         assertTrue(rules.getCondition("comparenumerics1") instanceof CompareNumericsCondition);
         assertTrue(rules.getCondition("compareversions1") instanceof CompareVersionsCondition);
+        assertTrue(rules.getCondition("compareversionsmajor1") instanceof CompareVersionsMajorCondition);
         assertTrue(rules.getCondition("empty1") instanceof EmptyCondition);
         assertTrue(rules.getCondition("exists1") instanceof ExistsCondition);
         assertTrue(rules.getCondition("java1") instanceof JavaCondition);
@@ -703,6 +696,7 @@ public class RulesEngineImplTest
 
         assertTrue(rules.isConditionTrue("comparenumerics1"));  // comparenumerics1 = 1 < 2
         assertTrue(rules.isConditionTrue("compareversions1"));  // compareversions1 = 1 < 2
+        assertTrue(rules.isConditionTrue("compareversionsmajor1"));  // compareversions1 = 1.8 eq 1.8.0_72
     }
 
     /**

@@ -44,6 +44,11 @@
         <arg2>2</arg2>
         <operator>lt</operator>
     </condition>
+    <condition type="compareversionsmajor" id="compareversionsmajor1">
+        <arg1>1.8</arg1>
+        <arg2>1.8.0_72</arg2>
+        <operator>eq</operator>
+    </condition>
     <condition type="empty" id="empty1">
         <dir>${INSTALL_PATH}/import</dir>
     </condition>
