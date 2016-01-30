@@ -1,10 +1,5 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2004 Jan Blok
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +17,19 @@
 package com.izforge.izpack.api.data;
 
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.izforge.izpack.api.data.binding.Action;
 import com.izforge.izpack.api.data.binding.Help;
 import com.izforge.izpack.api.data.binding.OsModel;
-import com.izforge.izpack.api.rules.RulesEngine;
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Jan Blok
  * @author Dennis Reil, <Dennis.Reil@reddot.de>
  */
-public class Panel implements Serializable
+public class Panel extends DefaultConfigurationHandler implements Serializable
 {
-
     static final long serialVersionUID = 8886445274940938809L;
 
     /**
@@ -87,7 +75,7 @@ public class Panel implements Serializable
     /**
      * The list of validators for this panel
      */
-    private List<String> validators = new ArrayList<String>();
+    private final List<String> validators = new ArrayList<String>();
 
     /**
      * Set affected variable names that might be changed on this panel
@@ -98,10 +86,13 @@ public class Panel implements Serializable
      * The map of validator conditions for this panel depending on the validator
      * Condition whether the validator has to be asked for validation.
      */
-    private Map<Integer, String> validatorConditionIds = new HashMap<Integer, String>();
+    private final Map<Integer, String> validatorConditionIds = new HashMap<Integer, String>();
 
-    @Deprecated
-    private List<Action> actions;
+    /**
+     * The map of validator configuration options for this panel depending on the validator
+     * configuration section.
+     */
+    private final Map<Integer, Configurable> validatorConfiguration = new HashMap<Integer, Configurable>();
 
     /**
      * Whether the panel has been visited for summarizing the installation story
@@ -129,14 +120,9 @@ public class Panel implements Serializable
     private List<PanelActionConfiguration> postValidationActions = null;
 
     /**
-     * A HashMap for URLs to Helpfiles, key should be iso3-code
+     * A list of URLs to help files, key should be iso3-code
      */
     private List<Help> helps = null;
-
-    /**
-     * Contains configuration values for a panel.
-     */
-    private Map<String, ConfigurationOption> configuration = null;
 
     /**
      * Whether we confirm quit from this panel.
@@ -152,7 +138,7 @@ public class Panel implements Serializable
     public enum ConfirmQuitType {
         DYNAMIC,  //confirm quit until files are copied; "classic" behavior
         CONFIRM,  //always confirm quit
-        SILENT};  //never confirm quit
+        SILENT}   //never confirm quit
     private ConfirmQuitType confirmQuitType = ConfirmQuitType.DYNAMIC;
     
     
@@ -179,18 +165,6 @@ public class Panel implements Serializable
     public void setPanelId(String panelId)
     {
         this.panelId = panelId;
-    }
-
-    @Deprecated
-    public String getPanelid()
-    {
-        return getPanelId();
-    }
-
-    @Deprecated
-    public void setPanelid(String panelId)
-    {
-        setPanelId(panelId);
     }
 
     /**
@@ -253,7 +227,7 @@ public class Panel implements Serializable
 
     public void setDisplayHidden(boolean flag)
     {
-        this.displayHidden = Boolean.valueOf(flag);
+        this.displayHidden = flag;
     }
 
 
@@ -264,7 +238,7 @@ public class Panel implements Serializable
 
     public void setReadonly(boolean flag)
     {
-        this.readonly = Boolean.valueOf(flag);
+        this.readonly = flag;
     }
 
 
@@ -311,33 +285,45 @@ public class Panel implements Serializable
 
     /**
      * Gets a validator condition
-     * @param index
+     * @param index the order number of the validator within the panel definition
      * @return the validator condition of a validator at the given index for this panel
      */
     public String getValidatorCondition(int index)
     {
-        return this.validatorConditionIds.get(Integer.valueOf(index));
+        return this.validatorConditionIds.get(index);
+    }
+
+    /**
+     * Gets a validator condition
+     * @param index the order number of the validator within the panel definition
+     * @return the configuration options of a validator at the given index for this panel
+     */
+    public Configurable getValidatorConfiguration(int index)
+    {
+        return this.validatorConfiguration.get(index);
     }
 
     /**
      * Adds a panel validator and a condition defining whether the panel validator should be asked at all.
-     * @param validatorClassName
+     * @param validatorClassName the class name the validator
      * @param validatorConditionId the validator condition for this panel (set null for no condition)
+     * @param configurable configuration options assigned to the validator (nested 'configuration' tag)
      */
-    public void addValidator(String validatorClassName, String validatorConditionId)
+    public void addValidator(String validatorClassName, String validatorConditionId, Configurable configurable)
     {
         this.validators.add(validatorClassName);
         if (validatorConditionId != null)
         {
             // There must be used the index in the ordered list of validators as key, because the validator
             // has no own ID and its classname might not be unique.
-            this.validatorConditionIds.put(Integer.valueOf(validators.size()-1), validatorConditionId);
+            this.validatorConditionIds.put(validators.size() - 1, validatorConditionId);
         }
-    }
-
-    public List<Help> getHelps()
-    {
-        return helps;
+        if (configurable != null)
+        {
+            // There must be used the index in the ordered list of validators as key, because the validator
+            // has no own ID and its classname might not be unique.
+            this.validatorConfiguration.put(validators.size() - 1, configurable);
+        }
     }
 
     public void setHelps(List<Help> helps)
@@ -401,45 +387,6 @@ public class Panel implements Serializable
         this.postValidationActions.add(action);
     }
 
-    /**
-     * Add an optional configuration option additionally depending on the according configuration
-     * option condition (if defined)
-     *
-     * @param name Configuration option name
-     * @param the configuration option
-     */
-    public void addConfigurationOption(String name, ConfigurationOption option)
-    {
-        if (this.configuration == null)
-        {
-            this.configuration = new HashMap<String, ConfigurationOption>();
-        }
-        this.configuration.put(name, option);
-    }
-
-    /**
-     * Get an optional configuration value additionally depending on the according configuration
-     * option condition (if defined)
-     *
-     * @param name Configuration option name
-     * @param rules Current RulesEngine instance
-     * @return the effective value or {@code null}
-     */
-    public String getConfigurationOptionValue(String name, RulesEngine rules)
-    {
-        String result = null;
-        ConfigurationOption option = null;
-        if (this.configuration != null)
-        {
-            option = this.configuration.get(name);
-        }
-        if (option != null)
-        {
-            result = option.getValue(rules);
-        }
-        return result;
-    }
-
     public List<OsModel> getOsConstraints()
     {
         return osConstraints;
@@ -466,18 +413,6 @@ public class Panel implements Serializable
         return null;
     }
 
-    @Deprecated
-    public List<Action> getActions()
-    {
-        return actions;
-    }
-
-    @Deprecated
-    public void setActions(List<Action> actions)
-    {
-        this.actions = actions;
-    }
-
     /**
      * @return Whether the panel has been visited for summarizing the installation story
      */
@@ -488,7 +423,8 @@ public class Panel implements Serializable
 
     /**
      * Mark panel visited for summarizing the installation story
-     * @param visited
+     *
+     * @param visited whether the panel has been shown to the user
      */
     public void setVisited(boolean visited)
     {
@@ -510,8 +446,7 @@ public class Panel implements Serializable
      * Affected variables are blocked for further dynamic changes if there are definitions as dynamic
      * variables as soon as the user passes forward over this panel
      *
-     * @param name Affected variable
-     * @return <tt>true</tt> if this set did not already contain the specified name
+     * @param names Affected variables
      */
     public void setAffectedVariableNames(Set<String> names)
     {
@@ -520,7 +455,7 @@ public class Panel implements Serializable
 
     /**
      * Gets the behavior when quit is pressed on this panel.
-     * @return 
+     * @return the confirmation options of this panel
      */
     public ConfirmQuitType getConfirmQuitType()
     {
@@ -529,7 +464,7 @@ public class Panel implements Serializable
 
     /**
      * Sets the behavior when quit is pressed on this panel.
-     * @param value 
+     * @param value the confirmation options of this panel
      */
     public void setConfirmQuitType(ConfirmQuitType value)
     {
@@ -544,7 +479,6 @@ public class Panel implements Serializable
                 ", osConstraints=" + osConstraints +
                 ", panelid='" + getPanelId() + '\'' +
                 ", condition='" + condition + '\'' +
-                ", actions=" + actions +
                 ", validator count='" + validators.size() + '\'' +
                 ", helps=" + helps + '\'' +
                 ", affected variables count='" + affectedVariableNames.size() + '\'' +

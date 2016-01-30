@@ -1,10 +1,5 @@
 /*
- * IzPack - Copyright 2001-2012 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2012 Tim Anderson
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +16,9 @@
 
 package com.izforge.izpack.installer.panel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.data.PanelActionConfiguration;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.installer.DataValidator;
@@ -40,6 +26,11 @@ import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.data.PanelAction;
 import com.izforge.izpack.data.PanelAction.ActionStage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -194,7 +185,9 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
             List<String> dataValidatorClassNames = panel.getValidators();
             for (String dataValidatorClassName : dataValidatorClassNames)
             {
-                validators.add(factory.create(dataValidatorClassName, DataValidator.class, panel, view));
+                DataValidator validator = factory.create(dataValidatorClassName, DataValidator.class, panel, view);
+
+                validators.add(validator);
             }
 
             addActions(panel.getPreActivationActions(), preActivationActions, ActionStage.preactivate);
@@ -448,6 +441,25 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
                 return true;
             }
         }
+        if (validator instanceof PanelValidator)
+        {
+            logger.finer(validator.getClass().getName() + " is a " + PanelValidator.class.getSimpleName() + " instance");
+            PanelValidator panelValidator = (PanelValidator) validator;
+            Configurable configurable = getPanel().getValidatorConfiguration(index);
+            if (configurable != null)
+            {
+                for (String name : configurable.getNames())
+                {
+                    panelValidator.addConfigurationOption(name, configurable.getConfigurationOption(name));
+                }
+            }
+        }
+        else
+        {
+            logger.finer(validator.getClass().getName() + " implements a legacy "
+                            + DataValidator.class.getSimpleName() + " interface");
+        }
+
         return isValid(validator, installData);
     }
 

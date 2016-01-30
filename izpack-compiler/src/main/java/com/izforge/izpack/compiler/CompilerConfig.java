@@ -1,5 +1,4 @@
 /*
- * $Id$
  * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
  *
  * http://izpack.org/
@@ -93,7 +92,9 @@ import java.io.*;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -1581,7 +1582,7 @@ public class CompilerConfig extends Thread
             String id = panelElement.getAttribute("id");
             if (id == null)
             {
-                id = className + "_" + Integer.valueOf(panelCounter - 1);
+                id = className + "_" + (panelCounter - 1);
             }
             panel.setPanelId(id);
             String conditionId = parseConditionAttribute(panelElement);
@@ -1627,48 +1628,31 @@ public class CompilerConfig extends Thread
             }
             panel.setClassName(type.getName());
 
-            IXMLElement configurationElement = panelElement.getFirstChildNamed("configuration");
-            if (configurationElement != null)
-            {
-                logger.fine("Found a configuration for panel " + panel.getPanelId());
-                List<IXMLElement> params = configurationElement.getChildren();
-                for (IXMLElement param : params)
-                {
-                    String elementName = param.getName();
-                    String name = elementName;
-                    final String value;
-                    final ConfigurationOption option;
-                    if (elementName.equals("param"))
-                    {
-                        // TODO after 5.0: Compatibility: Nested <param name="..." value="..." /> (remove in future?)
-                        name = xmlCompilerHelper.requireAttribute(param, "name");
-                        value = xmlCompilerHelper.requireAttribute(param, "value");
-                        option = new ConfigurationOption(value);
-                    }
-                    else
-                    {
-                        value = xmlCompilerHelper.requireContent(param);
-                        option = new ConfigurationOption(value,
-                                parseConditionAttribute(param),
-                                param.getAttribute("defaultValue"));
-                    }
-                    logger.fine("-> Adding configuration option " + name + " (" + option + ")");
-                    panel.addConfigurationOption(name, option);
-                }
-            }
+            addConfigurationOptions(panelElement, panel);
 
             // adding validator
             List<IXMLElement> validatorElements = panelElement.getChildrenNamed(DataValidator.DATA_VALIDATOR_TAG);
             for (IXMLElement validatorElement : validatorElements)
             {
                 String validator = validatorElement.getAttribute(DataValidator.DATA_VALIDATOR_CLASSNAME_ATTR);
-                if (!"".equals(validator))
+                if (validator != null && !validator.isEmpty())
                 {
                     String validatorCondition = validatorElement.getAttribute(DataValidator.DATA_VALIDATOR_CONDITION_ATTR);
                     Class<DataValidator> validatorType = classLoader.loadClass(validator, DataValidator.class);
-                    panel.addValidator(validatorType.getName(), validatorCondition);
+                    Configurable configurable = null;
+                    if (PanelValidator.class.isAssignableFrom(validatorType))
+                    {
+                        configurable = new DefaultConfigurationHandlerAdapter();
+                        addConfigurationOptions(validatorElement, configurable);
+                        logger.finer("Validator " + validatorType.getName()
+                                + " extends the " + PanelValidator.class.getSimpleName()
+                                + "interface and adds " + configurable.getNames().size() + " parameters");
+                    }
+                    logger.fine("Adding validator '" + validator + "' to panel '" + panel.getPanelId() + "'");
+                    panel.addValidator(validatorType.getName(), validatorCondition, configurable);
                 }
             }
+
             // adding helps
             List<IXMLElement> helpSpecs = panelElement.getChildrenNamed(HELP_TAG);
             if (helpSpecs != null) // TODO : remove this condition, getChildrenNamed always return a list
@@ -3414,6 +3398,37 @@ public class CompilerConfig extends Thread
         if (failure)
         {
             throw new CompilerException("Cannot recover from reference(s) to undefined condition(s) listed above");
+        }
+    }
+
+    private void addConfigurationOptions(IXMLElement element, Configurable configurable)
+    {
+        IXMLElement configurationElement = element.getFirstChildNamed("configuration");
+        if (configurationElement != null)
+        {
+            logger.fine("Found configuration section for '" + element.getName() + "' element");
+            List<IXMLElement> params = configurationElement.getChildren();
+            for (IXMLElement param : params)
+            {
+                String elementName = param.getName();
+                String name = elementName;
+                final String value;
+                if (elementName.equals("param"))
+                {
+                    // Format: <param name="option_1" value="value_1" />
+                    name = xmlCompilerHelper.requireAttribute(param, "name");
+                    value = xmlCompilerHelper.requireAttribute(param, "value");
+                } else
+                {
+                    // Format: <option_1 condition="..." defaultValue="...">value_1</option_1>
+                    value = xmlCompilerHelper.requireContent(param);
+                }
+                String condition = parseConditionAttribute(param);
+                String defaultValue = param.getAttribute("defaultValue");
+                final ConfigurationOption option = new ConfigurationOption(value, condition, defaultValue);
+                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                configurable.addConfigurationOption(name, option);
+            }
         }
     }
 }
