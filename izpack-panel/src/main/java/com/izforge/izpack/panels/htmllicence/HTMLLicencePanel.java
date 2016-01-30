@@ -19,24 +19,9 @@
 
 package com.izforge.izpack.panels.htmllicence;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.net.URL;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.Document;
-
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.gui.IzPanelLayout;
 import com.izforge.izpack.gui.LabelFactory;
@@ -45,6 +30,16 @@ import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
 
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.Document;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.net.URL;
+import java.util.logging.Logger;
+
 /**
  * The IzPack HTML license panel.
  *
@@ -52,11 +47,17 @@ import com.izforge.izpack.installer.gui.IzPanel;
  */
 public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, ActionListener
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(HTMLLicencePanel.class.getName());
 
     /**
      *
      */
     private static final long serialVersionUID = 3256728385458746416L;
+
+    private static final String DEFAULT_SUFFIX = ".licence";
 
     /**
      * The text area.
@@ -143,34 +144,43 @@ public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, Acti
      */
     protected URL loadLicence()
     {
-        String resNamePrefix = "HTMLLicencePanel";
-        String resNameStr = resNamePrefix + ".licence";
+        final String resNamePrefix = HTMLLicencePanel.class.getSimpleName();
+        String resNameStr = resNamePrefix + DEFAULT_SUFFIX;
 
-        if (getMetadata() != null && getMetadata().getPanelId() != null)
+        Panel panel = getMetadata();
+        Resources resources = getResources();
+        if (panel != null)
         {
-            try
+            String panelId = panel.getPanelId();
+            if (panelId != null)
             {
-                String panelSpecificResName = resNamePrefix + '.' + this.getMetadata().getPanelId();
-                String panelspecificResContent = getResources().getString(panelSpecificResName, null);
-                if (panelspecificResContent != null)
+                try
                 {
-                    resNameStr = panelSpecificResName;
+                    String panelSpecificResName = resNamePrefix + '.' + panelId;
+                    String panelspecificResContent = resources.getString(panelSpecificResName, null);
+                    if (panelspecificResContent != null)
+                    {
+                        resNameStr = panelSpecificResName;
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Those ones can be skipped
                 }
             }
-            catch (Exception e)
+
+            try
             {
-                // Those ones can be skipped
+                return resources.getURL(resNameStr);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                logger.warning("Cannot open any of both license text resources ("
+                        + resNamePrefix + '.' + panel.getPanelId() + ", " + resNamePrefix + DEFAULT_SUFFIX
+                        + ") for panel type '" + HTMLLicencePanel.class.getSimpleName() + "" );
             }
         }
 
-        try
-        {
-            return getResources().getURL(resNameStr);
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
         return null;
     }
 
