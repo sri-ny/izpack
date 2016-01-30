@@ -24,8 +24,6 @@ import java.util.StringTokenizer;
 
 public class WordUtil
 {
-    private static final String NEWLINE = System.getProperty("line.separator");
-
     public static void main(String[] args) throws FileNotFoundException
     {
         InputStream in = null;
@@ -50,10 +48,30 @@ public class WordUtil
 
     public static String wordWrap(String text, int maxCharsPerLine)
     {
+        return wordWrap(text, maxCharsPerLine, true);
+    }
+
+    /**
+     * Processes a given text and wraps it word boundary according to a defined line width.
+     *
+     * @param text            the raw text to be processed
+     * @param maxCharsPerLine the line width
+     * @param wrapLineFull    whether wrapped lines should be explicitly divided by a newline character if the computed
+     *                        line is exactly as long as the line width. This must be set {@code false} if the processed
+     *                        text should be printed to a terminal which automatically wraps to the new line after the
+     *                        last character has been printed at the last column.
+     * @return the processed text
+     */
+    public static String wordWrap(String text, int maxCharsPerLine, boolean wrapLineFull)
+    {
         StringBuffer sb = new StringBuffer();
         for (String line : wordWrap(new ByteArrayInputStream(text.getBytes()), maxCharsPerLine))
         {
-            sb.append(line + NEWLINE);
+            sb.append(line);
+            if (line.length() < maxCharsPerLine || wrapLineFull)
+            {
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }

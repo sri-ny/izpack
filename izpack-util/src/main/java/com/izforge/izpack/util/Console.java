@@ -167,13 +167,15 @@ public class Console
         if (wrap)
         {
             int width = 80;
+            boolean wrapLineFull = false;
             if (!consoleReaderFailed)
             {
                 Terminal terminal = consoleReader.getTerminal();
                 width = terminal.getWidth();
+                wrapLineFull = terminal.hasWeirdWrap();
             }
 
-            text = WordUtil.wordWrap(text, width);
+            text = WordUtil.wordWrap(text, width, wrapLineFull);
         }
 
         if (paging)
