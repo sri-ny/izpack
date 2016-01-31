@@ -21,16 +21,25 @@
 
 package com.izforge.izpack.panels.htmllicence;
 
+import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.licence.AbstractLicenceConsolePanel;
+
+import java.util.logging.Logger;
 
 /**
  * HTML Licence Panel console helper
  */
 public class HTMLLicenceConsolePanel extends AbstractLicenceConsolePanel
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(HTMLLicenceConsolePanel.class.getName());
+
+    private static final String DEFAULT_SUFFIX = ".licence";
 
     /**
      * Constructs an <tt>HTMLLicenceConsolePanel</tt>.
@@ -51,10 +60,33 @@ public class HTMLLicenceConsolePanel extends AbstractLicenceConsolePanel
     @Override
     protected String getText()
     {
-        String text = getText("HTMLLicencePanel.licence");
+        final String resNamePrefix = HTMLLicencePanel.class.getSimpleName();
+        String text = null;
+
+        Panel panel = getPanel();
+        if (panel != null)
+        {
+            String panelId = panel.getPanelId();
+            if (panelId != null)
+            {
+                String panelSpecificResName = resNamePrefix + '.' + panelId;
+                text = getText(panelSpecificResName);
+                if (text == null)
+                {
+                    text = getText(resNamePrefix + DEFAULT_SUFFIX);
+                }
+            }
+        }
+
         if (text != null)
         {
             text = removeHTML(text);
+        }
+        else
+        {
+            logger.warning("Cannot open any of both license text resources ("
+                    + resNamePrefix + '.' + panel.getPanelId() + ", " + resNamePrefix + DEFAULT_SUFFIX
+                    + ") for panel type '" + HTMLLicencePanel.class.getSimpleName() + "" );
         }
         return text;
     }
