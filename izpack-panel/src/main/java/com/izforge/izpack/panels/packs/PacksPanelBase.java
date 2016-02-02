@@ -24,44 +24,6 @@
 
 package com.izforge.izpack.panels.packs;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonModel;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.Panel;
@@ -77,7 +39,26 @@ import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.util.PackHelper;
 import com.izforge.izpack.panels.treepacks.PackValidator;
+import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.IoHelper;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The base class for Packs panels. It brings the common member and methods of the different packs
@@ -187,7 +168,10 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
         super(panel, parent, installData, resources);
         this.rules = rules;
         this.factory = factory;
-        this.debugger = parent.getDebugger();
+
+        if (Debug.isTRACE()) {
+            this.debugger = parent.getDebugger();
+        }
 
         try
         {
@@ -761,20 +745,20 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
                 checkbox.setBackground(table.getBackground());
             }
 
-            int state = (Integer) value;
-            if (state == -2)
+            PacksModel.CbSelectionState state = (PacksModel.CbSelectionState) value;
+            if (state == PacksModel.CbSelectionState.DEPENDENT_DESELECTED)
             {
                 // condition not fulfilled
                 checkbox.setForeground(Color.GRAY);
             }
-            if (state == -3)
+            if (state == PacksModel.CbSelectionState.REQUIRED_PARTIAL_SELECTED)
             {
                 checkbox.setForeground(Color.RED);
                 checkbox.setSelected(true);
             }
 
-            checkbox.setEnabled(state >= 0);
-            checkbox.setSelected((value != null && Math.abs(state) == 1));
+            checkbox.setEnabled(state.isSelectable());
+            checkbox.setSelected((value != null && state.isSelectedOrRequiredSelected()));
             return checkbox;
         }
     }
@@ -919,8 +903,8 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
         {
             Component renderer = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            int state = (Integer) table.getModel().getValueAt(row, 0);
-            if (state == -2)
+            PacksModel.CbSelectionState state = (PacksModel.CbSelectionState) table.getModel().getValueAt(row, 0);
+            if (state == PacksModel.CbSelectionState.DEPENDENT_DESELECTED)
             {
                 // condition not fulfilled
                 renderer.setForeground(Color.GRAY);
@@ -965,8 +949,10 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
      */
     private void togglePack(int row)
     {
-        Integer checked = (Integer) packsModel.getValueAt(row, 0);
-        checked = (checked <= 0) ? 1 : 0;
+        PacksModel.CbSelectionState checked = (PacksModel.CbSelectionState) packsModel.getValueAt(row, 0);
+        checked = checked.isFullyOrPartiallySelected()
+                ? PacksModel.CbSelectionState.DESELECTED
+                : PacksModel.CbSelectionState.SELECTED;
         packsModel.setValueAt(checked, row, 0);
         packsTable.repaint();
         packsTable.changeSelection(row, 0, false, false);

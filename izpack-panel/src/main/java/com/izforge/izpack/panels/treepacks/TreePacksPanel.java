@@ -1,35 +1,5 @@
 package com.izforge.izpack.panels.treepacks;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTree;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.data.Pack;
@@ -48,6 +18,20 @@ import com.izforge.izpack.panels.packs.PacksModel;
 import com.izforge.izpack.panels.packs.PacksPanelAutomationHelper;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.file.FileUtils;
+
+import javax.swing.*;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.InputStream;
+import java.util.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -419,8 +403,8 @@ public class TreePacksPanel extends IzPanel
             int childRowIndex = getRowIndex((Pack) nodePack);
             if (childRowIndex >= 0)
             {
-                Integer state = (Integer) packsModel.getValueAt(childRowIndex, 0);
-                node.setEnabled(state >= 0);
+                PacksModel.CbSelectionState state = (PacksModel.CbSelectionState) packsModel.getValueAt(childRowIndex, 0);
+                node.setEnabled(state.isSelectable());
 
                 node.setPartial(packsModel.isPartiallyChecked(childRowIndex));
                 node.setSelected(packsModel.isChecked(childRowIndex));
