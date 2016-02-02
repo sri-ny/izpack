@@ -139,7 +139,7 @@ public class CompareVersionsCondition extends CompareCondition
         public Version(String version) {
             if(version == null)
                 throw new IllegalArgumentException("Version can not be null");
-            if(!version.matches("[0-9]+([\\W_][0-9]+)*"))
+            if(!version.matches("[^\\d]*[\\d]+([^\\d]+[\\d]+)*[^\\d]*"))
                 throw new IllegalArgumentException("Invalid version format: '" + version + "'");
             this.version = version;
         }
@@ -148,8 +148,8 @@ public class CompareVersionsCondition extends CompareCondition
         public int compareTo(Version version) {
             if(version == null)
                 return 1;
-            String[] parts1 = this.get().split("[\\W_]");
-            String[] parts2 = version.get().split("[\\W_]");
+            String[] parts1 = this.get().split("[^\\d]+");
+            String[] parts2 = version.get().split("[^\\d]+");
             int length = hasFlag(NOT_ASSUME_MISSING_MINOR_PARTS_AS_0)
                     ? Math.min(parts1.length, parts2.length)
                     : Math.max(parts1.length, parts2.length);
@@ -177,17 +177,5 @@ public class CompareVersionsCondition extends CompareCondition
             return this.compareTo((Version) version) == 0;
         }
 
-    }
-
-    public static void main (String args[])
-    {
-        final String op1="1.8.0_72", op2="1.8";
-        final ComparisonOperator operator = ComparisonOperator.LESSEQUAL;
-        CompareVersionsCondition condition = new CompareVersionsCondition();
-        condition.setInstallData(new AutomatedInstallData(new DefaultVariables(), new Platform(Platform.Name.LINUX)));
-        condition.setLeftOperand(op1);
-        condition.setOperator(operator);
-        condition.setRightOperand(op2);
-        System.out.println(op1 + " " + operator.getAttribute() + " " + op2 + ": " + condition.isTrue());
     }
 }
