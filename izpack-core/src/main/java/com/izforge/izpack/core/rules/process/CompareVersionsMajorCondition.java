@@ -33,16 +33,4 @@ public class CompareVersionsMajorCondition extends CompareVersionsCondition
     {
         super(NOT_ASSUME_MISSING_MINOR_PARTS_AS_0);
     }
-
-    public static void main (String args[])
-    {
-        final String op1="1.8.0_72", op2="1.8";
-        final ComparisonOperator operator = ComparisonOperator.LESSEQUAL;
-        CompareVersionsMajorCondition condition = new CompareVersionsMajorCondition();
-        condition.setInstallData(new AutomatedInstallData(new DefaultVariables(), new Platform(Platform.Name.LINUX)));
-        condition.setLeftOperand(op1);
-        condition.setOperator(operator);
-        condition.setRightOperand(op2);
-        System.out.println(op1 + " " + operator.getAttribute() + " " + op2 + ": " + condition.isTrue());
-    }
 }
