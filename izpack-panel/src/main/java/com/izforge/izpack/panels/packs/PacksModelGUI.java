@@ -44,7 +44,7 @@ public class PacksModelGUI extends PacksModel
     @Override
     public void setValueAt(Object checkValue, int rowIndex, int columnIndex)
     {
-        if (columnIndex != 0 || !(checkValue instanceof Integer))
+        if (columnIndex != 0 || !(checkValue instanceof CbSelectionState))
         {
             return;
         }
@@ -64,7 +64,7 @@ public class PacksModelGUI extends PacksModel
         long bytes = 0;
         for (int q = 0; q < packs.size(); q++)
         {
-            if (Math.abs(checkValues[q]) == 1)
+            if (checkValues.get(q).isSelectedOrRequiredSelected())
             {
                 Pack pack = packs.get(q);
                 bytes += pack.getSize();
