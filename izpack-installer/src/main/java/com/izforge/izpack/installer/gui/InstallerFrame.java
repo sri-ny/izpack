@@ -333,14 +333,13 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
 
         contentPane.add(navPanel, BorderLayout.SOUTH);
 
-        // always initialize debugger
-        debugger = new Debugger(installdata, getIcons(), rules);
-        // this needed to fully initialize the debugger.
-        JPanel debugpanel = debugger.getDebugPanel();
-
         // create a debug panel if TRACE is enabled
         if (Debug.isTRACE())
         {
+            debugger = new Debugger(installdata, getIcons(), rules);
+            // this needed to fully initialize the debugger
+            JPanel debugpanel = debugger.getDebugPanel();
+
             if (installdata.guiPrefs.modifier.containsKey("showDebugWindow")
                     && Boolean.valueOf(installdata.guiPrefs.modifier.get("showDebugWindow")))
             {
