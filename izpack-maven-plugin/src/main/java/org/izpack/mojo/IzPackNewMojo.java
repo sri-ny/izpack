@@ -25,13 +25,14 @@ import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
+import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 
 import java.io.File;
 import java.util.List;
@@ -39,7 +40,6 @@ import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Mojo for izpack
@@ -200,11 +200,7 @@ public class IzPackNewMojo extends AbstractMojo
         compilerContainer.addConfig("installFile", installFile);
         compilerContainer.getComponent(IzpackProjectInstaller.class);
         compilerContainer.addComponent(CompilerData.class, compilerData);
-
-        final ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.INFO);
-        consoleHandler.setFormatter(new MavenStyleLogFormatter());
-        compilerContainer.addComponent(Handler.class, consoleHandler);
+        compilerContainer.addComponent(Handler.class, createLogHandler());
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
 
@@ -230,7 +226,7 @@ public class IzPackNewMojo extends AbstractMojo
         {
             if (enableAttachArtifact)
             {
-                projectHelper.attachArtifact(project, getType(), classifier, jarFile);
+                projectHelper.attachArtifact(project, "jar", classifier, jarFile);
             }
         }
         else
@@ -240,14 +236,6 @@ public class IzPackNewMojo extends AbstractMojo
                 project.getArtifact().setFile(jarFile);
             }
         }
-    }
-
-    /**
-     * @return type of the generated artifact - is "jar"
-     */
-    protected static final String getType()
-    {
-        return "jar";
     }
 
     private File getJarFile()
@@ -318,6 +306,32 @@ public class IzPackNewMojo extends AbstractMojo
         }
         return new CompilerData(comprFormat, kind, installFile, null, baseDir, jarFile.getPath(),
                                 mkdirs, validating, comprLevel, info);
+    }
+
+    private Handler createLogHandler()
+    {
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(new MavenStyleLogFormatter());
+        Log log = getLog();
+        Level level = Level.OFF;
+        if (log.isDebugEnabled())
+        {
+            level = Level.FINE;
+        }
+        else if (log.isInfoEnabled())
+        {
+            level = Level.INFO;
+        }
+        else if (log.isWarnEnabled())
+        {
+            level = Level.WARNING;
+        }
+        else if (log.isErrorEnabled())
+        {
+            level = Level.SEVERE;
+        }
+        consoleHandler.setLevel(level);
+        return consoleHandler;
     }
 
 }
