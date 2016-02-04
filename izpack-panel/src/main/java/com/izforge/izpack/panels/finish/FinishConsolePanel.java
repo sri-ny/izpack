@@ -105,6 +105,8 @@ public class FinishConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
+
         if (doGenerateAutoInstallScript())
         {
             generateAutoInstallScript(installData, uninstallData, console);
@@ -113,11 +115,11 @@ public class FinishConsolePanel extends AbstractConsolePanel
         if (installData.isInstallSuccess())
         {
             console.println("Installation was successful");
-            console.println("application installed on " + installData.getInstallPath());
+            console.println("Application installed on " + installData.getInstallPath());
         }
         else
         {
-            console.println("Install Failed!!!");
+            console.println("Installation failed!");
         }
         return true;
     }
@@ -160,7 +162,7 @@ public class FinishConsolePanel extends AbstractConsolePanel
                  * (e.g. with launch4j), the autoInstall script is generated in the /tmp directory
                  * of the installer
                  */
-                console.println("path of the installation script must be absolute");
+                console.println("Path of the installation script must be absolute");
                 promptRerunPanel(installData, console);
             }
             else
@@ -179,7 +181,7 @@ public class FinishConsolePanel extends AbstractConsolePanel
         }
         catch (Exception err)
         {
-            console.println("failed to save the installation into file [" + file.getAbsolutePath() + "]");
+            console.println("Failed to save the installation into file [" + file.getAbsolutePath() + "]");
         }
     }
 
