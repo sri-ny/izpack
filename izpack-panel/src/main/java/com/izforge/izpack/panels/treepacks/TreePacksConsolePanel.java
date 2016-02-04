@@ -103,6 +103,8 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
      */
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
+
         List<Pack> selectedPacks;
         packsModel = new PacksModel(installData);
 

@@ -96,6 +96,8 @@ public class CheckedHelloConsolePanel extends HelloConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
+
         boolean result = true;
         if (registered)
         {

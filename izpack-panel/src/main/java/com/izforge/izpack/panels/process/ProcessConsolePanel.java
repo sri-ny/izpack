@@ -131,6 +131,7 @@ public class ProcessConsolePanel extends AbstractConsolePanel implements Console
 
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
         return run(installData);
     }
 

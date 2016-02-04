@@ -41,6 +41,61 @@ public class PanelHelper
      */
     private static final Logger logger = Logger.getLogger(PanelHelper.class.getName());
 
+    /**
+     * Returns the IzPanel implementation of an {@link ConsolePanel}.
+     * <p/>
+     * Console implementations must use the naming convention:
+     * <p>
+     * {@code <prefix>ConsolePanel}
+     * </p>
+     * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
+     * <br/>
+     * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
+     * <p/>
+     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
+     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
+     * removed.
+     *
+     * @param className the ConsolePanel class name
+     * @return the corresponding IzPanel implementation, or {@code null} if none is found
+     */
+    public static Class<IzPanel> getIzPanel(String className)
+    {
+        return getIzPanel(className, PanelHelper.class.getClassLoader());
+    }
+
+    /**
+     * Returns the IzPanel implementation of an {@link ConsolePanel}.
+     * <p/>
+     * Console implementations must use the naming convention:
+     * <p>
+     * {@code <prefix>ConsolePanel}
+     * </p>
+     * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
+     * <br/>
+     * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
+     * <p/>
+     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
+     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
+     * removed.
+     *
+     * @param className the ConsolePanel class name
+     * @param loader    the class loader to use
+     * @return the corresponding IzPanel implementation, or {@code null} if none is found
+     */
+    public static Class<IzPanel> getIzPanel(String className, ClassLoader loader)
+    {
+        Class<IzPanel> result = getClass(className.replaceAll("ConsolePanel$", "Panel"), IzPanel.class, loader);
+        if (result == null)
+        {
+            result = getClass(className.replaceAll("ConsoleHelper$", ""), IzPanel.class, loader);
+            if (result == null)
+            {
+                result = getClass(className.replaceFirst("Console", ""), IzPanel.class, loader);
+            }
+        }
+        return result;
+    }
 
     /**
      * Returns the console implementation of an {@link IzPanel}.

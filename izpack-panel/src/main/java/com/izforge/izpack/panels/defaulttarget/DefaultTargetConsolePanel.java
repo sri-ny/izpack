@@ -92,6 +92,8 @@ public class DefaultTargetConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
+
         String path = TargetPanelHelper.getPath(installData);
         installData.setInstallPath(path);
         return true;

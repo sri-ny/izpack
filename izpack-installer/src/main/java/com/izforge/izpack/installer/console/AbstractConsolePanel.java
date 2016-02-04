@@ -21,14 +21,18 @@
 
 package com.izforge.izpack.installer.console;
 
-import java.io.PrintWriter;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.util.Console;
+import jline.TerminalFactory;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -144,9 +148,27 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         return (panel != null) ? panel.getPanel() : null;
     }
 
+    @Override
     public void createInstallationRecord(IXMLElement rootElement)
     {
         // Default method, override to record panel contents
+    }
+
+    @Override
+    public boolean run(InstallData installData, Console console)
+    {
+        final String headline = getI18nStringForClass("headline", installData);
+        if (headline != null)
+        {
+            final int maxlength = TerminalFactory.get().getWidth();
+            final String hline = new String(new char[maxlength]).replace("\0", "\u2500");
+            console.println();
+            console.println(hline);
+            console.println(headline);
+            console.println(hline);
+            console.println();
+        }
+        return true;
     }
 
     @Override
@@ -154,5 +176,84 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     {
         // Do nothing by default - to be overwritten in console panel implementations if necessary
         return valid;
-    }    ;
+    }
+
+    /**
+     * Search for a proper translation key belonging to the panel implementation.
+     *
+     * @param subkey the subkey for the string which should be returned
+     * @return the founded string
+     */
+    public String getI18nStringForClass(String subkey, InstallData installData)
+    {
+        return getI18nStringForClass(subkey, null, installData);
+    }
+
+    /**
+     * Search for a proper translation key belonging to the panel implementation.
+     *
+     * @param subkey         the subkey for the string which should be returned
+     * @param alternateClass the short name of the class which should be used if no string is
+     *                       present with the runtime class name
+     * @return the founded string
+     */
+    public String getI18nStringForClass(String subkey, String alternateClass, InstallData installData)
+    {
+        String retval = null;
+
+        List<String> prefixes = new ArrayList<String>();
+        Panel panel = getPanel();
+        String panelId = null;
+        if (panel != null)
+        {
+            panelId = getPanel().getPanelId();
+        }
+
+        Class<?> clazz = PanelHelper.getIzPanel(this.getClass().getName());
+
+        String fullClassname = alternateClass==null?clazz.getName():alternateClass;
+        String simpleClassname = alternateClass==null?clazz.getSimpleName():alternateClass;
+
+        do
+        {
+            if (panelId != null)
+            {
+                prefixes.add(fullClassname + "." + panelId);
+                prefixes.add(simpleClassname + "." + panelId);
+            }
+            prefixes.add(fullClassname);
+            prefixes.add(simpleClassname);
+
+            clazz = clazz.getSuperclass();
+            if (clazz != null)
+            {
+                fullClassname = clazz.getName();
+                simpleClassname = clazz.getSimpleName();
+            }
+        } while ((alternateClass == null && !(clazz == null || clazz.equals(AbstractConsolePanel.class))));
+        if (panelId != null)
+        {
+            prefixes.add(2, panelId);
+        }
+
+        for (String prefix : prefixes)
+        {
+            String searchkey = prefix + "." + subkey;
+            if (installData.getMessages().getMessages().containsKey(searchkey))
+            {
+                retval = installData.getMessages().get(searchkey);
+            }
+            if (retval != null)
+            {
+                break;
+            }
+        }
+
+        if (retval != null && retval.indexOf('$') > -1)
+        {
+            retval = installData.getVariables().replace(retval);
+        }
+        return (retval);
+    }
+
 }

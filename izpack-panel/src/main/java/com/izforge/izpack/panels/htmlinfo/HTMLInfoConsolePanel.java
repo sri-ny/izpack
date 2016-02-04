@@ -64,8 +64,9 @@ public class HTMLInfoConsolePanel extends AbstractTextConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        super.run(installData, console);
         console.println(installData.getMessages().get("InfoPanel.info"));
-        return super.run(installData, console);
+        return true;
     }
 
     /**

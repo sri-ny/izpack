@@ -21,12 +21,12 @@
 
 package com.izforge.izpack.core.handler;
 
-import jline.TerminalFactory;
-
 import com.izforge.izpack.api.handler.AbstractPrompt;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.util.Console;
+
+import java.util.Arrays;
 
 /**
  * Console implementation of {@link Prompt}.
@@ -156,8 +156,12 @@ public class ConsolePrompt extends AbstractPrompt
     public Option confirm(Type type, String title, String message, Options options, Option defaultOption)
     {
         Option result;
-        final int maxlength = TerminalFactory.get().getWidth();
-        final String hline = new String(new char[maxlength]).replace("\0", "\u2500");
+
+        int length = Math.max((title!=null ? title.length() : 0), message.length());
+        char[] chars = new char[length];
+        Arrays.fill(chars, '*');
+        final String hline = new String(chars);
+
         console.println(hline);
         if (title != null)
         {
