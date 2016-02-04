@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.merge.Mergeable;
@@ -50,6 +51,12 @@ import com.izforge.izpack.merge.resolve.PathResolver;
  */
 public class CompilerPathResolver extends PathResolver
 {
+
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(CompilerPathResolver.class.getName());
+
 
     /**
      * The class loader.
@@ -94,10 +101,18 @@ public class CompilerPathResolver extends PathResolver
         {
             getMergeableByPackage(consoleType, mergeableByPackage);
         }
+        else
+        {
+            logger.warning("No console mode helper found for class " + className + ", panel type will be skipped in console mode installation");
+        }
         Class<PanelAutomation> automatedType = PanelHelper.getAutomatedPanel(className, loader);
         if (automatedType != null)
         {
             getMergeableByPackage(automatedType, mergeableByPackage);
+        }
+        else
+        {
+            logger.warning("No automation helper found for class " + className + ", panel type will be skipped in automated installation");
         }
         for (List<Mergeable> pkg : mergeableByPackage.values())
         {

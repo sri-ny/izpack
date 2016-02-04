@@ -2,8 +2,6 @@ package com.izforge.izpack.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
-import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
@@ -13,12 +11,7 @@ import java.util.logging.LogRecord;
  */
 public class LogFormatter extends Formatter
 {
-    Date date = new Date();
-    private final static String format = "{0,date} {0,time}";
     private final String lineSeparator = System.getProperty("line.separator");
-    private MessageFormat formatter;
-
-    private Object args[] = new Object[1];
 
     /**
      * Format the given LogRecord.
@@ -29,19 +22,7 @@ public class LogFormatter extends Formatter
     @Override
     public synchronized String format(LogRecord record)
     {
-        StringBuffer sb = new StringBuffer();
-        // Minimize memory allocations here.
-        date.setTime(record.getMillis());
-        args[0] = date;
-        StringBuffer text = new StringBuffer();
-        if (formatter == null)
-        {
-            formatter = new MessageFormat(format);
-        }
-        formatter.format(args, text, null);
-        sb.append(text);
-        sb.append(" ");
-
+        StringBuilder sb = new StringBuilder();
         if (Debug.isDEBUG())
         {
             if (record.getSourceClassName() != null)
@@ -59,12 +40,12 @@ public class LogFormatter extends Formatter
             }
 
             sb.append(lineSeparator);
+            sb.append(record.getLevel().getLocalizedName());
+            sb.append(": ");
         }
 
         // Append log message
         String message = formatMessage(record);
-        sb.append(record.getLevel().getLocalizedName());
-        sb.append(": ");
         sb.append(message);
 
         // Append stacktrace
@@ -79,8 +60,7 @@ public class LogFormatter extends Formatter
                 pw.close();
                 sb.append(sw.toString());
             }
-            catch (Exception ex)
-            {}
+            catch (Exception ignored) {}
         }
 
         sb.append(lineSeparator);

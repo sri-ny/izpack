@@ -20,12 +20,11 @@
  */
 package com.izforge.izpack.installer.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.gui.IzPanel;
+
+import java.util.logging.Logger;
 
 
 /**
@@ -53,7 +52,7 @@ public class PanelHelper
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
      * <p/>
-     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
+     * For backwards-compatibility, the suffixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
      * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
      * removed.
      *
@@ -76,7 +75,7 @@ public class PanelHelper
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
      * <p/>
-     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
+     * For backwards-compatibility, the suffixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
      * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
      * removed.
      *
@@ -158,19 +157,14 @@ public class PanelHelper
             Class type = loader.loadClass(name);
             if (!superType.isAssignableFrom(type))
             {
-                logger.warning(name + " does not implement " + superType.getName() + ", ignoring");
+                logger.fine(name + " does not implement " + superType.getName() + ", ignoring");
             }
             else
             {
                 result = (Class<T>) type;
             }
         }
-        catch (Throwable exception)
-        {
-            // ignore
-            logger.log(Level.FINE, "No " + superType.getSimpleName() + " + found for class " + name + ": "
-                    + exception.toString(), exception);
-        }
+        catch (ClassNotFoundException ignored) {}
         return result;
     }
 
