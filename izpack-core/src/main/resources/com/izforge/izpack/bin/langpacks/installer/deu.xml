@@ -317,6 +317,17 @@ file we looked for -->
     <str id="ConsoleInstaller.continueQuitRedisplay" txt="Eingabe 1 (Weiter), 2 (Beenden), 3 (Erneut anzeigen)"/>
     <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Eingabe 1 (Bestätigen), 2 (Ablehnen), 3 (Erneut anzeigen)"/>
     <str id="ConsoleInstaller.redisplayQuit" txt="Eingabe 1 (Erneut anzeigen), 2 (Beenden)"/>
+    <str id="ConsoleInstaller.permissionError" txt="Administratorrechte erforderlich. Bitte starten Sie das Installationsprogramm erneut unter den erforderlichen Benutzerrechten."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Auswahl eingeben: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="Mehr"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C betätigt"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="Lizenzvereinbarung abgelehnt"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Beenden betätigt"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Einige Dateioperationen werden erst nach einem Neustart fertiggestellt"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Automatischer Neustart erfolgt"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Textkonsolen-Installation beendet"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Benutzerabbruch der Textkonsolen-Installation!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Textkonsolen-Installation fehlgeschlagen!"/>
 
     <!-- Add your own panels specific strings here if you need or use a custom
 langpack with the same syntax referred as resoure CustomLangpack.xml_[ISO3]" -->

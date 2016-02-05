@@ -7,7 +7,6 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:schemaLocation="http://izpack.org/schema/langpack http://izpack.org/schema/5.0/izpack-langpack-5.0.xsd">
 
-
     <!-- Heading messages START -->
     <str id="CheckedHelloPanel.headline" txt="Welcome"/>
     <str id="CompilePanel.headline" txt="Compile Java Sources"/>
@@ -342,6 +341,15 @@
     <str id="ConsoleInstaller.redisplayQuit" txt="Press 1 to redisplay, 2 to quit"/>
     <str id="ConsoleInstaller.permissionError" txt="Administrative privileges required. Please re-run the installer with administrative privileges."/>
     <str id="ConsoleInstaller.inputSelection" txt="Input selection: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="More"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C pressed"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="License rejected"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Quit pressed"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="There are file operations pending after reboot"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Rebooting now automatically"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Console installation done"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Console installation ABORTED by the user!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Console installation FAILED!"/>
 
     <!-- AutomatedInstaller Strings -->
     <str id="AutomatedInstaller.permissionError" txt="Administrative privileges required. Please re-run the installer with administrative privileges."/>

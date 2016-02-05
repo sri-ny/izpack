@@ -107,7 +107,7 @@ abstract public class PanelConsoleHelper extends AbstractConsolePanel implements
     @Deprecated
     public boolean runConsole(InstallData installData)
     {
-        return runConsole(installData, new Console());
+        return runConsole(installData, new Console(installData.getMessages()));
     }
 
     /**
@@ -118,9 +118,9 @@ abstract public class PanelConsoleHelper extends AbstractConsolePanel implements
      * @deprecated
      */
     @Deprecated
-    public int askEndOfConsolePanel()
+    public int askEndOfConsolePanel(InstallData installData)
     {
-        return new Console().prompt("press 1 to continue, 2 to quit, 3 to redisplay", 1, 3, 2);
+        return new Console(installData.getMessages()).prompt("press 1 to continue, 2 to quit, 3 to redisplay", 1, 3, 2);
     }
 
 }

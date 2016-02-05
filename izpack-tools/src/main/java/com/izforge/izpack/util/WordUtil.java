@@ -42,7 +42,7 @@ public class WordUtil
                 if (in != null)
                     in.close();
             }
-            catch (IOException e) {}
+            catch (IOException ignored) {}
         }
     }
 
@@ -64,7 +64,7 @@ public class WordUtil
      */
     public static String wordWrap(String text, int maxCharsPerLine, boolean wrapLineFull)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (String line : wordWrap(new ByteArrayInputStream(text.getBytes()), maxCharsPerLine))
         {
             sb.append(line);
@@ -84,35 +84,25 @@ public class WordUtil
         while (scanner.hasNextLine())
         {
             String readLine = scanner.nextLine();
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             StringTokenizer tokenizer = new StringTokenizer(readLine);
             // Add explicit line breaks from original document
             if (tokenizer.countTokens() == 0)
             {
-                lines.add(new String());
+                lines.add(" ");
             }
 
             while (tokenizer.hasMoreTokens())
             {
                 String word = tokenizer.nextToken();
                 int len = word.length();
-
-                // FIXME Add explicit trailing whitespace from original document
-                /*
-                if (len == 0)
-                {
-                    word = " ";
-                    len = 1;
-                }
-                */
-
                 if (sb.length() > 0)
                 {
                     if (len + 1 > maxCharsPerLine - sb.length())
                     {
                         lines.add(sb.toString());
-                        sb = new StringBuffer();
+                        sb = new StringBuilder();
                     }
                     else
                     {

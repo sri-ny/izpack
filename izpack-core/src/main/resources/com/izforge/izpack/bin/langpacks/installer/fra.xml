@@ -290,6 +290,17 @@
     <str id="ConsoleInstaller.continueQuitRedisplay" txt="Appuyer sur 1 pour continuer, 2 pour quitter, 3 pour réafficher"/>
     <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Appuyer sur 1 pour accepter, 2 pour refuser, 3 pour réafficher"/>
     <str id="ConsoleInstaller.redisplayQuit" txt="Appuyer sur 1 pour réafficher, 2 pour quitter"/>
+    <str id="ConsoleInstaller.permissionError" txt="Administrative privileges required. Please re-run the installer with administrative privileges."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Input selection: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="More"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C pressed"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="License rejected"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Quit pressed"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="There are file operations pending after reboot"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Rebooting now automatically"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Console installation done"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Console installation ABORTED by the user!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Console installation FAILED!"/>
 
     <!-- Next Media Strings -->
     <str id="nextmedia.title" txt="Prochain media d'installation"/>

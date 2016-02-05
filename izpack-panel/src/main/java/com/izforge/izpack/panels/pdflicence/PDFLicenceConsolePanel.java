@@ -1,16 +1,14 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
+ * IzPack - Copyright 2001-2016 The IzPack project team.
+ * All Rights Reserved.
  *
  * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2002 Jan Blok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,27 +19,24 @@
 
 package com.izforge.izpack.panels.pdflicence;
 
+import com.izforge.izpack.api.resource.Resources;
+import com.izforge.izpack.installer.console.ConsolePanel;
+import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.panels.licence.AbstractLicenceConsolePanel;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFTextStripper;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
-
-import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.installer.console.ConsolePanel;
-import com.izforge.izpack.installer.panel.PanelView;
-import com.izforge.izpack.panels.licence.AbstractLicenceConsolePanel;
-
 /**
- * HTML Licence Panel console helper
+ * PDF Licence Panel console helper
  */
 public class PDFLicenceConsolePanel extends AbstractLicenceConsolePanel {
 
 	private static final Logger logger = Logger.getLogger(AbstractLicenceConsolePanel.class.getName());
-	private static final String RESOURCE_NAME = "PDFLicencePanel.licence";
-	private final URL licenceURL;
 
 	/**
 	 * Constructs an <tt>PDFLicenceConsolePanel</tt>.
@@ -53,7 +48,6 @@ public class PDFLicenceConsolePanel extends AbstractLicenceConsolePanel {
 	 */
 	public PDFLicenceConsolePanel(PanelView<ConsolePanel> panel, Resources resources) {
 		super(panel, resources);
-		this.licenceURL = resources.getURL(RESOURCE_NAME);
 	}
 
 	/**
@@ -62,12 +56,17 @@ public class PDFLicenceConsolePanel extends AbstractLicenceConsolePanel {
 	 * @return the text. A <tt>null</tt> indicates failure
 	 */
 	@Override
-	protected String getText() {
+	protected String getText()
+	{
+		URL url = null;
 		try {
 			PDFTextStripper stripper = new PDFTextStripper();
-			return stripper.getText(PDDocument.load(licenceURL));
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "No licence text for resource: " + RESOURCE_NAME);
+			url = loadLicence();
+			return stripper.getText(PDDocument.load(url));
+		}
+		catch (IOException e) {
+			logger.log(Level.WARNING, "Error opening PDF license document from resource" +
+					(url != null ? " " + url.getFile() : ""), e);
 			return null;
 		}
 	}

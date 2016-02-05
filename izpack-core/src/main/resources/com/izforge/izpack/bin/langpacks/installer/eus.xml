@@ -34,6 +34,31 @@
     <str id="UserPathPanel.headline" txt="Aukeratu Bidea"/>
     <str id="InstallationTypePanel.headline" txt="Instalazio Mota"/>
 
+    <!-- ConsolePrompt strings -->
+    <str id="ConsolePrompt.okCancel" txt="Enter O for OK, C to Cancel: "/>
+    <str id="ConsolePrompt.yesNo" txt="Enter Y for Yes, N for No: "/>
+    <str id="ConsolePrompt.yesNoCancel" txt="Enter Y for Yes, N for No, or C to Cancel: "/>
+    <str id="ConsolePrompt.ok" txt="O"/>
+    <str id="ConsolePrompt.cancel" txt="C"/>
+    <str id="ConsolePrompt.yes" txt="Y"/>
+    <str id="ConsolePrompt.no" txt="N"/>
+
+    <!-- ConsoleInstaller strings -->
+    <str id="ConsoleInstaller.continueQuitRedisplay" txt="Press 1 to continue, 2 to quit, 3 to redisplay"/>
+    <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Press 1 to accept, 2 to reject, 3 to redisplay"/>
+    <str id="ConsoleInstaller.redisplayQuit" txt="Press 1 to redisplay, 2 to quit"/>
+    <str id="ConsoleInstaller.permissionError" txt="Administrative privileges required. Please re-run the installer with administrative privileges."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Input selection: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="More"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C pressed"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="License rejected"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Quit pressed"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="There are file operations pending after reboot"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Rebooting now automatically"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Console installation done"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Console installation ABORTED by the user!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Console installation FAILED!"/>
+
     <!-- General installer strings -->
     <str id="installer.title" txt="Alliaria - Instaladorea: "/>
     <str id="installer.next" txt="Aurrera"/>

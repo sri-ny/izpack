@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.util.Console;
 
 
@@ -70,8 +71,9 @@ public class TestConsole extends Console
     /**
      * Constructs a <tt>TestConsole</tt>.
      */
-    public TestConsole()
+    public TestConsole(Messages messages)
     {
+        super(messages);
         super.useDefaultInput();
     }
 

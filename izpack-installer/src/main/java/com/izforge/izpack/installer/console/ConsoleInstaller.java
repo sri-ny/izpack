@@ -32,6 +32,7 @@ import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.exception.UserInterruptException;
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.base.InstallerBase;
 import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.UninstallData;
@@ -214,9 +215,10 @@ public class ConsoleInstaller implements InstallerBase
     {
         // TODO - fix reboot handling
         boolean reboot = false;
+        final Messages messages = installData.getMessages();
         if (installData.isRebootNecessary())
         {
-            console.println("[ There are file operations pending after reboot ]");
+            console.println("[ " + messages.get("ConsoleInstaller.shutdown.pendingFileOperations") + " ]");
             switch (installData.getInfo().getRebootAction())
             {
                 case Info.REBOOT_ACTION_ALWAYS:
@@ -224,7 +226,7 @@ public class ConsoleInstaller implements InstallerBase
             }
             if (reboot)
             {
-                console.println("[ Rebooting now automatically ]");
+                console.println("[ " + messages.get("ConsoleInstaller.shutdown.rebootingNow") + " ]");
             }
         }
         shutdown(exitSuccess, reboot);
@@ -238,6 +240,7 @@ public class ConsoleInstaller implements InstallerBase
      */
     protected void shutdown(boolean exitSuccess, boolean reboot)
     {
+        final Messages messages = installData.getMessages();
         if (exitSuccess && !installData.isInstallSuccess())
         {
             logger.severe("Expected successful exit status, but installation data is reporting failure");
@@ -246,17 +249,17 @@ public class ConsoleInstaller implements InstallerBase
         installData.setInstallSuccess(exitSuccess);
         if (exitSuccess)
         {
-            console.println("[ Console installation done ]");
+            console.println("[ " + messages.get("ConsoleInstaller.shutdown.done") + " ]");
         }
         else
         {
             if (interrupted)
             {
-                console.println("[ Console installation ABORTED by the user! ]");
+                console.println("[ " + messages.get("ConsoleInstaller.shutdown.aborted") + " ]");
             }
             else
             {
-                console.println("[ Console installation FAILED! ]");
+                console.println("[ " + messages.get("ConsoleInstaller.shutdown.failed") + " ]");
             }
         }
 

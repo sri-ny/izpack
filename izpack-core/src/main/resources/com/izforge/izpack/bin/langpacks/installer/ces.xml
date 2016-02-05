@@ -7,6 +7,30 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:schemaLocation="http://izpack.org/schema/langpack http://izpack.org/schema/5.0/izpack-langpack-5.0.xsd">
 
+    <!-- ConsolePrompt strings -->
+    <str id="ConsolePrompt.okCancel" txt="Enter O for OK, C to Cancel: "/>
+    <str id="ConsolePrompt.yesNo" txt="Enter Y for Yes, N for No: "/>
+    <str id="ConsolePrompt.yesNoCancel" txt="Enter Y for Yes, N for No, or C to Cancel: "/>
+    <str id="ConsolePrompt.ok" txt="O"/>
+    <str id="ConsolePrompt.cancel" txt="C"/>
+    <str id="ConsolePrompt.yes" txt="Y"/>
+    <str id="ConsolePrompt.no" txt="N"/>
+
+    <!-- ConsoleInstaller strings -->
+    <str id="ConsoleInstaller.continueQuitRedisplay" txt="Zvolte 1 - pokračovat, 2 - konec, 3 - opětovně zobrazit"/>
+    <str id="ConsoleInstaller.acceptRejectRedisplay" txt="Zvolte 1 - přijmout, 2 - odmítnout, 3 - opětovně zobrazit"/>
+    <str id="ConsoleInstaller.redisplayQuit" txt="Press 1 - opětovně zobrazit, 2 - konec"/>
+    <str id="ConsoleInstaller.permissionError" txt="Tato operace vyžaduje práva administrátora. Instalaci je nutno spouštět pod uživatelským účtem s oprávněním správce systému."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Zadejte volbu: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="Další"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="Byl stisknut CTRL-C"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="Licenční ujednání byly zamítnuty"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Byl zvolen konec instalace"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Některé operace se soubory budou dokončené po restartování systému"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Restart systému zahájen"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Konec instalace"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Instalace byla přerušena uživatelem!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Instalace selhala!"/>
 
     <!-- General installer strings -->
     <str id="installer.title" txt="IzPack - Instalace "/>
