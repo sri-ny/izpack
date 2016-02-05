@@ -21,14 +21,13 @@ package com.izforge.izpack.panels.htmllicence;
 
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.gui.IzPanelLayout;
 import com.izforge.izpack.gui.LabelFactory;
 import com.izforge.izpack.gui.log.Log;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
-import com.izforge.izpack.installer.gui.IzPanel;
+import com.izforge.izpack.panels.licence.AbstractLicencePanel;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -37,27 +36,15 @@ import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.URL;
-import java.util.logging.Logger;
 
 /**
  * The IzPack HTML license panel.
  *
  * @author Julien Ponge
  */
-public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, ActionListener
+public class HTMLLicencePanel extends AbstractLicencePanel implements HyperlinkListener, ActionListener
 {
-    /**
-     * The logger.
-     */
-    private static final Logger logger = Logger.getLogger(HTMLLicencePanel.class.getName());
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3256728385458746416L;
-
-    private static final String DEFAULT_SUFFIX = ".licence";
 
     /**
      * The text area.
@@ -67,8 +54,8 @@ public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, Acti
     /**
      * The radio buttons.
      */
-    private JRadioButton yesRadio;
-    private JRadioButton noRadio;
+    private final JRadioButton yesRadio;
+    private final JRadioButton noRadio;
 
     /**
      * Constructs an <tt>HTMLLicencePanel</tt>.
@@ -83,11 +70,8 @@ public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, Acti
                             Log log)
     {
         super(panel, parent, installData, new IzPanelLayout(log), resources);
-        // We load the licence
-        loadLicence();
 
         // We put our components
-
         add(LabelFactory.create(getString("LicencePanel.info"), parent.getIcons().get("history"), LEADING), NEXT_LINE);
         try
         {
@@ -135,53 +119,6 @@ public class HTMLLicencePanel extends IzPanel implements HyperlinkListener, Acti
         noRadio.addActionListener(this);
         setInitialFocus(textArea);
         getLayoutHelper().completeLayout();
-    }
-
-    /**
-     * Loads the license text.
-     *
-     * @return The license text URL.
-     */
-    protected URL loadLicence()
-    {
-        final String resNamePrefix = HTMLLicencePanel.class.getSimpleName();
-        String resNameStr = resNamePrefix + DEFAULT_SUFFIX;
-
-        Panel panel = getMetadata();
-        Resources resources = getResources();
-        if (panel != null)
-        {
-            String panelId = panel.getPanelId();
-            if (panelId != null)
-            {
-                try
-                {
-                    String panelSpecificResName = resNamePrefix + '.' + panelId;
-                    String panelspecificResContent = resources.getString(panelSpecificResName, null);
-                    if (panelspecificResContent != null)
-                    {
-                        resNameStr = panelSpecificResName;
-                    }
-                }
-                catch (Exception e)
-                {
-                    // Those ones can be skipped
-                }
-            }
-
-            try
-            {
-                return resources.getURL(resNameStr);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                logger.warning("Cannot open any of both license text resources ("
-                        + resNamePrefix + '.' + panel.getPanelId() + ", " + resNamePrefix + DEFAULT_SUFFIX
-                        + ") for panel type '" + HTMLLicencePanel.class.getSimpleName() + "" );
-            }
-        }
-
-        return null;
     }
 
     /**

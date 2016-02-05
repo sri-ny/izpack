@@ -73,7 +73,7 @@ public class ConsoleCheckFieldTest extends AbstractConsoleFieldTest
         installData = new AutomatedInstallData(new DefaultVariables(), Platforms.HP_UX);
         RulesEngine rules = new RulesEngineImpl(new ConditionContainer(new DefaultContainer()),
                                                 installData.getPlatform());
-        console = new TestConsole();
+        console = new TestConsole(installData.getMessages());
         prompt = new ConsolePrompt(console, Mockito.mock(Messages.class));
         installData.setRules(rules);
     }

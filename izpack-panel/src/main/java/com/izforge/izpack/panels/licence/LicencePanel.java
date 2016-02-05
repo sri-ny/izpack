@@ -1,16 +1,14 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
+ * IzPack - Copyright 2001-2016 The IzPack project team.
+ * All Rights Reserved.
  *
  * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2002 Jan Blok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,18 +19,6 @@
 
 package com.izforge.izpack.panels.licence;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.resource.Resources;
@@ -41,31 +27,26 @@ import com.izforge.izpack.gui.LabelFactory;
 import com.izforge.izpack.gui.log.Log;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
-import com.izforge.izpack.installer.gui.IzPanel;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 /**
  * The license panel.
  *
  * @author Julien Ponge
  */
-public class LicencePanel extends IzPanel implements ActionListener
+public class LicencePanel extends AbstractLicencePanel implements ActionListener
 {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3691043187997552948L;
-
-    /**
-     * The license text.
-     */
-    private String licence;
 
     /**
      * The radio buttons.
      */
-    private JRadioButton yesRadio;
-    private JRadioButton noRadio;
+    private final JRadioButton yesRadio;
+    private final JRadioButton noRadio;
 
     /**
      * Constructs a <tt>LicencePanel</tt>.
@@ -80,14 +61,12 @@ public class LicencePanel extends IzPanel implements ActionListener
                         Log log)
     {
         super(panel, parent, installData, new IzPanelLayout(log), resources);
-        // We load the licence
-        loadLicence();
 
         // We put our components
-
         add(LabelFactory.create(getString("LicencePanel.info"),
                                 parent.getIcons().get("history"), LEADING), NEXT_LINE);
-        JTextArea textArea = new JTextArea(licence);
+
+        JTextArea textArea = new JTextArea(loadLicenceAsString());
         textArea.setName(GuiId.LICENCE_TEXT_AREA.id);
         textArea.setCaretPosition(0);
         textArea.setEditable(false);
@@ -129,14 +108,6 @@ public class LicencePanel extends IzPanel implements ActionListener
 
         setInitialFocus(noRadio);
         getLayoutHelper().completeLayout();
-    }
-
-    /**
-     * Loads the licence text.
-     */
-    private void loadLicence()
-    {
-        licence = getResources().getString("LicencePanel.licence", null, "Error : could not load the licence text !");
     }
 
     /**

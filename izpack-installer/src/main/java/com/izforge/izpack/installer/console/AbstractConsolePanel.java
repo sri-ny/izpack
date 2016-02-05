@@ -25,6 +25,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.exception.UserInterruptException;
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.util.Console;
@@ -89,8 +90,8 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     protected boolean promptEndPanel(InstallData installData, Console console)
     {
         boolean result;
-
-        String prompt = installData.getMessages().get("ConsoleInstaller.continueQuitRedisplay");
+        final Messages messages = installData.getMessages();
+        String prompt = messages.get("ConsoleInstaller.continueQuitRedisplay");
         console.println();
         int value = console.prompt(prompt, 1, 3, 2);
         switch (value)
@@ -100,7 +101,7 @@ public abstract class AbstractConsolePanel implements ConsolePanel
                 break;
 
             case 2:
-                throw new UserInterruptException("Quit pressed");
+                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedPressedQuit"));
 
             default:
                 result =  run(installData, console);
@@ -123,13 +124,14 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     protected boolean promptRerunPanel(InstallData installData, Console console)
     {
         boolean result;
-        String prompt = installData.getMessages().get("ConsoleInstaller.redisplayQuit");
+        final Messages messages = installData.getMessages();
+        String prompt = messages.get("ConsoleInstaller.redisplayQuit");
         console.println();
         int value = console.prompt(prompt, 1, 2, 2);
         switch (value)
         {
             case 2:
-                throw new UserInterruptException("Quit pressed");
+                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedPressedQuit"));
 
             default:
                 result = run(installData, console);

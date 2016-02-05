@@ -17,6 +17,7 @@
 package com.izforge.izpack.util;
 
 import com.izforge.izpack.api.exception.UserInterruptException;
+import com.izforge.izpack.api.resource.Messages;
 import jline.Terminal;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
@@ -59,9 +60,14 @@ public class Console
     private final FileNameCompleter fileNameCompleter = new FileNameCompleter();
 
     /**
+     * Translations
+     */
+    private Messages messages;
+
+    /**
      * Constructs a <tt>Console</tt> with <tt>System.in</tt> and <tt>System.out</tt> as the I/O streams.
      */
-    public Console()
+    public Console(Messages messages)
     {
         try
         {
@@ -83,9 +89,10 @@ public class Console
         catch (Throwable t)
         {
             consoleReaderFailed = true;
-            logger.log(Level.WARNING, "Cannot initialize the console reader. Default to regular input stream.", t);
+            logger.log(Level.WARNING, "Cannot initialize the console reader. Falling back to default console.", t);
         }
 
+        this.messages = messages;
     }
 
     /**
@@ -128,7 +135,7 @@ public class Console
             }
             catch (jline.console.UserInterruptException e)
             {
-                throw new UserInterruptException("CTRL-C pressed", e);
+                throw new UserInterruptException(messages.get("ConsoleInstaller.CTRL-C"), e);
             }
         }
     }
@@ -211,7 +218,7 @@ public class Console
             if (line >= showLines && tokens.hasMoreTokens())
             {
                 // Overflow
-                println("--More--");
+                println("--" + messages.get("ConsoleInstaller.pagingMore") + "--");
                 flush();
                 int c = read();
                 if (c == '\r' || c == '\n')
@@ -411,7 +418,7 @@ public class Console
         }
         catch (jline.console.UserInterruptException e)
         {
-            throw new UserInterruptException("CTRL-C pressed", e);
+            throw new UserInterruptException(messages.get("ConsoleInstaller.CTRL-C"), e);
         }
         catch (IOException e)
         {

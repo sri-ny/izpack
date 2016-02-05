@@ -1,16 +1,14 @@
 /*
- * IzPack - Copyright 2001-2013 Julien Ponge, All Rights Reserved.
+ * IzPack - Copyright 2001-2016 The IzPack project team.
+ * All Rights Reserved.
  *
  * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2012 Tim Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,16 +19,25 @@
 
 package com.izforge.izpack.panels.licence;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.exception.UserInterruptException;
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.console.AbstractTextConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
+import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.util.file.FileUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * Abstract panel for displaying license text to the console.
@@ -39,6 +46,7 @@ import com.izforge.izpack.util.Console;
  */
 public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePanel
 {
+    private static final String DEFAULT_SUFFIX = ".licence";
 
     /**
      * The resources.
@@ -63,17 +71,88 @@ public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePan
     }
 
     /**
-     * Returns the named text resource
+     * Loads the license document URL.
      *
-     * @param resourceName the resource name
-     * @return the text resource, or {@code null} if it cannot be found
+     * @return The license text URL.
      */
-    protected String getText(String resourceName)
+    protected URL loadLicence()
     {
-        String result = resources.getString(resourceName, null, null);
-        if (result == null)
+        URL url = null;
+        final Class<? extends AbstractLicenceConsolePanel> thisClazz = getClass();
+        final Class<IzPanel> izClass = PanelHelper.getIzPanel(thisClazz.getName());
+        if (izClass != null)
         {
-            logger.log(Level.WARNING, "No licence text for resource: " + resourceName);
+            final String resNamePrefix = izClass.getSimpleName();
+            String resNameStr = resNamePrefix + DEFAULT_SUFFIX;
+            Panel panel = getPanel();
+            if (panel != null)
+            {
+                String panelId = panel.getPanelId();
+                if (panelId != null)
+                {
+                    String panelSpecificResName = resNamePrefix + '.' + panelId;
+                    try
+                    {
+                        url = resources.getURL(panelSpecificResName);
+                    }
+                    catch (ResourceNotFoundException e)
+                    {
+                        try
+                        {
+                            url = resources.getURL(resNameStr);
+                        }
+                        catch (Exception ignored)
+                        {
+                        }
+                    }
+                }
+            }
+            if (url == null)
+            {
+                String panelId = panel != null ? panel.getPanelId() : null;
+                logger.warning("Cannot open any of the possible license document resources ("
+                        + (panelId != null ? resNamePrefix + '.' + panelId + ", " : "")
+                        + resNamePrefix + DEFAULT_SUFFIX
+                        + ") for panel type '" + resNamePrefix + "" );
+            }
+        }
+        else
+        {
+            logger.warning("No IzPanel implementation found for " + thisClazz.getSimpleName());
+        }
+
+        return url;
+    }
+
+    protected String loadLicenceAsString()
+    {
+        return loadLicenceAsString("UTF-8");
+    }
+
+    protected String loadLicenceAsString(final String encoding)
+    {
+        URL url = null;
+        String result = null;
+        try
+        {
+            url = loadLicence();
+
+            InputStream in = url.openStream();
+            InputStreamReader reader = null;
+            try
+            {
+                reader = (encoding != null) ? new InputStreamReader(in, encoding) : new InputStreamReader(in);
+                result = FileUtils.readFully(reader);
+            }
+            finally
+            {
+                FileUtils.close(reader);
+                FileUtils.close(in);
+            }
+        }
+        catch (IOException e)
+        {
+            logger.warning("Cannot convert license document from resource " + url.getFile() + " to text: " + e.getMessage());
         }
         return result;
     }
@@ -86,14 +165,15 @@ public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePan
      *
      * @param installData the installation date
      * @param console     the console to use
-     * @return {@code true} to accept, {@code false} to reject. If redisplaying the panel, the result of
+     * @return {@code true} to accept, {@code false} to reject. If the panel is displayed again, the result of
      *         {@link #run(InstallData, Console)} is returned
      */
     @Override
     protected boolean promptEndPanel(InstallData installData, Console console)
     {
         boolean result;
-        String prompt = installData.getMessages().get("ConsoleInstaller.acceptRejectRedisplay");
+        final Messages messages = installData.getMessages();
+        String prompt = messages.get("ConsoleInstaller.acceptRejectRedisplay");
         console.println();
         int value = console.prompt(prompt, 1, 3, 2);
         switch (value)
@@ -103,7 +183,7 @@ public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePan
                 break;
 
             case 2:
-                throw new UserInterruptException("License rejected");
+                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedLicenseRejected"));
 
             default:
                 result =  run(installData, console);

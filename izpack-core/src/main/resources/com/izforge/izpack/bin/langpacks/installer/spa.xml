@@ -342,6 +342,15 @@
     <str id="ConsoleInstaller.redisplayQuit" txt="Presione 1 para volver a mostrar, 2 para salir"/>
     <str id="ConsoleInstaller.permissionError" txt="Se requieren permisos administrativos. Por favor, arranque de nuevo el instalador con permisos administrativos."/>
     <str id="ConsoleInstaller.inputSelection" txt="Introduzca selección: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="More"/>
+    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C pressed"/>
+    <str id="ConsoleInstaller.abortedLicenseRejected" txt="License rejected"/>
+    <str id="ConsoleInstaller.abortedPressedQuit" txt="Quit pressed"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="There are file operations pending after reboot"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Rebooting now automatically"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Console installation done"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Console installation ABORTED by the user!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Console installation FAILED!"/>
 
     <!-- AutomatedInstaller Strings -->
     <str id="AutomatedInstaller.permissionError" txt="Se requieren permisos administrativos. Por favor, arranque de nuevo el instalador con permisos administrativos."/>

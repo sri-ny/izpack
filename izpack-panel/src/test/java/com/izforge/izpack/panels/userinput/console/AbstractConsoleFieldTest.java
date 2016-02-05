@@ -55,7 +55,7 @@ public abstract class AbstractConsoleFieldTest
         installData.setMessages(new LocaleDatabase(langPack, Mockito.mock(Locales.class)));
         RulesEngine rules = new RulesEngineImpl(new ConditionContainer(new DefaultContainer()),
                                                 installData.getPlatform());
-        console = new TestConsole();
+        console = new TestConsole(installData.getMessages());
         prompt = Mockito.mock(Prompt.class);
         installData.setRules(rules);
     }

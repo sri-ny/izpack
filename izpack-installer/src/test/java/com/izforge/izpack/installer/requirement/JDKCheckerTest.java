@@ -88,7 +88,7 @@ public class JDKCheckerTest extends AbstractRequirementCheckerTest
         boolean exists = (code == 0); // exists if javac is in the path
         installData.getInfo().setJdkRequired(true);
 
-        TestConsole console = new TestConsole();
+        TestConsole console = new TestConsole(installData.getMessages());
         ConsolePrompt prompt = new ConsolePrompt(console, installData.getMessages());
         JDKChecker checker = new JDKChecker(installData, prompt);
         assertEquals(exists, checker.check());
