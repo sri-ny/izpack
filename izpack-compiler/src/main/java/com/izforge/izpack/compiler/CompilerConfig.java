@@ -660,7 +660,7 @@ public class CompilerConfig extends Thread
             {
                 path = "com/izforge/izpack/bin/native/" + type + "/" + name;
             }
-            String destination = "com/izforge/izpack/bin/native/" + name;
+            String destination = "com/izforge/izpack/bin/native/" + type + "/" + name;
             mergeManager.addResourceToMerge(path, destination);
 
             // Additionals for mark a native lib also used in the uninstaller
