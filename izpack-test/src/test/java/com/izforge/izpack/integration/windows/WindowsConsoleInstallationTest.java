@@ -59,6 +59,7 @@ import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.Platforms;
 import com.izforge.izpack.util.PrivilegedRunner;
+import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -172,6 +173,11 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     public void tearDown() throws Exception
     {
         destroyRegistryEntries();
+        
+        if (getUninstallerJar() != null) {
+        	// remove the uninstaller dir
+        	FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+        }
     }
 
     /**
@@ -216,10 +222,11 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         InstallData installData2 = container2.getComponent(InstallData.class);
         TestConsole console2 = installer2.getConsole();
         console2.addScript("CheckedHelloPanel", "y", "1");
-        console2.addScript("TargetPanel", "\n", "1");
+        console2.addScript("TargetPanel", "Y", "\n", "1");
         console2.addScript("PacksPanel", "1");
-        console2.addScript("ShortcutPanel", "N");
-
+        console2.addScript("ShortcutPanel", "N", "N", "1");
+        console2.addScript("SimpleFinishPanel", "1");
+        
         assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
         checkInstall(installer2, installData2);
 
@@ -278,10 +285,12 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
 
         TestConsole console = installer.getConsole();
-        console.addScript("CheckedHelloPanel", "1");
+        console.addScript("CheckedHelloPanel", "y", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-
+        console.addScript("InstallPanel", "1");
+        console.addScript("FinishPanel", "1");
+        
         //run installer and check that default uninstaller doesn't exist
         InstallData installData = getInstallData();
         checkInstall(installer, installData, false);
@@ -317,8 +326,9 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
         console.addScript("PacksPanel", "1");
-        console.addScript("ShortcutPanel", "N");
-
+        console.addScript("ShortcutPanel", "N", "N", "1");
+        console.addScript("SimpleFinishPanel", "1");
+        
         checkInstall(installer, installData);
 
         // UNINSTALL_NAME should now be defined
