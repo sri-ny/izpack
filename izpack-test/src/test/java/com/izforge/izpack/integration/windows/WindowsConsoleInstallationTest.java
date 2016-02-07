@@ -59,6 +59,7 @@ import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.Platforms;
 import com.izforge.izpack.util.PrivilegedRunner;
+import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -172,6 +173,11 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     public void tearDown() throws Exception
     {
         destroyRegistryEntries();
+        
+        if (getUninstallerJar() != null) {
+        	// remove the uninstaller dir
+        	FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+        }
     }
 
     /**
