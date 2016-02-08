@@ -19,11 +19,11 @@
 
 package com.izforge.izpack.compiler.helper;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.exception.CompilerException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Helper methods for compiler
@@ -94,11 +94,10 @@ public class XmlCompilerHelper
 
     /**
      * Get a required attribute of an element, ensuring it is an integer. A meaningful error message
-     * is generated as a CompilerException if not present or parseable as an int. It is an error for
-     * 'element' or 'attribute' to be null.
+     * is generated as a CompilerException if not present or parseable as an int.
      *
-     * @param element   The element to get the attribute value of
-     * @param attribute The name of the attribute to get
+     * @param element   The element to get the attribute value of, must not be {@code null}.
+     * @param attribute The name of the attribute to get, must not be {@code null}.
      */
     public int requireIntAttribute(IXMLElement element, String attribute)
             throws CompilerException
@@ -122,7 +121,8 @@ public class XmlCompilerHelper
 
     /**
      * Call getAttribute on an element, producing a meaningful error message if not present, or one
-     * of "yes" or "no". It is an error for 'element' or 'attribute' to be null.
+     * of "yes", "no", "true" or "false".
+     * If the 'element' or 'attribute' are null, the default value is returned.
      *
      * @param element   The element to get the attribute value of
      * @param attribute The name of the attribute to get
@@ -134,8 +134,8 @@ public class XmlCompilerHelper
     }
 
     /**
-     * Call getAttribute on an element, producing a meaningful warning if not "yes" or "no". If the
-     * 'element' or 'attribute' are null, the default value is returned.
+     * Call getAttribute on an element, producing a meaningful warning if not "yes", "no", "true" or "false".
+     * If the 'element' or 'attribute' are null, the default value is returned.
      *
      * @param element      The element to get the attribute value of
      * @param attribute    The name of the attribute to get
@@ -152,25 +152,25 @@ public class XmlCompilerHelper
             {
                 if (defaultValue == null)
                 {
-                    assertionHelper.parseError(element,
-                                               "<" + element.getName() + "> undefined value of attribute '" + attribute + "' which is not associated with a default value");
+                    assertionHelper.parseError(element, "Undefined value of attribute '"
+                            + attribute + "' which is not associated with a default value");
                 }
             }
             else
             {
-                if ("yes".equalsIgnoreCase(value.trim()) || "true".equalsIgnoreCase(value.trim()))
+                if ("yes".equalsIgnoreCase(value) || Boolean.parseBoolean(value))
                 {
                     return true;
                 }
                 else
                 {
-                    if ("no".equalsIgnoreCase(value.trim()) || "false".equalsIgnoreCase(value.trim()))
+                    if ("no".equalsIgnoreCase(value) || Boolean.FALSE.toString().equalsIgnoreCase(value))
                     {
                         return false;
                     }
                 }
 
-                final String msg = "<" + element.getName() + "> invalid value \"" + value + "\" for attribute '" + attribute
+                final String msg = "Invalid value \"" + value + "\" of attribute '" + attribute
                         + "': Expected (yes|no|true|false)";
 
                 if (defaultValue == null)
