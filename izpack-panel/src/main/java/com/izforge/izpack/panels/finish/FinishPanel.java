@@ -119,7 +119,7 @@ public class FinishPanel extends IzPanel implements ActionListener
             if (uninstallDataWriter.isUninstallRequired())
             {
                 // We prepare a message for the uninstaller feature
-                String path = translatePath("$INSTALL_PATH") + File.separator + "Uninstaller";
+                String path = translatePath(installData.getInfo().getUninstallerPath());
 
                 add(LabelFactory.create(getI18nStringForClass("uninst.info"), parent.getIcons()
                         .get("preferences"), LEADING), constraints);
