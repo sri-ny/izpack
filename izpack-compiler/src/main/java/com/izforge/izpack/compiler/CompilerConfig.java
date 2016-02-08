@@ -123,6 +123,11 @@ public class CompilerConfig extends Thread
     private static final Boolean NO = Boolean.FALSE;
 
     /**
+     * Destination resources root path for native libraries in the installer jar
+     */
+    private static final String NATIVES_PATH = "com/izforge/izpack/bin/native/";
+
+    /**
      * The installer packager compiler
      */
     private final Compiler compiler;
@@ -658,29 +663,35 @@ public class CompilerConfig extends Thread
             String path = ixmlElement.getAttribute("src");
             if (path == null)
             {
-                path = "com/izforge/izpack/bin/native/" + type + "/" + name;
+                path = NATIVES_PATH + type + "/" + name;
             }
-            String destination = "com/izforge/izpack/bin/native/" + type + "/" + name;
+            String destination = NATIVES_PATH + type + "/" + name;
             mergeManager.addResourceToMerge(path, destination);
 
-            // Additionals for mark a native lib also used in the uninstaller
-            // The lib will be copied from the installer into the uninstaller if
-            // needed.
+            // Additionally marking a native lib to be also used in the uninstaller.
+            // The lib will be copied from the installer into the uninstaller if needed.
             // Therefore the lib should be in the installer also it is used only
-            // from
-            // the uninstaller. This is the reason why the stage wiil be only
-            // observed
-            // for the uninstaller.
-            String stage = ixmlElement.getAttribute("stage");
-            List<OsModel> constraints = OsConstraintHelper.getOsList(ixmlElement);
-            if ("both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage))
+            // from the uninstaller. This is the reason why the stage wiil be only
+            // observed for the uninstaller.
+            // TODO Remove this in future
+            @Deprecated String stage = ixmlElement.getAttribute("stage");
+            if (stage != null)
             {
+                assertionHelper.parseWarn(ixmlElement,
+                        "The 'stage' attribute is deprecated here and might be removed in future."
+                        + " Use the new attribute 'uninstaller' as replacement."
+                );
+            }
+
+            if (Boolean.parseBoolean(ixmlElement.getAttribute("uninstaller", Boolean.FALSE.toString()))
+                /*deprecated:*/ || "both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage))
+            {
+                List<OsModel> constraints = OsConstraintHelper.getOsList(ixmlElement);
                 List<String> contents = new ArrayList<String>();
                 contents.add(destination);
                 CustomData customData = new CustomData(null, contents, constraints, CustomData.UNINSTALLER_LIB);
                 packager.addNativeUninstallerLibrary(customData);
             }
-
         }
         notifyCompilerListener("addNativeLibraries", CompilerListener.END, data);
     }
