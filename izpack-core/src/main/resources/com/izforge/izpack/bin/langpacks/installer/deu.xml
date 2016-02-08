@@ -320,9 +320,9 @@ file we looked for -->
     <str id="ConsoleInstaller.permissionError" txt="Administratorrechte erforderlich. Bitte starten Sie das Installationsprogramm erneut unter den erforderlichen Benutzerrechten."/>
     <str id="ConsoleInstaller.inputSelection" txt="Auswahl eingeben: "/>
     <str id="ConsoleInstaller.pagingMore" txt="Mehr"/>
-    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C betätigt"/>
-    <str id="ConsoleInstaller.abortedLicenseRejected" txt="Lizenzvereinbarung abgelehnt"/>
-    <str id="ConsoleInstaller.abortedPressedQuit" txt="Beenden betätigt"/>
+    <str id="ConsoleInstaller.aborted.PressedCTRL-C" txt="CTRL-C betätigt"/>
+    <str id="ConsoleInstaller.aborted.LicenseRejected" txt="Lizenzvereinbarung abgelehnt"/>
+    <str id="ConsoleInstaller.aborted.PressedQuit" txt="Beenden betätigt"/>
     <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Einige Dateioperationen werden erst nach einem Neustart fertiggestellt"/>
     <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Automatischer Neustart erfolgt"/>
     <str id="ConsoleInstaller.shutdown.done" txt="Textkonsolen-Installation beendet"/>

@@ -183,7 +183,7 @@ public abstract class AbstractLicenceConsolePanel extends AbstractTextConsolePan
                 break;
 
             case 2:
-                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedLicenseRejected"));
+                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.LicenseRejected"));
 
             default:
                 result =  run(installData, console);

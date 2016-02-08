@@ -135,7 +135,7 @@ public class Console
             }
             catch (jline.console.UserInterruptException e)
             {
-                throw new UserInterruptException(messages.get("ConsoleInstaller.CTRL-C"), e);
+                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
             }
         }
     }
@@ -418,7 +418,7 @@ public class Console
         }
         catch (jline.console.UserInterruptException e)
         {
-            throw new UserInterruptException(messages.get("ConsoleInstaller.CTRL-C"), e);
+            throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
         }
         catch (IOException e)
         {

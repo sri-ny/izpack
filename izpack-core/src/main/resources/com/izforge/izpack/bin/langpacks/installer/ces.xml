@@ -23,9 +23,9 @@
     <str id="ConsoleInstaller.permissionError" txt="Tato operace vyžaduje práva administrátora. Instalaci je nutno spouštět pod uživatelským účtem s oprávněním správce systému."/>
     <str id="ConsoleInstaller.inputSelection" txt="Zadejte volbu: "/>
     <str id="ConsoleInstaller.pagingMore" txt="Další"/>
-    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="Byl stisknut CTRL-C"/>
-    <str id="ConsoleInstaller.abortedLicenseRejected" txt="Licenční ujednání byly zamítnuty"/>
-    <str id="ConsoleInstaller.abortedPressedQuit" txt="Byl zvolen konec instalace"/>
+    <str id="ConsoleInstaller.aborted.PressedCTRL-C" txt="Byl stisknut CTRL-C"/>
+    <str id="ConsoleInstaller.aborted.LicenseRejected" txt="Licenční ujednání byly zamítnuty"/>
+    <str id="ConsoleInstaller.aborted.PressedQuit" txt="Byl zvolen konec instalace"/>
     <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Některé operace se soubory budou dokončené po restartování systému"/>
     <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Restart systému zahájen"/>
     <str id="ConsoleInstaller.shutdown.done" txt="Konec instalace"/>
