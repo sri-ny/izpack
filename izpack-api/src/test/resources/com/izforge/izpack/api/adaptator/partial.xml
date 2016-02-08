@@ -204,7 +204,7 @@
     <!-- The native libraries to add -->
     <natives>
         <native type="izpack" name="ShellLink.dll"/>
-        <native type="3rdparty" name="COIOSHelper.dll" stage="both">
+        <native type="3rdparty" name="COIOSHelper.dll" uninstaller="true">
             <os family="windows"/>
         </native>
     </natives>
