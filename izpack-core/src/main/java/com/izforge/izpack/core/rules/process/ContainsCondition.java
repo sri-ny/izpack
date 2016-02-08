@@ -126,11 +126,11 @@ public class ContainsCondition extends Condition {
 
     if (isRegEx)
     {
+        pattern = Pattern.compile(value);
         if (isByLine)
         {
             return matchesByLine(new StringReader(content));
         }
-        pattern = Pattern.compile(value);
     }
 
     return matchesString(content);
