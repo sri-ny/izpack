@@ -101,7 +101,7 @@ public abstract class AbstractConsolePanel implements ConsolePanel
                 break;
 
             case 2:
-                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedPressedQuit"));
+                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedQuit"));
 
             default:
                 result =  run(installData, console);
@@ -131,7 +131,7 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         switch (value)
         {
             case 2:
-                throw new UserInterruptException(messages.get("ConsoleInstaller.abortedPressedQuit"));
+                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedQuit"));
 
             default:
                 result = run(installData, console);

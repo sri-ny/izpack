@@ -269,9 +269,9 @@
     <str id="ConsoleInstaller.permissionError" txt="Administratörsrättigheter krävs. Väligen kör installationen med administratörsrättigheter."/>
     <str id="ConsoleInstaller.inputSelection" txt="Ditt val: "/>
     <str id="ConsoleInstaller.pagingMore" txt="More"/>
-    <str id="ConsoleInstaller.abortedPressedCTRL-C" txt="CTRL-C pressed"/>
-    <str id="ConsoleInstaller.abortedLicenseRejected" txt="License rejected"/>
-    <str id="ConsoleInstaller.abortedPressedQuit" txt="Quit pressed"/>
+    <str id="ConsoleInstaller.aborted.PressedCTRL-C" txt="CTRL-C pressed"/>
+    <str id="ConsoleInstaller.aborted.LicenseRejected" txt="License rejected"/>
+    <str id="ConsoleInstaller.aborted.PressedQuit" txt="Quit pressed"/>
     <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="There are file operations pending after reboot"/>
     <str id="ConsoleInstaller.shutdown.rebootingNow" txt="Rebooting now automatically"/>
     <str id="ConsoleInstaller.shutdown.done" txt="Console installation done"/>
