@@ -24,13 +24,12 @@ public class AutomatedInstallDataProvider extends AbstractInstallDataProvider
         AutomatedInstallData automatedInstallData = new InstallData(variables, matcher.getCurrentPlatform());
         // Loads the installation data
         loadInstallData(automatedInstallData, resources, matcher, housekeeper);
-
+        loadInstallerRequirements(automatedInstallData, resources);
+        loadDynamicVariables(variables, automatedInstallData, resources);
+        loadDynamicConditions(automatedInstallData, resources);
         loadDefaultLocale(automatedInstallData, locales);
         // Load custom langpack if exist.
         AbstractInstallDataProvider.addCustomLangpack(automatedInstallData, locales);
-        loadDynamicVariables(variables, automatedInstallData, resources);
-        loadDynamicConditions(automatedInstallData, resources);
-        loadInstallerRequirements(automatedInstallData, resources);
         return automatedInstallData;
     }
 

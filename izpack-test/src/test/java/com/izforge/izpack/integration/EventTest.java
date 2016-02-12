@@ -11,7 +11,7 @@ import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.event.RegistryInstallerListener;
 import com.izforge.izpack.event.RegistryUninstallerListener;
@@ -29,7 +29,7 @@ import com.izforge.izpack.test.junit.PicoRunner;
  * @see com.izforge.izpack.installer.container.impl.CustomDataLoader
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class EventTest
 {
     private final InstallerListeners listeners;

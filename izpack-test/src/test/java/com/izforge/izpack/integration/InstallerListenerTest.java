@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.event.InstallerListener;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.event.InstallerListeners;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.InstallerFrame;
@@ -47,7 +47,7 @@ import com.izforge.izpack.test.listener.TestInstallerListener;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class InstallerListenerTest extends AbstractInstallationTest
 {
 

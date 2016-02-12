@@ -21,12 +21,21 @@
 
 package com.izforge.izpack.integration.automation;
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-import java.net.URL;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.compiler.container.TestAutomatedInstallationContainer;
+import com.izforge.izpack.installer.automation.AutomatedInstaller;
+import com.izforge.izpack.integration.AbstractInstallationTest;
+import com.izforge.izpack.integration.UninstallHelper;
+import com.izforge.izpack.test.Container;
+import com.izforge.izpack.test.InstallFile;
+import com.izforge.izpack.test.junit.PicoRunner;
+import com.izforge.izpack.util.FileUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -36,23 +45,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
+import java.net.URL;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.compiler.container.TestConsoleInstallationContainer;
-import com.izforge.izpack.installer.automation.AutomatedInstaller;
-import com.izforge.izpack.integration.AbstractInstallationTest;
-import com.izforge.izpack.integration.UninstallHelper;
-import com.izforge.izpack.test.Container;
-import com.izforge.izpack.test.InstallFile;
-import com.izforge.izpack.test.junit.PicoRunner;
-import com.izforge.izpack.util.FileUtil;
+import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -61,7 +59,7 @@ import com.izforge.izpack.util.FileUtil;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestConsoleInstallationContainer.class)
+@Container(TestAutomatedInstallationContainer.class)
 public class AutomatedInstallerTest extends AbstractInstallationTest
 {
 

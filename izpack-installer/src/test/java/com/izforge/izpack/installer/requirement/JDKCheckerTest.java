@@ -21,17 +21,15 @@
 
 package com.izforge.izpack.installer.requirement;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.FileExecutor;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link JDKChecker} class.
@@ -88,7 +86,11 @@ public class JDKCheckerTest extends AbstractRequirementCheckerTest
         boolean exists = (code == 0); // exists if javac is in the path
         installData.getInfo().setJdkRequired(true);
 
-        TestConsole console = new TestConsole(installData.getMessages());
+        ConsolePrefs prefs = new ConsolePrefs();
+        prefs.enableConsoleReader = false;
+        installData.consolePrefs = prefs;
+
+        TestConsole console = new TestConsole(installData.getMessages(), prefs);
         ConsolePrompt prompt = new ConsolePrompt(console, installData.getMessages());
         JDKChecker checker = new JDKChecker(installData, prompt);
         assertEquals(exists, checker.check());

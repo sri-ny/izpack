@@ -22,29 +22,7 @@
 
 package com.izforge.izpack.compiler.packager.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.jar.Manifest;
-import java.util.zip.ZipInputStream;
-
-import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
-import com.izforge.izpack.api.data.DynamicVariable;
-import com.izforge.izpack.api.data.GUIPrefs;
-import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.InstallerRequirement;
-import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
@@ -59,6 +37,12 @@ import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
+
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.jar.Manifest;
+import java.util.zip.ZipInputStream;
 
 /**
  * The packager base class. The packager interface <code>IPackager</code> is used by the compiler to put files into an installer, and
@@ -130,6 +114,11 @@ public abstract class PackagerBase implements IPackager
      * GUI preferences.
      */
     private GUIPrefs guiPrefs;
+
+    /**
+     * Console preferences.
+     */
+    private ConsolePrefs consolePrefs;
 
     /**
      * The ordered panels.
@@ -305,6 +294,13 @@ public abstract class PackagerBase implements IPackager
     }
 
     @Override
+    public void setConsolePrefs(ConsolePrefs prefs)
+    {
+        sendMsg("Setting the console preferences", PackagerListener.MSG_VERBOSE);
+        consolePrefs = prefs;
+    }
+
+    @Override
     public void setInfo(Info info)
     {
         sendMsg("Setting the installer information", PackagerListener.MSG_VERBOSE);
@@ -397,6 +393,7 @@ public abstract class PackagerBase implements IPackager
 
         writeInstallerObject("info", info);
         writeInstallerObject("vars", properties);
+        writeInstallerObject("ConsolePrefs", consolePrefs);
         writeInstallerObject("GUIPrefs", guiPrefs);
         writeInstallerObject("panelsOrder", panelList);
         writeInstallerObject("customData", customDataList);

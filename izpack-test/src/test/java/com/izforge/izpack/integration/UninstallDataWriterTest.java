@@ -46,7 +46,7 @@ import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.matcher.ZipMatcher;
 import com.izforge.izpack.test.Container;
@@ -61,7 +61,7 @@ import com.izforge.izpack.util.IoHelper;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class UninstallDataWriterTest
 {
     /**

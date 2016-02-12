@@ -21,7 +21,7 @@
 
 package com.izforge.izpack.installer.console;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.test.util.TestConsole;
@@ -48,7 +48,7 @@ public class TestConsoleInstaller extends ConsoleInstaller
      * @param housekeeper  the house-keeper
      * @throws Exception for any error
      */
-    public TestConsoleInstaller(ConsolePanels panels, AutomatedInstallData installData,
+    public TestConsoleInstaller(ConsolePanels panels, ConsoleInstallData installData,
                                 RequirementsChecker requirements, UninstallDataWriter writer,
                                 TestConsole console, Housekeeper housekeeper)
             throws Exception

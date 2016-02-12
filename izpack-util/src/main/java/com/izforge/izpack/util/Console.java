@@ -16,6 +16,7 @@
 
 package com.izforge.izpack.util;
 
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.api.resource.Messages;
 import jline.Terminal;
@@ -50,9 +51,9 @@ public class Console
     private ConsoleReader consoleReader;
 
     /**
-     * Check if consoleReader failed to load.
+     * Check whether ConsoleReader should be initialized according to actual terminal settings.
      */
-    private boolean consoleReaderFailed = false;
+    private boolean enableConsoleReader = false;
 
     /**
      * File name completer allows for tab completion on files and directories.
@@ -67,16 +68,28 @@ public class Console
     /**
      * Constructs a <tt>Console</tt> with <tt>System.in</tt> and <tt>System.out</tt> as the I/O streams.
      */
-    public Console(Messages messages)
+    public Console(Messages messages, ConsolePrefs prefs)
+    {
+        Log.setOutput(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException
+            {
+            }
+        }));
+
+        enableConsoleReader = prefs.enableConsoleReader;
+        if (enableConsoleReader)
+        {
+            initConsoleReader();
+        }
+
+        this.messages = messages;
+    }
+
+    private void initConsoleReader()
     {
         try
         {
-            Log.setOutput(new PrintStream(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException
-                {
-                }
-            }));
             this.consoleReader = new ConsoleReader("IzPack", new FileInputStream(FileDescriptor.in), System.out, null);
             this.consoleReader.setHandleUserInterrupt(true);
             Terminal terminal = consoleReader.getTerminal();
@@ -88,11 +101,9 @@ public class Console
         }
         catch (Throwable t)
         {
-            consoleReaderFailed = true;
+            enableConsoleReader = false;
             logger.log(Level.WARNING, "Cannot initialize the console reader. Falling back to default console.", t);
-        }
-
-        this.messages = messages;
+            }
     }
 
     /**
@@ -102,13 +113,13 @@ public class Console
      */
     public int read() throws IOException
     {
-        if (consoleReaderFailed)
+        if (enableConsoleReader)
         {
-            return console.reader().read();
+            return consoleReader.readCharacter();
         }
         else
         {
-            return consoleReader.readCharacter();
+            return console.reader().read();
         }
     }
 
@@ -123,11 +134,7 @@ public class Console
      */
     public String readLine() throws IOException
     {
-        if (consoleReaderFailed)
-        {
-            return readLineDefaultInput();
-        }
-        else
+        if (enableConsoleReader)
         {
             try
             {
@@ -138,6 +145,10 @@ public class Console
                 throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
             }
         }
+        else
+        {
+            return readLineDefaultInput();
+        }
     }
 
     /**
@@ -147,13 +158,13 @@ public class Console
      */
     public void flush() throws IOException
     {
-        if (consoleReaderFailed)
+        if (enableConsoleReader)
         {
-            console.flush();
+            consoleReader.flush();
         }
         else
         {
-            consoleReader.flush();
+            console.flush();
         }
     }
 
@@ -175,7 +186,7 @@ public class Console
         {
             int width = 80;
             boolean wrapLineFull = false;
-            if (!consoleReaderFailed)
+            if (enableConsoleReader)
             {
                 Terminal terminal = consoleReader.getTerminal();
                 width = terminal.getWidth();
@@ -204,8 +215,7 @@ public class Console
     private boolean paging(String text) throws IOException
     {
         boolean result = true;
-        Terminal terminal = consoleReader.getTerminal();
-        int height = consoleReaderFailed?23:terminal.getHeight();
+        int height = enableConsoleReader ? consoleReader.getTerminal().getHeight() : 23;
         int showLines = height - 2; // the no. of lines to display at a time
         int line = 0;
 
@@ -389,7 +399,7 @@ public class Console
      */
     public String promptLocation(String prompt, String defaultValue)
     {
-        if (consoleReaderFailed)
+        if (!enableConsoleReader)
         {
             return prompt(prompt, defaultValue);
         }
@@ -443,7 +453,7 @@ public class Console
      */
     public String promptPassword(String prompt, String defaultValue)
     {
-        if (consoleReaderFailed)
+        if (!enableConsoleReader)
         {
             char[] passwd;
             try
@@ -599,8 +609,4 @@ public class Console
         return result;
     }
 
-    public void useDefaultInput()
-    {
-        consoleReaderFailed = true;
-    }
 }

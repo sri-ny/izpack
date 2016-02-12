@@ -22,13 +22,14 @@
 package com.izforge.izpack.test.util;
 
 
+import com.izforge.izpack.api.data.ConsolePrefs;
+import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.util.Console;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.izforge.izpack.api.resource.Messages;
-import com.izforge.izpack.util.Console;
 
 
 /**
@@ -71,10 +72,9 @@ public class TestConsole extends Console
     /**
      * Constructs a <tt>TestConsole</tt>.
      */
-    public TestConsole(Messages messages)
+    public TestConsole(Messages messages, ConsolePrefs prefs)
     {
-        super(messages);
-        super.useDefaultInput();
+        super(messages, prefs);
     }
 
     /**

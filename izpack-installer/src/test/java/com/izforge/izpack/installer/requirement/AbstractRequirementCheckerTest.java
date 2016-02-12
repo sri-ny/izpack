@@ -20,12 +20,7 @@
  */
 package com.izforge.izpack.installer.requirement;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-
-import org.mockito.Mockito;
-
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.handler.Prompt;
@@ -33,9 +28,14 @@ import com.izforge.izpack.api.installer.RequirementChecker;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.handler.ConsolePrompt;
-import com.izforge.izpack.installer.data.InstallData;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.Platforms;
+import org.mockito.Mockito;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Base class for {@link RequirementChecker} tests.
@@ -48,7 +48,7 @@ public abstract class AbstractRequirementCheckerTest
     /**
      * The installation data.
      */
-    protected final InstallData installData;
+    protected final ConsoleInstallData installData;
 
     /**
      * The console.
@@ -65,7 +65,12 @@ public abstract class AbstractRequirementCheckerTest
      */
     public AbstractRequirementCheckerTest()
     {
-        installData = new InstallData(new DefaultVariables(), Platforms.FEDORA_LINUX);
+        installData = new ConsoleInstallData(new DefaultVariables(), Platforms.FEDORA_LINUX);
+
+        ConsolePrefs prefs = new ConsolePrefs();
+        prefs.enableConsoleReader = false;
+        installData.consolePrefs = prefs;
+
         Info info = new Info();
         installData.setInfo(info);
 
@@ -73,7 +78,7 @@ public abstract class AbstractRequirementCheckerTest
         assertNotNull(langPack);
         installData.setMessages(new LocaleDatabase(langPack, Mockito.mock(Locales.class)));
 
-        console = new TestConsole(installData.getMessages());
+        console = new TestConsole(installData.getMessages(), prefs);
         prompt = new ConsolePrompt(console, installData.getMessages());
     }
 }

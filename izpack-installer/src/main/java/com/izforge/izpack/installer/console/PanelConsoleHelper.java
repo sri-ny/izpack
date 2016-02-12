@@ -21,12 +21,12 @@
 
 package com.izforge.izpack.installer.console;
 
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
+
+import java.io.PrintWriter;
+import java.util.Properties;
 
 /**
  * Abstract class implementing basic functions needed by all panel console helpers.
@@ -95,32 +95,6 @@ abstract public class PanelConsoleHelper extends AbstractConsolePanel implements
     public boolean run(InstallData installData, Console console)
     {
         return runConsole(installData, console);
-    }
-
-    /**
-     * Runs the panel in interactive console mode.
-     *
-     * @param installData the installation data
-     * @deprecated use {@link #run(InstallData, Console)}
-     */
-    @Override
-    @Deprecated
-    public boolean runConsole(InstallData installData)
-    {
-        return runConsole(installData, new Console(installData.getMessages()));
-    }
-
-    /**
-     * Prompts to end the console panel.
-     *
-     * @return <tt>1</tt> to continue, <tt>2</tt> to quit, <tt>3</tt> to redisplay
-     * @see {@link #promptEndPanel(InstallData, Console)}
-     * @deprecated
-     */
-    @Deprecated
-    public int askEndOfConsolePanel(InstallData installData)
-    {
-        return new Console(installData.getMessages()).prompt("press 1 to continue, 2 to quit, 3 to redisplay", 1, 3, 2);
     }
 
 }
