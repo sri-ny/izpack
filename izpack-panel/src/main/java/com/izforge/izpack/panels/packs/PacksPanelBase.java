@@ -757,8 +757,11 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
                 checkbox.setSelected(true);
             }
 
-            checkbox.setEnabled(state.isSelectable());
-            checkbox.setSelected((value != null && state.isSelectedOrRequiredSelected()));
+            if (state != null)
+            {
+                checkbox.setEnabled(state.isSelectable());
+                checkbox.setSelected((value != null && state.isSelectedOrRequiredSelected()));
+            }
             return checkbox;
         }
     }
@@ -950,7 +953,7 @@ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterf
     private void togglePack(int row)
     {
         PacksModel.CbSelectionState checked = (PacksModel.CbSelectionState) packsModel.getValueAt(row, 0);
-        checked = checked.isFullyOrPartiallySelected()
+        checked = (checked != null && checked.isFullyOrPartiallySelected())
                 ? PacksModel.CbSelectionState.DESELECTED
                 : PacksModel.CbSelectionState.SELECTED;
         packsModel.setValueAt(checked, row, 0);

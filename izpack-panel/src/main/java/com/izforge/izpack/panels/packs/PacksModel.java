@@ -276,14 +276,15 @@ public class PacksModel extends AbstractTableModel
      */
     private List<CbSelectionState> initCheckValues(List<Pack> packs, List<Pack> packsToInstall)
     {
-        List<CbSelectionState> checkValues = new ArrayList<CbSelectionState>(packs.size());
+        CbSelectionState[] checkValues = new CbSelectionState[packs.size()];
 
         // If a pack is indicated to be installed checkbox value should be SELECTED
-        for (Pack pack : packs)
+        for (int i = 0; i < packs.size(); i++)
         {
+            Pack pack = packs.get(i);
             if (packsToInstall.contains(pack))
             {
-                checkValues.add(CbSelectionState.SELECTED);
+                checkValues[i] = CbSelectionState.SELECTED;
             }
         }
 
@@ -291,20 +292,21 @@ public class PacksModel extends AbstractTableModel
         for (int i = 0; i < packs.size(); i++)
         {
             Pack pack = packs.get(i);
-            if (checkValues.get(i) == CbSelectionState.DESELECTED)
+            if (checkValues[i] == CbSelectionState.DESELECTED)
             {
                 List<String> deps = pack.getDependants();
                 for (int j = 0; deps != null && j < deps.size(); j++)
                 {
                     String name = deps.get(j);
                     int pos = getPos(name);
-                    checkValues.set(pos, CbSelectionState.DEPENDENT_DESELECTED);
+                    checkValues[pos] = CbSelectionState.DEPENDENT_DESELECTED;
                 }
             }
 
             // for mutual exclusion, uncheck uncompatible packs too
             // (if available in the current installGroup)
-            if (checkValues.get(i).isFullyOrPartiallySelected() && pack.getExcludeGroup() != null)
+            CbSelectionState checkState = checkValues[i];
+            if (checkState != null && checkState.isFullyOrPartiallySelected() && pack.getExcludeGroup() != null)
             {
                 for (int q = 0; q < packs.size(); q++)
                 {
@@ -313,9 +315,9 @@ public class PacksModel extends AbstractTableModel
                         Pack otherPack = packs.get(q);
                         if (pack.getExcludeGroup().equals(otherPack.getExcludeGroup()))
                         {
-                            if (checkValues.get(q) == CbSelectionState.SELECTED)
+                            if (checkValues[q] == CbSelectionState.SELECTED)
                             {
-                                checkValues.set(q, CbSelectionState.DESELECTED);
+                                checkValues[q] = CbSelectionState.DESELECTED;
                             }
                         }
                     }
@@ -328,11 +330,11 @@ public class PacksModel extends AbstractTableModel
         {
             if (pack.isRequired())
             {
-                checkValues = propRequirement(pack.getName(), checkValues);
+                checkValues = propRequirement(pack.getName(), Arrays.asList(checkValues)).toArray(new CbSelectionState[checkValues.length]);
             }
         }
 
-        return checkValues;
+        return Arrays.asList(checkValues);
     }
 
     /**
@@ -347,11 +349,12 @@ public class PacksModel extends AbstractTableModel
         final int pos = getPos(name);
         checkValues.set(pos, CbSelectionState.REQUIRED_SELECTED);
         List<String> deps = packs.get(pos).getDependencies();
-        //noinspection LoopStatementThatDoesntLoop
-        for (int i = 0; deps != null && i < deps.size(); i++)
+        if (deps != null)
         {
-            String s = deps.get(i);
-            return propRequirement(s, checkValues);
+            for (String s : deps)
+            {
+                return propRequirement(s, checkValues);
+            }
         }
         return checkValues;
 
@@ -408,7 +411,8 @@ public class PacksModel extends AbstractTableModel
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
-        return checkValues.get(rowIndex).isSelectable() && columnIndex == 0;
+        CbSelectionState state = checkValues.get(rowIndex);
+        return state != null && state.isSelectable() && columnIndex == 0;
     }
 
     /*
@@ -421,7 +425,8 @@ public class PacksModel extends AbstractTableModel
         switch (columnIndex)
         {
             case 0:
-                return checkValues.get(rowIndex);
+                CbSelectionState state = checkValues.get(rowIndex);
+                return state != null ? checkValues.get(rowIndex) : null;
 
             case 1:
                 return PackHelper.getPackName(pack, messages);
@@ -441,7 +446,8 @@ public class PacksModel extends AbstractTableModel
      */
     public void toggleValueAt(int rowIndex)
     {
-        if  (checkValues.get(rowIndex) == CbSelectionState.SELECTED)
+        CbSelectionState state = checkValues.get(rowIndex);
+        if  (state != null && checkValues.get(rowIndex) == CbSelectionState.SELECTED)
         {
             setValueAt(CbSelectionState.DESELECTED, rowIndex, 0);
         }
@@ -747,7 +753,7 @@ public class PacksModel extends AbstractTableModel
     {
         CbSelectionState value = checkValues.get(rowindex);
         Pack pack = packs.get(rowindex);
-        if (value.isFullyOrPartiallySelected() && pack.getExcludeGroup() != null)
+        if (value != null && value.isFullyOrPartiallySelected() && pack.getExcludeGroup() != null)
         {
             for (int q = 0; q < packs.size(); q++)
             {
@@ -995,7 +1001,8 @@ public class PacksModel extends AbstractTableModel
      */
     public boolean isChecked(int row)
     {
-        return checkValues.get(row).isChecked();
+        CbSelectionState state = checkValues.get(row);
+        return state != null ? state.isChecked() : false;
     }
 
     /**
@@ -1004,7 +1011,8 @@ public class PacksModel extends AbstractTableModel
      */
     public boolean isPartiallyChecked(int row)
     {
-        return checkValues.get(row).isPartiallyChecked();
+        CbSelectionState state = checkValues.get(row);
+        return state != null ? state.isPartiallyChecked() : false;
     }
 
     /**
@@ -1013,7 +1021,8 @@ public class PacksModel extends AbstractTableModel
      */
     public boolean isCheckBoxSelectable(int row)
     {
-        return checkValues.get(row).isSelectable();
+        CbSelectionState state = checkValues.get(row);
+        return state != null ? state.isSelectable() : false;
     }
 
     /**
