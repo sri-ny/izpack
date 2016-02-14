@@ -57,6 +57,7 @@
             <xs:element name="arg1" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="arg2" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="operator" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="string" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="file" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="dir" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="java" type="javaType" minOccurs="0" maxOccurs="1"/>
