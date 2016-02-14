@@ -150,7 +150,7 @@ public class DynamicVariableImpl implements DynamicVariable
         }
         catch (Exception e)
         {
-            if (!ignorefailure)
+            if (!isIgnoreFailure())
             {
                 throw e;
             }

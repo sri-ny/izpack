@@ -19,6 +19,7 @@ package com.izforge.izpack.installer.panel;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.*;
+import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.installer.DataValidator;
@@ -242,19 +243,28 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
     public boolean isValid(boolean refreshVariables)
     {
         boolean result = false;
-        if (refreshVariables)
+        try
         {
-            installData.getVariables().refresh();
-        }
-        executePreValidationActions();
 
-        List<DynamicInstallerRequirementValidator> conditions = installData.getDynamicInstallerRequirements();
-        if (conditions == null || validateDynamicConditions())
+            if (refreshVariables)
+            {
+                installData.refreshVariables();
+            }
+            executePreValidationActions();
+
+            List<DynamicInstallerRequirementValidator> conditions = installData.getDynamicInstallerRequirements();
+            if (conditions == null || validateDynamicConditions())
+            {
+                result = validators.size() == 0 || validateData();
+            }
+
+            executePostValidationActions();
+        }
+        catch (IzPackException e)
         {
-            result = validators.size() == 0 || validateData();
+            result = false;
         }
 
-        executePostValidationActions();
         return result;
     }
 
@@ -276,37 +286,45 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
     {
         boolean visible;
         String panelId = panel.getPanelId();
-        installData.refreshVariables();
-        if (panel.hasCondition())
+        try
         {
-            visible = installData.getRules().isConditionTrue(panel.getCondition());
-            logger.fine("Panel '" + getPanelId() + "' depending on condition '" + panel.getCondition() + "' " + (visible?"can be shown":"will be skipped"));
-        }
-        else
-        {
-            visible = installData.getRules().canShowPanel(panelId, installData.getVariables());
-            logger.fine("Panel '" + getPanelId() + "' " + (visible?"can be shown":"will be skipped"));
-        }
-        if (!visible && panel.isDisplayHidden())
-        {
-            visible = true;
-            logger.fine("Panel '" + getPanelId() + "' depending on displayHidden can be shown read-only");
-        }
-        if (!visible && panel.hasDisplayHiddenCondition())
-        {
-            visible = installData.getRules().isConditionTrue(panel.getDisplayHiddenCondition());
-            panel.setDisplayHidden(visible);
-            logger.fine("Panel '" + getPanelId() + "' depending on displayHiddenCondition '" + panel.getDisplayHiddenCondition() + "' " + (visible?"can be shown read-only":"will be skipped"));
-        }
-        if (visible)
-        {
-            if (!panel.isReadonly() && panel.hasReadonlyCondition())
+            installData.refreshVariables();
+            if (panel.hasCondition())
             {
-                boolean readonly = installData.getRules().isConditionTrue(panel.getReadonlyCondition());
-                panel.setReadonly(readonly);
-                logger.fine("Panel '" + getPanelId() + "' depending on readonlyCondition '" + panel.getReadonlyCondition() + "' " + (readonly?"is forcibly read-only":"is editable"));
+                visible = installData.getRules().isConditionTrue(panel.getCondition());
+                logger.fine("Panel '" + getPanelId() + "' depending on condition '" + panel.getCondition() + "' " + (visible?"can be shown":"will be skipped"));
+            }
+            else
+            {
+                visible = installData.getRules().canShowPanel(panelId, installData.getVariables());
+                logger.fine("Panel '" + getPanelId() + "' " + (visible?"can be shown":"will be skipped"));
+            }
+            if (!visible && panel.isDisplayHidden())
+            {
+                visible = true;
+                logger.fine("Panel '" + getPanelId() + "' depending on displayHidden can be shown read-only");
+            }
+            if (!visible && panel.hasDisplayHiddenCondition())
+            {
+                visible = installData.getRules().isConditionTrue(panel.getDisplayHiddenCondition());
+                panel.setDisplayHidden(visible);
+                logger.fine("Panel '" + getPanelId() + "' depending on displayHiddenCondition '" + panel.getDisplayHiddenCondition() + "' " + (visible?"can be shown read-only":"will be skipped"));
+            }
+            if (visible)
+            {
+                if (!panel.isReadonly() && panel.hasReadonlyCondition())
+                {
+                    boolean readonly = installData.getRules().isConditionTrue(panel.getReadonlyCondition());
+                    panel.setReadonly(readonly);
+                    logger.fine("Panel '" + getPanelId() + "' depending on readonlyCondition '" + panel.getReadonlyCondition() + "' " + (readonly?"is forcibly read-only":"is editable"));
+                }
             }
         }
+        catch (IzPackException e)
+        {
+            visible = false;
+        }
+
         return visible;
     }
 
