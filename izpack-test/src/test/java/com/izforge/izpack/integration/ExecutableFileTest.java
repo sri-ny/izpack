@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.unpacker.Unpacker;
 import com.izforge.izpack.test.Container;
@@ -55,7 +55,7 @@ import com.izforge.izpack.util.Platform.Name;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class ExecutableFileTest extends AbstractDestroyerTest
 {
     /**

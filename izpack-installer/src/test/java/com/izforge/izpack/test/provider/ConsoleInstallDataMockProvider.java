@@ -20,33 +20,52 @@
  */
 package com.izforge.izpack.test.provider;
 
-import java.io.IOException;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.resource.Locales;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
+import com.izforge.izpack.util.Platforms;
+
+import java.io.IOException;
 
 /**
- * Test provider for {@link InstallData}.
+ * Test provider for {@link ConsoleInstallData}.
  *
  * @author Tim Anderson
  */
-public class InstallDataMockProvider extends AbstractInstallDataMockProvider
+public class ConsoleInstallDataMockProvider extends AbstractInstallDataMockProvider
 {
 
     /**
-     * Provides an {@link AutomatedInstallData}.
+     * Provides an {@link ConsoleInstallData}.
      *
      * @param variables the variables
      * @param locales   the locales
-     * @return an {@link AutomatedInstallData}
+     * @return an {@link ConsoleInstallData}
      * @throws IOException if the default messages cannot be found
      */
-    public AutomatedInstallData provide(Variables variables, Locales locales) throws IOException
+    public ConsoleInstallData provide(Variables variables, Locales locales) throws IOException
     {
-        AutomatedInstallData result = createInstallData(variables);
+        ConsoleInstallData result = createInstallData(variables);
         populate(result, locales);
+        return result;
+    }
+
+    /**
+     * Creates a new {@link ConsoleInstallData}.
+     *
+     * @param variables the variables
+     * @return a new {@link ConsoleInstallData}
+     */
+    @Override
+    protected ConsoleInstallData createInstallData(Variables variables)
+    {
+        ConsoleInstallData result = new ConsoleInstallData(variables, Platforms.MAC_OSX);
+
+        ConsolePrefs consolePrefs = new ConsolePrefs();
+        consolePrefs.enableConsoleReader = false;
+        result.consolePrefs = consolePrefs;
+
         return result;
     }
 

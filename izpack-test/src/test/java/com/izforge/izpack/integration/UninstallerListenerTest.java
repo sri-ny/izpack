@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.matcher.ZipMatcher;
@@ -52,7 +52,7 @@ import com.izforge.izpack.uninstaller.Destroyer;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class UninstallerListenerTest extends AbstractDestroyerTest
 {
     /**

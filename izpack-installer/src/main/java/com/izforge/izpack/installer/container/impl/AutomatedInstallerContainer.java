@@ -23,44 +23,43 @@ package com.izforge.izpack.installer.container.impl;
 
 
 import com.izforge.izpack.api.exception.ContainerException;
-import com.izforge.izpack.core.handler.ConsolePrompt;
+import com.izforge.izpack.core.handler.AutomatedPrompt;
 import com.izforge.izpack.installer.automation.AutomatedInstaller;
-import com.izforge.izpack.installer.console.ConsoleInstaller;
 import com.izforge.izpack.installer.console.ConsolePanelAutomationHelper;
-import com.izforge.izpack.installer.container.provider.*;
+import com.izforge.izpack.installer.container.provider.AutomatedInstallDataProvider;
+import com.izforge.izpack.installer.container.provider.AutomatedPanelsProvider;
 import com.izforge.izpack.installer.multiunpacker.MultiVolumeUnpackerAutomationHelper;
 import com.izforge.izpack.installer.unpacker.ConsolePackResources;
-import com.izforge.izpack.util.Console;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.injectors.ProviderAdapter;
 
 /**
- * Installer container for console installation mode.
+ * Installer container for automated installation mode.
  *
  * @author Tim Anderson
  */
-public class ConsoleInstallerContainer extends InstallerContainer
+public class AutomatedInstallerContainer extends InstallerContainer
 {
 
     /**
-     * Constructs a <tt>ConsoleInstallerContainer</tt>.
+     * Constructs a <tt>AutomatedInstallerContainer</tt>.
      *
      * @throws ContainerException if initialisation fails
      */
-    public ConsoleInstallerContainer()
+    public AutomatedInstallerContainer()
     {
         initialise();
     }
 
     /**
-     * Constructs a <tt>ConsoleInstallerContainer</tt>.
+     * Constructs a <tt>AutomatedInstallerContainer</tt>.
      * <p/>
      * This constructor is provided for testing purposes.
      *
      * @param container the underlying container
      * @throws ContainerException if initialisation fails
      */
-    protected ConsoleInstallerContainer(MutablePicoContainer container)
+    protected AutomatedInstallerContainer(MutablePicoContainer container)
     {
         initialise(container);
     }
@@ -76,16 +75,12 @@ public class ConsoleInstallerContainer extends InstallerContainer
         super.registerComponents(container);
 
         container
-                .addAdapter(new ProviderAdapter(new ConsoleInstallDataProvider()))
-                .addAdapter(new ProviderAdapter(new ConsolePanelsProvider()))
-                //.addAdapter(new ProviderAdapter(new AutomatedPanelsProvider()))
-                .addAdapter(new ProviderAdapter(new MessagesProvider())) // required by ConsolePrompt and Console
-                .addAdapter(new ProviderAdapter(new ConsolePrefsProvider())); // required by Console
+                .addAdapter(new ProviderAdapter(new AutomatedInstallDataProvider()))
+                .addAdapter(new ProviderAdapter(new AutomatedPanelsProvider()));
 
         container
-                .addComponent(Console.class)
-                .addComponent(ConsolePrompt.class)
-                .addComponent(ConsoleInstaller.class)
+                .addComponent(AutomatedPrompt.class)
+                .addComponent(AutomatedInstaller.class)
                 .addComponent(ConsolePanelAutomationHelper.class)
                 .addComponent(ConsolePackResources.class)
                 .addComponent(MultiVolumeUnpackerAutomationHelper.class);

@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.packager.impl.Packager;
 import com.izforge.izpack.installer.gui.InstallerController;
@@ -61,7 +61,7 @@ import com.izforge.izpack.test.junit.PicoRunner;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class PackagingTest extends AbstractInstallationTest
 {
     /**

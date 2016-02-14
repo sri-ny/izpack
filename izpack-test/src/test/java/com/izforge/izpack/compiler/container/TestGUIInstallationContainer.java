@@ -10,10 +10,10 @@ import com.izforge.izpack.installer.container.impl.InstallerContainer;
  *
  * @author Anthonin Bonnefoy
  */
-public class TestInstallationContainer extends AbstractTestInstallationContainer
+public class TestGUIInstallationContainer extends AbstractTestInstallationContainer
 {
 
-    public TestInstallationContainer(Class klass, FrameworkMethod frameworkMethod)
+    public TestGUIInstallationContainer(Class klass, FrameworkMethod frameworkMethod)
     {
         super(klass, frameworkMethod);
         initialise();

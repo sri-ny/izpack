@@ -328,6 +328,7 @@ public class CompilerConfig extends Thread
         addDynamicVariables(data);
         addDynamicInstallerRequirement(data);
         addInfo(data);
+        addConsolePrefs(data);
         addGUIPrefs(data);
         addLangpacks(data);
         addResources(data);
@@ -434,6 +435,30 @@ public class CompilerConfig extends Thread
     public boolean wasSuccessful()
     {
         return compiler.wasSuccessful();
+    }
+
+    /**
+     * Returns the ConsolePrefs.
+     *
+     * @param data The XML data.
+     * @throws CompilerException Description of the Exception
+     */
+    private void addConsolePrefs(IXMLElement data) throws CompilerException
+    {
+        notifyCompilerListener("addConsolePrefs", CompilerListener.BEGIN, data);
+        // We get the IXMLElement & the attributes
+        IXMLElement consolePrefsElement = data.getFirstChildNamed("consoleprefs");
+        ConsolePrefs prefs = new ConsolePrefs();
+        if (consolePrefsElement != null)
+        {
+            IXMLElement detectTerminalTag = consolePrefsElement.getFirstChildNamed("detectTerminal");
+            if (detectTerminalTag != null)
+            {
+                prefs.enableConsoleReader = Boolean.parseBoolean(xmlCompilerHelper.requireContent(detectTerminalTag));
+            }
+        }
+        packager.setConsolePrefs(prefs);
+        notifyCompilerListener("addConsolePrefs", CompilerListener.END, data);
     }
 
     /**

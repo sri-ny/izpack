@@ -21,13 +21,13 @@
 
 package com.izforge.izpack.uninstaller.console;
 
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoException;
-
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.exception.ContainerException;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.uninstaller.container.UninstallerContainer;
 import com.izforge.izpack.util.Console;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoException;
 
 
 /**
@@ -58,6 +58,11 @@ public class ConsoleUninstallerContainer extends UninstallerContainer
     protected void fillContainer(MutablePicoContainer container)
     {
         super.fillContainer(container);
+
+        ConsolePrefs consolePrefs = new ConsolePrefs();
+        consolePrefs.enableConsoleReader = false;
+        addComponent(ConsolePrefs.class, consolePrefs);
+
         addComponent(Console.class);
         addComponent(ConsolePrompt.class);
         addComponent(ConsoleDestroyerListener.class);

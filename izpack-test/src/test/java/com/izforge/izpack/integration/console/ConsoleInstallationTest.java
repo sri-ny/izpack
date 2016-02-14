@@ -21,18 +21,6 @@
 
 package com.izforge.izpack.integration.console;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Properties;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -45,6 +33,15 @@ import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.InstallFile;
 import com.izforge.izpack.test.junit.PicoRunner;
 import com.izforge.izpack.test.util.TestConsole;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -148,8 +145,8 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         TestConsole console = installer.getConsole();
         console.addScript("HelloPanel", "1");
         console.addScript("InfoPanel", "1");
-        console.addScript("LicensePanel", "\n", "3", "\n", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("LicensePanel", "\n", "3", "1");
+        console.addScript("TargetPanel", "\n", "\n", "1");
 
         checkInstall(installer, getInstallData());
     }

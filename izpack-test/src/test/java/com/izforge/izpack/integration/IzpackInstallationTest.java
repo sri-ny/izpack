@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.exception.NativeLibException;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.core.os.RegistryDefaultHandler;
 import com.izforge.izpack.core.os.RegistryHandler;
 import com.izforge.izpack.installer.data.GUIInstallData;
@@ -52,7 +52,7 @@ import com.izforge.izpack.util.Platforms;
  * installation.
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class IzpackInstallationTest
 {
     @Rule

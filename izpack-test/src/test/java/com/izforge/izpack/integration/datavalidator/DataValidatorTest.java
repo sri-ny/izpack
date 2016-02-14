@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 import com.izforge.izpack.api.GuiId;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.installer.DataValidator;
-import com.izforge.izpack.compiler.container.TestInstallationContainer;
+import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.InstallerFrame;
@@ -64,7 +64,7 @@ import com.izforge.izpack.test.util.TestHousekeeper;
  * @author Tim Anderson
  */
 @RunWith(PicoRunner.class)
-@Container(TestInstallationContainer.class)
+@Container(TestGUIInstallationContainer.class)
 public class DataValidatorTest
 {
     /**

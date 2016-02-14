@@ -21,7 +21,7 @@
 
 package com.izforge.izpack.panels.userinput.console.check;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
@@ -30,6 +30,7 @@ import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.core.rules.ConditionContainer;
 import com.izforge.izpack.core.rules.RulesEngineImpl;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.check.CheckField;
 import com.izforge.izpack.panels.userinput.field.check.TestCheckFieldConfig;
@@ -53,7 +54,7 @@ public class ConsoleCheckFieldTest extends AbstractConsoleFieldTest
     /**
      * The install data.
      */
-    private final AutomatedInstallData installData;
+    private final ConsoleInstallData installData;
 
     /**
      * The console.
@@ -70,10 +71,15 @@ public class ConsoleCheckFieldTest extends AbstractConsoleFieldTest
      */
     public ConsoleCheckFieldTest()
     {
-        installData = new AutomatedInstallData(new DefaultVariables(), Platforms.HP_UX);
+        installData = new ConsoleInstallData(new DefaultVariables(), Platforms.HP_UX);
         RulesEngine rules = new RulesEngineImpl(new ConditionContainer(new DefaultContainer()),
                                                 installData.getPlatform());
-        console = new TestConsole(installData.getMessages());
+
+        ConsolePrefs prefs = new ConsolePrefs();
+        prefs.enableConsoleReader = false;
+        installData.consolePrefs = prefs;
+
+        console = new TestConsole(installData.getMessages(), prefs);
         prompt = new ConsolePrompt(console, Mockito.mock(Messages.class));
         installData.setRules(rules);
     }

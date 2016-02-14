@@ -21,7 +21,15 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import java.awt.GraphicsEnvironment;
+import com.izforge.izpack.installer.automation.AutomatedInstaller;
+import com.izforge.izpack.installer.console.ConsoleInstaller;
+import com.izforge.izpack.installer.container.impl.AutomatedInstallerContainer;
+import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
+import com.izforge.izpack.installer.container.impl.InstallerContainer;
+import com.izforge.izpack.util.Debug;
+import com.izforge.izpack.util.StringTool;
+
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -30,13 +38,6 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.installer.automation.AutomatedInstaller;
-import com.izforge.izpack.installer.console.ConsoleInstaller;
-import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
-import com.izforge.izpack.installer.container.impl.InstallerContainer;
-import com.izforge.izpack.util.Debug;
-import com.izforge.izpack.util.StringTool;
 
 /**
  * The program entry point. Selects between GUI and text install modes.
@@ -236,7 +237,7 @@ public class Installer
      */
     private void launchAutomatedInstaller(String path, String mediaDir, String[] args) throws Exception
     {
-        InstallerContainer container = new ConsoleInstallerContainer();
+        InstallerContainer container = new AutomatedInstallerContainer();
         AutomatedInstaller automatedInstaller = container.getComponent(AutomatedInstaller.class);
         automatedInstaller.init(path, mediaDir, args);
         automatedInstaller.doInstall();

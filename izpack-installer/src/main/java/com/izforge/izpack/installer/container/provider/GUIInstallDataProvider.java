@@ -1,22 +1,5 @@
 package com.izforge.izpack.installer.container.provider;
 
-import java.awt.Color;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.MetalTheme;
-
 import com.izforge.izpack.api.data.GUIPrefs;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
@@ -27,6 +10,16 @@ import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.OsVersion;
 import com.izforge.izpack.util.PlatformModelMatcher;
+
+import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.MetalTheme;
+import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provide installData for GUI :
@@ -318,13 +311,12 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
     /**
      * Load GUI preference information.
      *
-     * @param installData the installation data
+     * @param installData the GUI installation data
      * @throws Exception
      */
     private void loadGUIInstallData(GUIInstallData installData, Resources resources) throws Exception
     {
         installData.guiPrefs = (GUIPrefs) resources.getObject("GUIPrefs");
     }
-
 
 }

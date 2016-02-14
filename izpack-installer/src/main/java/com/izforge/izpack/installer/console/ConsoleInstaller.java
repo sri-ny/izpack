@@ -21,20 +21,13 @@
 
 package com.izforge.izpack.installer.console;
 
-import java.io.*;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.base.InstallerBase;
 import com.izforge.izpack.installer.bootstrap.Installer;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
@@ -42,6 +35,14 @@ import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PrivilegedRunner;
 import com.izforge.izpack.util.file.FileUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Runs the console installer.
@@ -64,7 +65,7 @@ public class ConsoleInstaller implements InstallerBase
     /**
      * The installation data.
      */
-    private InstallData installData;
+    private ConsoleInstallData installData;
 
     /**
      * Verifies the installation requirements.
@@ -103,7 +104,7 @@ public class ConsoleInstaller implements InstallerBase
      * @param housekeeper         the house-keeper
      * @throws IzPackException for any IzPack error
      */
-    public ConsoleInstaller(ConsolePanels panels, AutomatedInstallData installData, RequirementsChecker requirements,
+    public ConsoleInstaller(ConsolePanels panels, ConsoleInstallData installData, RequirementsChecker requirements,
                             UninstallDataWriter uninstallDataWriter, Console console, Housekeeper housekeeper)
     {
         this.panels = panels;
