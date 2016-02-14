@@ -155,7 +155,7 @@ public class TargetPanelHelperTest
     @Test
     public void testIsIncompatibleInstallation() throws IOException
     {
-        File dir = FileUtils.createTempDir("junit");
+        File dir = File.createTempFile("junit", "");
         FileUtils.delete(dir);
 
         // verify that the method returns false for non-existent directory

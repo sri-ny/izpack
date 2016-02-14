@@ -122,17 +122,6 @@ public class FileUtils
             return File.createTempFile(prefix, suffix);
         }
     }
-    
-    /**
-     * Method to create a directory in the temp directory.
-     * @param directory the directory name
-     * @return the temporary directory
-     */
-    public static File createTempDir(String directory) {
-        File dir = new File(new File(System.getProperty("java.io.tmpdir")), directory);
-    	dir.mkdir();
-        return dir;
-    }
 
     /**
      * Method to retrieve The FileUtils, which is shared by all users of this
