@@ -22,6 +22,15 @@
 package com.izforge.izpack.installer.panel;
 
 
+import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.adaptator.IXMLWriter;
+import com.izforge.izpack.api.adaptator.impl.XMLWriter;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.installer.data.UninstallData;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,14 +40,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.adaptator.IXMLWriter;
-import com.izforge.izpack.api.adaptator.impl.XMLWriter;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.data.Variables;
-import com.izforge.izpack.installer.data.UninstallData;
 
 /**
  * Abstract implementation of the {@link PanelViews} interface.
@@ -495,60 +496,69 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
             return false;
         }
 
-        // refresh variables prior to switching panels
-        variables.refresh();
-
-        T oldPanelView = getPanelView(index);
-        T newPanelView = getPanelView(newIndex);
-        int oldIndex = index;
-        index = newIndex;
-
-        Panel newPanel = newPanelView.getPanel();
-
-        newPanel.setVisited(true);
-
-        if (switchPanel(newPanelView, oldPanelView))
+        try
         {
+            // refresh variables prior to switching panels
+            variables.refresh();
 
-            if (oldIndex > newIndex)
+            T oldPanelView = getPanelView(index);
+            T newPanelView = getPanelView(newIndex);
+            int oldIndex = index;
+            index = newIndex;
+
+            Panel newPanel = newPanelView.getPanel();
+
+            newPanel.setVisited(true);
+
+            if (switchPanel(newPanelView, oldPanelView))
             {
-                  // Switches back in a sorted list of panels
-                  // -> set unvisited all panels in order after this one to always keep history information up to date
-                  // -> important for summary panel and generation of auto-install.xml
-                  for (int i = panelViews.size() - 1; i > index; i--)
-                  {
-                      T futurePanelView = panelViews.get(i);
-                      Panel futurePanel = futurePanelView.getPanel();
-                      futurePanel.setVisited(false);
-                      Set<String> blockedNames = futurePanel.getAffectedVariableNames();
-                      variables.unregisterBlockedVariableNames(futurePanel.getAffectedVariableNames(), futurePanel);
-                      if( logger.isLoggable(Level.FINE))
+
+                if (oldIndex > newIndex)
+                {
+                      // Switches back in a sorted list of panels
+                      // -> set unvisited all panels in order after this one to always keep history information up to date
+                      // -> important for summary panel and generation of auto-install.xml
+                      for (int i = panelViews.size() - 1; i > index; i--)
                       {
-                          logger.fine("Unblocked variables on panel '" + futurePanel.getPanelId() +"': " + createListAsString(blockedNames));
-                      }
-                 }
+                          T futurePanelView = panelViews.get(i);
+                          Panel futurePanel = futurePanelView.getPanel();
+                          futurePanel.setVisited(false);
+                          Set<String> blockedNames = futurePanel.getAffectedVariableNames();
+                          variables.unregisterBlockedVariableNames(futurePanel.getAffectedVariableNames(), futurePanel);
+                          if( logger.isLoggable(Level.FINE))
+                          {
+                              logger.fine("Unblocked variables on panel '" + futurePanel.getPanelId() +"': " + createListAsString(blockedNames));
+                          }
+                     }
+                }
+                else
+                {
+                    Set<String> blockedNames = newPanel.getAffectedVariableNames();
+                    variables.registerBlockedVariableNames(blockedNames, newPanel);
+                    if( logger.isLoggable(Level.FINE))
+                    {
+                        logger.fine("Blocked variables on panel '" + newPanel.getPanelId() +"': " + createListAsString(blockedNames));
+                    }
+                }
+
+                logger.fine("Switched panel index: " + oldIndex + " -> " + index);
+                result = true;
             }
             else
             {
-                Set<String> blockedNames = newPanel.getAffectedVariableNames();
-                variables.registerBlockedVariableNames(blockedNames, newPanel);
-                if( logger.isLoggable(Level.FINE))
-                {
-                    logger.fine("Blocked variables on panel '" + newPanel.getPanelId() +"': " + createListAsString(blockedNames));
-                }
+                index = oldIndex;
+                result = false;
+                newPanel.setVisited(false);
             }
 
-            logger.fine("Switched panel index: " + oldIndex + " -> " + index);
-            result = true;
+            variables.refresh();
         }
-        else
+        catch (IzPackException e)
         {
-            index = oldIndex;
             result = false;
-            newPanel.setVisited(false);
+            getPanelView().getHandler().emitError(null, e.getMessage());
         }
 
-        variables.refresh();
         return result;
     }
 
@@ -600,11 +610,19 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         else
         {
             // execute the pre- and post-validation actions, but don't perform validation itself
-            variables.refresh();
-            panel.executePreValidationActions();
-            panel.executePostValidationActions();
-            panel.saveData();
-            result = true;
+            try
+            {
+                variables.refresh();
+                panel.executePreValidationActions();
+                panel.executePostValidationActions();
+                panel.saveData();
+                result = true;
+            }
+            catch (IzPackException e)
+            {
+                result = false;
+                getPanelView().getHandler().emitError(null, e.getMessage());
+            }
         }
         return result;
     }

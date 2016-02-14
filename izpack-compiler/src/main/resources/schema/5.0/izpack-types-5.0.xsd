@@ -167,7 +167,7 @@
         <xs:attribute type="xs:string" name="zipfile" use="optional"/>
         <xs:attribute type="xs:string" name="jarfile" use="optional"/>
         <xs:attribute type="xs:string" name="entry" use="optional"/>
-        <xs:attribute type="xs:boolean" name="ignorefailure" use="optional" default="false"/>
+        <xs:attribute type="xs:boolean" name="ignorefailure" use="optional" default="true"/>
         <!-- Windows registry -->
         <xs:attribute type="xs:string" name="regkey" use="optional"/>
         <xs:attribute type="xs:string" name="regroot" use="optional"/>
