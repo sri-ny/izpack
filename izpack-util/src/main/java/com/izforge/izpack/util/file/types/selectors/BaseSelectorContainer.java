@@ -30,7 +30,7 @@ public abstract class BaseSelectorContainer extends BaseSelector
         implements SelectorContainer
 {
 
-    private Vector<FileSelector> selectorsList = new Vector<FileSelector>();
+    private final Vector<FileSelector> selectorsList = new Vector<FileSelector>();
 
     /**
      * Default constructor.
@@ -90,7 +90,7 @@ public abstract class BaseSelectorContainer extends BaseSelector
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         Enumeration<FileSelector> e = selectorElements();
         if (e.hasMoreElements())
         {
@@ -168,16 +168,6 @@ public abstract class BaseSelectorContainer extends BaseSelector
 
 
     /* Methods below all add specific selectors */
-
-    /**
-     * add a "Select" selector entry on the selector list
-     *
-     * @param selector the selector to add
-     */
-    public void addSelector(SelectSelector selector)
-    {
-        appendSelector(selector);
-    }
 
     /**
      * add an "And" selector entry on the selector list

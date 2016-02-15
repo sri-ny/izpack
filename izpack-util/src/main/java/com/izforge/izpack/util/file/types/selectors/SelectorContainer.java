@@ -42,7 +42,6 @@ public interface SelectorContainer
     /**
      * Returns the set of selectors as an array.
      *
-     * @param p the current project
      * @return an array of selectors in this container
      */
     FileSelector[] getSelectors();
@@ -60,15 +59,6 @@ public interface SelectorContainer
      * @param selector the new selector to add
      */
     void appendSelector(FileSelector selector);
-
-    /* Methods below all add specific selectors */
-
-    /**
-     * add a "Select" selector entry on the selector list
-     *
-     * @param selector the selector to add
-     */
-    void addSelector(SelectSelector selector);
 
     /**
      * add an "And" selector entry on the selector list

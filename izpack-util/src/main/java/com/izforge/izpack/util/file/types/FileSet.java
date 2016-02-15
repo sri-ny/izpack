@@ -67,8 +67,6 @@ public class FileSet extends DataType
     /**
      * Retrieves the base-directory for this instance.
      *
-     * @param p the <code>Project</code> against which the
-     *          reference is resolved, if set.
      * @return <code>File</code>.
      */
     public File getDir()
@@ -218,7 +216,6 @@ public class FileSet extends DataType
      * Set up the specified directory scanner against the specified project.
      *
      * @param ds a <code>FileScanner</code> instance.
-     * @param p  an Ant <code>Project</code> instance.
      */
     public void setupDirectoryScanner(FileScanner ds)
     {
@@ -332,17 +329,6 @@ public class FileSet extends DataType
     }
 
     /* Methods below all add specific selectors */
-
-    /**
-     * Add a "Select" selector entry on the selector list.
-     *
-     * @param selector the <code>SelectSelector</code> to add.
-     */
-    @Override
-    public void addSelector(SelectSelector selector)
-    {
-        appendSelector(selector);
-    }
 
     /**
      * Add an "And" selector entry on the selector list.
