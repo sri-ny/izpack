@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
@@ -48,7 +50,18 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class TargetPanelHelperTest
 {
-
+	private String orgUserDir;
+	
+	@Before
+	public void initialize() {
+		orgUserDir = System.getProperty("user.dir");
+	}
+	
+	@After
+	public void cleanup() {
+		System.setProperty("user.dir", orgUserDir);
+	}
+	
     /**
      * Tests the {@link TargetPanelHelper#getPath(InstallData)} method.
      */
