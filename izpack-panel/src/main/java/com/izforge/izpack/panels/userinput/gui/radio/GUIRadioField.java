@@ -162,7 +162,7 @@ public class GUIRadioField extends GUIField implements ActionListener
     {
         refreshChoices();
 
-        boolean result = false;
+        boolean result = super.updateView();
         RadioField field = getField();
         String value = field.getInitialValue();
 

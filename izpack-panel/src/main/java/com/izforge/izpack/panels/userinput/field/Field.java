@@ -558,7 +558,12 @@ public abstract class Field
      */
     public String getLabel()
     {
-        return label;
+        String result = null;
+        if (label != null)
+        {
+            result = replaceVariables(label);
+        }
+        return result;
     }
 
     /**
@@ -568,7 +573,12 @@ public abstract class Field
      */
     public String getDescription()
     {
-        return description;
+        String result = null;
+        if (description != null)
+        {
+            result = replaceVariables(description);
+        }
+        return result;
     }
 
     /**
@@ -576,7 +586,14 @@ public abstract class Field
      *
      * @return the field tooltip. May be {@code null}
      */
-    public String getTooltip() { return tooltip; }
+    public String getTooltip() {
+        String result = null;
+        if (tooltip != null)
+        {
+            result = replaceVariables(tooltip);
+        }
+        return result;
+    }
 
     /**
      * Determines if the condition associated with the field is true.

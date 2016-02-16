@@ -100,7 +100,7 @@ public abstract class GUIField extends AbstractFieldView
      */
     public boolean updateView()
     {
-        return false;
+        return translateStaticText();
     }
 
     /**
