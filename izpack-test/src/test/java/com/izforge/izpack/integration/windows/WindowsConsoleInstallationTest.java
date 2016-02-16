@@ -79,6 +79,7 @@ import com.izforge.izpack.util.file.FileUtils;
 @Container(TestConsoleInstallationContainer.class)
 public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationTest
 {
+    private final boolean skipTests = new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded();
 
     /**
      * The installer container.
@@ -150,18 +151,19 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @Override
     public void setUp() throws Exception
     {
-        assertFalse("This test must be run as administrator, or with Windows UAC turned off",
-                    new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded());
-        super.setUp();
-        String appName = getInstallData().getInfo().getAppName();
-        assertNotNull(appName);
-        File file = FileUtil.getLockFile(appName);
-        if (file.exists())
-        {
-            assertTrue(file.delete());
-        }
+        if(!skipTests) {
+            //assertFalse("This test must be run as administrator, or with Windows UAC turned off",
+            //    new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded());
+            super.setUp();
+            String appName = getInstallData().getInfo().getAppName();
+            assertNotNull(appName);
+            File file = FileUtil.getLockFile(appName);
+            if (file.exists()) {
+                assertTrue(file.delete());
+            }
 
-        destroyRegistryEntries();
+            destroyRegistryEntries();
+        }
     }
 
     /**
@@ -172,11 +174,13 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @After
     public void tearDown() throws Exception
     {
-        destroyRegistryEntries();
-        
-        if (getUninstallerJar() != null) {
-        	// remove the uninstaller dir
-        	FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+        if(!skipTests) {
+            destroyRegistryEntries();
+
+            if (getUninstallerJar() != null) {
+                // remove the uninstaller dir
+                FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+            }
         }
     }
 
@@ -189,16 +193,18 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @InstallFile("samples/windows/install.xml")
     public void testInstallation() throws Exception
     {
-        // run the install
-        checkInstall(container, APP_NAME);
-        assertTrue(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
+        if(!skipTests) {
+            // run the install
+            checkInstall(container, APP_NAME);
+            assertTrue(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
 
-        // run the uninstaller and verify that uninstall key is removed
-        File uninstaller = getUninstallerJar();
-        assertTrue(uninstaller.exists());
-        UninstallHelper.consoleUninstall(uninstaller);
+            // run the uninstaller and verify that uninstall key is removed
+            File uninstaller = getUninstallerJar();
+            assertTrue(uninstaller.exists());
+            UninstallHelper.consoleUninstall(uninstaller);
 
-        assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
+            assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
+        }
     }
 
     /**
@@ -210,31 +216,33 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @InstallFile("samples/windows/install.xml")
     public void testMultipleInstallation() throws Exception
     {
-        // run the install
-        checkInstall(container, APP_NAME);
+        if(!skipTests) {
+            // run the install
+            checkInstall(container, APP_NAME);
 
-        // remove the lock file to enable second installation
-        removeLock();
+            // remove the lock file to enable second installation
+            removeLock();
 
-        // run the installation again
-        ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
-        TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
-        InstallData installData2 = container2.getComponent(InstallData.class);
-        TestConsole console2 = installer2.getConsole();
-        console2.addScript("CheckedHelloPanel", "y", "1");
-        console2.addScript("TargetPanel", "Y", "\n", "1");
-        console2.addScript("PacksPanel", "1");
-        console2.addScript("ShortcutPanel", "N", "N", "1");
-        console2.addScript("SimpleFinishPanel", "1");
-        
-        assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
-        checkInstall(installer2, installData2);
+            // run the installation again
+            ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
+            TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
+            InstallData installData2 = container2.getComponent(InstallData.class);
+            TestConsole console2 = installer2.getConsole();
+            console2.addScript("CheckedHelloPanel", "y", "1");
+            console2.addScript("TargetPanel", "Y", "\n", "1");
+            console2.addScript("PacksPanel", "1");
+            console2.addScript("ShortcutPanel", "N", "N", "1");
+            console2.addScript("SimpleFinishPanel", "1");
 
-        // verify the UNINSTALL_NAME has been updated
-        assertEquals(APP_NAME + "(1)", installData2.getVariable("UNINSTALL_NAME"));
+            assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
+            checkInstall(installer2, installData2);
 
-        // verify a second key is created
-        assertTrue(registryKeyExists(handler, UNINSTALL_KEY2));
+            // verify the UNINSTALL_NAME has been updated
+            assertEquals(APP_NAME + "(1)", installData2.getVariable("UNINSTALL_NAME"));
+
+            // verify a second key is created
+            assertTrue(registryKeyExists(handler, UNINSTALL_KEY2));
+        }
     }
 
     /**
@@ -246,30 +254,32 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @InstallFile("samples/windows/install.xml")
     public void testRejectMultipleInstallation() throws Exception
     {
-        checkInstall(container, APP_NAME);
+        if(!skipTests) {
+            checkInstall(container, APP_NAME);
 
-        removeLock();
+            removeLock();
 
-        ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
-        TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
-        RegistryDefaultHandler handler2 = container2.getComponent(RegistryDefaultHandler.class);
-        InstallData installData2 = container2.getComponent(InstallData.class);
+            ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
+            TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
+            RegistryDefaultHandler handler2 = container2.getComponent(RegistryDefaultHandler.class);
+            InstallData installData2 = container2.getComponent(InstallData.class);
 
-        TestConsole console2 = installer2.getConsole();
-        console2.addScript("CheckedHelloPanel", "n");
+            TestConsole console2 = installer2.getConsole();
+            console2.addScript("CheckedHelloPanel", "n");
 
-        assertFalse(registryKeyExists(handler2, UNINSTALL_KEY2));
-        installer2.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+            assertFalse(registryKeyExists(handler2, UNINSTALL_KEY2));
+            installer2.run(Installer.CONSOLE_INSTALL, null, new String[0]);
 
-        // verify the installation thinks it was unsuccessful
-        assertFalse(installData2.isInstallSuccess());
+            // verify the installation thinks it was unsuccessful
+            assertFalse(installData2.isInstallSuccess());
 
-        // make sure the script has completed
-        TestConsole console = installer2.getConsole();
-        assertTrue("Script still running panel: " + console.getScriptName(), console.scriptCompleted());
+            // make sure the script has completed
+            TestConsole console = installer2.getConsole();
+            assertTrue("Script still running panel: " + console.getScriptName(), console.scriptCompleted());
 
-        // verify the second registry key hasn't been created
-        assertFalse(registryKeyExists(handler2, UNINSTALL_KEY2));
+            // verify the second registry key hasn't been created
+            assertFalse(registryKeyExists(handler2, UNINSTALL_KEY2));
+        }
     }
 
     /**
@@ -282,28 +292,30 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     @InstallFile("samples/windows/consoleinstall_alt_uninstall.xml")
     public void testNonDefaultUninstaller() throws Exception
     {
-        assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
+        if(!skipTests) {
+            assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
 
-        TestConsole console = installer.getConsole();
-        console.addScript("CheckedHelloPanel", "y", "1");
-        console.addScript("InfoPanel", "1");
-        console.addScript("TargetPanel", "\n", "1");
-        console.addScript("InstallPanel", "1");
-        console.addScript("FinishPanel", "1");
-        
-        //run installer and check that default uninstaller doesn't exist
-        InstallData installData = getInstallData();
-        checkInstall(installer, installData, false);
+            TestConsole console = installer.getConsole();
+            console.addScript("CheckedHelloPanel", "y", "1");
+            console.addScript("InfoPanel", "1");
+            console.addScript("TargetPanel", "\n", "1");
+            console.addScript("InstallPanel", "1");
+            console.addScript("FinishPanel", "1");
 
-        //check that uninstaller exists as specified in install spec
-        String installPath = installData.getInstallPath();
-        assertTrue(new File(installPath, "/uninstallme.jar").exists());
+            //run installer and check that default uninstaller doesn't exist
+            InstallData installData = getInstallData();
+            checkInstall(installer, installData, false);
 
-        //check that the registry key has the correct value
-        assertTrue(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
-        String command = "\"" + installData.getVariable("JAVA_HOME") + "\\bin\\javaw.exe\" -jar \"" + installPath
+            //check that uninstaller exists as specified in install spec
+            String installPath = installData.getInstallPath();
+            assertTrue(new File(installPath, "/uninstallme.jar").exists());
+
+            //check that the registry key has the correct value
+            assertTrue(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
+            String command = "\"" + installData.getVariable("JAVA_HOME") + "\\bin\\javaw.exe\" -jar \"" + installPath
                 + "\\uninstallme.jar\"";
-        registryValueStringEquals(handler, DEFAULT_UNINSTALL_KEY, UNINSTALL_CMD_VALUE, command);
+            registryValueStringEquals(handler, DEFAULT_UNINSTALL_KEY, UNINSTALL_CMD_VALUE, command);
+        }
     }
 
     /**

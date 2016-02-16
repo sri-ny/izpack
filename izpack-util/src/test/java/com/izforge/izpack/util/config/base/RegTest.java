@@ -2,6 +2,8 @@ package com.izforge.izpack.util.config.base;
 
 import java.io.IOException;
 
+import com.izforge.izpack.util.Platforms;
+import com.izforge.izpack.util.PrivilegedRunner;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +14,7 @@ public class RegTest {
 
 	@Test
 	public void testConstructorWithRegistryKey() {
-		if( OsVersion.IS_WINDOWS ) {
+		if( OsVersion.IS_WINDOWS && !new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded()) {
 			try {
 				Reg reg = new Reg("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet");
 				Key key = reg.get("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control");

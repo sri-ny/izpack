@@ -1,5 +1,7 @@
 package com.izforge.izpack.core.variable;
 
+import com.izforge.izpack.util.Platforms;
+import com.izforge.izpack.util.PrivilegedRunner;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +11,7 @@ public class RegistryValueTest {
 	
 	@Test
 	public void testResolve() throws Exception {
-		if( OsVersion.IS_WINDOWS ) {
+		if( OsVersion.IS_WINDOWS && !new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded()) {
 			String regRoot = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control";
 			// CompilerConfig and ConfigurationInstallerListener both check for the existance of regKey - this must be provided
 			String regKey = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control";
