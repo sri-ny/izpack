@@ -128,7 +128,13 @@ public class TargetConsolePanel extends AbstractConsolePanel implements ConsoleP
                 }
                 else if (pathFile.isDirectory() && pathFile.list().length > 0)
                 {
-                    console.println(installData.getMessages().get("TargetPanel.warn"));
+                    String[] validArgs = {"y", "n"};
+                    String consoleOut = console.prompt(installData.getMessages().get("TargetPanel.warn") + " " + installData.getMessages().get("ConsolePrompt.yesNo"), validArgs, "\n");
+                    if (!consoleOut.equalsIgnoreCase(validArgs[0]))
+                    {
+                        return promptRerunPanel(installData, console);
+                    }
+                    return promptEndPanel(installData, console);
                 }
                 else if(!installData.getPlatform().isValidDirectoryPath(pathFile))
                 {
