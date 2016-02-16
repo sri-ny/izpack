@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,7 +80,9 @@ import com.izforge.izpack.util.os.Win_RegistryHandler;
 @RunOn(Platform.Name.WINDOWS)
 public class RegistryInstallerListenerTest
 {
-    private boolean skipTest = new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded();
+    private boolean skipTests = new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded();
+
+    private final boolean isAdminUser = new PrivilegedRunner(Platforms.WINDOWS).isAdminUser();
 
     /**
      * Temporary folder to perform installations to.
@@ -143,38 +146,37 @@ public class RegistryInstallerListenerTest
     {
         //assertFalse("This test must be run as administrator, or with Windows UAC turned off",
         //            new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded());
-        if(!skipTest) {
+        Assume.assumeTrue("This test must be run as administrator, or with Windows UAC turned off", !skipTests && isAdminUser);
 
-            Properties properties = new Properties();
-            Variables variables = new DefaultVariables(properties);
+        Properties properties = new Properties();
+        Variables variables = new DefaultVariables(properties);
 
-            replacer = new VariableSubstitutorImpl(variables);
+        replacer = new VariableSubstitutorImpl(variables);
 
-            AutomatedInstallData data = new AutomatedInstallData(variables, Platforms.WINDOWS);
-            data.setMessages(Mockito.mock(Messages.class));
-            installData = data;
+        AutomatedInstallData data = new AutomatedInstallData(variables, Platforms.WINDOWS);
+        data.setMessages(Mockito.mock(Messages.class));
+        installData = data;
 
-            File installDir = temporaryFolder.getRoot();
-            installData.setInstallPath(installDir.getPath());
+        File installDir = temporaryFolder.getRoot();
+        installData.setInstallPath(installDir.getPath());
 
-            resources = Mockito.mock(Resources.class);
-            InputStream specStream = getClass().getResourceAsStream("/com/izforge/izpack/event/registry/RegistrySpec.xml");
-            assertNotNull(specStream);
-            Mockito.when(resources.getInputStream(RegistryInstallerListener.SPEC_FILE_NAME)).thenReturn(specStream);
-            Mockito.when(resources.getInputStream(RegistryInstallerListener.UNINSTALLER_ICON)).thenThrow(
-                new ResourceNotFoundException("Resource not found"));
+        resources = Mockito.mock(Resources.class);
+        InputStream specStream = getClass().getResourceAsStream("/com/izforge/izpack/event/registry/RegistrySpec.xml");
+        assertNotNull(specStream);
+        Mockito.when(resources.getInputStream(RegistryInstallerListener.SPEC_FILE_NAME)).thenReturn(specStream);
+        Mockito.when(resources.getInputStream(RegistryInstallerListener.UNINSTALLER_ICON)).thenThrow(
+            new ResourceNotFoundException("Resource not found"));
 
-            unpacker = Mockito.mock(IUnpacker.class);
-            uninstallData = new UninstallData();
-            rules = Mockito.mock(RulesEngine.class);
-            housekeeper = Mockito.mock(Housekeeper.class);
-            handler = Mockito.mock(RegistryDefaultHandler.class);
-            TargetFactory factory = Mockito.mock(TargetFactory.class);
-            Mockito.when(factory.getNativeLibraryExtension()).thenReturn("dll");
-            Librarian librarian = new TestLibrarian(factory, housekeeper);
-            registry = new Win_RegistryHandler(librarian);
-            Mockito.when(handler.getInstance()).thenReturn(registry);
-        }
+        unpacker = Mockito.mock(IUnpacker.class);
+        uninstallData = new UninstallData();
+        rules = Mockito.mock(RulesEngine.class);
+        housekeeper = Mockito.mock(Housekeeper.class);
+        handler = Mockito.mock(RegistryDefaultHandler.class);
+        TargetFactory factory = Mockito.mock(TargetFactory.class);
+        Mockito.when(factory.getNativeLibraryExtension()).thenReturn("dll");
+        Librarian librarian = new TestLibrarian(factory, housekeeper);
+        registry = new Win_RegistryHandler(librarian);
+        Mockito.when(handler.getInstance()).thenReturn(registry);
     }
 
     /**
@@ -185,66 +187,66 @@ public class RegistryInstallerListenerTest
     @Test
     public void testRegistry() throws NativeLibException
     {
-        if(!skipTest) {
-            String appName = "IzPackRegistryTest";
-            String appVersion = "1.0";
-            String uninstallName = appName + "-" + appVersion;
-            String appURL = "http://www.test.com";
-            String uninstallKey = RegistryHandler.UNINSTALL_ROOT + uninstallName;
-            String key = "SOFTWARE\\IzForge\\IzPack\\" + uninstallName;
+    	Assume.assumeTrue("This test must be run as administrator, or with Windows UAC turned off", !skipTests && isAdminUser);
+    	
+        String appName = "IzPackRegistryTest";
+        String appVersion = "1.0";
+        String uninstallName = appName + "-" + appVersion;
+        String appURL = "http://www.test.com";
+        String uninstallKey = RegistryHandler.UNINSTALL_ROOT + uninstallName;
+        String key = "SOFTWARE\\IzForge\\IzPack\\" + uninstallName;
 
-            // clean out any existing key
-            deleteKey(uninstallKey);
-            deleteKey(key + "\\ЮникодТестКлюч");  // i.e. Unicode Test Key in Serbian (thanks google)
-            deleteKey(key + "\\Path");
-            deleteKey(key + "\\DWORD");
-            deleteKey(key + "\\BIN");
-            deleteKey(key + "\\MULTI");
-            deleteKey(key);
+        // clean out any existing key
+        deleteKey(uninstallKey);
+        deleteKey(key + "\\ЮникодТестКлюч");  // i.e. Unicode Test Key in Serbian (thanks google)
+        deleteKey(key + "\\Path");
+        deleteKey(key + "\\DWORD");
+        deleteKey(key + "\\BIN");
+        deleteKey(key + "\\MULTI");
+        deleteKey(key);
 
-            // initialise variables to support variable expansion of registry keys and values
-            installData.setVariable("APP_NAME", appName);
-            installData.setVariable("APP_VER", appVersion);
-            installData.setVariable("UNINSTALL_NAME", uninstallName);
-            installData.setVariable("APP_URL", appURL);
+        // initialise variables to support variable expansion of registry keys and values
+        installData.setVariable("APP_NAME", appName);
+        installData.setVariable("APP_VER", appVersion);
+        installData.setVariable("UNINSTALL_NAME", uninstallName);
+        installData.setVariable("APP_URL", appURL);
 
-            // initialise the listener
-            RegistryInstallerListener listener = new RegistryInstallerListener(
-                unpacker, replacer, installData, uninstallData, resources, rules, housekeeper, handler);
-            listener.initialise();
+        // initialise the listener
+        RegistryInstallerListener listener = new RegistryInstallerListener(
+            unpacker, replacer, installData, uninstallData, resources, rules, housekeeper, handler);
+        listener.initialise();
 
-            // run the listener
-            ProgressListener progressListener = Mockito.mock(ProgressListener.class);
-            Pack pack = new Pack("Core", null, null, null, null, true, true, false, null, true, 0);
-            listener.afterPacks(Arrays.asList(pack), progressListener);
+        // run the listener
+        ProgressListener progressListener = Mockito.mock(ProgressListener.class);
+        Pack pack = new Pack("Core", null, null, null, null, true, true, false, null, true, 0);
+        listener.afterPacks(Arrays.asList(pack), progressListener);
 
-            // verify RegistrySpec.xml changes applied to the registry
+        // verify RegistrySpec.xml changes applied to the registry
 
-            // The first changes are for the special "UninstallStuff" pack.
-            assertStringEquals(uninstallKey, "DisplayName", uninstallName);
-            assertStringEquals(uninstallKey, "UninstallString", "\"$JAVA_HOME\\bin\\javaw.exe\" -jar \"" +
-                installData.getInstallPath() + "\\uninstaller\\uninstaller.jar\"");
-            assertStringEquals(uninstallKey, "DisplayIcon", installData.getInstallPath() + "\\bin\\icons\\izpack.ico");
-            assertStringEquals(uninstallKey, "HelpLink", appURL);
+        // The first changes are for the special "UninstallStuff" pack.
+        assertStringEquals(uninstallKey, "DisplayName", uninstallName);
+        assertStringEquals(uninstallKey, "UninstallString", "\"$JAVA_HOME\\bin\\javaw.exe\" -jar \"" +
+            installData.getInstallPath() + "\\uninstaller\\uninstaller.jar\"");
+        assertStringEquals(uninstallKey, "DisplayIcon", installData.getInstallPath() + "\\bin\\icons\\izpack.ico");
+        assertStringEquals(uninstallKey, "HelpLink", appURL);
 
-            // Verify the "Core" pack changes applied
-            assertKeyExists(key + "\\ЮникодТестКлюч");
+        // Verify the "Core" pack changes applied
+        assertKeyExists(key + "\\ЮникодТестКлюч");
 
-            assertStringEquals(key, "Path", installData.getInstallPath());
-            assertLongEquals(key, "DWORD", 42);
-            assertBytesEquals(key, "BIN", new byte[]{0x42, 0x49, 0x4e, 0x20, 0x54, 0x45, 0x53, 0x54,
-                0x42, 0x49, 0x4e, 0x20, 0x54, 0x45, 0x53, 0x54});
-            assertStringsEquals(key, "MULTI", new String[]{"A multi string with three elements", "Element two",
-                "Element three"});
+        assertStringEquals(key, "Path", installData.getInstallPath());
+        assertLongEquals(key, "DWORD", 42);
+        assertBytesEquals(key, "BIN", new byte[]{0x42, 0x49, 0x4e, 0x20, 0x54, 0x45, 0x53, 0x54,
+            0x42, 0x49, 0x4e, 0x20, 0x54, 0x45, 0x53, 0x54});
+        assertStringsEquals(key, "MULTI", new String[]{"A multi string with three elements", "Element two",
+            "Element three"});
 
-            // now roll back the changes
-            installData.setInstallSuccess(false);
-            listener.cleanUp();
+        // now roll back the changes
+        installData.setInstallSuccess(false);
+        listener.cleanUp();
 
-            // verify the entries no longer present
-            assertKeyNotExists(uninstallKey);
-            assertKeyNotExists(key);
-        }
+        // verify the entries no longer present
+        assertKeyNotExists(uninstallKey);
+        assertKeyNotExists(key);
     }
 
     /**
