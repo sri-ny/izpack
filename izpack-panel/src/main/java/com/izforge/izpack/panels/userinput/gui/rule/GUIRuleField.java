@@ -131,7 +131,7 @@ public class GUIRuleField extends GUIField
     @Override
     public boolean updateView()
     {
-        boolean changed = false;
+        boolean changed = super.updateView();
         Field f = getField();
         String value = f.getInitialValue();
 

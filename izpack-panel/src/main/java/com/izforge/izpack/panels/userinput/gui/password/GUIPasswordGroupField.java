@@ -115,7 +115,7 @@ public class GUIPasswordGroupField extends GUIField
     @Override
     public boolean updateView()
     {
-        boolean result = false;
+        boolean result = super.updateView();
         String value = getField().getInitialValue();
 
         if (value != null)

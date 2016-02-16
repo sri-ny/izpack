@@ -328,7 +328,6 @@ public class UserInputPanel extends IzPanel
                 view.setDisplayed(false);
             }
 
-            updated |= view.translateStaticText();
             updated |= view.updateView();
         }
 

@@ -99,7 +99,7 @@ public class GUIComboField extends GUIField
     {
         refreshChoices();
 
-        boolean result = false;
+        boolean result = super.updateView();
         ComboField field = (ComboField)getField();
         String value = field.getInitialValue();
 

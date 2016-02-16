@@ -94,7 +94,7 @@ public abstract class AbstractGUIFileField extends GUIField
     @Override
     public boolean updateView()
     {
-        boolean result = false;
+        boolean result = super.updateView();
         // Set default value here for getting current variable values replaced
         Field field = getField();
         String value = field.getInitialValue();

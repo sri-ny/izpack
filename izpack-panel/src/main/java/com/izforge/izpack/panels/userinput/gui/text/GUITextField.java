@@ -108,7 +108,7 @@ public class GUITextField extends GUIField implements FocusListener, DocumentLis
     @Override
     public boolean updateView()
     {
-        boolean result = false;
+        boolean result = super.updateView();
         Field f = getField();
         String value = f.getInitialValue();
 
