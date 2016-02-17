@@ -61,6 +61,7 @@ public class TestConsoleInstaller extends ConsoleInstaller
      *
      * @return the console
      */
+    @Override
     public TestConsole getConsole()
     {
         return (TestConsole) super.getConsole();

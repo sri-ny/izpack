@@ -29,7 +29,6 @@ import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.util.Console;
-import jline.TerminalFactory;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -162,14 +161,13 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         final String headline = getI18nStringForClass("headline", installData);
         if (headline != null)
         {
-            final int maxlength = TerminalFactory.get().getWidth();
-            final String hline = new String(new char[maxlength]).replace("\0", "\u2500");
             console.println();
-            console.println(hline);
+            console.printFilledLine('\u2500');
             console.println(headline);
-            console.println(hline);
+            console.printFilledLine('\u2500');
             console.println();
         }
+
         return true;
     }
 
