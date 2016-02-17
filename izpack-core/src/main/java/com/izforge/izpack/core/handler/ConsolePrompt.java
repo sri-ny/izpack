@@ -26,8 +26,6 @@ import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.util.Console;
 
-import java.util.Arrays;
-
 /**
  * Console implementation of {@link Prompt}.
  *
@@ -123,18 +121,7 @@ public class ConsolePrompt extends AbstractPrompt
     {
         Option result;
 
-        int length = Math.max((title!=null ? title.length() : 0), message.length());
-        char[] chars = new char[length];
-        Arrays.fill(chars, '*');
-        final String hline = new String(chars);
-
-        console.println(hline);
-        if (title != null)
-        {
-            console.println(title);
-        }
-        console.println(message);
-        console.println(hline);
+        console.printMessageBox(title, message);
         if (options == Options.OK_CANCEL)
         {
             String defaultValue = (defaultOption != null && defaultOption == Option.OK) ? ok : cancel;

@@ -43,7 +43,7 @@ public class Console
 {
     private static final Logger logger = Logger.getLogger(Console.class.getName());
 
-    private  static final java.io.Console console = System.console();
+    private java.io.Console console;
 
     /**
      * Console reader.
@@ -51,25 +51,22 @@ public class Console
     private ConsoleReader consoleReader;
 
     /**
-     * Check whether ConsoleReader should be initialized according to actual terminal settings.
-     */
-    private boolean enableConsoleReader = false;
-
-    /**
      * File name completer allows for tab completion on files and directories.
      */
-    private final FileNameCompleter fileNameCompleter = new FileNameCompleter();
+    private FileNameCompleter fileNameCompleter;
 
     /**
      * Translations
      */
-    private Messages messages;
+    private final Messages messages;
 
     /**
      * Constructs a <tt>Console</tt> with <tt>System.in</tt> and <tt>System.out</tt> as the I/O streams.
      */
     public Console(Messages messages, ConsolePrefs prefs)
     {
+        this.messages = messages;
+
         Log.setOutput(new PrintStream(new OutputStream() {
             @Override
             public void write(int b) throws IOException
@@ -77,13 +74,20 @@ public class Console
             }
         }));
 
-        enableConsoleReader = prefs.enableConsoleReader;
-        if (enableConsoleReader)
+        if (prefs.enableConsoleReader)
         {
             initConsoleReader();
         }
 
-        this.messages = messages;
+        if (consoleReader == null)
+        {
+            console = System.console();
+        }
+
+        if (console == null)
+        {
+            logger.severe("Could not initialize a fallback console");
+        }
     }
 
     private void initConsoleReader()
@@ -98,12 +102,12 @@ public class Console
                 consoleReader.shutdown();
                 throw new Throwable("Terminal not initialized");
             }
+            fileNameCompleter = new FileNameCompleter();
         }
         catch (Throwable t)
         {
-            enableConsoleReader = false;
             logger.log(Level.WARNING, "Cannot initialize the console reader. Falling back to default console.", t);
-            }
+        }
     }
 
     /**
@@ -113,14 +117,16 @@ public class Console
      */
     public int read() throws IOException
     {
-        if (enableConsoleReader)
+        int c = -1;
+        if (consoleReader != null)
         {
-            return consoleReader.readCharacter();
+            c = consoleReader.readCharacter();
         }
-        else
+        else if (console != null)
         {
-            return console.reader().read();
+            c = console.reader().read();
         }
+        return c;
     }
 
     /**
@@ -134,7 +140,7 @@ public class Console
      */
     public String readLine() throws IOException
     {
-        if (enableConsoleReader)
+        if (consoleReader != null)
         {
             try
             {
@@ -158,13 +164,16 @@ public class Console
      */
     public void flush() throws IOException
     {
-        if (enableConsoleReader)
+        if (consoleReader != null)
         {
             consoleReader.flush();
         }
-        else
+        else if (console != null)
         {
             console.flush();
+        }
+        {
+            System.out.flush();
         }
     }
 
@@ -185,8 +194,8 @@ public class Console
         if (wrap)
         {
             int width = 80;
-            boolean wrapLineFull = false;
-            if (enableConsoleReader)
+            boolean wrapLineFull = true;
+            if (consoleReader != null)
             {
                 Terminal terminal = consoleReader.getTerminal();
                 width = terminal.getWidth();
@@ -206,16 +215,63 @@ public class Console
         }
     }
 
+    public void printFilledLine(char c)
+    {
+        int width = 80;
+        boolean wrapLineFull = true;
+        if (consoleReader != null)
+        {
+            Terminal terminal = consoleReader.getTerminal();
+            width = terminal.getWidth();
+            wrapLineFull = terminal.hasWeirdWrap();
+        }
+        print(c, width);
+        if (wrapLineFull)
+        {
+            println();
+        }
+    }
+
+    public void printMessageBox(String title, String message)
+    {
+        int termWidth = 80;
+        boolean wrapLineFull = true;
+        if (consoleReader != null)
+        {
+            Terminal terminal = consoleReader.getTerminal();
+            termWidth = terminal.getWidth();
+            wrapLineFull = terminal.hasWeirdWrap();
+        }
+        if (title != null && title.length() > termWidth)
+        {
+            title = WordUtil.wordWrap(title, termWidth, wrapLineFull);
+        }
+        if (message != null && message.length() > termWidth)
+        {
+            message = WordUtil.wordWrap(message, termWidth, wrapLineFull);
+        }
+        int len = title != null ? Math.max(title.length(), message.length()) : message.length();
+        int width = Math.min(termWidth, len);
+        print('-', width);
+        println();
+        if (title != null)
+        {
+            println(title);
+            println();
+        }
+        println(message);
+        print('-', width);
+        println();
+    }
+
     /**
      * Pages through the supplied text.
      *
      * @param text    the text to display
-     * @return <tt>true</tt> if paginated through, <tt>false</tt> if terminated
      */
-    private boolean paging(String text) throws IOException
+    private void paging(String text) throws IOException
     {
-        boolean result = true;
-        int height = enableConsoleReader ? consoleReader.getTerminal().getHeight() : 23;
+        int height = consoleReader != null ? consoleReader.getTerminal().getHeight() : 23;
         int showLines = height - 2; // the no. of lines to display at a time
         int line = 0;
 
@@ -228,8 +284,11 @@ public class Console
             if (line >= showLines && tokens.hasMoreTokens())
             {
                 // Overflow
-                println("--" + messages.get("ConsoleInstaller.pagingMore") + "--");
-                flush();
+                if (consoleReader != null)
+                {
+                    println("--" + messages.get("ConsoleInstaller.pagingMore") + "--");
+                    flush();
+                }
                 int c = read();
                 if (c == '\r' || c == '\n')
                 {
@@ -250,10 +309,10 @@ public class Console
                 line = 0;
             }
         }
-        return result;
     }
 
-    private void print(final char c, final int num) throws IOException {
+    private void print(final char c, final int num)
+    {
         if (num == 1) {
             print(String.valueOf(c));
         }
@@ -399,45 +458,49 @@ public class Console
      */
     public String promptLocation(String prompt, String defaultValue)
     {
-        if (!enableConsoleReader)
-        {
-            return prompt(prompt, defaultValue);
-        }
         String result;
-        consoleReader.addCompleter(fileNameCompleter);
-
-        println(prompt);
-        try
+        if (consoleReader != null)
         {
-            while ((result = consoleReader.readLine().trim()) != null)
+            consoleReader.addCompleter(fileNameCompleter);
+
+            println(prompt);
+            try
             {
-                if (result.startsWith("~"))
+                while ((result = consoleReader.readLine()) != null)
                 {
-                    result = result.replace("~", System.getProperty("user.home"));
+                    result = result.trim();
+                    if (result.startsWith("~"))
+                    {
+                        result = result.replace("~", System.getProperty("user.home"));
+                    }
+                    if (result.endsWith(File.separator) && result.length() > 1)
+                    {
+                        result = result.substring(0, result.length() - 1);
+                    }
+                    if (result.isEmpty())
+                    {
+                        result = defaultValue;
+                    }
+                    break;
                 }
-                if (result.endsWith(File.separator) && result.length() > 1)
-                {
-                    result = result.substring(0, result.length()-1);
-                }
-                if (result.isEmpty())
-                {
-                    result = defaultValue;
-                }
-                break;
+            }
+            catch (jline.console.UserInterruptException e)
+            {
+                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
+            }
+            catch (IOException e)
+            {
+                result = null;
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+            finally
+            {
+                consoleReader.removeCompleter(fileNameCompleter);
             }
         }
-        catch (jline.console.UserInterruptException e)
+        else
         {
-            throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
-        }
-        catch (IOException e)
-        {
-            result = null;
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
-        finally
-        {
-            consoleReader.removeCompleter(fileNameCompleter);
+            result = prompt(prompt, defaultValue);
         }
 
         return result;
@@ -453,7 +516,7 @@ public class Console
      */
     public String promptPassword(String prompt, String defaultValue)
     {
-        if (!enableConsoleReader)
+        if (consoleReader == null)
         {
             char[] passwd;
             try
@@ -525,7 +588,7 @@ public class Console
      */
     public String prompt(String prompt, String defaultValue)
     {
-        String result = null;
+        String result;
         try
         {
             println(prompt);
@@ -567,12 +630,8 @@ public class Console
     {
         while (true)
         {
-            String input = prompt(prompt, defaultValue);
-            if (input == null)
-            {
-                return input;
-            }
-            else
+            String input;
+            if ((input = prompt(prompt, defaultValue)) != null)
             {
                 for (String value : values)
                 {
@@ -582,11 +641,21 @@ public class Console
                     }
                 }
             }
+            else
+            {
+                return null;
+            }
         }
     }
 
-    private String readLineDefaultInput() throws IOException {
-        return console.readLine();
+    private String readLineDefaultInput()
+    {
+        String result = null;
+        if (console != null)
+        {
+            result = console.readLine();
+        }
+        return result;
     }
 
     private char[] readPasswordDefaultInput(String defaultValue, String format, Object... args)

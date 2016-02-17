@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Properties;
 
+import com.izforge.izpack.test.util.TestHousekeeper;
 import org.mockito.Mockito;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoException;
@@ -51,7 +52,6 @@ import com.izforge.izpack.installer.container.provider.RulesProvider;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
-import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
 
@@ -94,7 +94,7 @@ public abstract class AbstractTestPanelContainer extends AbstractContainer
 
         container.addComponent(new DefaultObjectFactory(this));
         addComponent(IUnpacker.class, Mockito.mock(IUnpacker.class));
-        addComponent(Housekeeper.class, Mockito.mock(Housekeeper.class));
+        addComponent(TestHousekeeper.class, Mockito.mock(TestHousekeeper.class));
         addComponent(Platforms.class);
         addComponent(Container.class, this);
         addComponent(PlatformModelMatcher.class);
