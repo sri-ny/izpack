@@ -96,7 +96,7 @@ public class JDKPathConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         String detectedJavaVersion = "";
         String defaultValue = JDKPathPanelHelper.getDefaultJavaPath(installData, handler);

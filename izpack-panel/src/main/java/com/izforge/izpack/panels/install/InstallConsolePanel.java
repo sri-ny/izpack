@@ -66,7 +66,8 @@ public class InstallConsolePanel extends AbstractConsolePanel implements Progres
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
+
         return run();
     }
 

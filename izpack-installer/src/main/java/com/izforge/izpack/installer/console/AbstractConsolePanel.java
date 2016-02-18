@@ -158,6 +158,12 @@ public abstract class AbstractConsolePanel implements ConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        printHeadLine(installData, console);
+        return true;
+    }
+
+    protected void printHeadLine(InstallData installData, Console console)
+    {
         final String headline = getI18nStringForClass("headline", installData);
         if (headline != null)
         {
@@ -167,8 +173,6 @@ public abstract class AbstractConsolePanel implements ConsolePanel
             console.printFilledLine('\u2500');
             console.println();
         }
-
-        return true;
     }
 
     @Override
