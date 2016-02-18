@@ -36,6 +36,7 @@ import java.io.File;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
@@ -182,8 +183,14 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     	}
 
     	if (getUninstallerJar() != null) {
-            // remove the uninstaller dir
-            FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+            try {
+                // remove the uninstaller dir
+                FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+            }
+            catch (Exception ex) {
+                System.err.println("Delete uninstaller directory failed.");
+                ex.printStackTrace(System.err);
+            }
         }
     }
 
@@ -193,6 +200,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
+//    @Ignore
     @InstallFile("samples/windows/install.xml")
     public void testInstallation() throws Exception
     {
@@ -216,6 +224,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
+//    @Ignore
     @InstallFile("samples/windows/install.xml")
     public void testMultipleInstallation() throws Exception
     {
@@ -233,10 +242,10 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         InstallData installData2 = container2.getComponent(InstallData.class);
         TestConsole console2 = installer2.getConsole();
         console2.addScript("CheckedHelloPanel", "y", "1");
-        console2.addScript("TargetPanel", "Y", "\n", "1");
+        console2.addScript("TargetPanel", "\n", "1");
         console2.addScript("PacksPanel", "1");
-        console2.addScript("ShortcutPanel", "N", "N", "1");
-        console2.addScript("SimpleFinishPanel", "1");
+        console2.addScript("ShortcutPanel", "1");
+        //console2.addScript("SimpleFinishPanel", "1");
 
         assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
         checkInstall(installer2, installData2);
@@ -254,6 +263,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
+    //@Ignore
     @InstallFile("samples/windows/install.xml")
     public void testRejectMultipleInstallation() throws Exception
     {
@@ -292,6 +302,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
+    //@Ignore
     @InstallFile("samples/windows/consoleinstall_alt_uninstall.xml")
     public void testNonDefaultUninstaller() throws Exception
     {
@@ -300,11 +311,11 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
 
         TestConsole console = installer.getConsole();
-        console.addScript("CheckedHelloPanel", "y", "1");
+        console.addScript("CheckedHelloPanel", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-        console.addScript("InstallPanel", "1");
-        console.addScript("FinishPanel", "1");
+        //console.addScript("InstallPanel", "1");
+        //console.addScript("FinishPanel", "1");
 
         //run installer and check that default uninstaller doesn't exist
         InstallData installData = getInstallData();
@@ -341,8 +352,8 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
         console.addScript("PacksPanel", "1");
-        console.addScript("ShortcutPanel", "N", "N", "1");
-        console.addScript("SimpleFinishPanel", "1");
+        console.addScript("ShortcutPanel", "1");
+        //console.addScript("SimpleFinishPanel", "1");
         
         checkInstall(installer, installData);
 
