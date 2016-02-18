@@ -35,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.test.TestConsolePanelContainer;
 import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.junit.PicoRunner;
@@ -66,6 +67,11 @@ public class TargetConsolePanelTest
      * The console.
      */
     private final TestConsole console;
+    
+    /**
+     * The prompt.
+     */
+    private final Prompt prompt;
 
     /**
      * Constructs a {@code TargetConsolePanelTest}.
@@ -73,10 +79,11 @@ public class TargetConsolePanelTest
      * @param installData the installation data
      * @param console     the console
      */
-    public TargetConsolePanelTest(InstallData installData, TestConsole console)
+    public TargetConsolePanelTest(InstallData installData, TestConsole console, Prompt prompt)
     {
         this.console = console;
         this.installData = installData;
+        this.prompt = prompt;
         installData.setInstallPath(null);
     }
 
@@ -99,7 +106,7 @@ public class TargetConsolePanelTest
 
         // run the panel, selecting the default ("badDir")
         console.addScript("TargetPanel.1", "\n");
-        TargetConsolePanel panel = new TargetConsolePanel(null, installData);
+        TargetConsolePanel panel = new TargetConsolePanel(null, installData, prompt);
         assertFalse(panel.run(installData, console));
         assertTrue(console.scriptCompleted());
 
@@ -133,7 +140,7 @@ public class TargetConsolePanelTest
         Properties properties = new Properties();
         properties.setProperty(InstallData.INSTALL_PATH, badDir.getAbsolutePath());
 
-        TargetConsolePanel panel = new TargetConsolePanel(null, installData);
+        TargetConsolePanel panel = new TargetConsolePanel(null, installData, prompt);
         assertFalse(panel.run(installData, properties));
 
         properties.setProperty(InstallData.INSTALL_PATH, goodDir.getAbsolutePath());
