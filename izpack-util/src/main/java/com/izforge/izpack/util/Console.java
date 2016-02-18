@@ -248,7 +248,10 @@ public class Console
         int len = title != null ? Math.max(title.length(), message.length()) : message.length();
         int width = Math.min(termWidth, len);
         print('-', width);
-        println();
+        if (wrapLineFull)
+        {
+            println();
+        }
         if (title != null)
         {
             println(title);
@@ -256,7 +259,10 @@ public class Console
         }
         println(message);
         print('-', width);
-        println();
+        if (wrapLineFull)
+        {
+            println();
+        }
     }
 
     /**
