@@ -309,7 +309,7 @@ public class LanguageDialog extends JDialog
      *
      * @param code the locale ISO code
      */
-    private void propagateLocale(String code)
+    public void propagateLocale(String code)
     {
         try
         {
