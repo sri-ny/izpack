@@ -83,11 +83,6 @@ public class Console
         {
             console = System.console();
         }
-
-        if (console == null)
-        {
-            logger.severe("Could not initialize a fallback console");
-        }
     }
 
     private void initConsoleReader()

@@ -25,7 +25,7 @@ import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.test.util.TestConsole;
-import com.izforge.izpack.util.Housekeeper;
+import com.izforge.izpack.test.util.TestHousekeeper;
 
 /**
  * Test implementation of the {@link ConsoleInstaller}.
@@ -50,7 +50,7 @@ public class TestConsoleInstaller extends ConsoleInstaller
      */
     public TestConsoleInstaller(ConsolePanels panels, ConsoleInstallData installData,
                                 RequirementsChecker requirements, UninstallDataWriter writer,
-                                TestConsole console, Housekeeper housekeeper)
+                                TestConsole console, TestHousekeeper housekeeper)
             throws Exception
     {
         super(panels, installData, requirements, writer, console, housekeeper);
