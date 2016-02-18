@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.panels.path.PathInputBase;
 import com.izforge.izpack.installer.console.ConsolePanel;
@@ -40,17 +41,18 @@ import com.izforge.izpack.util.Console;
  */
 public class TargetConsolePanel extends AbstractConsolePanel implements ConsolePanel
 {
-
+    private final Prompt prompt;
     private final InstallData installData;
     /**
      * Constructs a {@code TargetConsolePanel}.
      *
      * @param panel the parent panel/view. May be {@code null}
      */
-    public TargetConsolePanel(PanelView<ConsolePanel> panel, InstallData installData)
+    public TargetConsolePanel(PanelView<ConsolePanel> panel, InstallData installData, Prompt prompt)
     {
         super(panel);
         this.installData = installData;
+        this.prompt = prompt;
     }
 
     public boolean generateProperties(InstallData installData, PrintWriter printWriter)
@@ -128,13 +130,10 @@ public class TargetConsolePanel extends AbstractConsolePanel implements ConsoleP
                 }
                 else if (pathFile.isDirectory() && pathFile.list().length > 0)
                 {
-                    String[] validArgs = {"y", "n"};
-                    String consoleOut = console.prompt(installData.getMessages().get("TargetPanel.warn") + " " + installData.getMessages().get("ConsolePrompt.yesNo"), validArgs, "\n");
-                    if (!consoleOut.equalsIgnoreCase(validArgs[0]))
-                    {
-                        return promptRerunPanel(installData, console);
+                    if (askUser(installData.getMessages().get("TargetPanel.warn"), Prompt.Option.NO)) {
+                      return promptEndPanel(installData, console);
                     }
-                    return promptEndPanel(installData, console);
+                    return promptRerunPanel(installData, console);
                 }
                 else if(!installData.getPlatform().isValidDirectoryPath(pathFile))
                 {
@@ -150,6 +149,17 @@ public class TargetConsolePanel extends AbstractConsolePanel implements ConsoleP
         {
             return false;
         }
+    }
+    
+    /**
+     * Helper method to read the input of user
+     * Method returns true if user types "y", "yes" or <Enter>·
+     *
+     * @return boolean  - true if condition above satisfied. Otherwise false
+     */
+    private boolean askUser(String message, Prompt.Option defaultOption)
+    {
+        return Prompt.Option.YES == prompt.confirm(Prompt.Type.QUESTION, message, Prompt.Options.YES_NO, defaultOption);
     }
 
     private String getIncompatibleInstallationMsg(InstallData installData)
