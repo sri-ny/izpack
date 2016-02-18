@@ -38,7 +38,7 @@ import javax.swing.*;
 public class InstallerGui
 {
 
-    public static void run(final String mediaPath) throws Exception
+    public static void run(final String langCode, final String mediaPath) throws Exception
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
@@ -60,7 +60,14 @@ public class InstallerGui
 
                     InstallerController controller = installerContainer.getComponent(InstallerController.class);
                     splashScreen.removeSplashScreen();
-                    installerContainer.getComponent(LanguageDialog.class).initLangPack();
+                    if (langCode == null)
+                    {
+                      installerContainer.getComponent(LanguageDialog.class).initLangPack();
+                    }
+                    else
+                    {
+                      installerContainer.getComponent(LanguageDialog.class).propagateLocale(langCode);
+                    }
                     controller.buildInstallation().launchInstallation();
                 }
                 catch (Exception e)

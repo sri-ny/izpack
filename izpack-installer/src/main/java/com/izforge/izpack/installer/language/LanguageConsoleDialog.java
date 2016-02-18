@@ -1,0 +1,104 @@
+/*
+ * IzPack - Copyright 2001-2012 Julien Ponge, All Rights Reserved.
+ *
+ * http://izpack.org/
+ * http://izpack.codehaus.org/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.izforge.izpack.installer.language;
+
+import com.izforge.izpack.api.resource.Locales;
+import com.izforge.izpack.installer.container.provider.AbstractInstallDataProvider;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
+import com.izforge.izpack.installer.requirement.RequirementsChecker;
+import com.izforge.izpack.util.Console;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LanguageConsoleDialog {
+  private final ConsoleInstallData installData;
+  private final Console console;
+  private final Locales locales;
+  private final RequirementsChecker requirements;
+  private Map<String, String> displayNames = new LinkedHashMap<String, String>();
+  private static final Logger logger = Logger.getLogger(LanguageConsoleDialog.class.getName());
+  
+  public LanguageConsoleDialog(Locales locales, ConsoleInstallData installData, Console console, RequirementsChecker requirements)
+  {
+    this.installData = installData;
+    this.console = console;
+    this.locales = locales;
+    this.requirements = requirements;
+  }
+  
+  /**
+   * Displays the dialog.
+   */
+  public void initLangPack()
+  {
+    Languages languages = new Languages(locales, installData);
+    displayNames = languages.getDisplayNames();
+    switch (locales.getLocales().size()) {
+      case 0:
+        break;
+      case 1:
+        String codeOfUniqueLanguage = displayNames.keySet().iterator().next();
+        propagateLocale(codeOfUniqueLanguage);
+        break;
+      default:
+        Iterator iterator = displayNames.keySet().iterator();
+        console.println("Select your language");
+        int i = 0;
+        while (iterator.hasNext())
+        {
+          console.println(i + "  [" + (i == 0 ? "x" : " ") + "] " + iterator.next());
+          i++;
+        }
+        int numberOfUniqueLanguage = console.prompt(installData.getMessages().get("ConsoleInstaller.inputSelection"), 0, displayNames.keySet().size() - 1, 0, 0);
+        String[] keys = displayNames.keySet().toArray(new String[0]);
+        propagateLocale(keys[numberOfUniqueLanguage]);
+    }
+    if (!requirements.check())
+    {
+      logger.info("Not all installer requirements are fulfilled.");
+      System.exit(-1);
+    }
+  }
+  
+  /**
+   * Sets the selected locale on the installation data.
+   *
+   * @param code the locale ISO code
+   */
+  public void propagateLocale(String code)
+  {
+    try
+    {
+      locales.setLocale(code);
+      Locale newLocale = locales.getLocale();
+      Locale.setDefault(newLocale);
+      installData.setLocale(locales.getLocale(), locales.getISOCode());
+      installData.setMessages(locales.getMessages());
+      AbstractInstallDataProvider.addCustomLangpack(installData, locales);
+    }
+    catch (Exception exception)
+    {
+      logger.log(Level.SEVERE, exception.getMessage(), exception);
+    }
+  }
+}

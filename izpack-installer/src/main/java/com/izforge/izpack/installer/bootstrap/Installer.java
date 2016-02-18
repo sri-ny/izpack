@@ -22,9 +22,7 @@
 package com.izforge.izpack.installer.bootstrap;
 
 import com.izforge.izpack.installer.automation.AutomatedInstaller;
-import com.izforge.izpack.installer.console.ConsoleInstaller;
 import com.izforge.izpack.installer.container.impl.AutomatedInstallerContainer;
-import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.StringTool;
@@ -215,7 +213,7 @@ public class Installer
         switch (type)
         {
             case INSTALLER_GUI:
-                InstallerGui.run(mediaDir);
+                InstallerGui.run(langCode, mediaDir);
                 break;
 
             case INSTALLER_AUTO:
@@ -223,7 +221,7 @@ public class Installer
                 break;
 
             case INSTALLER_CONSOLE:
-                launchConsoleInstaller(consoleAction, path, langCode, mediaDir, args);
+                InstallerConsole.run(type, consoleAction, path, langCode, mediaDir, args);
                 break;
         }
     }
@@ -241,26 +239,6 @@ public class Installer
         AutomatedInstaller automatedInstaller = container.getComponent(AutomatedInstaller.class);
         automatedInstaller.init(path, mediaDir, args);
         automatedInstaller.doInstall();
-    }
-
-    /**
-     * Launches an {@link ConsoleInstaller}.
-     *
-     * @param consoleAction the type of the action to perform
-     * @param path          the path to use for the action. May be <tt>null</tt>
-     * @param langCode      the language code. May be <tt>null</tt>
-     * @param mediaDir      the multi-volume media directory. May be <tt>null</tt>
-     */
-    private void launchConsoleInstaller(int consoleAction, String path, String langCode, String mediaDir, String[] args)
-    {
-        InstallerContainer container = new ConsoleInstallerContainer();
-        if (langCode != null)
-        {
-            container.setLocale(langCode);
-        }
-        ConsoleInstaller consoleInstaller = container.getComponent(ConsoleInstaller.class);
-        consoleInstaller.setMediaPath(mediaDir);
-        consoleInstaller.run(consoleAction, path, args);
     }
 
     public static int getInstallerMode() {

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.resource.Locales;
+import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.installer.data.GUIInstallData;
 
 
@@ -92,6 +93,22 @@ class Languages
         {
             collector = new ISO3CodeCollector();
         }
+        for (String code : locales.getISOCodes())
+        {
+            collector.addDisplayName(code, locales.getLocale(code), displayNames);
+        }
+    }
+    
+    /**
+     * Constructs a {@code Languages}.
+     *
+     * @param locales     the locales
+     * @param installData the installation data
+     * @param font        the font to verify that language display names can be displayed. May be {@code null}
+     */
+    public Languages(Locales locales, ConsoleInstallData installData)
+    {
+        DisplayNameCollector collector = new DefaultDisplayNameCollector();
         for (String code : locales.getISOCodes())
         {
             collector.addDisplayName(code, locales.getLocale(code), displayNames);

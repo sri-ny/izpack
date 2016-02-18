@@ -24,10 +24,10 @@ package com.izforge.izpack.installer.container.impl;
 
 import com.izforge.izpack.api.exception.ContainerException;
 import com.izforge.izpack.core.handler.ConsolePrompt;
-import com.izforge.izpack.installer.automation.AutomatedInstaller;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
 import com.izforge.izpack.installer.console.ConsolePanelAutomationHelper;
 import com.izforge.izpack.installer.container.provider.*;
+import com.izforge.izpack.installer.language.LanguageConsoleDialog;
 import com.izforge.izpack.installer.multiunpacker.MultiVolumeUnpackerAutomationHelper;
 import com.izforge.izpack.installer.unpacker.ConsolePackResources;
 import com.izforge.izpack.util.Console;
@@ -88,6 +88,7 @@ public class ConsoleInstallerContainer extends InstallerContainer
                 .addComponent(ConsoleInstaller.class)
                 .addComponent(ConsolePanelAutomationHelper.class)
                 .addComponent(ConsolePackResources.class)
-                .addComponent(MultiVolumeUnpackerAutomationHelper.class);
+                .addComponent(MultiVolumeUnpackerAutomationHelper.class)
+                .addComponent(LanguageConsoleDialog.class);
     }
 }
