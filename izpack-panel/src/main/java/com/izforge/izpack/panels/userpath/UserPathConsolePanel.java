@@ -101,7 +101,7 @@ public class UserPathConsolePanel extends AbstractConsolePanel
 
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         loadLangpack(installData);
 

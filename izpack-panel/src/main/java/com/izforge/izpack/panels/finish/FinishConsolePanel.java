@@ -105,7 +105,7 @@ public class FinishConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         if (doGenerateAutoInstallScript())
         {

@@ -65,7 +65,7 @@ public class HelloConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         display(installData, console);
         return promptEndPanel(installData, console);

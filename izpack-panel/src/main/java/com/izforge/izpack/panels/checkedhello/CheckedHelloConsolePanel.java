@@ -96,7 +96,7 @@ public class CheckedHelloConsolePanel extends HelloConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         boolean result = true;
         if (registered)
@@ -122,6 +122,7 @@ public class CheckedHelloConsolePanel extends HelloConsolePanel
             display(installData, console);
             result = promptEndPanel(installData, console);
         }
+
         return result;
     }
 

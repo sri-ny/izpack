@@ -69,7 +69,7 @@ public class InstallationGroupConsolePanel extends AbstractConsolePanel implemen
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         // Set/restore availablePacks from allPacks; consider OS constraints
         this.automatedInstallData.setAvailablePacks(new ArrayList<Pack>());

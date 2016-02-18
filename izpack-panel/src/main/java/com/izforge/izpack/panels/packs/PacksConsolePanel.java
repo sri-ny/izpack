@@ -101,7 +101,7 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         out(Type.INFORMATION, installData.getMessages().get("PacksPanel.info"));
         out(Type.INFORMATION, "");

@@ -74,7 +74,7 @@ public abstract class AbstractTextConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
-        super.run(installData, console);
+        printHeadLine(installData, console);
 
         String text = getText();
         text = installData.getVariables().replace(text);
