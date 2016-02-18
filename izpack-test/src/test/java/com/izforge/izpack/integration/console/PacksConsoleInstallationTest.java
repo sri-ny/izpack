@@ -53,7 +53,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
      * The installer.
      */
     private final TestConsoleInstaller installer;
-
+    private AutomatedInstallData installData;
 
     /**
      * Constructs a <tt>PacksConsoleInstallationTest</tt>
@@ -66,6 +66,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
     {
         super(installData);
         this.installer = installer;
+        this.installData=installData;
     }
 
     /**
@@ -80,7 +81,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
         TestConsole console = installer.getConsole();
         console.addScript("HelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-        console.addScript("PacksPanel", "N", "N", "1");
+        console.addScript("PacksPanel",installData.getMessages().get("ConsolePrompt.no") , installData.getMessages().get("ConsolePrompt.no"), "1");
         console.addScript("UserInputPanel", "\n", "1");
 
         checkInstall(installer, getInstallData(), false, false);
@@ -98,7 +99,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
         TestConsole console = installer.getConsole();
         console.addScript("HelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-        console.addScript("PacksPanel", "Y", "\n", "1");
+        console.addScript("PacksPanel", installData.getMessages().get("ConsolePrompt.yes"), "\n", "1");
         console.addScript("UserInputPanel", "1");
         console.addScript("UserInputPanel", "xyz", "\n", "1");
 
