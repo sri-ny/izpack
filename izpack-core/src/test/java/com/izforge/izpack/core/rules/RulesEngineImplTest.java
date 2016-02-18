@@ -96,8 +96,13 @@ public class RulesEngineImplTest
     /**
      * Windows 8 install condition identifier.
      */
-
     private static final String WINDOWS_8_INSTALL = "izpack.windowsinstall.8";
+    
+    /**
+     * Windows 10 install condition identifier.
+     */
+    private static final String WINDOWS_10_INSTALL = "izpack.windowsinstall.10";
+    
     /**
      * Linux install condition identifier.
      */
@@ -132,8 +137,8 @@ public class RulesEngineImplTest
      * All install condition identifiers.
      */
     private static final String INSTALL_CONDITIONS[] = {AIX_INSTALL, WINDOWS_INSTALL, WINDOWS_XP_INSTALL,
-            WINDOWS_2003_INSTALL, WINDOWS_VISTA_INSTALL, WINDOWS_7_INSTALL, WINDOWS_8_INSTALL, LINUX_INSTALL, SOLARIS_INSTALL,
-            SOLARIS_X86_INSTALL, SOLARIS_SPARC_INSTALL, MAC_INSTALL, MAC_OSX_INSTALL};
+            WINDOWS_2003_INSTALL, WINDOWS_VISTA_INSTALL, WINDOWS_7_INSTALL, WINDOWS_8_INSTALL, WINDOWS_10_INSTALL, 
+            LINUX_INSTALL, SOLARIS_INSTALL, SOLARIS_X86_INSTALL, SOLARIS_SPARC_INSTALL, MAC_INSTALL, MAC_OSX_INSTALL};
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -563,6 +568,8 @@ public class RulesEngineImplTest
      * <li>izpack.windowsinstall.2003
      * <li>izpack.windowsinstall.vista
      * <li>izpack.windowsinstall.7
+     * <li>izpack.windowsinstall.8
+     * <li>izpack.windowsinstall.10
      * <li>izpack.linuxinstall
      * <li>izpack.solarisinstall
      * <li>izpack.solarisinstall.x86
@@ -582,6 +589,7 @@ public class RulesEngineImplTest
         checkPlatformCondition(Platforms.WINDOWS_VISTA, WINDOWS_VISTA_INSTALL, WINDOWS_INSTALL);
         checkPlatformCondition(Platforms.WINDOWS_7, WINDOWS_7_INSTALL, WINDOWS_INSTALL);
         checkPlatformCondition(Platforms.WINDOWS_8, WINDOWS_8_INSTALL, WINDOWS_INSTALL);
+        checkPlatformCondition(Platforms.WINDOWS_10, WINDOWS_10_INSTALL, WINDOWS_INSTALL);
         checkPlatformCondition(Platforms.LINUX, LINUX_INSTALL);
         checkPlatformCondition(Platforms.SUNOS, SOLARIS_INSTALL);
         checkPlatformCondition(Platforms.SUNOS_X86, SOLARIS_X86_INSTALL, SOLARIS_INSTALL);
@@ -657,7 +665,7 @@ public class RulesEngineImplTest
         // serialize the conditions. This includes built-in conditions which should be excluded when read back in.
         Map<String, Condition> read = serializeConditions(rules1);
 
-        // create rules for OSX platform, and populate with the serialized conditions
+        // create rules for Windows 7 platform, and populate with the serialized conditions
         InstallData installData2 = new AutomatedInstallData(new DefaultVariables(), Platforms.WINDOWS_7);
         RulesEngine rules2 = createRulesEngine(installData2);
         rules2.readConditionMap(read);
