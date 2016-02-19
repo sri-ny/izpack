@@ -32,6 +32,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -80,6 +82,11 @@ import com.izforge.izpack.util.file.FileUtils;
 @Container(TestConsoleInstallationContainer.class)
 public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationTest
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(WindowsConsoleInstallationTest.class.getName());
+	
     private final boolean skipTests = new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded();
 
     private final boolean isAdminUser = new PrivilegedRunner(Platforms.WINDOWS).isAdminUser();
@@ -187,8 +194,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
                 FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
             }
             catch (Exception ex) {
-                System.err.println("Delete uninstaller directory failed.");
-                ex.printStackTrace(System.err);
+                logger.log(Level.SEVERE, "Delete uninstaller directory failed.", ex);
             }
         }
     }
