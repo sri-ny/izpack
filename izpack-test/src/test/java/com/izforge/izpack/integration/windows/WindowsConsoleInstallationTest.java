@@ -240,12 +240,17 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
         TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
         InstallData installData2 = container2.getComponent(InstallData.class);
+        
+        // copied from super.setUp()
+        // write to temporary folder so the test doesn't need to be run with elevated permissions
+        File installPath = new File(temporaryFolder.getRoot(), "izpackTest");
+        installData2.setInstallPath(installPath.getAbsolutePath());
+        installData2.setDefaultInstallPath(installPath.getAbsolutePath());
+        
         TestConsole console2 = installer2.getConsole();
         console2.addScript("CheckedHelloPanel", "y", "1");
-        console2.addScript("TargetPanel", "\n", "1");
+        console2.addScript("TargetPanel", "\n", "y", "1");
         console2.addScript("PacksPanel", "1");
-        console2.addScript("ShortcutPanel", "1");
-        //console2.addScript("SimpleFinishPanel", "1");
 
         assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
         checkInstall(installer2, installData2);
@@ -352,8 +357,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
         console.addScript("PacksPanel", "1");
-        console.addScript("ShortcutPanel", "1");
-        //console.addScript("SimpleFinishPanel", "1");
+        console.addScript("ShortcutPanel", "N");
         
         checkInstall(installer, installData);
 
