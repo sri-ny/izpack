@@ -36,7 +36,6 @@ import java.io.File;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
@@ -200,7 +199,6 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
-//    @Ignore
     @InstallFile("samples/windows/install.xml")
     public void testInstallation() throws Exception
     {
@@ -224,7 +222,6 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
-//    @Ignore
     @InstallFile("samples/windows/install.xml")
     public void testMultipleInstallation() throws Exception
     {
@@ -268,7 +265,6 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
-    //@Ignore
     @InstallFile("samples/windows/install.xml")
     public void testRejectMultipleInstallation() throws Exception
     {
@@ -307,7 +303,6 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
      * @throws Exception for any error
      */
     @Test
-    //@Ignore
     @InstallFile("samples/windows/consoleinstall_alt_uninstall.xml")
     public void testNonDefaultUninstaller() throws Exception
     {
@@ -319,8 +314,6 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-        //console.addScript("InstallPanel", "1");
-        //console.addScript("FinishPanel", "1");
 
         //run installer and check that default uninstaller doesn't exist
         InstallData installData = getInstallData();
