@@ -63,7 +63,7 @@ public abstract class AbstractFileFieldReader extends FieldReader implements Fil
     public String getFileExtensionDescription()
     {
         Config config = getConfig();
-        String result = config.getString(getSpec(), "fileext", null);
+        String result = config.getString(getSpec(), "fileextdesc", null);
         return config.getLocalString(result);
     }
 
