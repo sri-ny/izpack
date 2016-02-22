@@ -578,14 +578,21 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             in = resources.getInputStream(UNINSTALLER_ICON);
             String iconPath = installData.getVariable("INSTALL_PATH") + File.separator
                     + "Uninstaller" + File.separator + "UninstallerIcon.ico";
-            out = new FileOutputStream(iconPath);
+            
+            // make sure the 'Uninstaller' directory exists
+            File uninstallerIcon = new File(iconPath);
+            FileUtils.getFileUtils().createNewFile(uninstallerIcon, true);
+            
+            out = new FileOutputStream(uninstallerIcon);
             IoHelper.copyStream(in, out);
+            out.flush();
+            out.close();
             registry.setValue(keyName, "DisplayIcon", iconPath);
         }
         catch (ResourceNotFoundException exception)
         {
             // No icon resource defined; ignore it
-            logger.info(exception.getMessage());
+            logger.warning("The configured uninstaller icon was not found: " + exception.getMessage());
         }
         catch (IOException exception)
         {
