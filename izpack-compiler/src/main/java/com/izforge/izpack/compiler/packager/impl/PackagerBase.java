@@ -434,7 +434,7 @@ public abstract class PackagerBase implements IPackager
         mergeManager.addResourceToMerge("com/izforge/izpack/installer/");
         mergeManager.addResourceToMerge("org/picocontainer/");
         mergeManager.addResourceToMerge("com/izforge/izpack/img/");
-        mergeManager.addResourceToMerge("com/izforge/izpack/bin/");
+        mergeManager.addResourceToMerge("com/izforge/izpack/bin/icons/");
         mergeManager.addResourceToMerge("com/izforge/izpack/api/");
         mergeManager.addResourceToMerge("com/izforge/izpack/event/");
         mergeManager.addResourceToMerge("com/izforge/izpack/core/");
