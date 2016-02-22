@@ -86,7 +86,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         console.addScript("HelloPanel", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("LicensePanel", "\n", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
 
         checkInstall(installer, getInstallData(), false);
     }
@@ -104,7 +104,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         console.addScript("HelloPanel", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("LicensePanel", "\n", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
 
         checkInstall(installer, getInstallData());
     }

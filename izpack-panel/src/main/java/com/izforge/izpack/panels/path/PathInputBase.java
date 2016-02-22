@@ -1,14 +1,14 @@
 package com.izforge.izpack.panels.path;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Link common functionality for PathInputPanels here.
@@ -19,7 +19,22 @@ import com.izforge.izpack.util.Platforms;
 public class PathInputBase
 {
     private static InstallData installData;
-    private static final transient Logger logger = Logger.getLogger(PathInputPanel.class.getName());
+    private static final Logger logger = Logger.getLogger(PathInputPanel.class.getName());
+
+    /**
+     * ShowCreateDirectoryMessage configuration option<br>
+     * If 'ShowCreateDirectoryMessage' configuration option set 'false' then don't show
+     * then don't show "directory will be created" dialog
+     */
+    public static final String SHOWCREATEDIRECTORYMESSAGE = "ShowCreateDirectoryMessage";
+
+    /**
+     * ShowExistingDirectoryWarning configuration option<br>
+     * If 'ShowExistingDirectoryWarning' configuration option set 'false' then don't show
+     * "The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"
+     * warning dialog
+     */
+    public static final String SHOWEXISTINGDIRECTORYWARNING = "ShowExistingDirectoryWarning";
 
     public static void setInstallData(InstallData installData)
     {
@@ -97,7 +112,6 @@ public class PathInputBase
             path = home + path.substring(1);
         }
 
-        String normalizedPath = new File(path).getAbsolutePath();
-        return normalizedPath;
+        return new File(path).getAbsolutePath();
     }
 }

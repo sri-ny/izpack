@@ -319,7 +319,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         TestConsole console = installer.getConsole();
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("InfoPanel", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
 
         //run installer and check that default uninstaller doesn't exist
         InstallData installData = getInstallData();
@@ -354,7 +354,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
 
         TestConsole console = installer.getConsole();
         console.addScript("CheckedHelloPanel", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
         console.addScript("PacksPanel", "1");
         console.addScript("ShortcutPanel", "N");
         
