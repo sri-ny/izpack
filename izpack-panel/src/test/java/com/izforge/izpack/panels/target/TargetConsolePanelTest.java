@@ -20,27 +20,28 @@
  */
 package com.izforge.izpack.panels.target;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.Prompt;
+import com.izforge.izpack.installer.console.ConsolePanel;
+import com.izforge.izpack.installer.console.ConsolePanelView;
+import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.test.TestConsolePanelContainer;
 import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.junit.PicoRunner;
 import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.Console;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link TargetConsolePanel} class.
@@ -64,6 +65,11 @@ public class TargetConsolePanelTest
     private final InstallData installData;
 
     /**
+     * The factory for creating panels.
+     */
+    private final ObjectFactory factory;
+
+    /**
      * The console.
      */
     private final TestConsole console;
@@ -79,9 +85,10 @@ public class TargetConsolePanelTest
      * @param installData the installation data
      * @param console     the console
      */
-    public TargetConsolePanelTest(InstallData installData, TestConsole console, Prompt prompt)
+    public TargetConsolePanelTest(InstallData installData, ObjectFactory factory, TestConsole console, Prompt prompt)
     {
         this.console = console;
+        this.factory = factory;
         this.installData = installData;
         this.prompt = prompt;
         installData.setInstallPath(null);
@@ -102,11 +109,16 @@ public class TargetConsolePanelTest
         assertTrue(badDir.mkdirs());
         File goodDir = new File(root, "goodDir");   // don't bother creating it
         installData.setDefaultInstallPath(badDir.getAbsolutePath());
+        TargetConsolePanel panel = new TargetConsolePanel(
+                createPanelView(TargetPanel.class, "panel.install_path"),
+                installData, prompt);
+
         TargetPanelTestHelper.createBadInstallationInfo(badDir);
 
         // run the panel, selecting the default ("badDir")
+        System.out.println();
+        System.out.println("Test part 1 ...");
         console.addScript("TargetPanel.1", "\n");
-        TargetConsolePanel panel = new TargetConsolePanel(null, installData, prompt);
         assertFalse(panel.run(installData, console));
         assertTrue(console.scriptCompleted());
 
@@ -114,7 +126,9 @@ public class TargetConsolePanelTest
         assertNull(installData.getInstallPath());
 
         // run the panel, selecting "goodDir"
-        console.addScript("TargetPanel.2", goodDir.getAbsolutePath(), "1");
+        System.out.println();
+        System.out.println("Test part 2 ...");
+        console.addScript("TargetPanel.2", goodDir.getAbsolutePath(), "O", "1");
         assertTrue(panel.run(installData, console));
         assertTrue(console.scriptCompleted());
 
@@ -140,11 +154,29 @@ public class TargetConsolePanelTest
         Properties properties = new Properties();
         properties.setProperty(InstallData.INSTALL_PATH, badDir.getAbsolutePath());
 
-        TargetConsolePanel panel = new TargetConsolePanel(null, installData, prompt);
+        TargetConsolePanel panel = new TargetConsolePanel(
+                createPanelView(TargetPanel.class, "panel.install_path"),
+                installData, prompt);
         assertFalse(panel.run(installData, properties));
 
         properties.setProperty(InstallData.INSTALL_PATH, goodDir.getAbsolutePath());
         assertTrue(panel.run(installData, properties));
+    }
+
+    /**
+     * Creates a {@code ConsolePanels} containing an instance of the console version of the supplied panel
+     * implementation.
+     *
+     * @param panelClass the panel class
+     * @param id         the panel identifier
+     * @return a new {@code ConsolePanels}
+     */
+    private PanelView<ConsolePanel> createPanelView(Class<TargetPanel> panelClass, String id)
+    {
+        Panel panel = new Panel();
+        panel.setClassName(panelClass.getName());
+        panel.setPanelId(id);
+        return new ConsolePanelView(panel, factory, installData, console);
     }
 
 }

@@ -21,12 +21,6 @@
 
 package com.izforge.izpack.panels.path;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
@@ -36,6 +30,12 @@ import com.izforge.izpack.gui.log.Log;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for panels which asks for paths to directories.
@@ -47,21 +47,6 @@ public class PathInputPanel extends IzPanel implements ActionListener
     private static final long serialVersionUID = 3257566217698292531L;
 
     private static final transient Logger logger = Logger.getLogger(PathInputPanel.class.getName());
-
-    /**
-     * ShowCreateDirectoryMessage configuration option<br>
-     * If 'ShowCreateDirectoryMessage' configuration option set 'false' then don't show
-     * then don't show "directory will be created" dialog
-     */
-    private static final String SHOWCREATEDIRECTORYMESSAGE = "ShowCreateDirectoryMessage";
-
-    /**
-     * ShowExistingDirectoryWarning configuration option<br>
-     * If 'ShowExistingDirectoryWarning' configuration option set 'false' then don't show
-     * "The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"
-     * warning dialog
-     */
-    private static final String SHOWEXISTINGDIRECTORYWARNING = "ShowExistingDirectoryWarning";
 
     /**
      * Flag whether the choosen path must exist or not
@@ -76,11 +61,11 @@ public class PathInputPanel extends IzPanel implements ActionListener
     /**
      * The path selection sub panel
      */
-    protected PathSelectionPanel pathSelectionPanel;
+    protected final PathSelectionPanel pathSelectionPanel;
 
-    protected String emptyTargetMsg;
+    protected final String emptyTargetMsg;
 
-    protected String warnMsg;
+    protected final String warnMsg;
 
     /**
      * Constructs a <tt>PathInputPanel</tt>.
@@ -133,8 +118,7 @@ public class PathInputPanel extends IzPanel implements ActionListener
     public String getPath()
     {
         String chosenPath = pathSelectionPanel.getPath();
-        String normalizedPath = PathInputBase.normalizePath(chosenPath);
-        return normalizedPath;
+        return PathInputBase.normalizePath(chosenPath);
     }
 
     /**
@@ -360,7 +344,7 @@ public class PathInputPanel extends IzPanel implements ActionListener
         boolean result = true;
         // if 'ShowCreateDirectoryMessage' configuration option set 'false' then don't show
         // then don't show "directory will be created" dialog:
-        String show = getMetadata().getConfigurationOptionValue(SHOWCREATEDIRECTORYMESSAGE, installData.getRules());
+        String show = getMetadata().getConfigurationOptionValue(PathInputBase.SHOWCREATEDIRECTORYMESSAGE, installData.getRules());
         if (show == null || Boolean.getBoolean(show))
         {
             result = emitNotificationFeedback(getI18nStringForClass("createdir", "TargetPanel") + "\n" + dir);
@@ -380,8 +364,8 @@ public class PathInputPanel extends IzPanel implements ActionListener
         // if 'ShowExistingDirectoryWarning' configuration option set 'false' then don't show
         // "The directory already exists! Are you sure you want to install here and possibly overwrite existing files?"
         // warning dialog:
-        String show = getMetadata().getConfigurationOptionValue(SHOWEXISTINGDIRECTORYWARNING, installData.getRules());
-        if (show == null || Boolean.getBoolean(show))
+        String show = getMetadata().getConfigurationOptionValue(PathInputBase.SHOWEXISTINGDIRECTORYWARNING, installData.getRules());
+        if ((show == null || Boolean.getBoolean(show))  && dir.isDirectory() && dir.list().length > 0)
         {
             result = askWarningQuestion(getString("installer.warning"), warnMsg,
                     AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_YES) == AbstractUIHandler.ANSWER_YES;
