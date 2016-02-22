@@ -26,18 +26,27 @@ import com.izforge.izpack.installer.console.ConsoleInstaller;
 import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.language.LanguageConsoleDialog;
+import com.izforge.izpack.installer.requirement.RequirementsChecker;
+import java.util.logging.Logger;
 
 /**
  * Console installer bootstrap
  */
 public class InstallerConsole
 {
+  private static final Logger logger = Logger.getLogger(InstallerConsole.class.getName());
+  
   public static void run(final int type, final int consoleAction, final String path, final String langCode, final String mediaPath, final String[] args)
   {
     final InstallerContainer applicationComponent = new ConsoleInstallerContainer();
     final Container installerContainer = applicationComponent.getComponent(Container.class);
     try
     {
+      if (!installerContainer.getComponent(RequirementsChecker.class).check())
+      {
+        logger.info("Not all installer requirements are fulfilled.");
+        System.exit(-1);
+      }
       if (mediaPath != null)
       {
         InstallData installData = applicationComponent.getComponent(InstallData.class);
