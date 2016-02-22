@@ -32,6 +32,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -80,6 +82,11 @@ import com.izforge.izpack.util.file.FileUtils;
 @Container(TestConsoleInstallationContainer.class)
 public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationTest
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(WindowsConsoleInstallationTest.class.getName());
+	
     private final boolean skipTests = new PrivilegedRunner(Platforms.WINDOWS).isElevationNeeded();
 
     private final boolean isAdminUser = new PrivilegedRunner(Platforms.WINDOWS).isAdminUser();
@@ -182,8 +189,13 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     	}
 
     	if (getUninstallerJar() != null) {
-            // remove the uninstaller dir
-            FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+            try {
+                // remove the uninstaller dir
+                FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+            }
+            catch (Exception ex) {
+                logger.log(Level.SEVERE, "Delete uninstaller directory failed.", ex);
+            }
         }
     }
 
@@ -231,12 +243,17 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         ConsoleInstallerContainer container2 = new TestConsoleInstallerContainer();
         TestConsoleInstaller installer2 = container2.getComponent(TestConsoleInstaller.class);
         InstallData installData2 = container2.getComponent(InstallData.class);
+        
+        // copied from super.setUp()
+        // write to temporary folder so the test doesn't need to be run with elevated permissions
+        File installPath = new File(temporaryFolder.getRoot(), "izpackTest");
+        installData2.setInstallPath(installPath.getAbsolutePath());
+        installData2.setDefaultInstallPath(installPath.getAbsolutePath());
+        
         TestConsole console2 = installer2.getConsole();
         console2.addScript("CheckedHelloPanel", "y", "1");
-        console2.addScript("TargetPanel", "Y", "\n", "1");
+        console2.addScript("TargetPanel", "\n", "y", "1");
         console2.addScript("PacksPanel", "1");
-        console2.addScript("ShortcutPanel", "N", "N", "1");
-        console2.addScript("SimpleFinishPanel", "1");
 
         assertFalse(registryKeyExists(handler, UNINSTALL_KEY2));
         checkInstall(installer2, installData2);
@@ -300,11 +317,9 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         assertFalse(registryKeyExists(handler, DEFAULT_UNINSTALL_KEY));
 
         TestConsole console = installer.getConsole();
-        console.addScript("CheckedHelloPanel", "y", "1");
+        console.addScript("CheckedHelloPanel", "1");
         console.addScript("InfoPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
-        console.addScript("InstallPanel", "1");
-        console.addScript("FinishPanel", "1");
 
         //run installer and check that default uninstaller doesn't exist
         InstallData installData = getInstallData();
@@ -341,8 +356,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console.addScript("CheckedHelloPanel", "1");
         console.addScript("TargetPanel", "\n", "1");
         console.addScript("PacksPanel", "1");
-        console.addScript("ShortcutPanel", "N", "N", "1");
-        console.addScript("SimpleFinishPanel", "1");
+        console.addScript("ShortcutPanel", "N");
         
         checkInstall(installer, installData);
 
