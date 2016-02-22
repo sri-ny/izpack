@@ -29,6 +29,8 @@ import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.SplashScreen;
 import com.izforge.izpack.installer.language.LanguageDialog;
+import com.izforge.izpack.installer.requirement.RequirementsChecker;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
@@ -37,7 +39,8 @@ import javax.swing.*;
  */
 public class InstallerGui
 {
-
+    private static final Logger logger = Logger.getLogger(InstallerGui.class.getName());
+    
     public static void run(final String langCode, final String mediaPath) throws Exception
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
@@ -49,6 +52,11 @@ public class InstallerGui
             {
                 try
                 {
+                    if (!installerContainer.getComponent(RequirementsChecker.class).check())
+                    {
+                        logger.info("Not all installer requirements are fulfilled.");
+                        System.exit(-1);
+                    }
                     final SplashScreen splashScreen = installerContainer.getComponent(SplashScreen.class);
                     splashScreen.displaySplashScreen();
 
