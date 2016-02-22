@@ -21,13 +21,6 @@
 
 package com.izforge.izpack.integration.console;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.compiler.container.TestConsoleInstallationContainer;
@@ -37,6 +30,12 @@ import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.InstallFile;
 import com.izforge.izpack.test.junit.PicoRunner;
 import com.izforge.izpack.test.util.TestConsole;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -80,7 +79,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
     {
         TestConsole console = installer.getConsole();
         console.addScript("HelloPanel", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
         console.addScript("PacksPanel",installData.getMessages().get("ConsolePrompt.no") , installData.getMessages().get("ConsolePrompt.no"), "1");
         console.addScript("UserInputPanel", "\n", "1");
 
@@ -98,7 +97,7 @@ public class PacksConsoleInstallationTest extends AbstractConsoleInstallationTes
     {
         TestConsole console = installer.getConsole();
         console.addScript("HelloPanel", "1");
-        console.addScript("TargetPanel", "\n", "1");
+        console.addScript("TargetPanel", "\n", "O", "1");
         console.addScript("PacksPanel", installData.getMessages().get("ConsolePrompt.yes"), "\n", "1");
         console.addScript("UserInputPanel", "1");
         console.addScript("UserInputPanel", "xyz", "\n", "1");

@@ -21,27 +21,26 @@
 
 package com.izforge.izpack.panels.target;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.Prompt;
-import com.izforge.izpack.installer.console.AbstractConsolePanel;
-import com.izforge.izpack.panels.path.PathInputBase;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
+import com.izforge.izpack.panels.path.PathInputBase;
+import com.izforge.izpack.panels.path.PathInputConsolePanel;
 import com.izforge.izpack.util.Console;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Properties;
 
 /**
  * Console implementation of the {@link TargetPanel}.
  *
  * @author Mounir El Hajj
  */
-public class TargetConsolePanel extends AbstractConsolePanel implements ConsolePanel
+public class TargetConsolePanel extends PathInputConsolePanel implements ConsolePanel
 {
-    private final Prompt prompt;
     private final InstallData installData;
     /**
      * Constructs a {@code TargetConsolePanel}.
@@ -50,17 +49,18 @@ public class TargetConsolePanel extends AbstractConsolePanel implements ConsoleP
      */
     public TargetConsolePanel(PanelView<ConsolePanel> panel, InstallData installData, Prompt prompt)
     {
-        super(panel);
+        super(panel, installData, prompt);
         this.installData = installData;
-        this.prompt = prompt;
     }
 
+    @Override
     public boolean generateProperties(InstallData installData, PrintWriter printWriter)
     {
         printWriter.println(InstallData.INSTALL_PATH + "=");
         return true;
     }
 
+    @Override
     public boolean run(InstallData installData, Properties properties)
     {
         boolean result = false;
@@ -104,62 +104,53 @@ public class TargetConsolePanel extends AbstractConsolePanel implements ConsoleP
             defaultPath = "";
         }
 
-        String path = console.promptLocation(installData.getMessages().get("TargetPanel.info")+ " [" + defaultPath + "] ", defaultPath);
-        if (path != null)
+        while (true)
         {
-            path = installData.getVariables().replace(path);
-            normalizedPath = PathInputBase.normalizePath(path);
-            pathFile = new File(normalizedPath);
+            String path = console.promptLocation(installData.getMessages().get("TargetPanel.info") + " [" + defaultPath + "] ", defaultPath);
+            if (path != null)
+            {
+                path = installData.getVariables().replace(path);
+                normalizedPath = PathInputBase.normalizePath(path);
+                pathFile = new File(normalizedPath);
 
-            if (TargetPanelHelper.isIncompatibleInstallation(normalizedPath))
-            {
-                console.println(getIncompatibleInstallationMsg(installData));
-                return run(installData, console);
-            }
-            else if (!PathInputBase.isWritable(normalizedPath))
-            {
-                console.println(installData.getMessages().get("UserPathPanel.notwritable"));
-                return run(installData, console);
-            }
-            else if (!normalizedPath.isEmpty())
-            {
-                if (pathFile.isFile())
+                if (TargetPanelHelper.isIncompatibleInstallation(normalizedPath))
                 {
-                    console.println(installData.getMessages().get("PathInputPanel.isfile"));
-                    return run(installData, console);
-                }
-                else if (pathFile.isDirectory() && pathFile.list().length > 0)
+                    console.println(getIncompatibleInstallationMsg(installData));
+                    continue;
+                } else if (!PathInputBase.isWritable(normalizedPath))
                 {
-                    if (askUser(installData.getMessages().get("TargetPanel.warn"), Prompt.Option.NO)) {
-                      return promptEndPanel(installData, console);
+                    console.println(installData.getMessages().get("UserPathPanel.notwritable"));
+                    continue;
+                } else if (!normalizedPath.isEmpty())
+                {
+                    if (pathFile.isFile())
+                    {
+                        console.println(installData.getMessages().get("PathInputPanel.isfile"));
+                        continue;
+                    } else if (pathFile.exists())
+                    {
+                        if (!checkOverwrite(pathFile, console))
+                        {
+                            continue;
+                        }
+                    } else if (!checkCreateDirectory(pathFile, console))
+                    {
+                        continue;
                     }
-                    return promptRerunPanel(installData, console);
+                    else if (!installData.getPlatform().isValidDirectoryPath(pathFile))
+                    {
+                        console.println(installData.getMessages().get("TargetPanel.syntax.error"));
+                        continue;
+                    }
+                    installData.setInstallPath(normalizedPath);
+                    return promptEndPanel(installData, console);
                 }
-                else if(!installData.getPlatform().isValidDirectoryPath(pathFile))
-                {
-                    console.println(installData.getMessages().get("TargetPanel.syntax.error"));
-                    return run(installData, console);
-                }
-                installData.setInstallPath(normalizedPath);
-                return promptEndPanel(installData, console);
+                return run(installData, console);
+            } else
+            {
+                return false;
             }
-            return run(installData, console);
         }
-        else
-        {
-            return false;
-        }
-    }
-    
-    /**
-     * Helper method to read the input of user
-     * Method returns true if user types "y", "yes" or <Enter>·
-     *
-     * @return boolean  - true if condition above satisfied. Otherwise false
-     */
-    private boolean askUser(String message, Prompt.Option defaultOption)
-    {
-        return Prompt.Option.YES == prompt.confirm(Prompt.Type.QUESTION, message, Prompt.Options.YES_NO, defaultOption);
     }
 
     private String getIncompatibleInstallationMsg(InstallData installData)
