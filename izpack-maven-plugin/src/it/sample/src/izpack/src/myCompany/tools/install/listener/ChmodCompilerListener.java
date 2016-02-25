@@ -44,11 +44,11 @@ public class ChmodCompilerListener extends SimpleCompilerListener
     * @see com.izforge.izpack.compiler.listener.CompilerListener#reviseAdditionalDataMap(java.util.Map, net.n3.nanoxml.XMLElement)
     */
 
-    public Map reviseAdditionalDataMap(Map existentDataMap, XMLElement element)
+    public Map<String,Integer> reviseAdditionalDataMap(Map<String,Integer> existentDataMap, XMLElement element)
             throws CompilerException
     {
-        Map retval = existentDataMap != null ?
-                existentDataMap : new HashMap();
+        Map<String,Integer> retval = existentDataMap != null ?
+                existentDataMap : new HashMap<String,Integer>();
         Vector dataList = element.getChildrenNamed("additionaldata");
         Iterator iter = null;
         if (dataList == null || dataList.size() == 0)

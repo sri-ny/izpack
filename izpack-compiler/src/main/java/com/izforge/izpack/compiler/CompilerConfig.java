@@ -86,6 +86,7 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.FileUtils;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -1052,7 +1053,7 @@ public class CompilerConfig extends Thread
             OverrideType override = getOverrideValue(singleFileNode);
             String overrideRenameTo = getOverrideRenameToValue(singleFileNode);
             Blockable blockable = getBlockableValue(singleFileNode, osList);
-            Map additionals = getAdditionals(singleFileNode);
+            Map<String, ?> additionals = getAdditionals(singleFileNode);
             String conditionId = parseConditionAttribute(singleFileNode);
             File file = new File(src);
             if (!file.isAbsolute())
@@ -1515,7 +1516,7 @@ public class CompilerConfig extends Thread
      */
     private void addArchiveContent(File baseDir, File archive, String targetdir,
                                    List<OsModel> osList, OverrideType override, String overrideRenameTo,
-                                   Blockable blockable, PackInfo pack, Map additionals,
+                                   Blockable blockable, PackInfo pack, Map<String, ?> additionals,
                                    String condition) throws IOException
     {
 
@@ -3053,9 +3054,9 @@ public class CompilerConfig extends Thread
      * @param fileElement file releated XML node
      * @return a map with the additional attributes
      */
-    private Map getAdditionals(IXMLElement fileElement) throws CompilerException
+    private Map<String, ?> getAdditionals(IXMLElement fileElement) throws CompilerException
     {
-        Map retval = null;
+        Map<String,?> retval = null;
         try
         {
             for (CompilerListener compilerListener : compilerListeners)

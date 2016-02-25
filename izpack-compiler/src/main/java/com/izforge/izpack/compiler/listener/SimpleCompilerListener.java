@@ -54,7 +54,7 @@ public class SimpleCompilerListener implements CompilerListener
      * com.izforge.izpack.api.adaptator.IXMLElement)
      */
 
-    public Map reviseAdditionalDataMap(Map existentDataMap, IXMLElement element)
+    public Map<String, ?> reviseAdditionalDataMap(Map<String, ?> existentDataMap, IXMLElement element)
             throws CompilerException
     {
         return null;
