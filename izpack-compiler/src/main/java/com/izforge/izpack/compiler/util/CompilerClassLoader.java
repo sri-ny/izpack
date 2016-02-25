@@ -95,14 +95,14 @@ public class CompilerClassLoader extends URLClassLoader
         Class<T> result;
         try
         {
-            Class loaded = loadClass(name);
+            Class<?> loaded = loadClass(name);
             if (!type.isAssignableFrom(loaded))
             {
                 throw new ClassCastException("Class " + loaded.getName() + " is not a " + type.getName());
             }
             else
             {
-                result = loaded;
+                result = (Class<T>) loaded;
             }
         }
         catch (ClassNotFoundException exception)
