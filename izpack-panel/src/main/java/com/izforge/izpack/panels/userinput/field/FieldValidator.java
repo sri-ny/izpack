@@ -75,7 +75,7 @@ public class FieldValidator
      * @param message the validation error message. May be {@code null}
      * @param factory the factory for creating the validator
      */
-    public FieldValidator(Class type, String message, ObjectFactory factory)
+    public FieldValidator(Class<? extends Validator> type, String message, ObjectFactory factory)
     {
         this(type.getName(), null, message, factory);
     }
