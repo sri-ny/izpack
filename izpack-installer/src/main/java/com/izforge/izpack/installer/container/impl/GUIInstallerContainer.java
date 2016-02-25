@@ -1,8 +1,5 @@
 package com.izforge.izpack.installer.container.impl;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
 import javax.swing.*;
 
 import com.izforge.izpack.api.exception.IzPackException;
@@ -15,7 +12,6 @@ import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ContainerException;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.gui.GUIPrompt;
-import com.izforge.izpack.gui.IconsDatabase;
 import com.izforge.izpack.gui.log.Log;
 import com.izforge.izpack.installer.container.provider.GUIInstallDataProvider;
 import com.izforge.izpack.installer.container.provider.IconsProvider;
