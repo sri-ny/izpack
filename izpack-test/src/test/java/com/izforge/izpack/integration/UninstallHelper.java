@@ -91,7 +91,9 @@ public class UninstallHelper
         ClassLoader loader = getClassLoader(copy);
 
         // create the container
-        Class containerClass = loader.loadClass(ConsoleUninstallerContainer.class.getName());
+		@SuppressWarnings("unchecked")
+		Class<ConsoleUninstallerContainer> containerClass 
+		        = (Class<ConsoleUninstallerContainer>) loader.loadClass(ConsoleUninstallerContainer.class.getName());
         Object container = containerClass.newInstance();
 
         runDestroyer(container, loader, copy);
@@ -111,7 +113,9 @@ public class UninstallHelper
         File copy = copy(uninstallJar);
         ClassLoader loader = getClassLoader(copy);
 
-        Class containerClass = loader.loadClass(GUIUninstallerContainer.class.getName());
+        @SuppressWarnings("unchecked")
+		Class<GUIUninstallerContainer> containerClass 
+                = (Class<GUIUninstallerContainer>) loader.loadClass(GUIUninstallerContainer.class.getName());
         Object container = containerClass.newInstance();
 
         // now run the Destroyer. Can't do it via the UninstallerFrame as can't access the uninstall button
@@ -143,7 +147,8 @@ public class UninstallHelper
         Method getComponent = container.getClass().getMethod("getComponent", Class.class);
 
         // get the destroyer class
-        Class destroyerClass = loader.loadClass(Destroyer.class.getName());
+        @SuppressWarnings("unchecked")
+		Class<Destroyer> destroyerClass = (Class<Destroyer>) loader.loadClass(Destroyer.class.getName());
         Object destroyer = getComponent.invoke(container, destroyerClass);
         Method forceDelete = destroyerClass.getMethod("setForceDelete", boolean.class);
         forceDelete.invoke(destroyer, true);
