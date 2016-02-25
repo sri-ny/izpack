@@ -2834,7 +2834,7 @@ public class CompilerConfig extends Thread
      */
     private void substituteAllProperties(IXMLElement element) throws CompilerException
     {
-        Enumeration attributes = element.enumerateAttributeNames();
+        Enumeration<String> attributes = element.enumerateAttributeNames();
         while (attributes.hasMoreElements())
         {
             String name = (String) attributes.nextElement();
