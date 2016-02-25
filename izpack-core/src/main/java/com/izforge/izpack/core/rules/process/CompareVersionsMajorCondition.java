@@ -16,11 +16,6 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.rules.ComparisonOperator;
-import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.util.Platform;
-
 import java.util.logging.Logger;
 
 public class CompareVersionsMajorCondition extends CompareVersionsCondition
