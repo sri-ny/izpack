@@ -13,7 +13,7 @@ under different terms.
 
 [![Build Status](https://secure.travis-ci.org/izpack/izpack.png?branch=master)](http://travis-ci.org/izpack/izpack)
 
-IzPack only requires Java SE 6+ and at minimum Maven 2.2.1 but Maven 3, 3.1 and 3.2 will work too.
+IzPack only requires Java SE 6+ and at minimum Maven 3. Due to the JDK compatibility the maximum Maven version supported is 3.2.6 when compiled using JDK 1.6.
 
     mvn clean install
 
