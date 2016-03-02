@@ -173,11 +173,11 @@ public class TargetPanelHelperTest
 
         // verify that the method returns false for non-existent directory
         assertFalse(dir.exists());
-        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath()));
+        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath(), true));
 
         // verify that the method returns false for existing directory
         assertTrue(dir.mkdir());
-        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath()));
+        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath(), true));
 
         // verify that the method returns false for valid data
         File file = new File(dir, InstallData.INSTALLATION_INFORMATION);
@@ -185,7 +185,7 @@ public class TargetPanelHelperTest
         ObjectOutputStream objStream = new ObjectOutputStream(stream);
         objStream.writeObject(new ArrayList<Pack>());
         objStream.close();
-        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath()));
+        assertFalse(TargetPanelHelper.isIncompatibleInstallation(dir.getPath(), true));
 
         // verify that the method returns true for invalid data
         assertTrue(file.delete());
@@ -193,6 +193,6 @@ public class TargetPanelHelperTest
         objStream = new ObjectOutputStream(stream);
         objStream.writeObject(new Integer(1));
         objStream.close();
-        assertTrue(TargetPanelHelper.isIncompatibleInstallation(dir.getPath()));
+        assertTrue(TargetPanelHelper.isIncompatibleInstallation(dir.getPath(), true));
     }
 }

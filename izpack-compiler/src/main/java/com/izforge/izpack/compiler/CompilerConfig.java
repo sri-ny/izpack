@@ -2222,6 +2222,13 @@ public class CompilerConfig extends Thread
             String writeInstallInfoString = xmlCompilerHelper.requireContent(writeInstallInfo);
             info.setWriteInstallationInformation(validateYesNo(writeInstallInfoString));
         }
+        
+        IXMLElement readInstallInfo = root.getFirstChildNamed("readinstallationinformation");
+        if (readInstallInfo != null)
+        {
+            String readInstallInfoString = xmlCompilerHelper.requireContent(readInstallInfo);
+            info.setReadInstallationInformation(validateYesNo(readInstallInfoString));
+        }
 
         IXMLElement isSingleInstance = root.getFirstChildNamed("singleinstance");
         if (isSingleInstance != null)
