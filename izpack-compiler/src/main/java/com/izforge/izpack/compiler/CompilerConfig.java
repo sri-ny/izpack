@@ -323,6 +323,8 @@ public class CompilerConfig extends Thread
         substituteProperties(data);
 
         // We add all the information
+        addNativeLibraries(data);
+        addJars(data);
         addVariables(data);
         addConditions(data);
         addDynamicVariables(data);
@@ -332,8 +334,6 @@ public class CompilerConfig extends Thread
         addGUIPrefs(data);
         addLangpacks(data);
         addResources(data);
-        addNativeLibraries(data);
-        addJars(data);
         addPanelJars(data);
         addListenerJars(data);
         addPanels(data);
@@ -2740,7 +2740,12 @@ public class CompilerConfig extends Thread
             {
                 try
                 {
-                    Condition condition = rules.createCondition(conditionNode);
+                    // Workaround for reading user-defined conditions with fully defined class name
+                    // from compile-time classpath
+                    String className = rules.getClassName(conditionNode.getAttribute("type"));
+
+                    Class<Condition> conditionClass = classLoader.loadClass(className, Condition.class);
+                    Condition condition = rules.createCondition(conditionNode, conditionClass);
                     if (condition != null)
                     {
                         String conditionid = condition.getId();

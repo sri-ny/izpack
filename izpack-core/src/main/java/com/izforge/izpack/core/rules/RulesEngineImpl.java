@@ -21,17 +21,6 @@
 
 package com.izforge.izpack.core.rules;
 
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.XMLException;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
@@ -52,6 +41,12 @@ import com.izforge.izpack.core.rules.logic.XorCondition;
 import com.izforge.izpack.core.rules.process.*;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
+
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -153,14 +148,8 @@ public class RulesEngineImpl implements RulesEngine
         return createCondition(condition);
     }
 
-    /**
-     * Creates a condition given its XML specification.
-     *
-     * @param condition the condition XML specification
-     * @return a new  condition
-     */
     @Override
-    public Condition createCondition(IXMLElement condition)
+    public Condition createCondition(IXMLElement condition, Class<Condition> conditionClass)
     {
         String id = condition.getAttribute("id");
         String type = condition.getAttribute("type");
@@ -168,7 +157,10 @@ public class RulesEngineImpl implements RulesEngine
         if (type != null)
         {
             String className = getClassName(type);
-            Class<Condition> conditionClass = container.getClass(className, Condition.class);
+            if (conditionClass == null)
+            {
+                conditionClass = container.getClass(className, Condition.class);
+            }
             try
             {
                 if (id == null || id.isEmpty() || "UNKNOWN".equals(id))
@@ -193,6 +185,12 @@ public class RulesEngineImpl implements RulesEngine
             }
         }
         return result;
+    }
+
+    @Override
+    public Condition createCondition(IXMLElement condition)
+    {
+        return createCondition(condition, null);
     }
 
     @Override
@@ -827,13 +825,8 @@ public class RulesEngineImpl implements RulesEngine
         return result;
     }
 
-    /**
-     * Returns the class name implementing a condition type.
-     *
-     * @param type the condition type
-     * @return the class name
-     */
-    private String getClassName(String type)
+    @Override
+    public String getClassName(String type)
     {
         String result;
         if (type.indexOf('.') != -1)
