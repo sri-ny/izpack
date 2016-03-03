@@ -19,14 +19,14 @@
 
 package com.izforge.izpack.api.rules;
 
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.Set;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
+
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface of rulesEngine
@@ -65,12 +65,29 @@ public interface RulesEngine
     Condition instantiateCondition(IXMLElement condition);
 
     /**
+     * Returns the class name implementing a condition type.
+     *
+     * @param type the condition type
+     * @return the class name
+     */
+    public String getClassName(String type);
+
+    /**
      * Creates a condition given its XML specification.
      *
      * @param condition the condition XML specification
      * @return a new  condition
      */
     Condition createCondition(IXMLElement condition);
+
+    /**
+     * Creates a condition given its XML specification.
+     *
+     * @param condition the condition XML specification
+     * @param conditionClass the dedicated class implementing a {@code Condition}
+     * @return a new  condition
+     */
+    public Condition createCondition(IXMLElement condition, Class<Condition> conditionClass);
 
     /**
      * Check whether references condition exist This must be done after all conditions have been
