@@ -35,7 +35,7 @@ public class TargetFileSet extends FileSet
     OverrideType override;
     String overrideRenameTo;
     Blockable blockable;
-    Map additionals;
+    Map<String, ?> additionals;
     String condition;
 
     public String getTargetDir()
@@ -88,12 +88,12 @@ public class TargetFileSet extends FileSet
         this.blockable = blockable;
     }
 
-    public Map getAdditionals()
+    public Map<String, ?> getAdditionals()
     {
         return additionals;
     }
 
-    public void setAdditionals(Map additionals)
+    public void setAdditionals(Map<String, ?> additionals)
     {
         this.additionals = additionals;
     }

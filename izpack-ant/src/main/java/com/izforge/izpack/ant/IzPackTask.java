@@ -26,6 +26,7 @@ import com.izforge.izpack.ant.logging.AntHandler;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.merge.resolve.ResolveUtils;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -222,7 +223,9 @@ public class IzPackTask extends Task implements PackagerListener
         try
         {
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
-            Class runableClass = loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
+            @SuppressWarnings("unchecked")
+			Class<IzpackAntRunnable> runableClass 
+			        = (Class<IzpackAntRunnable>) loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
             Constructor constructor = runableClass.getConstructors()[0];
             Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs,
                     validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir,

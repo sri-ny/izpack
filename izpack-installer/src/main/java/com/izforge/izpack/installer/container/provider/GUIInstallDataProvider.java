@@ -5,6 +5,7 @@ import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.gui.ButtonFactory;
+import com.izforge.izpack.gui.IzPackKMetalTheme;
 import com.izforge.izpack.gui.LabelFactory;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.util.Housekeeper;
@@ -14,6 +15,7 @@ import com.izforge.izpack.util.PlatformModelMatcher;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
+
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -175,11 +177,14 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
             // make it always true.
             ButtonFactory.useButtonIcons(useButtonIcons);
             installData.buttonsHColor = new Color(255, 255, 255);
-            Class<LookAndFeel> lafClass = (Class<LookAndFeel>) Class.forName(
+            @SuppressWarnings("unchecked")
+			Class<LookAndFeel> lafClass = (Class<LookAndFeel>) Class.forName(
                     "com.incors.plaf.kunststoff.KunststoffLookAndFeel");
-            Class mtheme = Class.forName("javax.swing.plaf.metal.MetalTheme");
+            @SuppressWarnings("unchecked")
+			Class<MetalTheme> mtheme = (Class<MetalTheme>) Class.forName("javax.swing.plaf.metal.MetalTheme");
             Class[] params = {mtheme};
-            Class<MetalTheme> theme = (Class<MetalTheme>) Class.forName("com.izforge.izpack.gui.IzPackKMetalTheme");
+            @SuppressWarnings("unchecked")
+			Class<IzPackKMetalTheme> theme = (Class<IzPackKMetalTheme>) Class.forName("com.izforge.izpack.gui.IzPackKMetalTheme");
             Method setCurrentThemeMethod = lafClass.getMethod("setCurrentTheme", params);
 
             // We invoke and place Kunststoff as our L&F

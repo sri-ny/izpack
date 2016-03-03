@@ -22,6 +22,7 @@ import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.installer.container.provider.AbstractInstallDataProvider;
 import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.util.Console;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -58,7 +59,7 @@ public class LanguageConsoleDialog {
         propagateLocale(codeOfUniqueLanguage);
         break;
       default:
-        Iterator iterator = displayNames.keySet().iterator();
+        Iterator<String> iterator = displayNames.keySet().iterator();
         console.println("Select your language");
         int i = 0;
         while (iterator.hasNext())
