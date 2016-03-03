@@ -86,7 +86,7 @@ public class TargetPanel extends PathInputPanel
     {
         boolean result = false;
         File targetPathFile = new File(getPath());
-        if (TargetPanelHelper.isIncompatibleInstallation(getPath()))
+        if (TargetPanelHelper.isIncompatibleInstallation(getPath(), installData.getInfo().isReadInstallationInformation()))
         {
             emitError(getString("installer.error"), getString("TargetPanel.incompatibleInstallation"));
         }

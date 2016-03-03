@@ -105,15 +105,16 @@ public class TargetPanelHelper
      * and not contain recognised {@link Pack} instances.
      *
      * @param dir the path to check
+     * @param readInstallationInformation check .installationinformation file or skip it
      * @return {@code true} if there is incompatible installation information,
      *         {@code false} if there is no installation info, or it is compatible
      */
     @SuppressWarnings("unchecked")
-    public static boolean isIncompatibleInstallation(String dir)
+    public static boolean isIncompatibleInstallation(String dir, Boolean readInstallationInformation)
     {
         boolean result = false;
         File file = new File(dir, InstallData.INSTALLATION_INFORMATION);
-        if (file.exists())
+        if (file.exists() && readInstallationInformation)
         {
             FileInputStream input = null;
             ObjectInputStream objectInput = null;
