@@ -16,15 +16,12 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
+import java.util.logging.Logger;
+
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.rules.CompareCondition;
 import com.izforge.izpack.api.rules.ComparisonOperator;
-import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.util.Platform;
-
-import java.util.logging.Logger;
 
 public class CompareVersionsCondition extends CompareCondition
 {
