@@ -16,14 +16,12 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.rules.CompareCondition;
 import com.izforge.izpack.api.rules.ComparisonOperator;
-import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.util.Platform;
 
+import java.util.*;
 import java.util.logging.Logger;
 
 public class CompareVersionsCondition extends CompareCondition
@@ -31,6 +29,9 @@ public class CompareVersionsCondition extends CompareCondition
     private static final long serialVersionUID = 5605592864539142416L;
 
     private static final transient Logger logger = Logger.getLogger(CompareVersionsCondition.class.getName());
+
+    private static final Set<String> EMPTY_STRINGS = Collections.singleton("");
+    private static final String VERSION_DELIMITER = "[^\\d]+";
 
     /**
      * Don't assume missing minor parts of some operand as 0 during comparison.
@@ -148,15 +149,19 @@ public class CompareVersionsCondition extends CompareCondition
         public int compareTo(Version version) {
             if(version == null)
                 return 1;
-            String[] parts1 = this.get().split("[^\\d]+");
-            String[] parts2 = version.get().split("[^\\d]+");
+            String[] parts1 = this.get().split(VERSION_DELIMITER);
+            List<String> leftOps =  new ArrayList<String>(Arrays.asList(parts1));
+            leftOps.removeAll(EMPTY_STRINGS); // avoid NumberFormatException
+            String[] parts2 = version.get().split(VERSION_DELIMITER);
+            List<String> rightOps = new ArrayList<String>(Arrays.asList(parts2));
+            rightOps.removeAll(EMPTY_STRINGS); // avoid NumberFormatException
             int length = hasFlag(NOT_ASSUME_MISSING_MINOR_PARTS_AS_0)
-                    ? Math.min(parts1.length, parts2.length)
-                    : Math.max(parts1.length, parts2.length);
+                    ? Math.min(leftOps.size(), rightOps.size())
+                    : Math.max(leftOps.size(), rightOps.size());
             logger.finer("Effective number of version parts: " + length);
             for(int i = 0; i < length; i++) {
-                int part1 = i < parts1.length ? Integer.parseInt(parts1[i]) : 0;
-                int part2 = i < parts2.length ? Integer.parseInt(parts2[i]) : 0;
+                int part1 = i < leftOps.size() ? Integer.parseInt(leftOps.get(i)) : 0;
+                int part2 = i < rightOps.size() ? Integer.parseInt(rightOps.get(i)) : 0;
                 logger.finer("Compare version parts: " + part1 + " <-> " + part2);
                 if(part1 < part2)
                     return -1;

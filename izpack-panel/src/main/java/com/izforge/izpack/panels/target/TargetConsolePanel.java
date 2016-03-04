@@ -69,7 +69,7 @@ public class TargetConsolePanel extends PathInputConsolePanel implements Console
         {
             System.err.println("Missing mandatory target path!");
         }
-        else if (TargetPanelHelper.isIncompatibleInstallation(path))
+        else if (TargetPanelHelper.isIncompatibleInstallation(path, installData.getInfo().isReadInstallationInformation()))
         {
             System.err.println(getIncompatibleInstallationMsg(installData));
         }
@@ -113,7 +113,7 @@ public class TargetConsolePanel extends PathInputConsolePanel implements Console
                 normalizedPath = PathInputBase.normalizePath(path);
                 pathFile = new File(normalizedPath);
 
-                if (TargetPanelHelper.isIncompatibleInstallation(normalizedPath))
+                if (TargetPanelHelper.isIncompatibleInstallation(normalizedPath, installData.getInfo().isReadInstallationInformation()))
                 {
                     console.println(getIncompatibleInstallationMsg(installData));
                     continue;

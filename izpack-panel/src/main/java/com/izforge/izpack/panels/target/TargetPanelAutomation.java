@@ -66,7 +66,7 @@ public class TargetPanelAutomation implements PanelAutomation
         // Allow for variable substitution of the installpath value
         String path = ipath.getContent();
         path = installData.getVariables().replace(path);
-        if (TargetPanelHelper.isIncompatibleInstallation(path))
+        if (TargetPanelHelper.isIncompatibleInstallation(path, installData.getInfo().isReadInstallationInformation()))
         {
             throw new InstallerException(installData.getMessages().get("TargetPanel.incompatibleInstallation"));
         }

@@ -57,7 +57,7 @@ public interface CompilerListener
      * @throws com.izforge.izpack.api.exception.CompilerException
      *
      */
-    Map reviseAdditionalDataMap(Map existentDataMap, IXMLElement element) throws CompilerException;
+    Map<String,?> reviseAdditionalDataMap(Map<String, ?> existentDataMap, IXMLElement element) throws CompilerException;
 
     /**
      * This method will be called from each step of packaging.

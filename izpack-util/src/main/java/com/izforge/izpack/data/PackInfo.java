@@ -129,7 +129,13 @@ public class PackInfo implements Serializable
         pack.setOsConstraints(osConstraints);
     }
 
-    public List<OsModel> getOsConstraints(List osConstraints)
+    @Deprecated
+    public List<OsModel> getOsConstraints(List<OsModel> osConstraints)
+    {
+        return pack.getOsConstraints();
+    }
+    
+    public List<OsModel> getOsConstraints()
     {
         return pack.getOsConstraints();
     }

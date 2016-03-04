@@ -125,6 +125,8 @@ public class Info implements Serializable
     private String unpackerClassName = null;
 
     private boolean writeInstallationInformation = true;
+    
+    private boolean readInstallationInformation = true;
 
     private boolean isSingleInstance = true;
 
@@ -611,6 +613,16 @@ public class Info implements Serializable
     public void setWriteInstallationInformation(boolean writeInstallationInformation)
     {
         this.writeInstallationInformation = writeInstallationInformation;
+    }
+    
+    public boolean isReadInstallationInformation()
+    {
+        return readInstallationInformation;
+    }
+
+    public void setReadInstallationInformation(boolean readInstallationInformation)
+    {
+        this.readInstallationInformation = readInstallationInformation;
     }
 
 

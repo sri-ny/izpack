@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.tools.zip.ZipOutputStream;
 
 import com.izforge.izpack.api.merge.Mergeable;
+import com.izforge.izpack.installer.gui.IzPanel;
 
 /**
  * Merge for a panel
@@ -36,10 +37,10 @@ import com.izforge.izpack.api.merge.Mergeable;
 public class PanelMerge implements Mergeable
 {
     private List<Mergeable> packageMerge;
-    private Class panelClass;
+    private Class<IzPanel> panelClass;
     private FileFilter fileFilter;
 
-    public PanelMerge(final Class panelClass, List<Mergeable> packageMergeable)
+    public PanelMerge(final Class<IzPanel> panelClass, List<Mergeable> packageMergeable)
     {
         this.panelClass = panelClass;
         packageMerge = packageMergeable;
@@ -92,7 +93,7 @@ public class PanelMerge implements Mergeable
         }
     }
 
-    public Class getPanelClass()
+    public Class<IzPanel> getPanelClass()
     {
         return panelClass;
     }
