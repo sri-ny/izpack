@@ -32,6 +32,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * The license panel.
@@ -99,12 +100,60 @@ public class LicencePanel extends AbstractLicencePanel implements ActionListener
         group.add(yesRadio);
         add(yesRadio, NEXT_LINE);
         yesRadio.addActionListener(this);
+        yesRadio.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e)
+            { 
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if (yesRadio.isSelected())
+                {
+                    parent.unlockNextButton(false);
+                }
+                else
+                {
+                    parent.lockNextButton();
+                }
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+        });
 
         noRadio = new JRadioButton(getString("LicencePanel.notagree"), true);
         noRadio.setName(GuiId.LICENCE_NO_RADIO.id);
         group.add(noRadio);
         add(noRadio, NEXT_LINE);
         noRadio.addActionListener(this);
+        noRadio.addKeyListener(new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent e)
+            { 
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if (yesRadio.isSelected())
+                {
+                    parent.unlockNextButton(false);
+                }
+                else
+                {
+                    parent.lockNextButton();
+                }
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+        });
 
         setInitialFocus(noRadio);
         getLayoutHelper().completeLayout();
@@ -126,7 +175,7 @@ public class LicencePanel extends AbstractLicencePanel implements ActionListener
             parent.lockNextButton();
         }
     }
-
+    
     /**
      * Indicates wether the panel has been validated or not.
      *
