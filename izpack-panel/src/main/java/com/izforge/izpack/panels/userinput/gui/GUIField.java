@@ -187,6 +187,7 @@ public abstract class GUIField extends AbstractFieldView
             if (jc instanceof JTextPane)
             {
                 JTextPane pane = (JTextPane)jc;
+                pane.setOpaque(false);
                 String oldText = pane.getText();
                 if (oldText != null)
                 {
