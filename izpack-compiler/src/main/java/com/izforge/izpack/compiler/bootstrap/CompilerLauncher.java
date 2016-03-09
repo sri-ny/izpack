@@ -19,12 +19,14 @@
 
 package com.izforge.izpack.compiler.bootstrap;
 
-import java.util.Date;
-
 import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.exception.HelpRequestedException;
 import com.izforge.izpack.compiler.exception.NoArgumentException;
+
+import java.util.Date;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 
 /**
  * CompilerLauncher class initizaling bindings and launching the compiler
@@ -47,6 +49,7 @@ public class CompilerLauncher
         {
             CompilerContainer compilerContainer = new CompilerContainer();
             compilerContainer.processCompileDataFromArgs(args);
+            compilerContainer.addComponent(Handler.class, new ConsoleHandler());
 
             CompilerConfig compiler = compilerContainer.getComponent(CompilerConfig.class);
             compiler.executeCompiler();
@@ -82,6 +85,5 @@ public class CompilerLauncher
         // Closes the JVM
         System.exit(exitCode);
     }
-
 
 }
