@@ -25,12 +25,12 @@ import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -110,16 +110,13 @@ public abstract class AbstractLicencePanel extends IzPanel
             url = loadLicence();
 
             InputStream in = url.openStream();
-            InputStreamReader reader = null;
             try
             {
-                reader = (encoding != null) ? new InputStreamReader(in, encoding) : new InputStreamReader(in);
-                result = FileUtils.readFully(reader);
+                result = IOUtils.toString(in, Charsets.toCharset(encoding));
             }
             finally
             {
-                FileUtils.close(reader);
-                FileUtils.close(in);
+                IOUtils.closeQuietly(in);
             }
         }
         catch (IOException e)

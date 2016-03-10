@@ -21,12 +21,6 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
@@ -35,7 +29,13 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -119,7 +119,7 @@ public class Config
         }
         finally
         {
-            FileUtils.close(input);
+            IOUtils.closeQuietly(input);
         }
     }
 

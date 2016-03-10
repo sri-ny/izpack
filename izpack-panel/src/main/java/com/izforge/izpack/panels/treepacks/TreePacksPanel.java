@@ -17,7 +17,7 @@ import com.izforge.izpack.installer.web.WebAccessor;
 import com.izforge.izpack.panels.packs.PacksModel;
 import com.izforge.izpack.panels.packs.PacksPanelAutomationHelper;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
 import javax.swing.tree.TreeModel;
@@ -660,7 +660,7 @@ public class TreePacksPanel extends IzPanel
                 }
                 finally
                 {
-                    FileUtils.close(langPackStream);
+                    IOUtils.closeQuietly(langPackStream);
                 }
             }
             if (fallback)

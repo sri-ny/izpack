@@ -22,16 +22,6 @@
 
 package com.izforge.izpack.installer.multiunpacker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.CodeSource;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
@@ -45,16 +35,21 @@ import com.izforge.izpack.core.io.FileSpanningInputStream;
 import com.izforge.izpack.core.io.VolumeLocator;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
-import com.izforge.izpack.installer.unpacker.Cancellable;
-import com.izforge.izpack.installer.unpacker.FileQueueFactory;
-import com.izforge.izpack.installer.unpacker.FileUnpacker;
-import com.izforge.izpack.installer.unpacker.LooseFileUnpacker;
-import com.izforge.izpack.installer.unpacker.PackResources;
-import com.izforge.izpack.installer.unpacker.UnpackerBase;
+import com.izforge.izpack.installer.unpacker.*;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PlatformModelMatcher;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
+import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -155,8 +150,8 @@ public class MultiVolumeUnpacker extends UnpackerBase
         }
         finally
         {
-            FileUtils.close(in);
-            FileUtils.close(objectIn);
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(objectIn);
         }
     }
 
@@ -208,7 +203,7 @@ public class MultiVolumeUnpacker extends UnpackerBase
     protected void cleanup()
     {
         super.cleanup();
-        FileUtils.close(volumes);
+        IOUtils.closeQuietly(volumes);
     }
 
     /**

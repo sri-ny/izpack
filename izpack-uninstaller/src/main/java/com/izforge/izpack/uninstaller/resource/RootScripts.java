@@ -21,6 +21,14 @@
 
 package com.izforge.izpack.uninstaller.resource;
 
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
+import com.izforge.izpack.api.resource.Resources;
+import com.izforge.izpack.installer.data.UninstallData;
+import com.izforge.izpack.util.Platform;
+import com.izforge.izpack.util.unix.ShellScript;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,14 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
-import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.installer.data.UninstallData;
-import com.izforge.izpack.util.Platform;
-import com.izforge.izpack.util.file.FileUtils;
-import com.izforge.izpack.util.unix.ShellScript;
 
 
 /**
@@ -123,7 +123,7 @@ public class RootScripts
                 }
                 finally
                 {
-                    FileUtils.close(in);
+                    IOUtils.closeQuietly(in);
                 }
             }
             catch (ResourceNotFoundException ignore)

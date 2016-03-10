@@ -21,26 +21,12 @@
 
 package com.izforge.izpack.event;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
-import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.exception.NativeLibException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
-import com.izforge.izpack.api.exception.WrappedNativeLibException;
+import com.izforge.izpack.api.exception.*;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
@@ -53,6 +39,17 @@ import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Installer custom action for handling registry entries on Windows. On Unix nothing will be done.
@@ -581,7 +578,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             
             // make sure the 'Uninstaller' directory exists
             File uninstallerIcon = new File(iconPath);
-            FileUtils.getFileUtils().createNewFile(uninstallerIcon, true);
+            FileUtils.createNewFile(uninstallerIcon, true);
             
             out = new FileOutputStream(uninstallerIcon);
             IoHelper.copyStream(in, out);
@@ -600,8 +597,8 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         }
         finally
         {
-            FileUtils.close(in);
-            FileUtils.close(out);
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(out);
         }
     }
 

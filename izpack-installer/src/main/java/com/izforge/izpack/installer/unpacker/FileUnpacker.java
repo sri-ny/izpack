@@ -21,21 +21,15 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.Blockable;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.os.FileQueue;
 import com.izforge.izpack.util.os.FileQueueMove;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -143,7 +137,7 @@ public abstract class FileUnpacker
         }
         finally
         {
-            FileUtils.close(out);
+            IOUtils.closeQuietly(out);
         }
         postCopy(file);
     }

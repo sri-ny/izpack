@@ -33,7 +33,7 @@ import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PrivilegedRunner;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -352,7 +352,7 @@ public class ConsoleInstaller implements InstallerBase
         }
         finally
         {
-            FileUtils.close(in);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -388,7 +388,7 @@ public class ConsoleInstaller implements InstallerBase
         }
         finally
         {
-            FileUtils.close(in);
+            IOUtils.closeQuietly(in);
         }
     }
 

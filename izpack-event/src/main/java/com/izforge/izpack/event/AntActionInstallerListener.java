@@ -22,19 +22,6 @@
 
 package com.izforge.izpack.event;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
@@ -47,8 +34,15 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Installer listener for performing ANT actions. The definition what should be done will be made in
@@ -504,8 +498,8 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
             }
             finally
             {
-                FileUtils.close(bos);
-                FileUtils.close(bis);
+                IOUtils.closeQuietly(bos);
+                IOUtils.closeQuietly(bis);
             }
         }
         return buildResourceFile;
@@ -533,8 +527,8 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
         }
         finally
         {
-            FileUtils.close(bis);
-            FileUtils.close(bos);
+            IOUtils.closeQuietly(bis);
+            IOUtils.closeQuietly(bos);
         }
     }
 }

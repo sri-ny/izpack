@@ -21,30 +21,24 @@
 
 package com.izforge.izpack.panels.userinput.console.file;
 
-import static com.izforge.izpack.api.handler.Prompt.Option.OK;
-import static com.izforge.izpack.api.handler.Prompt.Options.OK_CANCEL;
-import static com.izforge.izpack.api.handler.Prompt.Type.WARNING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-
+import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
+import com.izforge.izpack.panels.userinput.field.file.DirField;
+import com.izforge.izpack.panels.userinput.field.file.TestDirFieldConfig;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
-import com.izforge.izpack.panels.userinput.field.file.DirField;
-import com.izforge.izpack.panels.userinput.field.file.TestDirFieldConfig;
-import com.izforge.izpack.util.file.FileUtils;
+import java.io.File;
+import java.io.IOException;
+
+import static com.izforge.izpack.api.handler.Prompt.Option.OK;
+import static com.izforge.izpack.api.handler.Prompt.Options.OK_CANCEL;
+import static com.izforge.izpack.api.handler.Prompt.Type.WARNING;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -139,7 +133,7 @@ public class ConsoleDirFieldTest extends AbstractConsoleFieldTest
     {
         ConsoleDirField field = createField(null, false, false);
 
-        File file = FileUtils.createTempFile("foo", "bar");
+        File file = File.createTempFile("foo", "bar", FileUtils.getTempDirectory());
         checkInvalid(field, file.getPath());
         assertNull(installData.getVariable("dir"));
 
@@ -151,7 +145,7 @@ public class ConsoleDirFieldTest extends AbstractConsoleFieldTest
     /**
      * Helper to create a field that updates the 'dir' variable.
      *
-     * @param defaultValue the default value. May be {@code null}
+     * @param initialValue the initial value. May be {@code null}
      * @param mustExist    if {@code true}, the directory must exist
      * @return a new field
      */

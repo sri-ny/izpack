@@ -85,8 +85,7 @@ import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
-import com.izforge.izpack.util.file.FileUtils;
-
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -112,6 +111,8 @@ import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
 public class CompilerConfig extends Thread
 {
     private static Logger logger;
+
+    private static final File TEMP_DIR = FileUtils.getTempDirectory();
 
     /**
      * Constant for checking attributes.
@@ -1540,7 +1541,7 @@ public class CompilerConfig extends Thread
 
             try
             {
-                File temp = FileUtils.createTempFile("izpack", null);
+                File temp = File.createTempFile("izpack", null, TEMP_DIR);
                 temp.deleteOnExit();
 
                 FileOutputStream out = new FileOutputStream(temp);
@@ -1756,7 +1757,7 @@ public class CompilerConfig extends Thread
                 if (parsexml || !encoding.isEmpty() || (substitute && !packager.getVariables().isEmpty()))
                 {
                     // make the substitutions into a temp file
-                    File parsedFile = FileUtils.createTempFile("izpp", null);
+                    File parsedFile = File.createTempFile("izpp", null, TEMP_DIR);
                     parsedFile.deleteOnExit();
                     FileOutputStream outFile = new FileOutputStream(parsedFile);
                     os = new BufferedOutputStream(outFile);
@@ -1767,7 +1768,7 @@ public class CompilerConfig extends Thread
 
                 if (!encoding.isEmpty())
                 {
-                    File recodedFile = FileUtils.createTempFile("izenc", null);
+                    File recodedFile = File.createTempFile("izenc", null, TEMP_DIR);
                     recodedFile.deleteOnExit();
 
                     InputStreamReader reader = new InputStreamReader(originalUrl.openStream(), encoding);
@@ -3153,7 +3154,7 @@ public class CompilerConfig extends Thread
                     }
 
                     // writing merged strings to a new file
-                    File mergedPackLangFile = FileUtils.createTempFile("izpp", null);
+                    File mergedPackLangFile = File.createTempFile("izpp", null, TEMP_DIR);
                     mergedPackLangFile.deleteOnExit();
 
                     FileOutputStream outFile = new FileOutputStream(mergedPackLangFile);

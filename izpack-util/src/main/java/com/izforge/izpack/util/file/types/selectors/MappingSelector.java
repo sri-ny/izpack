@@ -43,7 +43,7 @@ public abstract class MappingSelector extends BaseSelector
      */
     public MappingSelector()
     {
-        granularity = (int) FileUtils.getFileUtils().getFileTimestampGranularity();
+        granularity = (int) FileUtils.getFileTimestampGranularity();
     }
 
 

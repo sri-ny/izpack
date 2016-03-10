@@ -17,23 +17,15 @@
 
 package com.izforge.izpack.util.file;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.util.file.types.Resource;
 import com.izforge.izpack.util.file.types.ResourceFactory;
 import com.izforge.izpack.util.file.types.selectors.FileSelector;
 import com.izforge.izpack.util.file.types.selectors.SelectorUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Class for scanning a directory for files/directories which match certain
@@ -164,11 +156,6 @@ public class DirectoryScanner
             // Mac
             "**/.DS_Store"
     };
-
-    /**
-     * Helper.
-     */
-    private static final FileUtils FILE_UTILS = FileUtils.getFileUtils();
 
     /**
      * iterations for case-sensitive scanning.
@@ -899,7 +886,7 @@ public class DirectoryScanner
                     try
                     {
                         File canonFile = myfile.getCanonicalFile();
-                        String path = FILE_UTILS.removeLeadingPath(canonBase,
+                        String path = FileUtils.removeLeadingPath(canonBase,
                                 canonFile);
                         if (!path.equals(currentelement)/* || ON_VMS*/)
                         {
@@ -907,7 +894,7 @@ public class DirectoryScanner
                             if (myfile != null)
                             {
                                 currentelement =
-                                        FILE_UTILS.removeLeadingPath(basedir,
+                                        FileUtils.removeLeadingPath(basedir,
                                                 myfile);
                             }
                         }
@@ -924,7 +911,7 @@ public class DirectoryScanner
                     {
                         // adapt currentelement to the case we've
                         // actually found
-                        currentelement = FILE_UTILS.removeLeadingPath(basedir,
+                        currentelement = FileUtils.removeLeadingPath(basedir,
                                 f);
                         myfile = f;
                     }
@@ -1130,7 +1117,7 @@ public class DirectoryScanner
             {
                 try
                 {
-                    if (FILE_UTILS.isSymbolicLink(dir, newfile))
+                    if (FileUtils.isSymbolicLink(dir, newfile))
                     {
                         String name = vpath + newfile;
                         File file = new File(dir, newfile);
@@ -1630,7 +1617,7 @@ public class DirectoryScanner
      */
     public synchronized Resource getResource(String name) throws Exception
     {
-        File f = FILE_UTILS.resolveFile(basedir, name);
+        File f = FileUtils.resolveFile(basedir, name);
         return new Resource(name, f.exists(), f.lastModified(),
                 f.isDirectory(), f.length());
     }
@@ -1738,7 +1725,7 @@ public class DirectoryScanner
             String current = pathElements.remove(0);
             try
             {
-                return FILE_UTILS.isSymbolicLink(base, current)
+                return FileUtils.isSymbolicLink(base, current)
                         || isSymlink(new File(base, current), pathElements);
             }
             catch (IOException ioe)

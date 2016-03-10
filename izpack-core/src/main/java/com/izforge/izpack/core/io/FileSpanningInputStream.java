@@ -18,6 +18,8 @@
 
 package com.izforge.izpack.core.io;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,8 +28,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
-
-import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -258,7 +258,7 @@ public class FileSpanningInputStream extends InputStream
             magicNumber = new byte[FileSpanningOutputStream.MAGIC_NUMBER_LENGTH];
             if (stream.read(magicNumber) != FileSpanningOutputStream.MAGIC_NUMBER_LENGTH)
             {
-                FileUtils.close(stream);
+                IOUtils.closeQuietly(stream);
                 throw new CorruptVolumeException();
             }
             if (logger.isLoggable(Level.FINE))
@@ -381,7 +381,7 @@ public class FileSpanningInputStream extends InputStream
                         try
                         {
                             // try to open new stream to next volume
-                            FileUtils.close(stream);
+                            IOUtils.closeQuietly(stream);
                             stream = new FileInputStream(volume);
                             current = volume;
                             checkMagicNumber();
@@ -445,7 +445,7 @@ public class FileSpanningInputStream extends InputStream
             }
             catch (IOException exception)
             {
-                FileUtils.close(stream);
+                IOUtils.closeQuietly(stream);
                 throw exception;
             }
         }
