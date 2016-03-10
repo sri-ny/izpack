@@ -36,7 +36,6 @@ public class ResourceUtils
      * tells which source files should be reprocessed based on the
      * last modification date of target files
      *
-     * @param logTo   where to send (more or less) interesting output
      * @param source  array of resources bearing relative path and last
      *                modification date
      * @param mapper  filename mapper indicating how to find the target
@@ -53,15 +52,13 @@ public class ResourceUtils
             throws Exception
     {
         return selectOutOfDateSources(source, mapper, targets,
-                FileUtils.getFileUtils()
-                        .getFileTimestampGranularity());
+                FileUtils.getFileTimestampGranularity());
     }
 
     /**
      * tells which source files should be reprocessed based on the
      * last modification date of target files
      *
-     * @param logTo       where to send (more or less) interesting output
      * @param resources   array of resources bearing relative path and last
      *                    modification date
      * @param mapper      filename mapper indicating how to find the target

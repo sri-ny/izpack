@@ -17,11 +17,11 @@
 
 package com.izforge.izpack.util.file;
 
-import java.io.File;
-import java.util.Vector;
-
 import com.izforge.izpack.util.file.types.Resource;
 import com.izforge.izpack.util.file.types.ResourceFactory;
+
+import java.io.File;
+import java.util.Vector;
 
 /**
  * Utility class that collects the functionality of the various
@@ -33,15 +33,10 @@ import com.izforge.izpack.util.file.types.ResourceFactory;
  */
 public class SourceFileScanner implements ResourceFactory
 {
-    private FileUtils fileUtils;
     private File destDir; // base directory of the fileset
 
-    /**
-     * @param task The task we should log messages through
-     */
     public SourceFileScanner()
     {
-        fileUtils = FileUtils.getFileUtils();
     }
 
     /**
@@ -59,7 +54,7 @@ public class SourceFileScanner implements ResourceFactory
                              FileNameMapper mapper) throws Exception
     {
         return restrict(files, srcDir, destDir, mapper,
-                fileUtils.getFileTimestampGranularity());
+                FileUtils.getFileTimestampGranularity());
     }
 
     /**
@@ -84,7 +79,7 @@ public class SourceFileScanner implements ResourceFactory
         Vector<Resource> v = new Vector<Resource>();
         for (String file : files)
         {
-            File src = fileUtils.resolveFile(srcDir, file);
+            File src = FileUtils.resolveFile(srcDir, file);
             v.addElement(new Resource(file, src.exists(),
                     src.lastModified(), src.isDirectory()));
         }
@@ -113,7 +108,7 @@ public class SourceFileScanner implements ResourceFactory
                                   FileNameMapper mapper) throws Exception
     {
         return restrictAsFiles(files, srcDir, destDir, mapper,
-                fileUtils.getFileTimestampGranularity());
+                FileUtils.getFileTimestampGranularity());
     }
 
     /**
@@ -142,7 +137,7 @@ public class SourceFileScanner implements ResourceFactory
      */
     public Resource getResource(String name) throws Exception
     {
-        File src = fileUtils.resolveFile(destDir, name);
+        File src = FileUtils.resolveFile(destDir, name);
         return new Resource(name, src.exists(), src.lastModified(),
                 src.isDirectory());
     }

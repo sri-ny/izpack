@@ -21,12 +21,6 @@
 
 package com.izforge.izpack.event;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.event.ProgressListener;
@@ -34,7 +28,13 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.util.SummaryProcessor;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
 
 /**
  * Installer listener which writes the summary of all panels into the logfile which is defined by
@@ -105,7 +105,7 @@ public class SummaryLoggerInstallerListener extends AbstractProgressInstallerLis
             }
             finally
             {
-                FileUtils.close(out);
+                IOUtils.closeQuietly(out);
             }
 
         }

@@ -1,14 +1,15 @@
 package com.izforge.izpack.installer.data;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.merge.Mergeable;
+import com.izforge.izpack.api.rules.RulesEngine;
+import com.izforge.izpack.data.CustomData;
+import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.merge.resolve.PathResolver;
+import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,15 +18,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.merge.Mergeable;
-import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.merge.resolve.PathResolver;
-import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
 
 /**
  * Writes uninstall data to an executable jar file.
@@ -202,6 +194,7 @@ public class UninstallDataWriter
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("com/izforge/izpack/gui/"));
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("com/izforge/izpack/img/"));
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/picocontainer/"));
+        uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/apache/commons/io/"));
 
         // indirectly required by Librarian, which pulls in IoHelper. TODO
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/apache/tools/zip/"));
@@ -523,8 +516,8 @@ public class UninstallDataWriter
      */
     private void destroyJar()
     {
-        FileUtils.close(jar);
-        FileUtils.close(jarStream); // if jar cannot be closed, then need to close underlying stream
+        IOUtils.closeQuietly(jar);
+        IOUtils.closeQuietly(jarStream); // if jar cannot be closed, then need to close underlying stream
         String path = uninstallData.getUninstallerJarFilename();
         if (path != null)
         {

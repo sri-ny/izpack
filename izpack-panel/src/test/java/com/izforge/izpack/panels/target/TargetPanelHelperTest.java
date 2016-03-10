@@ -20,9 +20,16 @@
  */
 package com.izforge.izpack.panels.target;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.core.data.DefaultVariables;
+import com.izforge.izpack.util.Platforms;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,17 +37,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.data.Pack;
-import com.izforge.izpack.api.data.Variables;
-import com.izforge.izpack.core.data.DefaultVariables;
-import com.izforge.izpack.util.Platforms;
-import com.izforge.izpack.util.file.FileUtils;
+import static org.junit.Assert.*;
 
 
 /**
@@ -161,7 +158,7 @@ public class TargetPanelHelperTest
     }
 
     /**
-     * Tests the {@link TargetPanelHelper#isIncompatibleInstallation(String)} method.
+     * Tests the {@link TargetPanelHelper#isIncompatibleInstallation(String, Boolean)} method.
      *
      * @throws IOException for any I/O error
      */
@@ -169,7 +166,7 @@ public class TargetPanelHelperTest
     public void testIsIncompatibleInstallation() throws IOException
     {
         File dir = File.createTempFile("junit", "");
-        FileUtils.delete(dir);
+        FileUtils.deleteQuietly(dir);
 
         // verify that the method returns false for non-existent directory
         assertFalse(dir.exists());

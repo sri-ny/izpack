@@ -36,6 +36,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
             <version>2.0.5</version>
@@ -54,12 +58,6 @@
             <artifactId>dtdparser</artifactId>
             <version>1.21</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>commons-io</groupId>
-          <artifactId>commons-io</artifactId>
-          <scope>test</scope>
         </dependency>
     </dependencies>
 

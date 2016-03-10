@@ -21,19 +21,15 @@
 
 package com.izforge.izpack.uninstaller.resource;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.resource.Resources;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
-
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -87,8 +83,8 @@ public class InstallLog
         }
         finally
         {
-            FileUtils.close(inReader);
-            FileUtils.close(in);
+            IOUtils.closeQuietly(inReader);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -136,8 +132,8 @@ public class InstallLog
         }
         finally
         {
-            FileUtils.close(reader);
-            FileUtils.close(in);
+            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(in);
         }
         return installPath;
     }

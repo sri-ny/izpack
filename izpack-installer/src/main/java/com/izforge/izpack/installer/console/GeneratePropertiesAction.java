@@ -21,12 +21,12 @@
 
 package com.izforge.izpack.installer.console;
 
+import com.izforge.izpack.api.data.InstallData;
+import org.apache.commons.io.IOUtils;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.util.file.FileUtils;
 
 /**
  * Action to generate properties for each panel.
@@ -85,7 +85,7 @@ class GeneratePropertiesAction extends ConsoleAction
     @Override
     public boolean complete()
     {
-        FileUtils.close(writer);
+        IOUtils.closeQuietly(writer);
         return true;
     }
 }

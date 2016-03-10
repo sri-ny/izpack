@@ -23,30 +23,19 @@
 
 package com.izforge.izpack.event;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import com.izforge.izpack.api.exception.InstallerException;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.handler.Prompt;
+import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.*;
+import org.apache.tools.ant.taskdefs.Ant;
+import org.apache.tools.ant.util.JavaEnvUtils;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.BuildLogger;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.DemuxOutputStream;
-import org.apache.tools.ant.Location;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.Target;
-import org.apache.tools.ant.taskdefs.Ant;
-import org.apache.tools.ant.util.JavaEnvUtils;
-
-import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.Prompt;
-import com.izforge.izpack.util.file.FileUtils;
 
 /**
  * This class contains data and 'perform' logic for ant action listeners.
@@ -56,16 +45,9 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class AntAction extends ActionBase
 {
-    private static final transient Logger logger = Logger.getLogger(AntAction.class.getName());
-
-    // --------AntAction specific String constants for ------------
-    // --- parsing the XML specification ------------
+    private static final Logger logger = Logger.getLogger(AntAction.class.getName());
 
     private static final long serialVersionUID = 3258131345250005557L;
-
-    public static final String ANTACTIONS = "antactions";
-
-    public static final String ANTACTION = "antaction";
 
     public static final String ANTCALL = "antcall";
 
@@ -170,7 +152,7 @@ public class AntAction extends ActionBase
             List<String> choosenTargets = (uninstall) ? uninstallTargets : targets;
             if (choosenTargets.size() > 0)
             {
-                Ant antcall = null;
+                Ant antcall;
                 for (String choosenTarget : choosenTargets)
                 {
                     antcall = (Ant) antProj.createTask("ant");
@@ -255,7 +237,7 @@ public class AntAction extends ActionBase
     /**
      * Sets the build working directory to be used to the given string.
      *
-     * @param buildFile build working directory path to be used
+     * @param buildDir build working directory path to be used
      */
     public void setBuildDir(File buildDir)
     {
@@ -584,7 +566,7 @@ public class AntAction extends ActionBase
         }
         finally
         {
-            FileUtils.close(fis);
+            IOUtils.closeQuietly(fis);
         }
         addProperties(proj, props);
     }

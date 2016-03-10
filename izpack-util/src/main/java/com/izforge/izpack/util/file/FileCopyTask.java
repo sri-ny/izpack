@@ -59,7 +59,6 @@ public class FileCopyTask
     protected Hashtable<File, File> completeDirMap = new Hashtable<File, File>();
 
     protected Mapper mapperElement = null;
-    protected FileUtils fileUtils;
     private long granularity = 0;
 
     /**
@@ -67,16 +66,7 @@ public class FileCopyTask
      */
     public FileCopyTask()
     {
-        fileUtils = FileUtils.getFileUtils();
-        granularity = fileUtils.getFileTimestampGranularity();
-    }
-
-    /**
-     * @return the fileutils object
-     */
-    protected FileUtils getFileUtils()
-    {
-        return fileUtils;
+        granularity = FileUtils.getFileTimestampGranularity();
     }
 
     /**
@@ -457,7 +447,7 @@ public class FileCopyTask
 
         if (destFile != null)
         {
-            destDir = fileUtils.getParentFile(destFile);
+            destDir = FileUtils.getParentFile(destFile);
         }
 
     }
@@ -582,7 +572,7 @@ public class FileCopyTask
                     try
                     {
                         logger.fine("Copying " + fromFile + " to " + toFile);
-                        fileUtils.copyFile(fromFile, toFile, forceOverwrite,
+                        FileUtils.copyFile(fromFile, toFile, forceOverwrite,
                                 preserveLastModified);
                     }
                     catch (IOException ioe)

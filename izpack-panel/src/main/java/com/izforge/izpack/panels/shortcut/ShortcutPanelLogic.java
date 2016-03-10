@@ -19,73 +19,6 @@
 
 package com.izforge.izpack.panels.shortcut;
 
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_CREATE_DESKTOP_SHORTCUTS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_CREATE_MENU_SHORTCUTS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_CREATE_SHORTCUTS_LEGACY;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_CREATE_STARTUP_SHORTCUTS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_PROGRAM_GROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_SHORTCUT_TYPE;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_SHORTCUT_TYPE_VALUE_ALL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.AUTO_KEY_SHORTCUT_TYPE_VALUE_USER;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.CREATE_FOR_ALL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.DEFAULT_FOLDER;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SEPARATOR_LINE;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_APPLICATIONS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_COMMAND;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_CONDITION;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_DEFAULT_GROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_DESCRIPTION;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_DESKTOP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_ENCODING;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_ICON;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_ICON_INDEX;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_INITIAL_STATE;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_INSTALLGROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_KDE_SUBST_UID;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_KDE_USERNAME;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_LOCATION;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_MIMETYPE;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_NAME;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_PROGRAM_GROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_RUN_AS_ADMINISTRATOR;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_STARTUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_START_MENU;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_SUBGROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_TARGET;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_TERMINAL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_TERMINAL_OPTIONS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_TYPE;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_URL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_ATTRIBUTE_WORKING_DIR;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_CATEGORIES;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_FILE_NAME;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_DEF_CUR_USER;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_LATE_INSTALL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_NOT_SUPPORTED;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_PACKS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_PROGRAM_GROUP;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_SHORTCUT;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_KEY_SKIP_IFNOT_SUPPORTED;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_TRYEXEC;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_APPLICATIONS;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_MAXIMIZED;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_MINIMIZED;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_NORMAL;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_NO_SHOW;
-import static com.izforge.izpack.panels.shortcut.ShortcutConstants.SPEC_VALUE_START_MENU;
-import static com.izforge.izpack.util.Platform.Name.UNIX;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
@@ -105,18 +38,21 @@ import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.data.ExecutableFile;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
-import com.izforge.izpack.util.CleanupClient;
-import com.izforge.izpack.util.Housekeeper;
-import com.izforge.izpack.util.OsConstraintHelper;
-import com.izforge.izpack.util.OsVersion;
-import com.izforge.izpack.util.Platform;
-import com.izforge.izpack.util.PlatformModelMatcher;
-import com.izforge.izpack.util.StringTool;
-import com.izforge.izpack.util.TargetFactory;
-import com.izforge.izpack.util.file.FileUtils;
+import com.izforge.izpack.util.*;
 import com.izforge.izpack.util.os.Shortcut;
 import com.izforge.izpack.util.unix.UnixHelper;
 import com.izforge.izpack.util.xml.XMLHelper;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Logger;
+
+import static com.izforge.izpack.panels.shortcut.ShortcutConstants.*;
+import static com.izforge.izpack.util.Platform.Name.UNIX;
 
 /**
  * This class implements a the logic for the creation of shortcuts. The logic is used in the
@@ -817,7 +753,7 @@ public class ShortcutPanelLogic implements CleanupClient
         try
         {
             test = File.createTempFile("shortcut", "", dir);
-            FileUtils.delete(test);
+            FileUtils.deleteQuietly(test);
         }
         catch (IOException exception)
         {

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,6 @@ import org.junit.Test;
 import com.izforge.izpack.panels.userinput.console.AbstractConsoleFieldTest;
 import com.izforge.izpack.panels.userinput.field.file.FileField;
 import com.izforge.izpack.panels.userinput.field.file.TestFileFieldConfig;
-import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -60,7 +60,7 @@ public class ConsoleFileFieldTest extends AbstractConsoleFieldTest
     @Before
     public void aetUp() throws IOException
     {
-        file = FileUtils.createTempFile("foo", "bar");
+        file = File.createTempFile("foo", "bar", FileUtils.getTempDirectory());
     }
 
     /**
@@ -117,7 +117,7 @@ public class ConsoleFileFieldTest extends AbstractConsoleFieldTest
     {
         ConsoleFileField field = createField(null);
 
-        File dir = FileUtils.createTempFile("foo", "bar");
+        File dir = File.createTempFile("foo", "bar", FileUtils.getTempDirectory());
         assertTrue(dir.delete());
         assertTrue(dir.mkdir());
         checkInvalid(field, dir.getPath());
@@ -129,7 +129,7 @@ public class ConsoleFileFieldTest extends AbstractConsoleFieldTest
     /**
      * Helper to create a field that updates the 'file' variable.
      *
-     * @param defaultValue the default value. May be {@code null}
+     * @param initialValue the initial value. May be {@code null}
      * @return a new field
      */
     private ConsoleFileField createField(String initialValue)

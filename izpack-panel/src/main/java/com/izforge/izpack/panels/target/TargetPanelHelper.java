@@ -18,6 +18,11 @@
  */
 package com.izforge.izpack.panels.target;
 
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.util.Platform;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -26,11 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.data.Pack;
-import com.izforge.izpack.util.Platform;
-import com.izforge.izpack.util.file.FileUtils;
 
 
 /**
@@ -139,8 +139,8 @@ public class TargetPanelHelper
             }
             finally
             {
-                FileUtils.close(objectInput);
-                FileUtils.close(input);
+                IOUtils.closeQuietly(objectInput);
+                IOUtils.closeQuietly(input);
             }
         }
 
