@@ -182,7 +182,7 @@
         <!-- Command execution -->
         <xs:attribute type="xs:string" name="executable" use="optional"/>
         <xs:attribute type="xs:string" name="dir" use="optional"/>
-        <xs:attribute type="xs:boolean" name="stderr" use="optional"/>
+        <xs:attribute type="xs:boolean" name="stderr" use="optional" default="false"/>
         <!-- Type - same name for config file type and execution type -->
         <xs:attribute name="type" use="optional">
             <xs:simpleType>
