@@ -1562,10 +1562,12 @@ public class CompilerConfig extends Thread
         }
 
         // This corrects issues that could arise due to subfolders
+        File tempDir = com.izforge.izpack.util.file.FileUtils.createTempDirectory("izpack", TEMP_DIR);
+        tempDir.deleteOnExit();
         Collections.sort(allDirList);
         for (String dirName : allDirList)
         {
-            File tmp = new File(dirName);
+            File tmp = new File(tempDir, dirName);
             org.apache.commons.io.FileUtils.forceMkdir(tmp);
             org.apache.commons.io.FileUtils.forceDeleteOnExit(tmp);
             String target = targetdir + "/" + dirName;
