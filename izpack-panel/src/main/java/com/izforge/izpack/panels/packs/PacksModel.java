@@ -286,6 +286,10 @@ public class PacksModel extends AbstractTableModel
             {
                 checkValues[i] = CbSelectionState.SELECTED;
             }
+            else
+            {
+                checkValues[i] = CbSelectionState.DESELECTED;
+            }
         }
 
         // If a packs dependency cannot be resolved checkboc value should be DEPENDENT_DESELECTED
