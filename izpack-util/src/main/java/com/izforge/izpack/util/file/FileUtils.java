@@ -218,4 +218,31 @@ public class FileUtils
                 ? FAT_FILE_TIMESTAMP_GRANULARITY : UNIX_FILE_TIMESTAMP_GRANULARITY;
     }
 
+    /**
+     * Create a temporary directory.
+     *
+     * @param prefix the prefix string to be used in generating the directory's
+     *        name; must be at least three characters long
+     * @param directory the directory in which the file is to be created, or
+     *        <code>null</code> if the default temporary-file directory is to be used
+     *
+     * @return a new temporary directory
+     *
+     * @throws IOException if the creation of the directory fails
+     */
+    public static File createTempDirectory(String prefix, File directory) throws IOException
+    {
+        // create a unique temporary file name
+        File tempFile = File.createTempFile(prefix, "", directory);
+        tempFile.delete();
+        // append a "d" suffix to the temporary directory name as the temp file may not be
+        // immediately deleted by the JVM
+        File tempDirectory = new File(tempFile.getPath() + ".tmp");
+        if (!tempDirectory.mkdirs())
+        {
+            throw new IOException("Failed to create temporary directory: " + tempDirectory);
+        }
+        return tempDirectory;
+    }
+
 }
