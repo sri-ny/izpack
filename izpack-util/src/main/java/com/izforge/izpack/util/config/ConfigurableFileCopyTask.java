@@ -22,12 +22,13 @@
 
 package com.izforge.izpack.util.config;
 
+import com.izforge.izpack.util.file.FileCopyTask;
+import com.izforge.izpack.util.file.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.util.file.FileCopyTask;
 
 public abstract class ConfigurableFileCopyTask extends FileCopyTask implements ConfigurableTask
 {
@@ -149,7 +150,7 @@ public abstract class ConfigurableFileCopyTask extends FileCopyTask implements C
                         doFileOperation(from, to, toTmp, patchPreserveEntries,
                                 patchPreserveValues, patchResolveVariables);
 
-                        getFileUtils().copyFile(toTmp, to, forceOverwrite, preserveLastModified);
+                        FileUtils.copyFile(toTmp, to, forceOverwrite, preserveLastModified);
                         if (cleanup && from.exists())
                         {
                             if (!from.delete())

@@ -20,7 +20,7 @@ package com.izforge.izpack.util.file.types.selectors;
 import java.io.File;
 
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 /**
  * This selector selects files against a mapped set of target files, selecting
@@ -46,9 +46,6 @@ import com.izforge.izpack.util.file.FileUtils;
  */
 public class DifferentSelector extends MappingSelector
 {
-
-    private FileUtils fileUtils = FileUtils.getFileUtils();
-
     private boolean ignoreFileTimes = true;
     private boolean ignoreContents = false;
 
@@ -113,7 +110,7 @@ public class DifferentSelector extends MappingSelector
             //here do a bulk comparison
             try
             {
-                return !fileUtils.contentEquals(srcfile, destfile);
+                return !FileUtils.contentEquals(srcfile, destfile);
             }
             catch (Exception e)
             {

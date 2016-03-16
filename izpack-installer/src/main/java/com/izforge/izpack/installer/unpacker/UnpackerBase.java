@@ -49,10 +49,10 @@ import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.file.GlobPatternMapper;
 import com.izforge.izpack.util.file.types.FileSet;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URI;
@@ -502,8 +502,8 @@ public abstract class UnpackerBase implements IUnpacker
         }
         finally
         {
-            FileUtils.close(packInputStream);
-            FileUtils.close(in);
+            IOUtils.closeQuietly(packInputStream);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -634,10 +634,10 @@ public abstract class UnpackerBase implements IUnpacker
         }
         finally
         {
-            FileUtils.close(in);
+            IOUtils.closeQuietly(in);
             if (packStream != packInputStream)
             {
-                FileUtils.close(packStream);
+                IOUtils.closeQuietly(packStream);
             }
         }
     }
@@ -1161,8 +1161,8 @@ public abstract class UnpackerBase implements IUnpacker
             }
             finally
             {
-                FileUtils.close(oin);
-                FileUtils.close(fin);
+                IOUtils.closeQuietly(oin);
+                IOUtils.closeQuietly(fin);
             }
             for (Pack pack : packs)
             {
@@ -1176,8 +1176,8 @@ public abstract class UnpackerBase implements IUnpacker
         oout.writeObject(installData.getVariables().getProperties());
 
         logger.fine("Writing installation information finished");
-        FileUtils.close(oout);
-        FileUtils.close(fout);
+        IOUtils.closeQuietly(oout);
+        IOUtils.closeQuietly(fout);
 
         uninstallData.addFile(installationInfo.getAbsolutePath(), true);
     }

@@ -55,8 +55,6 @@ public class Path extends DataType implements Cloneable
 {
     private static final Logger logger = Logger.getLogger(Path.class.getName());
 
-    private static FileUtils fileUtils = FileUtils.getFileUtils();
-
     private Vector<Object> elements;
 
     /**
@@ -86,8 +84,8 @@ public class Path extends DataType implements Cloneable
      * Invoked by IntrospectionHelper for <code>setXXX(Path p)</code>
      * attribute setters.
      *
-     * @param project the <CODE>Project</CODE> for this path.
-     * @param path    the <CODE>String</CODE> path definition.
+     * @param idata the install data
+     * @param path  the path definition.
      */
     public Path(InstallData idata, String path) throws Exception
     {
@@ -95,9 +93,7 @@ public class Path extends DataType implements Cloneable
     }
 
     /**
-     * Construct an empty <CODE>Path</CODE>.
-     *
-     * @param project the <CODE>Project</CODE> for this path.
+     * Construct an empty Path.
      */
     public Path()
     {
@@ -457,7 +453,7 @@ public class Path extends DataType implements Cloneable
     private static String resolveFile(InstallData idata, String relativeName)
             throws Exception
     {
-        File f = fileUtils.resolveFile(new File(idata.getInstallPath()), relativeName);
+        File f = FileUtils.resolveFile(new File(idata.getInstallPath()), relativeName);
         return f.getAbsolutePath();
     }
 

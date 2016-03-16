@@ -36,7 +36,7 @@ import com.izforge.izpack.uninstaller.Destroyer;
 import com.izforge.izpack.uninstaller.console.ConsoleUninstallerContainer;
 import com.izforge.izpack.uninstaller.gui.GUIUninstallerContainer;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -157,7 +157,7 @@ public class UninstallHelper
         Method run = destroyerClass.getMethod("run");
         run.invoke(destroyer);
 
-        FileUtils.delete(jar); // probably won't delete as the class loader will still have a reference to it?
+        FileUtils.deleteQuietly(jar); // probably won't delete as the class loader will still have a reference to it?
 
     }
 

@@ -22,14 +22,14 @@
 
 package com.izforge.izpack.util;
 
+import com.izforge.izpack.api.data.Info.TempDir;
+import com.izforge.izpack.api.data.InstallData;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.data.Info.TempDir;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.util.file.FileUtils;
 
 /**
  * Manages the life-cycle of a temporary directory
@@ -114,11 +114,15 @@ public class TemporaryDirectory implements CleanupClient
         {
             if (deleteOnExit)
             {
-                if (!FileUtils.deleteRecursively(tempdir))
+                try
+                {
+                    FileUtils.deleteDirectory(tempdir);
+                }
+                catch (IOException e)
                 {
                     logger.warning("Failed to properly clean up files in "
-                            + tempdir.getAbsolutePath()
-                            + " manual clean up may be required.");
+                            + tempdir.getAbsolutePath() + ": " + e.getMessage()
+                            + ", manual clean up may be required.");
                 }
             }
             else

@@ -21,19 +21,18 @@
 
 package com.izforge.izpack.core.resource;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.net.URL;
-import java.util.Arrays;
-
-import javax.swing.ImageIcon;
-
 import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URL;
+import java.util.Arrays;
 
 
 /**
@@ -187,8 +186,8 @@ public abstract class AbstractResources implements Resources
         }
         finally
         {
-            FileUtils.close(objectIn);
-            FileUtils.close(in);
+            IOUtils.closeQuietly(objectIn);
+            IOUtils.closeQuietly(in);
         }
         return result;
     }
@@ -282,16 +281,13 @@ public abstract class AbstractResources implements Resources
     {
         String result;
         InputStream in = getInputStream(name);
-        InputStreamReader reader = null;
         try
         {
-            reader = (encoding != null) ? new InputStreamReader(in, encoding) : new InputStreamReader(in);
-            result = FileUtils.readFully(reader);
+            result = IOUtils.toString(in, Charsets.toCharset(encoding));
         }
         finally
         {
-            FileUtils.close(reader);
-            FileUtils.close(in);
+            IOUtils.closeQuietly(in);
         }
         return result;
     }

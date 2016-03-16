@@ -21,15 +21,6 @@
 
 package com.izforge.izpack.event;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
@@ -41,8 +32,17 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.installer.data.UninstallData;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.io.IOUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class BSFInstallerListener extends AbstractProgressInstallerListener
@@ -376,8 +376,8 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
             }
             finally
             {
-                FileUtils.close(subis);
-                FileUtils.close(is);
+                IOUtils.closeQuietly(subis);
+                IOUtils.closeQuietly(is);
             }
         }
         else

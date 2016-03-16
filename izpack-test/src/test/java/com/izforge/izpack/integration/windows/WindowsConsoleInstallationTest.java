@@ -21,25 +21,6 @@
 
 package com.izforge.izpack.integration.windows;
 
-import static com.izforge.izpack.integration.windows.WindowsHelper.registryDeleteUninstallKey;
-import static com.izforge.izpack.integration.windows.WindowsHelper.registryKeyExists;
-import static com.izforge.izpack.integration.windows.WindowsHelper.registryValueStringEquals;
-import static com.izforge.izpack.util.Platform.Name.WINDOWS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.NativeLibException;
@@ -62,7 +43,19 @@ import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.Platforms;
 import com.izforge.izpack.util.PrivilegedRunner;
-import com.izforge.izpack.util.file.FileUtils;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.izforge.izpack.integration.windows.WindowsHelper.*;
+import static com.izforge.izpack.util.Platform.Name.WINDOWS;
+import static org.junit.Assert.*;
 
 
 /**
@@ -191,7 +184,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
     	if (getUninstallerJar() != null) {
             try {
                 // remove the uninstaller dir
-                FileUtils.deleteRecursively(getUninstallerJar().getParentFile());
+                FileUtils.deleteDirectory(getUninstallerJar().getParentFile());
             }
             catch (Exception ex) {
                 logger.log(Level.SEVERE, "Delete uninstaller directory failed.", ex);

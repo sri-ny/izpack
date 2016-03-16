@@ -37,6 +37,7 @@ import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -418,7 +419,7 @@ public abstract class PackagerBase implements IPackager
     protected void writeManifest() throws IOException
     {
         Manifest manifest = new Manifest(PackagerBase.class.getResourceAsStream("MANIFEST.MF"));
-        File tempManifest = com.izforge.izpack.util.file.FileUtils.createTempFile("MANIFEST", ".MF");
+        File tempManifest = File.createTempFile("MANIFEST", ".MF", FileUtils.getTempDirectory());
         manifest.write(new FileOutputStream(tempManifest));
         mergeManager.addResourceToMerge(tempManifest.getAbsolutePath(), "META-INF/MANIFEST.MF");
     }
@@ -445,7 +446,7 @@ public abstract class PackagerBase implements IPackager
         mergeManager.addResourceToMerge("org/apache/regexp/");
         mergeManager.addResourceToMerge("com/coi/tools/");
         mergeManager.addResourceToMerge("org/apache/tools/zip/");
-        mergeManager.addResourceToMerge("org/apache/commons/io/FilenameUtils.class");
+        mergeManager.addResourceToMerge("org/apache/commons/io/");
         mergeManager.addResourceToMerge("jline/");
         mergeManager.addResourceToMerge("org/fusesource/");
         mergeManager.addResourceToMerge("META-INF/native/");

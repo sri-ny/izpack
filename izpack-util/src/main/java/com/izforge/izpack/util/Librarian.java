@@ -21,6 +21,9 @@
 
 package com.izforge.izpack.util;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.util.file.FileUtils;
 
 /**
  * This class handles loading of native libraries. There must only be one instance of
@@ -312,7 +313,7 @@ public class Librarian implements CleanupClient
         String path = null;
         try
         {
-            file = FileUtils.createTempFile(name, extension);
+            file = File.createTempFile(name, extension, FileUtils.getTempDirectory());
             in = url.openStream();
             out = new FileOutputStream(file);
             IoHelper.copyStream(in, out);
@@ -324,8 +325,8 @@ public class Librarian implements CleanupClient
         }
         finally
         {
-            FileUtils.close(in);
-            FileUtils.close(out);
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(out);
         }
         if (path != null)
         {
@@ -333,7 +334,7 @@ public class Librarian implements CleanupClient
         }
         if (!result)
         {
-            FileUtils.delete(file);
+            FileUtils.deleteQuietly(file);
         }
         else
         {

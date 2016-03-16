@@ -21,18 +21,14 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Pack200;
 
 
 /**
@@ -96,9 +92,9 @@ class Pack200FileUnpacker extends FileUnpacker
         }
         finally
         {
-            FileUtils.close(in);
-            FileUtils.close(out);
-            FileUtils.close(jarOut);
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(jarOut);
         }
 
         postCopy(file);

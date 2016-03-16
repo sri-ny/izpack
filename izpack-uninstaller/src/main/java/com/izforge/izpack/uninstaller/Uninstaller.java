@@ -19,15 +19,6 @@
 
 package com.izforge.izpack.uninstaller;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
 import com.izforge.izpack.core.resource.DefaultResources;
 import com.izforge.izpack.uninstaller.console.ConsoleUninstaller;
 import com.izforge.izpack.uninstaller.console.ConsoleUninstallerContainer;
@@ -35,11 +26,13 @@ import com.izforge.izpack.uninstaller.container.UninstallerContainer;
 import com.izforge.izpack.uninstaller.gui.GUIUninstallerContainer;
 import com.izforge.izpack.uninstaller.gui.UninstallerFrame;
 import com.izforge.izpack.uninstaller.resource.InstallLog;
-import com.izforge.izpack.util.Housekeeper;
-import com.izforge.izpack.util.Platform;
-import com.izforge.izpack.util.Platforms;
-import com.izforge.izpack.util.PrivilegedRunner;
-import com.izforge.izpack.util.SelfModifier;
+import com.izforge.izpack.util.*;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The uninstaller class.
