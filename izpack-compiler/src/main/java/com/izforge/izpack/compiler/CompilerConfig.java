@@ -85,6 +85,7 @@ import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
+import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -166,10 +167,18 @@ public class CompilerConfig extends Thread
     private final Map<String, List<IXMLElement>> referencedConditionsUserInputSpec = new HashMap<String, List<IXMLElement>>();
 
     /**
+     * Maps condition pack names to XML elements in the AntActionSpec resource referring to them for checking at the end of
+     * compilation whether referenced packs exist for all elements.
+     */
+    private final Map<String, IXMLElement> referencedPacksAntActionSpec = new HashMap<String, IXMLElement>();
+
+
+    /**
      * UserInputPanel IDs for cross check whether given user input panel
      * referred in the installation descriptor are really defined
      */
     private Set<String> userInputPanelIds;
+
     private String unpackerClassname = "com.izforge.izpack.installer.unpacker.Unpacker";
     private String packagerClassname = "com.izforge.izpack.compiler.packager.impl.Packager";
     private final CompilerPathResolver pathResolver;
@@ -343,6 +352,7 @@ public class CompilerConfig extends Thread
         addPacks(data);
         addInstallerRequirement(data);
         checkReferencedConditions();
+        checkReferencedPacks();
 
         // merge multiple packlang.xml files
         mergePacksLangFiles();
@@ -1878,7 +1888,7 @@ public class CompilerConfig extends Thread
                 }
             }
 
-            IXMLElement userInputSpec = null;
+            IXMLElement userInputSpec = null, antActionSpec = null;
 
             // Just validate to avoid XML parser errors during installation later
             if (compilerData.isValidating())
@@ -1903,7 +1913,7 @@ public class CompilerConfig extends Thread
                 }
                 else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
                 {
-                    new AntActionSpecXmlParser().parse(url);
+                    antActionSpec = new AntActionSpecXmlParser().parse(url);
                 }
                 else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
                 {
@@ -1989,6 +1999,25 @@ public class CompilerConfig extends Thread
                             }
 
                         }
+                    }
+                }
+            }
+            else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
+            {
+                if (antActionSpec == null)
+                {
+                    // Parse only if not validating for avoiding parsing twice
+                    antActionSpec = new XMLParser(false).parse(url);
+                }
+                for (IXMLElement packDef : antActionSpec.getChildrenNamed(SpecHelper.PACK_KEY))
+                {
+                    String packName = xmlCompilerHelper.requireAttribute(packDef, SpecHelper.PACK_NAME);
+                    // Collect referenced packs in AntActionSpec for checking them later
+                    if (referencedPacksAntActionSpec.put(packName, packDef) != null)
+                    {
+                        assertionHelper.parseError(antActionSpec, "Resource " + AntActionInstallerListener.SPEC_FILE_NAME
+                                + ": Duplicate pack identifier '"
+                                + packName + "'");
                     }
                 }
             }
@@ -3441,6 +3470,27 @@ public class CompilerConfig extends Thread
         if (failure)
         {
             throw new CompilerException("Cannot recover from reference(s) to undefined condition(s) listed above");
+        }
+    }
+
+    private void checkReferencedPacks()
+    {
+        AssertionHelper antActionSpecAssertionHelper
+                = new AssertionHelper("Resource " + AntActionInstallerListener.SPEC_FILE_NAME);
+        List<PackInfo> packs = packager.getPacksList();
+        Set<String> definedPackNames = new HashSet<String>(packs.size());
+        for (PackInfo packInfo:packs)
+        {
+            definedPackNames.add(packInfo.getPack().getName());
+        }
+        for (String packName : referencedPacksAntActionSpec.keySet())
+        {
+            if (!definedPackNames.contains(packName))
+            {
+                IXMLElement element = referencedPacksAntActionSpec.get(packName);
+                antActionSpecAssertionHelper.parseError(element,
+                        "Expression '" + packName + "' refers to undefined pack");
+            }
         }
     }
 

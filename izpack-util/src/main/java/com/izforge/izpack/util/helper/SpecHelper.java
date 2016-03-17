@@ -58,9 +58,9 @@ public class SpecHelper
      */
     private final Resources resources;
 
-    private static final String PACK_KEY = "pack";
+    public static final String PACK_KEY = "pack";
 
-    private static final String PACK_NAME = "name";
+    public static final String PACK_NAME = "name";
 
     /**
      * Constructs a <tt>SpecHelper</tt>.
