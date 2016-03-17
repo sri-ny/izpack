@@ -737,6 +737,7 @@
         <xs:attribute name="type" type="substitutionType" use="optional" default="plain"/>
         <xs:attribute name="encoding" type="xs:string" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="executableType">
@@ -784,7 +785,8 @@
     				<xs:enumeration value="ignore" />
     			</xs:restriction>
         	</xs:simpleType>
-	    </xs:attribute>    
+	    </xs:attribute>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="updateCheckType">
