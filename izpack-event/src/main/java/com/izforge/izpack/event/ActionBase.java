@@ -39,8 +39,6 @@ public class ActionBase implements Serializable
 
     private static final long serialVersionUID = 3690478013149884728L;
 
-    public static final String PACK = "pack";
-
     public static final String NAME = "name";
 
     public static final String ANTCALL_CONDITIONID_ATTR = "condition";
