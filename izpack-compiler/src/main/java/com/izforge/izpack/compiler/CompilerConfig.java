@@ -65,9 +65,7 @@ import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.data.*;
-import com.izforge.izpack.event.AntActionInstallerListener;
-import com.izforge.izpack.event.ConfigurationInstallerListener;
-import com.izforge.izpack.event.RegistryInstallerListener;
+import com.izforge.izpack.event.*;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.merge.MergeManager;
@@ -165,6 +163,12 @@ public class CompilerConfig extends Thread
      * compilation whether referenced conditions exist for all elements.
      */
     private final Map<String, List<IXMLElement>> referencedConditionsUserInputSpec = new HashMap<String, List<IXMLElement>>();
+
+    /**
+     * Maps condition IDs to XML elements in the AntActionSpec resource referring to them for checking at the end of
+     * compilation whether referenced conditions exist for all elements.
+     */
+    private final Map<String, List<IXMLElement>> referencedConditionsAntActionSpec = new HashMap<String, List<IXMLElement>>();
 
     /**
      * Maps condition pack names to XML elements in the AntActionSpec resource referring to them for checking at the end of
@@ -2019,6 +2023,20 @@ public class CompilerConfig extends Thread
                                 + ": Duplicate pack identifier '"
                                 + packName + "'");
                     }
+                    for (IXMLElement antCallSpecDef : packDef.getChildrenNamed(AntAction.ANTCALL))
+                    {
+                        String antCallConditionId = antCallSpecDef.getAttribute(ActionBase.ANTCALL_CONDITIONID_ATTR);
+                        if (antCallConditionId != null)
+                        {
+                            List<IXMLElement> elList = referencedConditionsAntActionSpec.get(antCallConditionId);
+                            if (elList == null)
+                            {
+                                elList = new ArrayList<IXMLElement>();
+                                referencedConditionsAntActionSpec.put(antCallConditionId, elList);
+                            }
+                            elList.add(antCallSpecDef);
+                        }
+                    }
                 }
             }
         }
@@ -3436,14 +3454,14 @@ public class CompilerConfig extends Thread
         return conditionId;
     }
 
-    private void checkReferencedConditions()
+    private boolean checkReferencedConditions(Map<String, List<IXMLElement>> referringElements, AssertionHelper assertionHelper)
     {
         boolean failure = false;
-        for (String conditionId : referencedConditions.keySet())
+        for (String conditionId : referringElements.keySet())
         {
             if (rules.getCondition(conditionId) == null)
             {
-                List<IXMLElement> elList = referencedConditions.get(conditionId);
+                List<IXMLElement> elList = referringElements.get(conditionId);
                 for (IXMLElement element : elList)
                 {
                     assertionHelper.parseWarn(element,
@@ -3452,21 +3470,17 @@ public class CompilerConfig extends Thread
                 }
             }
         }
-        AssertionHelper userInputSpecAssertionHelper
-                = new AssertionHelper("Resource " + UserInputPanelSpec.SPEC_FILE_NAME);
-        for (String conditionId : referencedConditionsUserInputSpec.keySet())
-        {
-            if (rules.getCondition(conditionId) == null)
-            {
-                List<IXMLElement> elList = referencedConditionsUserInputSpec.get(conditionId);
-                for (IXMLElement element : elList)
-                {
-                    userInputSpecAssertionHelper.parseWarn(element,
-                            "Expression '" + conditionId + "' contains reference(s) to undefined condition(s)");
-                    failure = true;
-                }
-            }
-        }
+        return failure;
+    }
+
+    private void checkReferencedConditions()
+    {
+        boolean failure = false;
+        failure |= checkReferencedConditions(referencedConditions, assertionHelper);
+        failure |= checkReferencedConditions(referencedConditionsUserInputSpec,
+                new AssertionHelper("Resource " + UserInputPanelSpec.SPEC_FILE_NAME));
+        failure |= checkReferencedConditions(referencedConditionsAntActionSpec,
+                new AssertionHelper("Resource " + AntActionInstallerListener.SPEC_FILE_NAME));
         if (failure)
         {
             throw new CompilerException("Cannot recover from reference(s) to undefined condition(s) listed above");
