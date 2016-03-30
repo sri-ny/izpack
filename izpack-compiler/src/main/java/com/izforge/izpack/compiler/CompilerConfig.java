@@ -3356,24 +3356,6 @@ public class CompilerConfig extends Thread
                 }
                 fs.setDir(dir);
             }
-
-            dir_attr = fileSetNode.getAttribute("file");
-            if (dir_attr != null)
-            {
-                File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
-                // if the path does not exist, maybe it contains variables
-                if (! dir.exists()) {
-                    dir = new File(variableSubstitutor.substitute(dir.getAbsolutePath()));
-                }
-                fs.setFile(dir);
-            }
-            else
-            {
-                if (fs.getDir() == null)
-                {
-                    throw new CompilerException("At least one of both attributes, 'dir' or 'file' required in fileset");
-                }
-            }
         }
         catch (Exception e)
         {
