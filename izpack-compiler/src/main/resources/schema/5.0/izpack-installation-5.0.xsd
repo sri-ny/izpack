@@ -685,6 +685,9 @@
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
         <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
+        <xs:attribute name="casesensitive" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="defaultexcludes" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="followsymlinks" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
 
