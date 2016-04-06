@@ -368,7 +368,7 @@
       <dependency>
         <groupId>jline</groupId>
         <artifactId>jline</artifactId>
-        <version>2.14.1</version>
+        <version>2.12.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -860,12 +860,12 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.7</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.3.1</version>
+        <version>2.5.5</version>
         <configuration>
           <findbugsXmlOutput>true</findbugsXmlOutput>
           <effort>Max</effort>
@@ -874,7 +874,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.2</version>
+        <version>2.5</version>
       </plugin>
     </plugins>
   </reporting>

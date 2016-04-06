@@ -235,7 +235,6 @@ public class Console
         {
             Terminal terminal = consoleReader.getTerminal();
             termWidth = terminal.getWidth();
-            wrapLineFull = terminal.hasWeirdWrap();
         }
         if (title != null && title.length() > termWidth)
         {
@@ -248,10 +247,7 @@ public class Console
         int len = title != null ? Math.max(title.length(), message.length()) : message.length();
         int width = Math.min(termWidth, len);
         print('-', width);
-        if (wrapLineFull)
-        {
-            println();
-        }
+        println();
         if (title != null)
         {
             println(title);
@@ -259,10 +255,7 @@ public class Console
         }
         println(message);
         print('-', width);
-        if (wrapLineFull)
-        {
-            println();
-        }
+        println();
     }
 
     /**
