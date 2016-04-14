@@ -795,7 +795,7 @@ public class CompilerConfig extends Thread
             String group = packElement.getAttribute("group");
             String installGroups = packElement.getAttribute("installGroups");
             String excludeGroup = packElement.getAttribute("excludeGroup");
-            boolean uninstall = "yes".equalsIgnoreCase(packElement.getAttribute("uninstall", "yes"));
+            boolean uninstall = xmlCompilerHelper.validateYesNoAttribute(packElement, "uninstall", YES);
             long size = xmlCompilerHelper.getLong(packElement, "size", 0);
             String parent = packElement.getAttribute("parent");
             boolean hidden = Boolean.parseBoolean(packElement.getAttribute("hidden", "false"));
