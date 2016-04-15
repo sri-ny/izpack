@@ -474,16 +474,22 @@
         </xs:choice>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="packImgId" type="xs:string" use="optional"/>
         <xs:attribute name="required" type="types:yesNoTrueFalseType"/>
         <xs:attribute name="hidden" type="xs:boolean" default="false"/>
         <xs:attribute name="preselected" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="loose" type="xs:boolean" use="optional"/>
+        <xs:attribute name="uninstall" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
         <xs:attribute name="installGroups" type="xs:string" use="optional"/>
+        <xs:attribute name="excludeGroup" type="xs:string" use="optional"/>
+        <xs:attribute name="parent" type="xs:string" use="optional"/>
+        <xs:attribute name="group" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackType">
         <xs:attribute name="file" type="xs:string" use="required"/>
+        <xs:attribute name="selfcontained" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackSetType">
@@ -876,6 +882,5 @@
             <xs:enumeration value="xml"/>
         </xs:restriction>
     </xs:simpleType>
-
 
 </xs:schema>
