@@ -89,8 +89,8 @@
             <xs:element name="run-privileged" type="runPrivilegedType" minOccurs="0"/>
             <xs:element name="summarylogfilepath" type="xs:string" minOccurs="0"/>
             <xs:element name="uninstaller" type="uninstallerType" minOccurs="0"/>
-            <xs:element name="writeinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
-            <xs:element name="readinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
+            <xs:element name="writeinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0" default="true"/>
+            <xs:element name="readinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0" default="true"/>
             <xs:element name="rebootaction" type="rebootActionType" minOccurs="0"/>
             <xs:element name="webdir" type="xs:anyURI" minOccurs="0"/>
         </xs:all>
