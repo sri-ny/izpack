@@ -23,4 +23,5 @@ package com.izforge.izpack.compiler.exception;
  * Exception thrown when help has been requested
  */
 public class HelpRequestedException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
 }

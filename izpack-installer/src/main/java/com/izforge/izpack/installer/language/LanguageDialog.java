@@ -323,8 +323,9 @@ public class LanguageDialog extends JDialog
      */
     private class LanguageRenderer extends JLabel implements ListCellRenderer
     {
+		private static final long serialVersionUID = -2714221807803832722L;
 
-        /**
+		/**
          * Return a component that has been configured to display the specified value.
          *
          * @param list         the list
@@ -361,8 +362,9 @@ public class LanguageDialog extends JDialog
      */
     private class FlagRenderer extends LanguageRenderer
     {
+		private static final long serialVersionUID = 1L;
 
-        /**
+		/**
          * Icons cache.
          */
         private TreeMap<String, ImageIcon> icons = new TreeMap<String, ImageIcon>();

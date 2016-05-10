@@ -50,7 +50,9 @@ import java.util.logging.Logger;
  */
 public abstract class VariableSubstitutorBase implements VariableSubstitutor
 {
-    private static final Logger LOGGER = Logger.getLogger(VariableSubstitutorBase.class.getName());
+	private static final long serialVersionUID = 9210027468904770872L;
+
+	private static final Logger LOGGER = Logger.getLogger(VariableSubstitutorBase.class.getName());
 
     /**
      * Whether braces are required for substitution.

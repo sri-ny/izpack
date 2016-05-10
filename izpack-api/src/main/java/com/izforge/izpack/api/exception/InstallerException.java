@@ -28,8 +28,9 @@ package com.izforge.izpack.api.exception;
  */
 public class InstallerException extends IzPackException
 {
+	private static final long serialVersionUID = 2395858613240875432L;
 
-    /**
+	/**
      * @param message
      */
     public InstallerException(String message)

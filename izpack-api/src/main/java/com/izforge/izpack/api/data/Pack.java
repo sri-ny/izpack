@@ -33,7 +33,9 @@ import com.izforge.izpack.api.data.binding.OsModel;
 public class Pack implements Serializable
 {
 
-    /**
+	private static final long serialVersionUID = -7841139470853935196L;
+
+	/**
      * The pack name. This uniquely identifies the pack.
      */
     private String name;

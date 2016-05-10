@@ -122,8 +122,9 @@ public class ElementReader
         if (!forOs.isEmpty())
         {
             Condition osMatcherCondition = new Condition() {
+				private static final long serialVersionUID = 1L;
 
-                @Override
+				@Override
                 public void readFromXML(IXMLElement xmlcondition) throws Exception {}
 
                 @Override

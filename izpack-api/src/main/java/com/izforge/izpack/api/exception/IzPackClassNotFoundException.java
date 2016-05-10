@@ -29,8 +29,9 @@ package com.izforge.izpack.api.exception;
  */
 public class IzPackClassNotFoundException extends IzPackException
 {
+	private static final long serialVersionUID = 1405751986229171073L;
 
-    /**
+	/**
      * Constructs a <tt>IzPackClassNotFoundException</tt>.
      *
      * @param className the class name

@@ -26,7 +26,9 @@ package com.izforge.izpack.api.exception;
  */
 public class MergeException extends RuntimeException
 {
-    public MergeException(String message)
+	private static final long serialVersionUID = 9215568214757971064L;
+
+	public MergeException(String message)
     {
         super(message);    //To change body of overridden methods use File | Settings | File Templates.
     }

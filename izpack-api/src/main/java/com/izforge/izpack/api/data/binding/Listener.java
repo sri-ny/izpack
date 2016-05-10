@@ -30,7 +30,9 @@ import java.util.List;
  */
 public class Listener implements Serializable
 {
-    private String classname;
+	private static final long serialVersionUID = 3583072505265574733L;
+
+	private String classname;
 
     private Stage stage;
 

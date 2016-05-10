@@ -32,8 +32,9 @@ import com.izforge.izpack.installer.gui.IzPanel;
  */
 public class HelloPanelTestClass extends IzPanel
 {
+	private static final long serialVersionUID = -2987201538494308842L;
 
-    /**
+	/**
      * Constructs an <tt>HelloPanelTestClass</tt>.
      *
      * @param panel       the panel meta-data

@@ -31,7 +31,9 @@ package com.izforge.izpack.util.xmlmerge;
 public class ParseException extends AbstractXmlMergeException
 {
 
-    /**
+	private static final long serialVersionUID = -6462945544440673984L;
+
+	/**
      * Constructor with message.
      *
      * @param message Exception message

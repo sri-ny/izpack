@@ -69,7 +69,9 @@ import com.izforge.izpack.util.Housekeeper;
 public class UninstallerFrame extends JFrame
 {
 
-    /**
+	private static final long serialVersionUID = -1844696987323012728L;
+
+	/**
      * The icons database.
      */
     private final IconsDatabase icons;

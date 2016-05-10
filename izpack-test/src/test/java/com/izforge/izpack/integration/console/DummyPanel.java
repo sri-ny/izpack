@@ -33,8 +33,9 @@ import com.izforge.izpack.installer.gui.IzPanel;
  */
 public class DummyPanel extends IzPanel
 {
+	private static final long serialVersionUID = -3873581179467303865L;
 
-    /**
+	/**
      * Constructs a {@code DummyPanel}.
      *
      * @param panel       the panel meta-data

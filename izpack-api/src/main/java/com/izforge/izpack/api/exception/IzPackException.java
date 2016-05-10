@@ -29,7 +29,9 @@ import com.izforge.izpack.api.handler.Prompt.Type;
  */
 public class IzPackException extends RuntimeException
 {
-    Prompt.Type promptType = Type.ERROR;
+	private static final long serialVersionUID = -3367787603808904020L;
+
+	Prompt.Type promptType = Type.ERROR;
 
     public IzPackException(String message)
     {

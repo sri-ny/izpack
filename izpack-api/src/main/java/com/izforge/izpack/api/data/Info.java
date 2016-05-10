@@ -487,7 +487,9 @@ public class Info implements Serializable
      */
     public static class TempDir implements Serializable
     {
-        private final String prefix;
+		private static final long serialVersionUID = 7578346199971960904L;
+
+		private final String prefix;
         private final String suffix;
         private final String variableName;
 

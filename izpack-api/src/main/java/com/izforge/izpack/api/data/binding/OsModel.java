@@ -23,7 +23,9 @@ import java.io.Serializable;
 
 public class OsModel implements Serializable
 {
-    /**
+	private static final long serialVersionUID = -736021339243205276L;
+
+	/**
      * OS architecture from java system properties
      */
     private final String arch;

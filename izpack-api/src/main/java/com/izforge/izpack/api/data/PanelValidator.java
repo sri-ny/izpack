@@ -26,7 +26,9 @@ import com.izforge.izpack.api.installer.DataValidator;
  */
 public abstract class PanelValidator extends DefaultConfigurationHandler implements DataValidator
 {
-    @Override
+	private static final long serialVersionUID = -6662478927015059872L;
+
+	@Override
     public abstract Status validateData(InstallData installData);
 
     @Override

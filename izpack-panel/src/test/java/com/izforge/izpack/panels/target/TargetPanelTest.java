@@ -391,7 +391,9 @@ public class TargetPanelTest extends AbstractPanelTest
      */
     public static class NotWritableTargetPanel extends TargetPanel
     {
-        public NotWritableTargetPanel(Panel panel, InstallerFrame parent, GUIInstallData installData,
+		private static final long serialVersionUID = -1516699768499683236L;
+
+		public NotWritableTargetPanel(Panel panel, InstallerFrame parent, GUIInstallData installData,
                                       Resources resources, Log log)
         {
             super(panel, parent, installData, resources, log);
