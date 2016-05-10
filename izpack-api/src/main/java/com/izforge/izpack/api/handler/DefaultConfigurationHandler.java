@@ -20,7 +20,6 @@ import com.izforge.izpack.api.data.ConfigurationOption;
 import com.izforge.izpack.api.data.Configurable;
 import com.izforge.izpack.api.rules.RulesEngine;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
