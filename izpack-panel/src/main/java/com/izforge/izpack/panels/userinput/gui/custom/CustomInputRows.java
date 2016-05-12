@@ -124,6 +124,7 @@ public class CustomInputRows extends JPanel
             //TODO: Check for condition
             //if (guiField.getField().isConditionTrue())
             field.setDisplayed(true);
+            field.updateView();
             for (Component component : field.getComponents())
             {
                 JComponent jComponent = component.getComponent();
