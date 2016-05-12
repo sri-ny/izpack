@@ -171,7 +171,7 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
                 String _section_ = section;
                 for (VariableSubstitutor substitutor : substitutors)
                 {
-                    _key_ = substitutor.substitute(_key_);
+                    _section_ = substitutor.substitute(_section_);
                 }
                 ini = new Ini(in, config);
                 return ini.get(_section_, _key_);
