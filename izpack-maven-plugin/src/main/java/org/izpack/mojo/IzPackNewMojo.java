@@ -266,6 +266,7 @@ public class IzPackNewMojo extends AbstractMojo
 
     private void initMavenProperties(PropertyManager propertyManager)
     {
+        //TODO - project is annotated as @required, so the check project!=null should be useless!?!
         if (project != null)
         {
             Properties properties = project.getProperties();
