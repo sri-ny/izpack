@@ -362,9 +362,9 @@ public class LanguageDialog extends JDialog
      */
     private class FlagRenderer extends LanguageRenderer
     {
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		/**
+        /**
          * Icons cache.
          */
         private TreeMap<String, ImageIcon> icons = new TreeMap<String, ImageIcon>();
