@@ -7,6 +7,8 @@ package com.izforge.izpack.api.exception;
 public class UserInterruptException extends RuntimeException
 {
 
+    private static final long serialVersionUID = 7808127359861400565L;
+
     public UserInterruptException()
     {
         super();

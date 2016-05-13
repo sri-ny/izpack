@@ -29,6 +29,8 @@ package com.izforge.izpack.api.exception;
  */
 public class ResourceInterruptedException extends ResourceException
 {
+    private static final long serialVersionUID = -6593512174557928205L;
+
     /**
      * Constructs a {@code ResourceInterruptedException}.
      *

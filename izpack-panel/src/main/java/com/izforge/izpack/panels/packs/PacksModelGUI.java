@@ -30,6 +30,8 @@ import com.izforge.izpack.installer.data.GUIInstallData;
 
 public class PacksModelGUI extends PacksModel
 {
+    private static final long serialVersionUID = -6441885493834359189L;
+
     GUIInstallData GuiInstallData;
     private PacksPanelInterface panel;
 

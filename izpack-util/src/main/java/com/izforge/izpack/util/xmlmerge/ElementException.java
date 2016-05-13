@@ -32,6 +32,7 @@ import org.jdom2.Element;
  */
 public class ElementException extends AbstractXmlMergeException
 {
+    private static final long serialVersionUID = 3523760359350068908L;
 
     /**
      * An element instance.

@@ -29,6 +29,8 @@ package com.izforge.izpack.api.exception;
 public class CompilerException extends IzPackException
 {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Construct a new exception with the specified message.
      *

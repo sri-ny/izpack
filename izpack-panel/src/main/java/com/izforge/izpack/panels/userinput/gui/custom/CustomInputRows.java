@@ -41,6 +41,8 @@ import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 public class CustomInputRows extends JPanel
 {
+    private static final long serialVersionUID = -4416741488530082492L;
+
     private final UserInputPanelSpec userInputPanelSpec;
 
     private final IXMLElement spec;

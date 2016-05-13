@@ -29,6 +29,7 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 public class JarEntryConfigValue extends ZipEntryConfigFileValue
 {
+    private static final long serialVersionUID = 5832282905043038661L;
 
     public JarEntryConfigValue(String filename, String entryname, int type, String section, String key, boolean escape)
     {

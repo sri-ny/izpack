@@ -20,13 +20,14 @@ import com.izforge.izpack.api.data.ConfigurationOption;
 import com.izforge.izpack.api.data.Configurable;
 import com.izforge.izpack.api.rules.RulesEngine;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public abstract class DefaultConfigurationHandler implements Configurable
 {
+    private static final long serialVersionUID = -671908088764713053L;
+
     /**
      * Contains configuration values for a panel.
      */

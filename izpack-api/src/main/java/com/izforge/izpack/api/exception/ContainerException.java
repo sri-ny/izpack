@@ -29,6 +29,8 @@ package com.izforge.izpack.api.exception;
 public class ContainerException extends IzPackException
 {
 
+    private static final long serialVersionUID = 7833084829757000183L;
+
     /**
      * Constructs a <tt>ContainerException</tt>.
      *

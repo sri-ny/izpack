@@ -43,6 +43,8 @@ import com.izforge.izpack.api.resource.Messages;
  */
 public class LocaleDatabase extends TreeMap<String, String> implements Messages
 {
+    private static final long serialVersionUID = -5263020795271672830L;
+
     /**
      * static character for replacing quotes
      */

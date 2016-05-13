@@ -312,6 +312,8 @@ public class UninstallDataWriterTest
         Map<String, Condition> rules = new HashMap<String, Condition>();
         rules.put(ruleId, new Condition()
         {
+            private static final long serialVersionUID = 1L;
+
             {
                 setId(ruleId);
             }

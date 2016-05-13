@@ -31,6 +31,8 @@ import com.izforge.izpack.installer.data.GUIInstallData;
  */
 public class TestIzPanel extends IzPanel
 {
+    private static final long serialVersionUID = 8307346674027306500L;
+
     /**
      * Constructs a {@link TestIzPanel}.
      *
