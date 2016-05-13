@@ -31,7 +31,7 @@ public class XMLException extends IzPackException
 {
     private static final long serialVersionUID = 5028962140189818891L;
 
-	public XMLException(String message)
+    public XMLException(String message)
     {
         super(message);
     }

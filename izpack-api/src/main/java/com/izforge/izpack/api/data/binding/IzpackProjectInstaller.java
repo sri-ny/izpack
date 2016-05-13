@@ -33,9 +33,9 @@ import com.izforge.izpack.api.data.Panel;
  */
 public class IzpackProjectInstaller implements Serializable
 {
-	private static final long serialVersionUID = -5574097336255930393L;
+    private static final long serialVersionUID = -5574097336255930393L;
 
-	private List<Listener> listeners = new ArrayList<Listener>();
+    private List<Listener> listeners = new ArrayList<Listener>();
 
     private List<Panel> panels;
 

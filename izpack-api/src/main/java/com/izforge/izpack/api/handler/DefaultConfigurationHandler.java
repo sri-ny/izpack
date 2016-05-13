@@ -26,9 +26,9 @@ import java.util.Set;
 
 public abstract class DefaultConfigurationHandler implements Configurable
 {
-	private static final long serialVersionUID = -671908088764713053L;
+    private static final long serialVersionUID = -671908088764713053L;
 
-	/**
+    /**
      * Contains configuration values for a panel.
      */
     private Map<String, ConfigurationOption> configuration = null;

@@ -32,9 +32,9 @@ import org.jdom2.Element;
  */
 public class MatchException extends AbstractXmlMergeException
 {
-	private static final long serialVersionUID = -4536813803719320679L;
+    private static final long serialVersionUID = -4536813803719320679L;
 
-	/**
+    /**
      * Element which caused the exception.
      */
     Element m_element;

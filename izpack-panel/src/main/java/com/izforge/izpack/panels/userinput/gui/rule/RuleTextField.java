@@ -43,8 +43,8 @@ import com.izforge.izpack.panels.userinput.field.rule.FieldSpec;
 /*---------------------------------------------------------------------------*/
 public class RuleTextField extends JTextField
 {
-	private static final long serialVersionUID = 8291069586976953430L;
-	private final FieldSpec spec;
+    private static final long serialVersionUID = 8291069586976953430L;
+    private final FieldSpec spec;
 
     public RuleTextField(FieldSpec spec)
     {

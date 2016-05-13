@@ -32,9 +32,9 @@ import org.jdom2.Document;
  */
 public class DocumentException extends AbstractXmlMergeException
 {
-	private static final long serialVersionUID = 8024477623372449100L;
+    private static final long serialVersionUID = 8024477623372449100L;
 
-	/**
+    /**
      * A document instance.
      */
     Document m_document;

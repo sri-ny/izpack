@@ -323,9 +323,9 @@ public class LanguageDialog extends JDialog
      */
     private class LanguageRenderer extends JLabel implements ListCellRenderer
     {
-		private static final long serialVersionUID = -2714221807803832722L;
+        private static final long serialVersionUID = -2714221807803832722L;
 
-		/**
+        /**
          * Return a component that has been configured to display the specified value.
          *
          * @param list         the list

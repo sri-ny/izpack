@@ -890,9 +890,9 @@ public class RulesEngineImpl implements RulesEngine
      */
     private static abstract class BuiltinCondition extends Condition
     {
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		@Override
+        @Override
         public void readFromXML(IXMLElement condition) throws Exception
         {
         }
@@ -908,8 +908,8 @@ public class RulesEngineImpl implements RulesEngine
      */
     private static class StaticCondition extends BuiltinCondition
     {
-		private static final long serialVersionUID = 1L;
-		private final boolean result;
+        private static final long serialVersionUID = 1L;
+        private final boolean result;
 
         public StaticCondition(boolean result)
         {

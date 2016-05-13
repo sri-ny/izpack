@@ -2,9 +2,9 @@ package com.izforge.izpack.util.os;
 
 public class SystemErrorException extends Exception
 {
-	private static final long serialVersionUID = 1416855067735971989L;
+    private static final long serialVersionUID = 1416855067735971989L;
 
-	/**
+    /**
      * System error code
      */
     private int errorCode = 0;

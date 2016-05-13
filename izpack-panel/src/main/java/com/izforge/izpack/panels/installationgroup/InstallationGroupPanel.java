@@ -586,9 +586,9 @@ public class InstallationGroupPanel extends IzPanel
         String[] columns = {c1, c3};
         DefaultTableModel model = new DefaultTableModel(columns, 0)
         {
-			private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-			@Override
+            @Override
             public boolean isCellEditable(int row, int column)
             {
                 return false;

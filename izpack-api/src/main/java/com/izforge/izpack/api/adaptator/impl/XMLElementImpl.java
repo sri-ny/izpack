@@ -46,9 +46,9 @@ import java.util.regex.Pattern;
 public class XMLElementImpl implements IXMLElement
 {
 
-	private static final long serialVersionUID = -8246368851862398576L;
+    private static final long serialVersionUID = -8246368851862398576L;
 
-	/**
+    /**
      * The dom element embedded by the XMLElement
      */
     private Element element;

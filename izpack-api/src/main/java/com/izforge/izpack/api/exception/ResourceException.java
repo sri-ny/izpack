@@ -29,9 +29,9 @@ package com.izforge.izpack.api.exception;
  */
 public class ResourceException extends IzPackException
 {
-	private static final long serialVersionUID = -2379890293021407877L;
+    private static final long serialVersionUID = -2379890293021407877L;
 
-	/**
+    /**
      * Constructs a {@code ResourceException}.
      *
      * @param message the error message

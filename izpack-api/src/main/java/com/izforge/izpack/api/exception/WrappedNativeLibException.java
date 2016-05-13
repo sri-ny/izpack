@@ -32,9 +32,9 @@ import com.izforge.izpack.api.resource.Messages;
 public class WrappedNativeLibException extends IzPackException
 {
 
-	private static final long serialVersionUID = 8719330824802322745L;
+    private static final long serialVersionUID = 8719330824802322745L;
 
-	/**
+    /**
      * The messages.
      */
     private final Messages messages;

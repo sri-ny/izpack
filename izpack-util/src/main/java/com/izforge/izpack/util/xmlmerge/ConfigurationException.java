@@ -31,9 +31,9 @@ package com.izforge.izpack.util.xmlmerge;
 public class ConfigurationException extends AbstractXmlMergeException
 {
 
-	private static final long serialVersionUID = -6132220150764644855L;
+    private static final long serialVersionUID = -6132220150764644855L;
 
-	/**
+    /**
      * Default constructor.
      */
     public ConfigurationException()
