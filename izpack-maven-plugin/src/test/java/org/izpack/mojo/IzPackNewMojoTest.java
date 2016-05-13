@@ -3,15 +3,21 @@ package org.izpack.mojo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
+import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.project.DefaultProjectBuilderConfiguration;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuilderConfiguration;
 import org.hamcrest.collection.IsCollectionContaining;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsNull;
 import org.junit.Test;
 
+import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.matcher.ZipMatcher;
 
 /**
@@ -65,6 +71,42 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
 
         // Verify the generated file exists.
         assertThat( file.exists(), Is.is( true ) );
+    }
+    
+    @Test
+    public void testFixIZPACK_1400() throws Exception {
+
+        // Create and configure the mojo.
+        File testPom = new File( Thread.currentThread().getContextClassLoader().getResource( "pom-izpack-1400.xml" ).toURI() );
+        IzPackNewMojo mojo = (IzPackNewMojo)lookupMojo( "izpack", testPom );
+        assertThat( mojo, IsNull.notNullValue() );
+        initIzpack5Mojo( mojo );
+
+        Properties userProps = new Properties();
+        userProps.setProperty("property1", "value1");       // simulates "-Dproperty1=value1" on mvn commandline
+
+        ProjectBuilderConfiguration builderConfig = new DefaultProjectBuilderConfiguration();
+        builderConfig.setUserProperties(userProps);
+        MavenProjectBuilder builder = (MavenProjectBuilder) lookup(MavenProjectBuilder.ROLE);
+        MavenProject project = builder.build(testPom, builderConfig);
+        setVariableValueToObject(mojo, "project", project);
+
+        // Execute the mojo.
+        mojo.execute();
+
+        // first verify the default behavior of maven
+        Properties props = project.getProperties();
+        // project.Properties do not reflect the user properties, so property1 reflects pom.xml
+        assertEquals("default", props.getProperty("property1"));
+        // but computated properties do reflect the user property
+        assertEquals("value1",  props.getProperty("property2"));
+        
+        // verify the behavior of IzPack Maven Plugin
+        PropertyManager propertyManager = (PropertyManager) getVariableValueFromObject(mojo, "propertyManager");
+        assertThat(propertyManager, IsNull.notNullValue() );
+        // The IzPackMaven plugin should honor the user property set with "-Dproperty1=value1"
+        assertEquals("value1" , propertyManager.getProperty("property1")); 	
+        assertEquals("value1" , propertyManager.getProperty("property2"));
     }
 
     private void initIzpackMojo( IzPackNewMojo mojo ) throws IllegalAccessException {

@@ -190,6 +190,7 @@ public class IzPackNewMojo extends AbstractMojo
      */
     private boolean enableOverrideArtifact;
 
+    private PropertyManager propertyManager;
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -204,7 +205,7 @@ public class IzPackNewMojo extends AbstractMojo
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
 
-        PropertyManager propertyManager = compilerContainer.getComponent(PropertyManager.class);
+        propertyManager = compilerContainer.getComponent(PropertyManager.class);
         initMavenProperties(propertyManager);
 
         try
