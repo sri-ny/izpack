@@ -26,7 +26,6 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
@@ -55,6 +54,7 @@ import java.util.logging.Level;
  */
 public class IzPackNewMojo extends AbstractMojo
 {
+
     /**
      * The Maven Session Object
      *
@@ -63,7 +63,7 @@ public class IzPackNewMojo extends AbstractMojo
      * @readonly
      */
     private MavenSession session;
-
+	
     /**
      * The Maven Project Object
      *
@@ -277,13 +277,20 @@ public class IzPackNewMojo extends AbstractMojo
 
     private void initMavenProperties(PropertyManager propertyManager)
     {
-        //TODO - project is annotated as @required, so the check project!=null should be useless!?!
+    	//TODO - project is annotated as @required, so the check project!=null should be useless!?!
         if (project != null)
         {
             Properties properties = project.getProperties();
+            Properties userProps  = session.getUserProperties();
             for (String propertyName : properties.stringPropertyNames())
             {
-                String value = properties.getProperty(propertyName);
+                String value;
+                if (userProps.containsKey(propertyName))
+                {
+                    value = userProps.getProperty(propertyName);
+                } else {
+                    value = properties.getProperty(propertyName);
+                }
                 if (propertyManager.addProperty(propertyName, value))
                 {
                     getLog().debug("Maven property added: " + propertyName + "=" + value);
