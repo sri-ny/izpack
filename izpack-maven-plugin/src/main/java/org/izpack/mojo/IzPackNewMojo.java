@@ -26,6 +26,8 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
+
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -53,6 +55,15 @@ import java.util.logging.Level;
  */
 public class IzPackNewMojo extends AbstractMojo
 {
+    /**
+     * The Maven Session Object
+     *
+     * @parameter property="session" default-value="${session}"
+     * @required
+     * @readonly
+     */
+    private MavenSession session;
+
     /**
      * The Maven Project Object
      *

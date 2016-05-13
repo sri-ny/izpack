@@ -7,6 +7,7 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.DefaultProjectBuilderConfiguration;
 import org.apache.maven.project.MavenProject;
@@ -84,6 +85,19 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
 
         Properties userProps = new Properties();
         userProps.setProperty("property1", "value1");       // simulates "-Dproperty1=value1" on mvn commandline
+
+        MavenSession session = new MavenSession(null,       // PlexusContainer container
+                                                null,       // Settings settings
+                                                null,       // ArtifactRepository localRepository
+                                                null,       // EventDispatcher eventDispatcher
+                                                null,       // ReactorManager reactorManager
+                                                null,       // List goals
+                                                null,       // String executionRootDir
+                                                null,       // Properties executionProperties
+                                                userProps,  // Properties userProperties
+                                                null        // Date startTime
+                                               );
+        setVariableValueToObject(mojo, "session", session);
 
         ProjectBuilderConfiguration builderConfig = new DefaultProjectBuilderConfiguration();
         builderConfig.setUserProperties(userProps);
