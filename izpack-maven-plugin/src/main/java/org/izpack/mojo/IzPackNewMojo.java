@@ -285,6 +285,9 @@ public class IzPackNewMojo extends AbstractMojo
             for (String propertyName : properties.stringPropertyNames())
             {
                 String value;
+                // TODO: should all user properties be provided as property?
+                // Intentionally user properties are searched for properties defined in pom.xml only
+                // see https://izpack.atlassian.net/browse/IZPACK-1402 for discussion
                 if (userProps.containsKey(propertyName))
                 {
                     value = userProps.getProperty(propertyName);
