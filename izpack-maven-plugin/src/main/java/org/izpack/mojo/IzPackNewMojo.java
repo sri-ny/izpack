@@ -26,6 +26,7 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -53,6 +54,16 @@ import java.util.logging.Level;
  */
 public class IzPackNewMojo extends AbstractMojo
 {
+
+    /**
+     * The Maven Session Object
+     *
+     * @parameter property="session" default-value="${session}"
+     * @required
+     * @readonly
+     */
+    private MavenSession session;
+	
     /**
      * The Maven Project Object
      *
@@ -190,6 +201,7 @@ public class IzPackNewMojo extends AbstractMojo
      */
     private boolean enableOverrideArtifact;
 
+    private PropertyManager propertyManager;
 
     public void execute() throws MojoExecutionException, MojoFailureException
     {
@@ -204,7 +216,7 @@ public class IzPackNewMojo extends AbstractMojo
 
         CompilerConfig compilerConfig = compilerContainer.getComponent(CompilerConfig.class);
 
-        PropertyManager propertyManager = compilerContainer.getComponent(PropertyManager.class);
+        propertyManager = compilerContainer.getComponent(PropertyManager.class);
         initMavenProperties(propertyManager);
 
         try
@@ -265,12 +277,23 @@ public class IzPackNewMojo extends AbstractMojo
 
     private void initMavenProperties(PropertyManager propertyManager)
     {
+    	//TODO - project is annotated as @required, so the check project!=null should be useless!?!
         if (project != null)
         {
             Properties properties = project.getProperties();
+            Properties userProps  = session.getUserProperties();
             for (String propertyName : properties.stringPropertyNames())
             {
-                String value = properties.getProperty(propertyName);
+                String value;
+                // TODO: should all user properties be provided as property?
+                // Intentionally user properties are searched for properties defined in pom.xml only
+                // see https://izpack.atlassian.net/browse/IZPACK-1402 for discussion
+                if (userProps.containsKey(propertyName))
+                {
+                    value = userProps.getProperty(propertyName);
+                } else {
+                    value = properties.getProperty(propertyName);
+                }
                 if (propertyManager.addProperty(propertyName, value))
                 {
                     getLog().debug("Maven property added: " + propertyName + "=" + value);
