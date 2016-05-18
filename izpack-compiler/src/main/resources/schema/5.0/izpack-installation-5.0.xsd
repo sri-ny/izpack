@@ -450,6 +450,11 @@
     <xs:complexType name="packType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="description" type="xs:string" maxOccurs="1"/>
+            <xs:element name="depends" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="packname" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="onSelect" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xs:attribute name="name" type="xs:string" use="required"/>
