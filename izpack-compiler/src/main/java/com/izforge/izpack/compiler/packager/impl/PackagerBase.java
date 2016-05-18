@@ -31,12 +31,15 @@ import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.merge.PanelMerge;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.stream.JarOutputStream;
+import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
+import com.izforge.izpack.compiler.util.graph.BreadthFirstIterator;
+import com.izforge.izpack.compiler.util.graph.DirectedGraph;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -381,6 +384,41 @@ public abstract class PackagerBase implements IPackager
         return info != null && info.getWebDirURL() != null;
     }
 
+    private List<DynamicVariable> buildVariableList()
+    {
+        DirectedGraph<DynamicVariable> graph = new DirectedGraph<DynamicVariable>();
+        DynamicVariable rootVar = new DynamicVariableImpl("", "");
+
+        for (List<DynamicVariable> dynVariables : dynamicVariables.values())
+        {
+            for (DynamicVariable var : dynVariables)
+            {
+                graph.addEdge(rootVar, var);
+                for (String childName : var.getUnresolvedVariableNames())
+                {
+                    List<DynamicVariable> childVars = dynamicVariables.get(childName);
+                    if (childVars != null)
+                    {
+                        for (DynamicVariable childVar : childVars)
+                        {
+                            graph.addEdge(var, childVar);
+                        }
+                    }
+                }
+            }
+        }
+
+        Iterator<DynamicVariable> it = new BreadthFirstIterator<DynamicVariable>(graph, rootVar);
+        List<DynamicVariable> nodes = new ArrayList<DynamicVariable>();
+        while (it.hasNext()) {
+            nodes.add(it.next());
+        }
+        nodes.remove(rootVar);
+        Collections.reverse(nodes);
+
+        return nodes;
+    }
+
     /**
      * Writes the installer.
      *
@@ -400,7 +438,7 @@ public abstract class PackagerBase implements IPackager
         writeInstallerObject("customData", customDataList);
         writeInstallerObject("langpacks.info", langpackNameList);
         writeInstallerObject("rules", rules);
-        writeInstallerObject("dynvariables", dynamicVariables);
+        writeInstallerObject("dynvariables", buildVariableList());
         writeInstallerObject("dynconditions", dynamicInstallerRequirements);
         writeInstallerObject("installerrequirements", installerRequirements);
 

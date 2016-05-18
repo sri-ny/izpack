@@ -21,15 +21,6 @@
 
 package com.izforge.izpack.core.data;
 
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Test;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Panel;
@@ -44,6 +35,14 @@ import com.izforge.izpack.core.variable.ConfigFileValue;
 import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.util.Platforms;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -222,7 +221,7 @@ public class DefaultVariablesTest
         // set up the rules
         AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.FREEBSD);
         RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                    installData.getPlatform());
+                installData.getPlatform());
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
@@ -255,7 +254,7 @@ public class DefaultVariablesTest
         // set up the rules
         AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
         RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                    installData.getPlatform());
+                installData.getPlatform());
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
@@ -273,10 +272,15 @@ public class DefaultVariablesTest
         variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
         assertEquals("b", variables.get("unset1"));
 
+        Set<String> blocked = new HashSet<String>();
+        // prevent from being overridden by refresh (for instance as part of a UserInputPanel reached)
+        blocked.add("unset1");
         variables.set("unset1", "anothervalue");
+        variables.registerBlockedVariableNames(blocked, this);
         variables.refresh(); // Check keep overload from another source like a user input panel
         assertEquals("anothervalue", variables.get("unset1"));
 
+        variables.unregisterBlockedVariableNames(blocked, this);
         variables.set("condvar2", "y");
         // cond1+cond2 - override the previous value
         variables.refresh();
@@ -287,423 +291,321 @@ public class DefaultVariablesTest
 
     /**
      * Tests dynamic variables with a deeper dependency
-     * @see https://jira.codehaus.org/browse/IZPACK-1182
      */
     @Test
-   public void testDependentDynamicVariables()
-   {
-        variables.add(createDynamic("depVar1", "${depVar2}"));
-        variables.add(createDynamic("depVar2", "${depVar3}"));
+    public void testDependentDynamicVariables()
+    {
         variables.set("depVar3", "depValue");
+        variables.add(createDynamic("depVar2", "${depVar3}"));
+        variables.add(createDynamic("depVar1", "${depVar2}"));
 
         assertNull(variables.get("depVar1")); // not created till variables refreshed
         variables.refresh();
-        assertEquals("check dependent variable","depValue", variables.get("depVar1"));
-   }
+        assertEquals("check dependent variable", "depValue", variables.get("depVar1"));
+    }
 
     /**
      * Tests dynamic variables with a deeper dependency
-     * @see https://jira.codehaus.org/browse/IZPACK-1182
      */
     @Test
-   public void testDependentDynamicVariables2()
-   {
-        variables.add(createDynamic("name1", "${name3}"));
+    public void testDependentDynamicVariables2()
+    {
         variables.add(createDynamic("name2", "someValue"));
         variables.add(createDynamic("name3", "${name2}"));
+        variables.add(createDynamic("name1", "${name3}"));
         assertNull(variables.get("name1")); // not created till variables refreshed
         variables.refresh();
-        assertEquals("check dependent variable","someValue", variables.get("name1"));
-   }
+        assertEquals("check dependent variable", "someValue", variables.get("name1"));
+    }
 
-        
-    
-   /**
-    * Tests dynamic variables with a deeper dependency and checkonce==true
-    * @see https://jira.codehaus.org/browse/IZPACK-1182
-    */
-   @Test
-   public void testDependentDynamicVariablesWithCheckOnce()
-   {
-       variables.add(createDynamic("depVar1", "${depVar2}"));
-       variables.add(createDynamic("depVar2", "${depVar3}"));
-       variables.set("depVar3", "depValue");
+    /**
+     * Tests dynamic variables with a deeper dependency and checkonce==true
+     */
+    @Test
+    public void testDependentDynamicVariablesWithCheckOnce()
+    {
+        variables.set("depVar3", "depValue");
+        variables.add(createDynamic("depVar2", "${depVar3}"));
+        variables.add(createDynamic("depVar1", "${depVar2}"));
 
-       variables.add(createDynamicCheckonce("checkonceVar", "${depVar1}"));
+        variables.add(createDynamicCheckonce("checkonceVar", "${depVar1}"));
 
-       variables.refresh();
-       assertEquals("check dependent variable","depValue", variables.get("depVar1"));
-       assertEquals("check variable with checkonce=true","depValue", variables.get("checkonceVar"));
+        variables.refresh();
+        assertEquals("check dependent variable", "depValue", variables.get("depVar1"));
+        assertEquals("check variable with checkonce=true", "depValue", variables.get("checkonceVar"));
 
-       variables.set("depVar3", "newValue");
-       variables.refresh();
-       assertEquals("recheck dependent variable","newValue", variables.get("depVar1")); // should be changed
-       assertEquals("recheck variable with checkonce=true","depValue", variables.get("checkonceVar")); // should not change any more
-   }
+        variables.set("depVar3", "newValue");
+        variables.refresh();
+        assertEquals("recheck dependent variable", "newValue", variables.get("depVar1")); // should be changed
+        assertEquals("recheck variable with checkonce=true", "depValue", variables.get("checkonceVar")); // should not change any more
+    }
 
-   /**
-    * Tests dynamic variables with and without conditions
-    * 
-    * This test is for the definition
-    * <dynamicvariables>
-    *   <variable name="thechoice" value="fallback value" />
-    *   <variable name="thechoice" value="choice1" condition="cond1" />
-    *   <variable name="thechoice" value="choice2" condition="cond2" />
-    * </dynamicvariables>
-    * @see http://docs.codehaus.org/display/IZPACK/Lifecycle+of+dynamic+variables
-    */
-   @Test
-   public void testMixedDynamicVariables()
-   {
-       final String observedVar = "thechoice";
+    /**
+     * Tests dynamic variables with and without conditions
+     * <p>
+     * This test is for the definition
+     * <dynamicvariables>
+     * <variable name="thechoice" value="fallback value" />
+     * <variable name="thechoice" value="choice1" condition="cond1" />
+     * <variable name="thechoice" value="choice2" condition="cond2" />
+     * </dynamicvariables>
+     */
+    @Test
+    public void testMixedDynamicVariables()
+    {
+        final String observedVar = "thechoice";
 
-       // set up conditions
-       Map<String, Condition> conditions = new HashMap<String, Condition>();
-       conditions.put("cond1", new VariableCondition("condvar1", "1"));
-       conditions.put("cond2", new VariableCondition("condvar2", "1"));
+        // set up conditions
+        Map<String, Condition> conditions = new HashMap<String, Condition>();
+        conditions.put("cond1", new VariableCondition("condvar1", "1"));
+        conditions.put("cond2", new VariableCondition("condvar2", "1"));
 
-       // set up the rules
-       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
-       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                   installData.getPlatform());
-       rules.readConditionMap(conditions);
-       ((DefaultVariables) variables).setRules(rules);
+        // set up the rules
+        AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+        RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                installData.getPlatform());
+        rules.readConditionMap(conditions);
+        ((DefaultVariables) variables).setRules(rules);
 
-       variables.add(createDynamic(observedVar, "fallback value", null));
-       variables.add(createDynamic(observedVar, "choice1", "cond1"));
-       variables.add(createDynamic(observedVar, "choice2", "cond2"));
+        variables.add(createDynamic(observedVar, "fallback value", null));
+        variables.add(createDynamic(observedVar, "choice1", "cond1"));
+        variables.add(createDynamic(observedVar, "choice2", "cond2"));
 
-       assertNull(variables.get(observedVar));
+        assertNull(variables.get(observedVar));
 
-       // !cond1+!cond2
-       variables.refresh();
-       assertEquals("fallback value", variables.get(observedVar));
+        // !cond1+!cond2
+        variables.refresh();
+        assertEquals("fallback value", variables.get(observedVar));
 
-       // cond1+!cond2
-       variables.set("condvar1", "1");
-       variables.refresh();
-       assertEquals("choice1", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("choice1", variables.get(observedVar));
+        // cond1+!cond2
+        variables.set("condvar1", "1");
+        variables.refresh();
+        assertEquals("choice1", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("choice1", variables.get(observedVar));
 
-       // cond1+cond2
-       variables.set("condvar2", "1");
-       variables.refresh();
-       assertEquals("choice2", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("choice2", variables.get(observedVar));
+        // cond1+cond2
+        variables.set("condvar2", "1");
+        variables.refresh();
+        assertEquals("choice2", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("choice2", variables.get(observedVar));
 
-       // !cond1+cond2
-       variables.set("condvar1", "0");
-       variables.refresh();
-       assertEquals("choice2", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("choice2", variables.get(observedVar));
+        // !cond1+cond2
+        variables.set("condvar1", "0");
+        variables.refresh();
+        assertEquals("choice2", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("choice2", variables.get(observedVar));
 
-       // !cond1+!cond2
-       variables.set("condvar2", "0");
-       variables.refresh();
-       assertEquals("fallback value", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("fallback value", variables.get(observedVar));
+        // !cond1+!cond2
+        variables.set("condvar2", "0");
+        variables.refresh();
+        assertEquals("fallback value", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("fallback value", variables.get(observedVar));
 
-       // !cond1+cond2
-       variables.set("condvar2", "1");
-       variables.refresh();
-       assertEquals("choice2", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("choice2", variables.get(observedVar));
-       
-       // cond1+cond2
-       variables.set("condvar1", "1");
-       variables.refresh(); // cond2 takes precedence because of ordering
-       assertEquals("choice2", variables.get(observedVar));
-       variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-       assertEquals("choice2", variables.get(observedVar));
-   }
+        // !cond1+cond2
+        variables.set("condvar2", "1");
+        variables.refresh();
+        assertEquals("choice2", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("choice2", variables.get(observedVar));
 
-   /**
-    * Tests, whether refresh() does not terminate before conditions have stabilized
-    * 
-    * This test is for the definition
-    * <dynamicvariables>
-    *  <variable name="var1" value="1" checkonce="true" />
-    *  <variable name="var1" value="2" checkonce="true" condition="cond1"/>
-    *  <variable name="var2" value="${var1}" />
-    *  <variable name="var3" value="${var2}" />
-    *  <variable name="var4" value="${var3}" />
-    *  <variable name="var5" value="${var4}" />
-    * </dynamicvariables>
-    * <conditions>
-    *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
-    * </conditions>
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
-    */
-   @Test
-   public void testLoopWithConditions()
-   {
-       // set up conditions
-       Map<String, Condition> conditions = new HashMap<String, Condition>();
-       conditions.put("cond1", new VariableCondition("var5", "1"));
+        // cond1+cond2
+        variables.set("condvar1", "1");
+        variables.refresh(); // cond2 takes precedence because of ordering
+        assertEquals("choice2", variables.get(observedVar));
+        variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
+        assertEquals("choice2", variables.get(observedVar));
+    }
 
-       // set up the rules
-       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
-       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                   installData.getPlatform());
-       rules.readConditionMap(conditions);
-       ((DefaultVariables) variables).setRules(rules);
+    /**
+     * Tests dynamic variables with cyclic reference
+     * <dynamicvariables>
+     * <variable name="a" value="${b}" />
+     * <variable name="b" value="${a}" />
+     * </dynamicvariables>
+     * <p>
+     * This example is not useful, but should not create a loop.
+     * Resolving is done in the best way it can be done. No error is thrown, but variable "a" is simply not resolved.
+     */
+    @Test
+    public void testCyclicReference()
+    {
+        variables.add(createDynamic("a", "${b}"));
+        variables.add(createDynamic("b", "${a}"));
+        variables.refresh();
 
-       variables.add(createDynamic("var111", "${var5}"));
-       variables.add(createDynamicCheckonce("var1", "1", null));
-       variables.add(createDynamicCheckonce("var1", "2", "cond1"));
-       variables.add(createDynamic("var2", "${var1}"));
-       variables.add(createDynamic("var3", "${var2}"));
-       variables.add(createDynamic("var4", "${var3}"));
-       variables.add(createDynamic("var5", "${var4}"));
+        assertEquals("${b}", variables.get("a"));
+        assertEquals("${b}", variables.get("b"));
+    }
 
-       assertNull(variables.get("var5"));
+    /**
+     * Test loop detection with no dynamic variables at all
+     * Ensure, that no exception is thrown
+     */
+    @Test
+    public void testNoDynamicVariables()
+    {
+        boolean catched = false;
+        try
+        {
+            variables.refresh();
+        }
+        catch (InstallerException e)
+        {
+            catched = true;
+        }
+        assertFalse("empty <dynamicVariables> must not throw an exception", catched);
+    }
 
-       // !cond1+!cond2
-       variables.refresh();
-       assertEquals("2", variables.get("var5"));
-   }
+    /**
+     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>)
+     */
+    @Test
+    public void testMixedVariables()
+    {
+        variables.set("var1", "value1");
+        variables.add(createDynamic("var1", "dynValue"));
 
-   /**
-    * Tests, whether refresh() does not terminate before conditions have stabilized
-    * 
-    * This test is for the definition
-    * <dynamicvariables>
-    *  <variable name="var5" value="${var4}" />
-    *  <variable name="var4" value="${var3}" />
-    *  <variable name="var3" value="${var2}" />
-    *  <variable name="var2" value="${var1}" />
-    *  <variable name="var1" value="1" checkonce="true" />
-    *  <variable name="var1" value="2" checkonce="true" condition="cond1"/>
-    * </dynamicvariables>
-    * <conditions>
-    *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
-    * </conditions>
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
-    */
-   @Test
-   public void testLoopWithConditionsReversedDefiniton()
-   {
-       // set up conditions
-       Map<String, Condition> conditions = new HashMap<String, Condition>();
-       conditions.put("cond1", new VariableCondition("var5", "1"));
+        assertEquals("static value", "value1", variables.get("var1"));       // dynamic variable not resolved till variables refreshed
+        variables.refresh();
+        assertEquals("dynamic overwrite", "dynValue", variables.get("var1")); // static variable is overwritten by dynamic variable
 
-       // set up the rules
-       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
-       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                   installData.getPlatform());
-       rules.readConditionMap(conditions);
-       ((DefaultVariables) variables).setRules(rules);
+        variables.add(createDynamic("var1", "${var2}"));                     // var2 is not defined yet
+        variables.refresh();
+        assertEquals("expect unresolved reference", "${var2}", variables.get("var1"));
 
-       variables.add(createDynamic("var5", "${var4}"));
-       variables.add(createDynamic("var4", "${var3}"));
-       variables.add(createDynamic("var3", "${var2}"));
-       variables.add(createDynamic("var2", "${var1}"));
-       variables.add(createDynamicCheckonce("var1", "1", null));
-       variables.add(createDynamicCheckonce("var1", "2", "cond1"));
+        variables.set("var2", "value2");                                     // define var2
+        variables.refresh();
+        assertEquals("expect reference resolved", "value2", variables.get("var1"));
+    }
 
-       assertNull(variables.get("var5"));
+    /**
+     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
+     */
+    @Test
+    public void testMixedVariablesFromIniFileUnsetTrue()
+    {
+        testMixedVariablesFromIniFileUnset(true);
+        // variable "var6" is static defined, but dynamic reference is not found in ini file.
+        // with unset="true" (Default) the static variable is overwritten with null
+        assertNull("undefined reference gives <null>", variables.get("var6"));
+    }
 
-       // !cond1+!cond2
-       variables.refresh();
-       assertEquals("2", variables.get("var5"));
-   }
-   
-   /**
-    * Tests dynamic variables with cyclic reference
-    * <dynamicvariables>
-    *   <variable name="a" value="${b}" />
-    *   <variable name="b" value="${a}" />
-    * </dynamicvariables>
-    * 
-    * This example is not useful, but should not create a loop
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
-    */
-   @Test
-   public void testCyclicReference()
-   {
-       variables.add(createDynamic("a", "${b}"));
-       variables.add(createDynamic("b", "${a}"));
+    /**
+     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
+     */
+    @Test
+    public void testMixedVariablesFromIniFileUnsetFalse()
+    {
+        testMixedVariablesFromIniFileUnset(false);
+        // variable "var6" is static defined, but dynamic reference is not found in ini file.
+        // with unset="false" the static variable is conserved and can be used as default
+        assertEquals("undefined reference gives static value", "static", variables.get("var6"));
+    }
 
-       boolean catched=false;
-       try {
-    	   variables.refresh();
-       } catch (InstallerException e) {
-    	   catched=true;
-       }
-       assertTrue("cyclic dependency must throw an exception", catched);
-   }
-   
-   /**
-    * Test loop detection with no dynamic variables at all
-    * Ensure, that no exception is thrown 
-    * 
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
-    */
-   @Test
-   public void testNoDynamicVariables()
-   {
-       boolean catched=false;
-       try {
-    	   variables.refresh();
-       } catch (InstallerException e) {
-    	   catched=true;
-       }
-       assertFalse("empty <dynamicVariables> must not throw an exception", catched);
-   }
+    private void testMixedVariablesFromIniFileUnset(boolean unset)
+    {
+        // setup for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
+        variables.set("var1", "static");
+        variables.set("var2", "static");
+        variables.set("var3", "static");
+        variables.set("var4", "static");
+        variables.set("var5", "static");
+        variables.set("var6", "static");
+        variables.add(createDynamicFromIni("found", unset));
+        variables.add(createDynamicFromIni("var1", unset));
+        variables.add(createDynamicFromIni("var2", unset));
+        variables.add(createDynamicFromIni("var3", unset));
+        variables.add(createDynamicFromIni("var4", unset));
+        variables.add(createDynamicFromIni("var5", unset));
+        variables.add(createDynamicFromIni("var6", unset));
 
-   /**
-    * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>)
-    */
-   @Test
-   public void testMixedVariables()
-   {
-       variables.set("var1", "value1");
-       variables.add(createDynamic("var1", "dynValue"));
+        // common tests for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
+        assertEquals("static value", "static", variables.get("var1"));       // dynamic variable not resolved till variables refreshed
+        variables.refresh();
+        assertEquals("ini not found", "true", variables.get("found"));      // check, whether ini was found at all
 
-       assertEquals("static value", "value1", variables.get("var1"));       // dynamic variable not resolved till variables refreshed
-       variables.refresh();
-       assertEquals("dynamic overwrite","dynValue", variables.get("var1")); // static variable is overwritten by dynamic variable
+        // static variable replaced by dynamic value from ini
+        assertEquals("value from ini", "ini1", variables.get("var1"));
+        assertEquals("value from ini with spaces", "ini2", variables.get("var2"));
+        assertEquals("value from ini with spaces in value", "ini with spaces", variables.get("var3"));
+        assertEquals("empty value from ini", "", variables.get("var4"));
+        assertEquals("empty value with spaces in ini", "", variables.get("var5"));
+    }
 
-       variables.add(createDynamic("var1", "${var2}"));                     // var2 is not defined yet
-       variables.refresh();
-       assertEquals("expect unresolved reference","${var2}", variables.get("var1"));
+    /**
+     * Test for blocking of dynamic variables
+     */
+    @Test
+    public void testBlockedDynamicVariables()
+    {
+        // set up conditions
+        Map<String, Condition> conditions = new HashMap<String, Condition>();
+        conditions.put("cond1", new VariableCondition("condvar1", "1"));
+        variables.set("condvar1", "0");
 
-       variables.set("var2", "value2");                                     // define var2
-       variables.refresh();
-       assertEquals("expect reference resolved","value2", variables.get("var1"));
-   }
+        // set up the rules
+        AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
+        RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
+                installData.getPlatform());
+        rules.readConditionMap(conditions);
+        ((DefaultVariables) variables).setRules(rules);
 
-   /**
-    * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
-    */
-   @Test
-   public void testMixedVariablesFromIniFileUnsetTrue()
-   {
-       testMixedVariablesFromIniFileUnset(true);
-       // variable "var6" is static defined, but dynamic reference is not found in ini file. 
-       // with unset="true" (Default) the static variable is overwritten with null
-       assertNull("undefined reference gives <null>", variables.get("var6"));
-   }
+        String blockedVar = "a";
+        variables.add(createDynamic(blockedVar, "oldValue"));
+        variables.add(createDynamic(blockedVar, "newValue", "cond1"));
 
-   /**
-    * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>) with reference to ini file
-    */
-   @Test
-   public void testMixedVariablesFromIniFileUnsetFalse()
-   {
-       testMixedVariablesFromIniFileUnset(false);
-       // variable "var6" is static defined, but dynamic reference is not found in ini file. 
-       // with unset="false" the static variable is conserved and can be used as default
-       assertEquals("undefined reference gives static value", "static", variables.get("var6"));
-   }
+        variables.refresh();
+        assertEquals("oldValue", variables.get(blockedVar));
 
-   private void testMixedVariablesFromIniFileUnset(boolean unset)
-   {
-       // setup for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
-       variables.set("var1", "static");
-       variables.set("var2", "static");
-       variables.set("var3", "static");
-       variables.set("var4", "static");
-       variables.set("var5", "static");
-       variables.set("var6", "static");
-       variables.add(createDynamicFromIni("found",unset));
-       variables.add(createDynamicFromIni("var1",unset));
-       variables.add(createDynamicFromIni("var2",unset));
-       variables.add(createDynamicFromIni("var3",unset));
-       variables.add(createDynamicFromIni("var4",unset));
-       variables.add(createDynamicFromIni("var5",unset));
-       variables.add(createDynamicFromIni("var6",unset));
+        // block variable
+        Set<String> blockedVars = new HashSet<String>();
+        blockedVars.add(blockedVar);
+        Panel blocker = new Panel();
+        variables.registerBlockedVariableNames(blockedVars, blocker);
+        variables.refresh();
+        assertEquals("oldValue", variables.get(blockedVar));
 
-       // common tests for testMixedVariablesFromIniFileUnsetTrue and testMixedVariablesFromIniFileUnsetFalse
-       assertEquals("static value", "static", variables.get("var1"));       // dynamic variable not resolved till variables refreshed
-       variables.refresh();
-       assertEquals("ini not found","true",   variables.get("found"));      // check, whether ini was found at all
+        // condition becomes true, but variable is still blocked
+        variables.set("condvar1", "1");
+        variables.refresh();
+        assertEquals("oldValue", variables.get(blockedVar));
 
-       // static variable replaced by dynamic value from ini
-       assertEquals("value from ini", "ini1", variables.get("var1"));
-       assertEquals("value from ini with spaces", "ini2", variables.get("var2")); 
-       assertEquals("value from ini with spaces in value", "ini with spaces", variables.get("var3"));
-       assertEquals("empty value from ini", "", variables.get("var4"));
-       assertEquals("empty value with spaces in ini", "", variables.get("var5"));
-   }
+        // unblock variable, so value should change
+        variables.unregisterBlockedVariableNames(blockedVars, blocker);
+        variables.refresh();
+        assertEquals("newValue", variables.get(blockedVar));
+    }
 
-   /**
-    * Test for blocking of dynamic variables
-    * 
-    * @see http://jira.codehaus.org/browse/IZPACK-1199
-    */
-   @Test
-   public void testBlockedDynamicVariables()
-   {
-       // set up conditions
-       Map<String, Condition> conditions = new HashMap<String, Condition>();
-       conditions.put("cond1", new VariableCondition("condvar1", "1"));
-       variables.set("condvar1", "0");
+    /**
+     * Creates a dynamic variable with Checkonce set.
+     *
+     * @param name  the variable name
+     * @param value the variable value
+     * @return a new variable
+     */
+    private DynamicVariable createDynamicCheckonce(String name, String value)
+    {
+        return createDynamicCheckonce(name, value, null);
+    }
 
-       // set up the rules
-       AutomatedInstallData installData = new AutomatedInstallData(variables, Platforms.LINUX);
-       RulesEngineImpl rules = new RulesEngineImpl(installData, new ConditionContainer(new DefaultContainer()),
-                                                   installData.getPlatform());
-       rules.readConditionMap(conditions);
-       ((DefaultVariables) variables).setRules(rules);
-
-       String blockedVar = "a";
-       variables.add(createDynamic(blockedVar, "oldValue"));
-       variables.add(createDynamic(blockedVar, "newValue", "cond1"));
-
-       variables.refresh();
-       assertEquals("oldValue", variables.get(blockedVar));
-
-       // block variable
-       Set<String> blockedVars = new HashSet<String>();
-       blockedVars.add(blockedVar);
-       Panel blocker = new Panel();
-       variables.registerBlockedVariableNames(blockedVars, blocker);
-       variables.refresh();
-       assertEquals("oldValue", variables.get(blockedVar));
-
-       // condition becomes true, but variable is still blocked
-       variables.set("condvar1", "1");
-       variables.refresh();
-       assertEquals("oldValue", variables.get(blockedVar));
-       
-       // unblock variable, so value should change
-       variables.unregisterBlockedVariableNames(blockedVars, blocker);
-       variables.refresh();
-       assertEquals("newValue", variables.get(blockedVar));
-   }
-
-   /**
-    * Creates a dynamic variable with Checkonce set.
-    *
-    * @param name        the variable name
-    * @param value       the variable value
-    * @return a new variable
-    */
-   private DynamicVariable createDynamicCheckonce(String name, String value)
-   {
-       return createDynamicCheckonce(name, value, null);
-   }
-
-   /**
-    * Creates a dynamic variable with a condition and Checkonce set.
-    *
-    * @param name        the variable name
-    * @param value       the variable value
-    * @param conditionId the condition identifier. May be {@code null}
-    * @return a new variable
-    */
-   private DynamicVariable createDynamicCheckonce(String name, String value, String conditionId)
-   {
-       DynamicVariable var = createDynamic(name, value, conditionId);
-       var.setCheckonce(true);
-       return var;
-   }
+    /**
+     * Creates a dynamic variable with a condition and Checkonce set.
+     *
+     * @param name        the variable name
+     * @param value       the variable value
+     * @param conditionId the condition identifier. May be {@code null}
+     * @return a new variable
+     */
+    private DynamicVariable createDynamicCheckonce(String name, String value, String conditionId)
+    {
+        DynamicVariable var = createDynamic(name, value, conditionId);
+        var.setCheckonce(true);
+        return var;
+    }
 
     /**
      * Creates a dynamic variable.
@@ -737,8 +639,8 @@ public class DefaultVariablesTest
     /**
      * Creates a dynamic variable from the ini file "src/test/resources/com/izforge/izpack/core/variable/test.ini".
      *
-     * @param name        the variable name
-     * @param autounset   whether to unset, when undefined 
+     * @param name      the variable name
+     * @param autounset whether to unset, when undefined
      * @return a new variable
      */
     private DynamicVariable createDynamicFromIni(String name, boolean autounset)
@@ -750,7 +652,7 @@ public class DefaultVariablesTest
      * Creates a dynamic variable from a ini file.
      *
      * @param name        the variable name
-     * @param value       the variable value
+     * @param file        the test ini file
      * @param filesection the section in the ini file
      * @param filekey     the key in the ini file
      * @param autounset   whether to unset, when undefined

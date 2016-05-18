@@ -24,6 +24,8 @@ package com.izforge.izpack.core.variable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -171,7 +173,7 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
                 String _section_ = section;
                 for (VariableSubstitutor substitutor : substitutors)
                 {
-                    _key_ = substitutor.substitute(_key_);
+                    _section_ = substitutor.substitute(_section_);
                 }
                 ini = new Ini(in, config);
                 return ini.get(_section_, _key_);
@@ -209,5 +211,18 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
             }
         }
         return sb.toString();
+    }
+
+
+    @Override
+    public Set<String> getUnresolvedVariableNames()
+    {
+        Set<String> unresolvedNames = new HashSet<String>();
+        unresolvedNames.add(key);
+        if (type == CONFIGFILE_TYPE_INI)
+        {
+            unresolvedNames.add(section);
+        }
+        return parseUnresolvedVariableNames(unresolvedNames.toArray(new String[unresolvedNames.size()]));
     }
 }

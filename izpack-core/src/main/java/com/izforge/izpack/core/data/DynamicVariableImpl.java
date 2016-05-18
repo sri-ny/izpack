@@ -25,6 +25,7 @@ package com.izforge.izpack.core.data;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -329,5 +330,11 @@ public class DynamicVariableImpl implements DynamicVariable
     public void setChecked()
     {
         checked = true;
+    }
+
+    @Override
+    public Set<String> getUnresolvedVariableNames()
+    {
+        return value.getUnresolvedVariableNames();
     }
 }

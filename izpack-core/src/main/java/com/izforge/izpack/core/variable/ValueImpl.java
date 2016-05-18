@@ -25,9 +25,16 @@ import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Value;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public abstract class ValueImpl implements Value
 {
     private InstallData installData;
+
+    private static Pattern RESOLVER_PATTERN = Pattern.compile("\\$\\{(.+?)\\}|\\$(.+?)");
 
     @Override
     public abstract void validate() throws Exception;
@@ -64,5 +71,25 @@ public abstract class ValueImpl implements Value
             return false;
         }
         return true;
+    }
+
+    protected static Set<String> parseUnresolvedVariableNames(String... strings)
+    {
+        Set<String> unresolvedNames = new HashSet<String>();
+        for (String s : strings)
+        {
+            Matcher matcher = RESOLVER_PATTERN.matcher(s);
+            while (matcher.find()) {
+                for (int i = 0; i < matcher.groupCount(); i++)
+                {
+                    String name = matcher.group(i+1);
+                    if (name != null)
+                    {
+                        unresolvedNames.add(name);
+                    }
+                }
+            }
+        }
+        return unresolvedNames;
     }
 }

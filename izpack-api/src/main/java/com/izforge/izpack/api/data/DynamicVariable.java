@@ -25,6 +25,7 @@ package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
@@ -90,5 +91,7 @@ public interface DynamicVariable extends Serializable
     void addFilter(ValueFilter filter);
 
     List<ValueFilter> getFilters();
+
+    Set<String> getUnresolvedVariableNames();
 }
 

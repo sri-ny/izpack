@@ -19,12 +19,12 @@
 
 package com.izforge.izpack.core.variable;
 
+import com.izforge.izpack.api.substitutor.VariableSubstitutor;
+
 import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
-
-import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 
 public class JarEntryConfigValue extends ZipEntryConfigFileValue
@@ -75,5 +75,4 @@ public class JarEntryConfigValue extends ZipEntryConfigFileValue
             throw new Exception("Error opening jar file " + filename, ze);
         }
     }
-
 }
