@@ -118,6 +118,7 @@ public class ConsoleRadioFieldTest extends AbstractConsoleFieldTest
 
     private static class BooleanCondition extends Condition
     {
+        private static final long serialVersionUID = -1127142177617533100L;
         private final boolean value;
 
         BooleanCondition(String id, boolean value, InstallData installData)

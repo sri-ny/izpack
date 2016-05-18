@@ -46,6 +46,8 @@ public class TestUninstallerListener implements UninstallerListener
      */
     public static class State implements Serializable
     {
+        private static final long serialVersionUID = -550767988575871066L;
+
         /**
          * Tracks invocations of {@link UninstallerListener#initialise()}.
          */

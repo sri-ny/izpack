@@ -13,6 +13,7 @@ import javax.swing.ImageIcon;
 public class SplashScreen extends JFrame
 {
 
+    private static final long serialVersionUID = 7897719439576157499L;
     private final Resources resources;
     private final GUIInstallData installData;
 

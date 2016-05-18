@@ -119,6 +119,7 @@ public class ConsoleComboFieldTest extends AbstractConsoleFieldTest
 
     private static class BooleanCondition extends Condition
     {
+        private static final long serialVersionUID = 2558942007157683355L;
         private final boolean value;
 
         BooleanCondition(String id, boolean value, InstallData installData)

@@ -62,6 +62,8 @@ import com.izforge.izpack.util.PlatformModelMatcher;
  */
 public class UserInputPanel extends IzPanel
 {
+    private static final long serialVersionUID = 8667949467748997226L;
+
     private static final String SUMMARY_KEY = "summaryKey";
     private static final String TOPBUFFER = "topBuffer";
     private static final String RIGID = "rigid";

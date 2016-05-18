@@ -108,6 +108,7 @@ public class HTMLInfoPanel extends IzPanel
         {
             textArea = new JEditorPane()
             {       //override get-stream method to parse variable
+                private static final long serialVersionUID = 1L;
 
                 // declarations in HTML content:
                 protected InputStream getStream(URL urlObj)

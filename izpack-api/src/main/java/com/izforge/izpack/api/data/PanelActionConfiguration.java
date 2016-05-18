@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class PanelActionConfiguration implements Serializable
 {
+    private static final long serialVersionUID = 7130912908005060847L;
+
     private String actionClassName;
 
     private Map<String, String> properties;
