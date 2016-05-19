@@ -37,7 +37,6 @@ public class ContainsCondition extends Condition {
   private ContentType contentType;
   private String source = null;
   private String value = null;
-  private String resolvedValue = null;
   private boolean isRegEx = false;
   private boolean isCaseInsensitive = false;
   private boolean isByLine = true;
@@ -60,7 +59,7 @@ public class ContainsCondition extends Condition {
 
     // resolve variables in <value>; 
     // must be done on each call again, because content could change 
-    resolvedValue = variables.replace(this.value);
+    String resolvedValue = variables.replace(this.value);
 
     switch (contentType) {
     case STRING:
@@ -78,7 +77,7 @@ public class ContainsCondition extends Condition {
             BufferedReader in = null;
             try
             {
-                return matchesByLine(new FileReader(file));
+                return matchesByLine(new FileReader(file), resolvedValue);
             }
             catch (FileNotFoundException e)
             {
@@ -134,14 +133,14 @@ public class ContainsCondition extends Condition {
         pattern = Pattern.compile(value);
         if (isByLine)
         {
-            return matchesByLine(new StringReader(content));
+            return matchesByLine(new StringReader(content), resolvedValue);
         }
     }
 
-    return matchesString(content);
+    return matchesString(content, resolvedValue);
   }
 
-  private boolean matchesByLine(Reader reader)
+  private boolean matchesByLine(Reader reader, String value)
   {
       BufferedReader in = null;
       try
@@ -149,7 +148,7 @@ public class ContainsCondition extends Condition {
           in = new BufferedReader(reader);
           for (String line = in.readLine(); line != null; line = in.readLine())
           {
-              if (matchesString(line))
+              if (matchesString(line, value))
               {
                   return true;
               }
@@ -172,7 +171,7 @@ public class ContainsCondition extends Condition {
       return false;
   }
 
-  private boolean matchesString(String line)
+  private boolean matchesString(String line, String value)
   {
       if (isRegEx)
       {
@@ -186,14 +185,14 @@ public class ContainsCondition extends Condition {
       {
           if (isCaseInsensitive)
           {
-              if (line.toLowerCase().contains(resolvedValue.toLowerCase()))
+              if (line.toLowerCase().contains(value.toLowerCase()))
               {
                   return true;
               }
           }
           else
           {
-              if (line.contains(resolvedValue))
+              if (line.contains(value))
               {
                   return true;
               }
