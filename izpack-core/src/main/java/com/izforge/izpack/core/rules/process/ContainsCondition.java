@@ -37,6 +37,7 @@ public class ContainsCondition extends Condition {
   private ContentType contentType;
   private String source = null;
   private String value = null;
+  private String resolvedValue = null;
   private boolean isRegEx = false;
   private boolean isCaseInsensitive = false;
   private boolean isByLine = true;
@@ -56,6 +57,10 @@ public class ContainsCondition extends Condition {
 
     Variables variables = getInstallData().getVariables();
     String content = null;
+
+    // resolve variables in <value>; 
+    // must be done on each call again, because content could change 
+    resolvedValue = variables.replace(this.value);
 
     switch (contentType) {
     case STRING:
@@ -181,14 +186,14 @@ public class ContainsCondition extends Condition {
       {
           if (isCaseInsensitive)
           {
-              if (line.toLowerCase().contains(value.toLowerCase()))
+              if (line.toLowerCase().contains(resolvedValue.toLowerCase()))
               {
                   return true;
               }
           }
           else
           {
-              if (line.contains(value))
+              if (line.contains(resolvedValue))
               {
                   return true;
               }
