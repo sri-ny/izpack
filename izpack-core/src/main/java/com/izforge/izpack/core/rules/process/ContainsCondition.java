@@ -130,7 +130,7 @@ public class ContainsCondition extends Condition {
 
     if (isRegEx)
     {
-        pattern = Pattern.compile(value);
+        pattern = Pattern.compile(resolvedValue);
         if (isByLine)
         {
             return matchesByLine(new StringReader(content), resolvedValue);
