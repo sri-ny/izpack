@@ -61,6 +61,11 @@ public class ContainsCondition extends Condition {
     // must be done on each call again, because content could change 
     String resolvedValue = variables.replace(this.value);
 
+    if (isRegEx)
+    {
+        pattern = Pattern.compile(resolvedValue);
+    }
+
     switch (contentType) {
     case STRING:
         content = variables.replace(this.source);
@@ -130,7 +135,6 @@ public class ContainsCondition extends Condition {
 
     if (isRegEx)
     {
-        pattern = Pattern.compile(resolvedValue);
         if (isByLine)
         {
             return matchesByLine(new StringReader(content), resolvedValue);
