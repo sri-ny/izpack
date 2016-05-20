@@ -22,13 +22,6 @@
 
 package com.izforge.izpack.panels.userinput;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.InstallData;
@@ -38,6 +31,9 @@ import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.panels.userinput.field.AbstractFieldView;
 import com.izforge.izpack.panels.userinput.field.FieldView;
 import com.izforge.izpack.panels.userinput.field.custom.CustomFieldType;
+
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Functions to support automated usage of the UserInputPanel
@@ -72,9 +68,9 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
     }
 
     /**
+     * Creates an {@link UserInputPanelAutomationHelper}
      *
-     * @param variables
-     * @param views
+     * @param views AbstractFieldView
      */
     public UserInputPanelAutomationHelper(List<? extends AbstractFieldView> views)
     {
