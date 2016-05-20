@@ -112,30 +112,33 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
 
         for (FieldView view : views)
         {
-            String variable = view.getField().getVariable();
-
-            if (variable != null)
+            if (view.isDisplayed())
             {
-                String entry = installData.getVariable(variable);
-                if (view.getField().getOmitFromAuto()){
-                    omitFromAutoSet.add(variable);
+                String variable = view.getField().getVariable();
+
+                if (variable != null)
+                {
+                    String entry = installData.getVariable(variable);
+                    if (view.getField().getOmitFromAuto())
+                    {
+                        omitFromAutoSet.add(variable);
+                    }
+                    entries.put(variable, entry);
                 }
-                entries.put(variable, entry);
-            }
 
-            // Grab all the variables contained within the custom field
-            List <String> namedVariables = new ArrayList<String>();
-            if(view instanceof CustomFieldType)
-            {
-                CustomFieldType customField = (CustomFieldType) view;
-                namedVariables = customField.getVariables();
-            }
+                // Grab all the variables contained within the custom field
+                List<String> namedVariables = new ArrayList<String>();
+                if (view instanceof CustomFieldType)
+                {
+                    CustomFieldType customField = (CustomFieldType) view;
+                    namedVariables = customField.getVariables();
+                }
 
-            for(String numberedVariable : namedVariables)
-            {
-                entries.put(numberedVariable, installData.getVariable(numberedVariable));
+                for (String numberedVariable : namedVariables)
+                {
+                    entries.put(numberedVariable, installData.getVariable(numberedVariable));
+                }
             }
-
         }
         return entries;
     }
