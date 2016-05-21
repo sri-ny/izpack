@@ -57,6 +57,10 @@ public class ContainsCondition extends Condition {
     Variables variables = getInstallData().getVariables();
     String content = null;
 
+    // resolve variables in <value>; 
+    // must be done on each call again, because content could change 
+    String resolvedValue = variables.replace(this.value);
+
     switch (contentType) {
     case STRING:
         content = variables.replace(this.source);
@@ -73,7 +77,7 @@ public class ContainsCondition extends Condition {
             BufferedReader in = null;
             try
             {
-                return matchesByLine(new FileReader(file));
+                return matchesByLine(new FileReader(file), resolvedValue);
             }
             catch (FileNotFoundException e)
             {
@@ -126,17 +130,17 @@ public class ContainsCondition extends Condition {
 
     if (isRegEx)
     {
-        pattern = Pattern.compile(value);
+        pattern = Pattern.compile(resolvedValue);
         if (isByLine)
         {
-            return matchesByLine(new StringReader(content));
+            return matchesByLine(new StringReader(content), resolvedValue);
         }
     }
 
-    return matchesString(content);
+    return matchesString(content, resolvedValue);
   }
 
-  private boolean matchesByLine(Reader reader)
+  private boolean matchesByLine(Reader reader, String value)
   {
       BufferedReader in = null;
       try
@@ -144,7 +148,7 @@ public class ContainsCondition extends Condition {
           in = new BufferedReader(reader);
           for (String line = in.readLine(); line != null; line = in.readLine())
           {
-              if (matchesString(line))
+              if (matchesString(line, value))
               {
                   return true;
               }
@@ -167,7 +171,7 @@ public class ContainsCondition extends Condition {
       return false;
   }
 
-  private boolean matchesString(String line)
+  private boolean matchesString(String line, String value)
   {
       if (isRegEx)
       {
