@@ -155,6 +155,7 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
         String value;
 
         List<IXMLElement> userEntries = panelRoot.getChildrenNamed(AUTO_KEY_ENTRY);
+        HashSet<String> blockedVariablesList = new HashSet<String>();
 
         // ----------------------------------------------------
         // retieve each entry and substitute the associated
@@ -171,6 +172,8 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
 
             logger.fine("Setting variable " + variable + " to " + value);
             idata.setVariable(variable, value);
+            blockedVariablesList.add(variable);
         }
+        idata.getVariables().registerBlockedVariableNames(blockedVariablesList, panelRoot.getName());
     }
 }
