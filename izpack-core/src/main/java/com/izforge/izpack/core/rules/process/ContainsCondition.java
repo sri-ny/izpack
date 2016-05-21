@@ -49,13 +49,13 @@ public class ContainsCondition extends Condition {
   @Override
   public boolean isTrue()
   {
-    String content = null;
 
     if (this.source == null) {
         return false;
     }
 
     Variables variables = getInstallData().getVariables();
+    String content = null;
 
     switch (contentType) {
     case STRING:
@@ -172,7 +172,7 @@ public class ContainsCondition extends Condition {
       if (isRegEx)
       {
           Matcher matcher = pattern.matcher(line);
-          if (matcher.matches())
+          if (matcher.find())
           {
               return true;
           }
