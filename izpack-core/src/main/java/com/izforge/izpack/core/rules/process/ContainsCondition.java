@@ -63,7 +63,7 @@ public class ContainsCondition extends Condition {
 
     if (isRegEx)
     {
-        pattern = Pattern.compile(resolvedValue);
+        pattern = Pattern.compile(resolvedValue,Pattern.MULTILINE);
     }
 
     switch (contentType) {
