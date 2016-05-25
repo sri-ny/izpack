@@ -244,7 +244,7 @@ public class DefaultVariablesTest
      * Tests simple dynamic variables.
      */
     @Test
-    public void testDynamicVariablesUnset()
+    public void testDynamicVariablesWithUserInput()
     {
         // set up conditions
         Map<String, Condition> conditions = new HashMap<String, Condition>();
@@ -258,38 +258,38 @@ public class DefaultVariablesTest
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
-        variables.add(createDynamicCheckonce("unset1", "a", "cond1+cond2"));
-        variables.add(createDynamicCheckonce("unset1", "b", "cond1+!cond2"));
+        variables.add(createDynamicCheckonce("var", "a", "cond1+cond2"));
+        variables.add(createDynamicCheckonce("var", "b", "cond1+!cond2"));
 
         // !cond1+!cond2
         variables.refresh();
-        assertNull(variables.get("unset1"));
+        assertNull(variables.get("var"));
 
         variables.set("condvar1", "x");
         // cond1+!cond2
         variables.refresh();
-        assertEquals("b", variables.get("unset1"));
+        assertEquals("b", variables.get("var"));
         variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-        assertEquals("b", variables.get("unset1"));
+        assertEquals("b", variables.get("var"));
 
         Set<String> blocked = new HashSet<String>();
         // we now do overwrite the variable on a UserInputPanel
-        blocked.add("unset1");
-        variables.set("unset1", "anothervalue");
+        blocked.add("var");
+        variables.set("var", "anothervalue");
         variables.registerBlockedVariableNames(blocked, this);
         variables.refresh(); // user input is stronger than other definitions
-        assertEquals("anothervalue", variables.get("unset1"));
+        assertEquals("anothervalue", variables.get("var"));
 
         variables.set("condvar2", "y"); // a conditions changes and wants to overwrite the variable
         variables.refresh();            // but user input still must survive
-        assertEquals("anothervalue", variables.get("unset1"));
+        assertEquals("anothervalue", variables.get("var"));
 
         // now the user goes back to the previous panel
         variables.unregisterBlockedVariableNames(blocked, this);
         variables.refresh(); // value must be changed as defined for cond1+cond2
-        assertEquals("a", variables.get("unset1"));
+        assertEquals("a", variables.get("var"));
         variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
-        assertEquals("a", variables.get("unset1"));
+        assertEquals("a", variables.get("var"));
     }
 
     /**
