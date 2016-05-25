@@ -273,17 +273,20 @@ public class DefaultVariablesTest
         assertEquals("b", variables.get("unset1"));
 
         Set<String> blocked = new HashSet<String>();
-        // prevent from being overridden by refresh (for instance as part of a UserInputPanel reached)
+        // we now do overwrite the variable on a UserInputPanel
         blocked.add("unset1");
         variables.set("unset1", "anothervalue");
         variables.registerBlockedVariableNames(blocked, this);
-        variables.refresh(); // Check keep overload from another source like a user input panel
+        variables.refresh(); // user input is stronger than other definitions
         assertEquals("anothervalue", variables.get("unset1"));
 
+        variables.set("condvar2", "y"); // a conditions changes and wants to overwrite the variable
+        variables.refresh();            // but user input still must survive
+        assertEquals("anothervalue", variables.get("unset1"));
+
+        // now the user goes back to the previous panel
         variables.unregisterBlockedVariableNames(blocked, this);
-        variables.set("condvar2", "y");
-        // cond1+cond2 - override the previous value
-        variables.refresh();
+        variables.refresh(); // value must be changed as defined for cond1+cond2
         assertEquals("a", variables.get("unset1"));
         variables.refresh(); // Double check whether it is a stable state (for instance on panel change)
         assertEquals("a", variables.get("unset1"));
