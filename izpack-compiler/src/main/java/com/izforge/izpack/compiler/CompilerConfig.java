@@ -75,9 +75,11 @@ import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
+import com.izforge.izpack.panels.userinput.action.ButtonAction;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
+import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
@@ -2001,7 +2003,23 @@ public class CompilerConfig extends Thread
                                     elList.add(choiceDef);
                                 }
                             }
-
+                            // Check whether button field run class can be loaded
+                            for (IXMLElement runDef : fieldSpecDef.getChildrenNamed(ButtonFieldReader.RUN_ELEMENT))
+                            {
+                                String actionClassName = runDef.getAttribute(ButtonFieldReader.RUN_ELEMENT_CLASS_ATTR);
+                                if (actionClassName != null)
+                                {
+                                    try
+                                    {
+                                        Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClassName);
+                                    }
+                                    catch (ClassNotFoundException e)
+                                    {
+                                        assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
+                                                + ": Button action class '" + actionClassName + "' cannot be loaded");
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -18,6 +18,14 @@ public class ButtonFieldReader extends SimpleFieldReader implements ButtonFieldC
     private final Messages messages;
     private final InstallData installData;
 
+    public static final String SPEC_SUCCESSMSG_ATTR = "successMsg";
+    public static final String RUN_ELEMENT = "run";
+    public static final String RUN_ELEMENT_CLASS_ATTR = "class";
+    public static final String RUN_MSG_ELEMENT = "msg";
+    public static final String RUN_MSG_ELEMENT_ID_ATTR = "id";
+    public static final String RUN_MSG_ELEMENT_NAME_ATTR = "name";
+
+
     /**
      * Constructs a {@code FieldReader}.
      *
@@ -69,9 +77,10 @@ public class ButtonFieldReader extends SimpleFieldReader implements ButtonFieldC
      */
     public String getSuccessMsg()
     {
-        String successMsg = getSpec().getAttribute("successMsg");
+        String successMsg = getSpec().getAttribute(SPEC_SUCCESSMSG_ATTR);
         if(successMsg == null)
         {
+            // TODO: Can be removed when XSD validation isn't optional any longer, because default comes from XSD
             successMsg = "";
         }
         return messages.get(successMsg);
@@ -84,21 +93,21 @@ public class ButtonFieldReader extends SimpleFieldReader implements ButtonFieldC
     {
         List<ButtonAction> buttonActions = new ArrayList<ButtonAction>();
 
-        for(IXMLElement runSpec : this.getSpec().getChildrenNamed("run"))
+        for(IXMLElement runSpec : this.getSpec().getChildrenNamed(RUN_ELEMENT))
         {
             Map<String, String> buttonMessages = new HashMap<String, String>();
 
-            String actionClass = runSpec.getAttribute("class");
+            String actionClass = runSpec.getAttribute(RUN_ELEMENT_CLASS_ATTR);
             try
             {
                 Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClass);
                 Constructor<ButtonAction> buttonActionConstructor = buttonActionClass.getConstructor(InstallData.class);
                 ButtonAction buttonAction = buttonActionConstructor.newInstance(installData);
 
-                for (IXMLElement message : runSpec.getChildrenNamed("msg"))
+                for (IXMLElement message : runSpec.getChildrenNamed(RUN_MSG_ELEMENT))
                 {
-                    String id = message.getAttribute("id");
-                    String name = message.getAttribute("name");
+                    String id = message.getAttribute(RUN_MSG_ELEMENT_ID_ATTR);
+                    String name = message.getAttribute(RUN_MSG_ELEMENT_NAME_ATTR);
                     String value = messages.get(id);
 
                     buttonMessages.put(name, value);
