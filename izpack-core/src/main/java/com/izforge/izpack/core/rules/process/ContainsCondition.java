@@ -1,14 +1,9 @@
 package com.izforge.izpack.core.rules.process;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,14 +27,12 @@ public class ContainsCondition extends Condition {
   private static final String VALUE_ELEMENT_NAME = "value";
   private static final String VALUE_ATTR_REGEX_NAME = "regex";
   private static final String VALUE_ATTR_CASEINSENSITIVE_NAME = "caseInsensitive";
-  private static final String VALUE_ATTR_BYLINE_NAME = "byLine";
 
   private ContentType contentType;
   private String source = null;
   private String value = null;
   private boolean isRegEx = false;
   private boolean isCaseInsensitive = false;
-  private boolean isByLine = true;
 
   private Pattern pattern = null;
 
@@ -77,51 +70,25 @@ public class ContainsCondition extends Condition {
 
     case FILE:
         File file = new File(variables.replace(this.source));
-        if (isByLine)
+        byte[] buffer = new byte[(int) file.length()];
+        BufferedInputStream f = null;
+        try
         {
-            BufferedReader in = null;
-            try
+            f = new BufferedInputStream(new FileInputStream(file));
+            f.read(buffer);
+            if (f != null) try
             {
-                return matchesByLine(new FileReader(file), resolvedValue);
+                f.close();
             }
-            catch (FileNotFoundException e)
-            {
-                logger.log(Level.WARNING, e.getMessage());
-                return false;
-            }
-            finally {
-                if (in != null)
-                {
-                    try
-                    {
-                        in.close();
-                    }
-                    catch (IOException e) {}
-                }
-            }
+            catch (IOException ignored)
+            {}
         }
-        else
+        catch (IOException e)
         {
-            byte[] buffer = new byte[(int) file.length()];
-            BufferedInputStream f = null;
-            try
-            {
-                f = new BufferedInputStream(new FileInputStream(file));
-                f.read(buffer);
-                if (f != null) try
-                {
-                    f.close();
-                }
-                catch (IOException ignored)
-                {}
-            }
-            catch (IOException e)
-            {
-                logger.log(Level.WARNING, e.getMessage());
-                return false;
-            }
-            content = new String(buffer);
+            logger.log(Level.WARNING, e.getMessage());
+            return false;
         }
+        content = new String(buffer);
       break;
 
     default:
@@ -133,46 +100,7 @@ public class ContainsCondition extends Condition {
     if (content == null)
       return false;
 
-    if (isRegEx)
-    {
-        if (isByLine)
-        {
-            return matchesByLine(new StringReader(content), resolvedValue);
-        }
-    }
-
     return matchesString(content, resolvedValue);
-  }
-
-  private boolean matchesByLine(Reader reader, String value)
-  {
-      BufferedReader in = null;
-      try
-      {
-          in = new BufferedReader(reader);
-          for (String line = in.readLine(); line != null; line = in.readLine())
-          {
-              if (matchesString(line, value))
-              {
-                  return true;
-              }
-          }
-      }
-      catch (IOException e)
-      {
-          return false;
-      }
-      finally {
-          if (in != null)
-          {
-              try
-              {
-                  in.close();
-              }
-              catch (IOException e) {}
-          }
-      }
-      return false;
   }
 
   private boolean matchesString(String line, String value)
@@ -230,7 +158,6 @@ public class ContainsCondition extends Condition {
           {
             isRegEx = Boolean.valueOf(child.getAttribute(VALUE_ATTR_REGEX_NAME));
             isCaseInsensitive = Boolean.valueOf(child.getAttribute(VALUE_ATTR_CASEINSENSITIVE_NAME));
-            isByLine = Boolean.valueOf(child.getAttribute(VALUE_ATTR_BYLINE_NAME));
             this.value = child.getContent();
             if (this.value == null || this.value.length() == 0) {
               throw new Exception("Condition \"" + getId()
@@ -278,7 +205,6 @@ public class ContainsCondition extends Condition {
     el2.setContent(this.value);
     el2.setAttribute(VALUE_ATTR_REGEX_NAME, Boolean.toString(isRegEx));
     el2.setAttribute(VALUE_ATTR_CASEINSENSITIVE_NAME, Boolean.toString(isCaseInsensitive));
-    el2.setAttribute(VALUE_ATTR_BYLINE_NAME, Boolean.toString(isByLine));
     conditionRoot.addChild(el2);
   }
 
