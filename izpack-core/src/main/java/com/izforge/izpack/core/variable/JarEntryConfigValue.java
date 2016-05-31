@@ -22,6 +22,7 @@ package com.izforge.izpack.core.variable;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 import java.io.InputStream;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
@@ -75,5 +76,11 @@ public class JarEntryConfigValue extends ZipEntryConfigFileValue
         {
             throw new Exception("Error opening jar file " + filename, ze);
         }
+    }
+
+    @Override
+    public Set<String> getUnresolvedVariableNames()
+    {
+        return super.getUnresolvedVariableNames();
     }
 }
