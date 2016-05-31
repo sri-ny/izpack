@@ -31,15 +31,13 @@ import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.merge.PanelMerge;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.stream.JarOutputStream;
-import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.compiler.util.graph.BreadthFirstIterator;
-import com.izforge.izpack.compiler.util.graph.DirectedGraph;
+import com.izforge.izpack.compiler.util.graph.DependencyGraph;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -386,14 +384,12 @@ public abstract class PackagerBase implements IPackager
 
     private List<DynamicVariable> buildVariableList()
     {
-        DirectedGraph<DynamicVariable> graph = new DirectedGraph<DynamicVariable>();
-        DynamicVariable rootVar = new DynamicVariableImpl("", "");
+        DependencyGraph<DynamicVariable> graph = new DependencyGraph<DynamicVariable>();
 
         for (List<DynamicVariable> dynVariables : dynamicVariables.values())
         {
             for (DynamicVariable var : dynVariables)
             {
-                graph.addEdge(rootVar, var);
                 for (String childName : var.getUnresolvedVariableNames())
                 {
                     List<DynamicVariable> childVars = dynamicVariables.get(childName);
@@ -408,15 +404,7 @@ public abstract class PackagerBase implements IPackager
             }
         }
 
-        Iterator<DynamicVariable> it = new BreadthFirstIterator<DynamicVariable>(graph, rootVar);
-        List<DynamicVariable> nodes = new ArrayList<DynamicVariable>();
-        while (it.hasNext()) {
-            nodes.add(it.next());
-        }
-        nodes.remove(rootVar);
-        Collections.reverse(nodes);
-
-        return nodes;
+        return graph.getOrderedList();
     }
 
     /**
