@@ -694,7 +694,7 @@ public class TreePacksPanel extends IzPanel
                     Pack childPack = packsModel.getPack(childPackName);
                     int row = packsModel.getNameToRow().get(childPackName);
 
-                    if (packsModel.isCheckBoxSelectable(row))
+                    if (packsModel.isChecked(row) || packsModel.isPartiallyChecked(row))
                     {
                         bytes += childPack.getSize();//SOMETHING HERE
                     }
