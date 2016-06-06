@@ -48,6 +48,13 @@ import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.data.PackInfo;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * The IzPack compiler class. This is now a java bean style class that can be
@@ -365,6 +372,71 @@ public class Compiler extends Thread
         else
         {
             packager.addJarContent(url);
+        }
+    }
+    
+    /**
+     * Checks JAR classes versions - wrapper method
+     *
+     * @param file JAR file to check
+     * @param minimalJavaVersion minimal Java version from install.xml header  or default from constants
+     * @throws IOException when file cannot be read
+     * @throws FileNotFoundException when file cannot be found
+     */
+    public void checkJarVersions(File file, String minimalJavaVersion) throws FileNotFoundException, IOException
+    {
+        FileInputStream fis = new FileInputStream(file);
+        extractJarInternals(file.toString(), fis, minimalJavaVersion);
+    }
+    
+    /**
+     * Extracts contents of JAR
+     *
+     * @param fileStr JAR file to check as string
+     * @param is JAR file as input stream
+     * @param minimalJavaVersion minimal Java version from install.xml header or default from constants
+     * @throws IOException when file cannot be read
+     * @throws FileNotFoundException when file cannot be found
+     */
+    private void extractJarInternals(String fileStr, InputStream is, String minimalJavaVersion) throws IOException
+    {
+        ZipInputStream zis = new ZipInputStream(is);
+        ZipEntry ze;
+        while ((ze = zis.getNextEntry()) != null) {
+            if (ze.getName().endsWith(".class"))
+            {
+                checkClassTargetVersion(fileStr + ":" + ze.getName(), zis, minimalJavaVersion);
+            }
+            else if (ze.getName().endsWith(".jar"))
+            {
+                extractJarInternals(fileStr + ":" + ze.getName(), zis, minimalJavaVersion);
+            }
+        }
+    }
+    
+    /**
+     * Checks target version in class file
+     *
+     * @param fileStr JAR file as string
+     * @param zis class file as input stream
+     * @param minimalJavaVersion minimal Java version from install.xml header or default from constants
+     * @throws IOException when file cannot be read
+     * @throws FileNotFoundException when file cannot be found
+     */
+    private void checkClassTargetVersion(String fileStr, ZipInputStream zis, String minimalJavaVersion) throws IOException
+    {
+        DataInputStream dis = new DataInputStream(zis);
+        if (dis.readInt() != 0xCAFEBABE)
+        {
+            throw new CompilerException("Class file cannot be read: " + fileStr);
+        }
+        dis.readUnsignedShort();
+        int major = dis.readUnsignedShort();
+        String[] splitMinimalVersion = minimalJavaVersion.split("\\.");
+        int expectedJavaVersion = major - 44;
+        if (major > (44 + Integer.parseInt(splitMinimalVersion[1])))
+        {
+            throw new CompilerException(fileStr + " does not meet the minimal version requirements.\nRequired minimal Java version: " + minimalJavaVersion + "\nFound class minimal Java version: 1." + expectedJavaVersion);
         }
     }
 
