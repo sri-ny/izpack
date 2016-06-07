@@ -577,6 +577,7 @@ public class CompilerConfig extends Thread
     private void addJars(IXMLElement data) throws IOException
     {
         final String minimalJavaVersion = compilerData.getExternalInfo().getJavaVersion();
+        final boolean javaVersionStrict = compilerData.getExternalInfo().getJavaVersionStrict();
         notifyCompilerListener("addJars", CompilerListener.BEGIN, data);
         for (IXMLElement ixmlElement : data.getChildrenNamed("jar"))
         {
@@ -589,7 +590,10 @@ public class CompilerConfig extends Thread
             String stage = ixmlElement.getAttribute("stage");
             URL url = resourceFinder.findProjectResource(src, "Jar file", ixmlElement);
             boolean uninstaller = "both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage);
-            compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
+            if (javaVersionStrict)
+            {
+                compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
+            }
             compiler.addJar(url, uninstaller);
         }
         notifyCompilerListener("addJars", CompilerListener.END, data);
@@ -2146,6 +2150,10 @@ public class CompilerConfig extends Thread
         if (javaVersion != null)
         {
             info.setJavaVersion(xmlCompilerHelper.requireContent(javaVersion));
+            if (xmlCompilerHelper.validateYesNoAttribute(javaVersion, "strict", YES))
+            {
+                info.setJavaVersionStrict(true);
+            }
         }
 
         // Is a JDK required?
