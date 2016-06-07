@@ -84,6 +84,11 @@ public class Info implements Serializable
     private String javaVersion = "1.4";
 
     /**
+     * Whether to check strictly Java version at compilation time
+     */
+    private boolean javaVersionStrict = false;
+
+    /**
      * Is a JDK required?
      */
     private boolean jdkRequired = false;
@@ -311,6 +316,26 @@ public class Info implements Serializable
     public String getJavaVersion()
     {
         return javaVersion;
+    }
+
+    /**
+     * Sets the minimum Java version strict parameter.
+     *
+     * @param javaVersionStrict The Java version strict parameter.
+     */
+    public void setJavaVersionStrict(boolean javaVersionStrict)
+    {
+        this.javaVersionStrict = javaVersionStrict;
+    }
+
+    /**
+     * Gets the Java version strict parameter.
+     *
+     * @return The Java version strict parameter.
+     */
+    public boolean getJavaVersionStrict()
+    {
+        return javaVersionStrict;
     }
 
     /**
