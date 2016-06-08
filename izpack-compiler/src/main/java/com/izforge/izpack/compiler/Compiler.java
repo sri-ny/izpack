@@ -81,6 +81,16 @@ public class Compiler extends Thread
     private boolean compileFailed = true;
 
     /**
+     * Defines whether JAR contents comply to installer info.
+     */
+    private boolean javaVersionCorrect = true;
+
+    /**
+     * Expected Java target version from JAR.
+     */
+    private int expectedJavaVersion;
+
+    /**
      * Compiler helper.
      */
     private final CompilerHelper compilerHelper;
@@ -433,10 +443,10 @@ public class Compiler extends Thread
         dis.readUnsignedShort();
         int major = dis.readUnsignedShort();
         String[] splitMinimalVersion = minimalJavaVersion.split("\\.");
-        int expectedJavaVersion = major - 44;
+        setJavaVersionExpected(major);
         if (major > (44 + Integer.parseInt(splitMinimalVersion[1])))
         {
-            throw new CompilerException(fileStr + " does not meet the minimal version requirements.\nRequired minimal Java version: " + minimalJavaVersion + "\nFound class minimal Java version: 1." + expectedJavaVersion);
+            setJavaVersionCorrect(false);
         }
     }
 
@@ -463,6 +473,24 @@ public class Compiler extends Thread
         CustomData data = new CustomData(clazz.getName(), null, constraints, type);
         packager.addCustomJar(data, null);
     }
+    
+    public void setJavaVersionCorrect(boolean javaVersionCorrect)
+    {
+        this.javaVersionCorrect = javaVersionCorrect;
+    }
 
+    public boolean getJavaVersionCorrect()
+    {
+        return javaVersionCorrect;
+    }
 
+    public void setJavaVersionExpected(int major)
+    {
+        this.expectedJavaVersion = major - 44;
+    }
+
+    public int getJavaVersionExpected()
+    {
+        return expectedJavaVersion;
+    }
 }
