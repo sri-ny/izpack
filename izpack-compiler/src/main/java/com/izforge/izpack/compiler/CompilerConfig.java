@@ -589,17 +589,20 @@ public class CompilerConfig extends Thread
             URL url = resourceFinder.findProjectResource(src, "Jar file", ixmlElement);
             boolean uninstaller = "both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage);
             compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
-            if (javaVersionStrict)
+            if (!compiler.getJavaVersionCorrect())
             {
-                throw new CompilerException(url.getFile() + " does not meet the minimal version requirements."
-                        + "\nRequired minimal target Java version: " + minimalJavaVersion
-                        + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
-            }
-            else
-            {
-                logger.warning(url.getFile() + " does not meet the minimal version requirements which may cause issues during runtime."
-                        + "\nRequired minimal target Java version: " + minimalJavaVersion
-                        + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                if (javaVersionStrict)
+                {
+                    throw new CompilerException(url.getFile() + " does not meet the minimal version requirements."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
+                else
+                {
+                    logger.warning(url.getFile() + " does not meet the minimal version requirements which may cause issues during runtime."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
             }
             compiler.addJar(url, uninstaller);
         }

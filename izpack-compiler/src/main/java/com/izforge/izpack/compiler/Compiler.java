@@ -412,6 +412,7 @@ public class Compiler extends Thread
     {
         ZipInputStream zis = new ZipInputStream(is);
         ZipEntry ze;
+        setJavaVersionCorrect(true);
         while ((ze = zis.getNextEntry()) != null) {
             if (ze.getName().endsWith(".class"))
             {
