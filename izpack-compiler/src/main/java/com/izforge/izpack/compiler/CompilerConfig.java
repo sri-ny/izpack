@@ -576,9 +576,9 @@ public class CompilerConfig extends Thread
      */
     private void addJars(IXMLElement data) throws IOException
     {
+        notifyCompilerListener("addJars", CompilerListener.BEGIN, data);
         final String minimalJavaVersion = compilerData.getExternalInfo().getJavaVersion();
         final boolean javaVersionStrict = compilerData.getExternalInfo().getJavaVersionStrict();
-        notifyCompilerListener("addJars", CompilerListener.BEGIN, data);
         for (IXMLElement ixmlElement : data.getChildrenNamed("jar"))
         {
             String src = xmlCompilerHelper.requireAttribute(ixmlElement, "src");
@@ -590,9 +590,21 @@ public class CompilerConfig extends Thread
             String stage = ixmlElement.getAttribute("stage");
             URL url = resourceFinder.findProjectResource(src, "Jar file", ixmlElement);
             boolean uninstaller = "both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage);
-            if (javaVersionStrict)
+            compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
+            if (!compiler.getJavaVersionCorrect())
             {
-                compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
+                if (javaVersionStrict)
+                {
+                    throw new CompilerException(url.getFile() + " does not meet the minimal version requirements."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
+                else
+                {
+                    logger.warning(url.getFile() + " does not meet the minimal version requirements which may cause issues during runtime."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
             }
             compiler.addJar(url, uninstaller);
         }
