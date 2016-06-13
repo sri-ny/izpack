@@ -89,9 +89,8 @@ public class LooseFileUnpacker extends FileUnpacker
         // Old way of doing the job by using the (absolute) sourcepath.
         // Since this is very likely to fail and does not conform to the documentation prefer using relative
         // path's
-        // pis = new FileInputStream(pf.sourcePath);
 
-        File resolvedFile = new File(sourceDir, file.getRelativeSourcePath());
+        File resolvedFile = file.getFile();
         if (!resolvedFile.exists())
         {
             // try alternative destination - the current working directory
