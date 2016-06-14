@@ -25,6 +25,7 @@ package com.izforge.izpack.core.data;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Value;
 import com.izforge.izpack.api.data.ValueFilter;
+import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.variable.PlainValue;
 
@@ -333,8 +335,16 @@ public class DynamicVariableImpl implements DynamicVariable
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getUnresolvedVariableNames(Map<String, Condition> rules)
     {
-        return value.getUnresolvedVariableNames();
+        Set<String> vars = value.getUnresolvedVariableNames();
+        if (this.conditionid!=null) {
+            Condition condition = rules.get(this.conditionid);
+            if (condition!=null)
+            {
+                vars.addAll(condition.getNeededVariableNames());
+            }
+        }
+        return vars;
     }
 }

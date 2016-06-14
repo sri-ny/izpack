@@ -390,7 +390,8 @@ public abstract class PackagerBase implements IPackager
         {
             for (DynamicVariable var : dynVariables)
             {
-                for (String childName : var.getUnresolvedVariableNames())
+                graph.addVertex(var);
+                for (String childName : var.getUnresolvedVariableNames(rules))
                 {
                     List<DynamicVariable> childVars = dynamicVariables.get(childName);
                     if (childVars != null)
@@ -403,7 +404,6 @@ public abstract class PackagerBase implements IPackager
                 }
             }
         }
-
         return graph.getOrderedList();
     }
 

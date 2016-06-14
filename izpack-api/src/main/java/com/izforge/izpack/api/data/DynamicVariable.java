@@ -25,8 +25,10 @@ package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 /**
@@ -92,6 +94,12 @@ public interface DynamicVariable extends Serializable
 
     List<ValueFilter> getFilters();
 
-    Set<String> getUnresolvedVariableNames();
+    /**
+     * This element will be called when the order of variable resolutions is 
+     * determined.
+     * 
+     * @return  the names of all variables referenced by this variable 
+     */
+    Set<String> getUnresolvedVariableNames(Map<String, Condition> rules);
 }
 
