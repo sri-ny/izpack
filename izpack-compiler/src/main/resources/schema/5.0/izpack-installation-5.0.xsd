@@ -82,7 +82,7 @@
             <xs:element name="appsubpath" type="xs:string" minOccurs="0"/>
             <xs:element name="authors" type="authorsType" minOccurs="0"/>
             <xs:element name="url" type="xs:string" minOccurs="0"/>
-            <xs:element name="javaversion" type="xs:string" minOccurs="0"/>
+            <xs:element name="javaversion" type="javaVersionType" minOccurs="0"/>
             <xs:element name="requiresjdk" type="xs:string" minOccurs="0"/>
             <xs:element name="pack200" minOccurs="0"/>
             <xs:element name="tempdir" type="tempDirType" minOccurs="0" />
@@ -94,6 +94,10 @@
             <xs:element name="rebootaction" type="rebootActionType" minOccurs="0"/>
             <xs:element name="webdir" type="xs:anyURI" minOccurs="0"/>
         </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="javaVersionType" mixed="true">
+        <xs:attribute type="types:yesNoTrueFalseType" name="strict" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="authorsType">

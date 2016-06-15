@@ -88,6 +88,7 @@ public class AutomatedPanels extends AbstractPanels<AutomatedPanelView, PanelAut
             if (xml != null)
             {
                 view.runAutomated(installData, xml);
+                installData.getVariables().registerBlockedVariableNames(newPanel.getPanel().getAffectedVariableNames(), newPanel.getPanelId());
                 result = executeValidationActions(newPanel, true);
             }
             else

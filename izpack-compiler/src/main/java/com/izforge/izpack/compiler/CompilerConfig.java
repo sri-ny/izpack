@@ -75,9 +75,11 @@ import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
+import com.izforge.izpack.panels.userinput.action.ButtonAction;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
+import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
@@ -339,12 +341,13 @@ public class CompilerConfig extends Thread
 
         // We add all the information
         addNativeLibraries(data);
+        addInfoStrings(data);
         addJars(data);
         addVariables(data);
         addConditions(data);
         addDynamicVariables(data);
         addDynamicInstallerRequirement(data);
-        addInfo(data);
+        addInfoConditional(data);
         addConsolePrefs(data);
         addGUIPrefs(data);
         addLangpacks(data);
@@ -574,6 +577,8 @@ public class CompilerConfig extends Thread
     private void addJars(IXMLElement data) throws IOException
     {
         notifyCompilerListener("addJars", CompilerListener.BEGIN, data);
+        final String minimalJavaVersion = compilerData.getExternalInfo().getJavaVersion();
+        final boolean javaVersionStrict = compilerData.getExternalInfo().getJavaVersionStrict();
         for (IXMLElement ixmlElement : data.getChildrenNamed("jar"))
         {
             String src = xmlCompilerHelper.requireAttribute(ixmlElement, "src");
@@ -585,6 +590,22 @@ public class CompilerConfig extends Thread
             String stage = ixmlElement.getAttribute("stage");
             URL url = resourceFinder.findProjectResource(src, "Jar file", ixmlElement);
             boolean uninstaller = "both".equalsIgnoreCase(stage) || "uninstall".equalsIgnoreCase(stage);
+            compiler.checkJarVersions(new File(url.getFile()), minimalJavaVersion);
+            if (!compiler.getJavaVersionCorrect())
+            {
+                if (javaVersionStrict)
+                {
+                    throw new CompilerException(url.getFile() + " does not meet the minimal version requirements."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
+                else
+                {
+                    logger.warning(url.getFile() + " does not meet the minimal version requirements which may cause issues during runtime."
+                            + "\nRequired minimal target Java version: " + minimalJavaVersion
+                            + "\nFound class target Java version: 1." + compiler.getJavaVersionExpected());
+                }
+            }
             compiler.addJar(url, uninstaller);
         }
         notifyCompilerListener("addJars", CompilerListener.END, data);
@@ -2001,7 +2022,23 @@ public class CompilerConfig extends Thread
                                     elList.add(choiceDef);
                                 }
                             }
-
+                            // Check whether button field run class can be loaded
+                            for (IXMLElement runDef : fieldSpecDef.getChildrenNamed(ButtonFieldReader.RUN_ELEMENT))
+                            {
+                                String actionClassName = runDef.getAttribute(ButtonFieldReader.RUN_ELEMENT_CLASS_ATTR);
+                                if (actionClassName != null)
+                                {
+                                    try
+                                    {
+                                        Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClassName);
+                                    }
+                                    catch (ClassNotFoundException e)
+                                    {
+                                        assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
+                                                + ": Button action class '" + actionClassName + "' cannot be loaded");
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -2077,19 +2114,19 @@ public class CompilerConfig extends Thread
         }
         notifyCompilerListener("addLangpacks", CompilerListener.END, data);
     }
-
+    
     /**
-     * Builds the Info class from the XML tree.
+     * Builds the Info class from the XML tree (part that sets just strings).
      *
      * @param data The XML data. return The Info.
      * @throws Exception Description of the Exception
      */
-    private void addInfo(IXMLElement data)
+    private void addInfoStrings(IXMLElement data)
     {
-        notifyCompilerListener("addInfo", CompilerListener.BEGIN, data);
+        notifyCompilerListener("addInfoStrings", CompilerListener.BEGIN, data);
         // Initialisation
         IXMLElement root = xmlCompilerHelper.requireChildNamed(data, "info");
-
+        
         Info info = compilerData.getExternalInfo();
         info.setAppName(xmlCompilerHelper.requireContent(xmlCompilerHelper.requireChildNamed(root, "appname")));
         info.setAppVersion(xmlCompilerHelper.requireContent(xmlCompilerHelper.requireChildNamed(root, "appversion")));
@@ -2107,7 +2144,7 @@ public class CompilerConfig extends Thread
             URL appURL = xmlCompilerHelper.requireURLContent(URLElem);
             info.setAppURL(appURL.toString());
         }
-
+        
         // We get the authors list
         IXMLElement authors = root.getFirstChildNamed("authors");
         if (authors != null)
@@ -2125,6 +2162,10 @@ public class CompilerConfig extends Thread
         if (javaVersion != null)
         {
             info.setJavaVersion(xmlCompilerHelper.requireContent(javaVersion));
+            if (xmlCompilerHelper.validateYesNoAttribute(javaVersion, "strict", YES))
+            {
+                info.setJavaVersionStrict(true);
+            }
         }
 
         // Is a JDK required?
@@ -2174,6 +2215,103 @@ public class CompilerConfig extends Thread
         // Pack200 support
         IXMLElement pack200 = root.getFirstChildNamed("pack200");
         info.setPack200Compression(pack200 != null);
+        
+        // Add the path for the summary log file if specified
+        IXMLElement slfPath = root.getFirstChildNamed("summarylogfilepath");
+        if (slfPath != null)
+        {
+            info.setSummaryLogFilePath(xmlCompilerHelper.requireContent(slfPath));
+        }
+
+        IXMLElement writeInstallInfo = root.getFirstChildNamed("writeinstallationinformation");
+        if (writeInstallInfo != null)
+        {
+            String writeInstallInfoString = xmlCompilerHelper.requireContent(writeInstallInfo);
+            info.setWriteInstallationInformation(validateYesNo(writeInstallInfoString));
+        }
+        
+        IXMLElement readInstallInfo = root.getFirstChildNamed("readinstallationinformation");
+        if (readInstallInfo != null)
+        {
+            String readInstallInfoString = xmlCompilerHelper.requireContent(readInstallInfo);
+            info.setReadInstallationInformation(validateYesNo(readInstallInfoString));
+        }
+
+        IXMLElement isSingleInstance = root.getFirstChildNamed("singleinstance");
+        if (isSingleInstance != null)
+        {
+            String isSingleInstanceString = xmlCompilerHelper.requireContent(isSingleInstance);
+            info.setSingleInstance(validateYesNo(isSingleInstanceString));
+        }
+        
+         // Check if any temp directories have been specified
+        List<IXMLElement> tempdirs = root.getChildrenNamed(TEMP_DIR_ELEMENT_NAME);
+        if (null != tempdirs && tempdirs.size() > 0)
+        {
+            Set<String> tempDirAttributeNames = new HashSet<String>();
+            for (IXMLElement tempdir : tempdirs)
+            {
+                final String prefix;
+                if (tempdir.hasAttribute(TEMP_DIR_PREFIX_ATTRIBUTE))
+                {
+                    prefix = tempdir.getAttribute("prefix");
+                }
+                else
+                {
+                    prefix = DEFAULT_TEMP_DIR_PREFIX;
+                }
+                final String suffix;
+                if (tempdir.hasAttribute(TEMP_DIR_SUFFIX_ATTRIBUTE))
+                {
+                    suffix = tempdir.getAttribute(TEMP_DIR_SUFFIX_ATTRIBUTE);
+                }
+                else
+                {
+                    suffix = DEFAULT_TEMP_DIR_SUFFIX;
+                }
+                final String variableName;
+                if (tempdir.hasAttribute(TEMP_DIR_VARIABLE_NAME_ATTRIBUTE))
+                {
+                    variableName = tempdir.getAttribute(TEMP_DIR_VARIABLE_NAME_ATTRIBUTE);
+                }
+                else
+                {
+                    if (tempDirAttributeNames.contains(TEMP_DIR_DEFAULT_PROPERTY_NAME))
+                    {
+                        throw new CompilerException(
+                                "Only one temporary directory may be specified without a " + TEMP_DIR_VARIABLE_NAME_ATTRIBUTE
+                                        + " attribute. (Line: " + tempdir.getLineNr() + ").");
+                    }
+                    variableName = TEMP_DIR_DEFAULT_PROPERTY_NAME;
+                }
+                if (tempDirAttributeNames.contains(variableName))
+                {
+                    throw new CompilerException("Temporary directory variable names must be unique, the name "
+                                                        + variableName + " is used more than once. (Line: " + tempdir.getLineNr() + ").");
+                }
+                tempDirAttributeNames.add(variableName);
+                info.addTempDir(new TempDir(variableName, prefix, suffix));
+            }
+        }
+        
+        packager.setInfo(info);
+        notifyCompilerListener("addInfoStrings", CompilerListener.END, data);
+    }
+    
+
+    /**
+     * Builds the Info class from the XML tree (part that sets conditions).
+     *
+     * @param data The XML data. return The Info.
+     * @throws Exception Description of the Exception
+     */
+    private void addInfoConditional(IXMLElement data)
+    {
+        notifyCompilerListener("addInfoConditional", CompilerListener.BEGIN, data);
+        // Initialisation
+        IXMLElement root = xmlCompilerHelper.requireChildNamed(data, "info");
+
+        Info info = compilerData.getExternalInfo();
 
         // Privileged execution
         IXMLElement privileged = root.getFirstChildNamed("run-privileged");
@@ -2260,90 +2398,12 @@ public class CompilerConfig extends Thread
             info.setUninstallerPath(null);
         }
 
-        // Add the path for the summary log file if specified
-        IXMLElement slfPath = root.getFirstChildNamed("summarylogfilepath");
-        if (slfPath != null)
-        {
-            info.setSummaryLogFilePath(xmlCompilerHelper.requireContent(slfPath));
-        }
-
-        IXMLElement writeInstallInfo = root.getFirstChildNamed("writeinstallationinformation");
-        if (writeInstallInfo != null)
-        {
-            String writeInstallInfoString = xmlCompilerHelper.requireContent(writeInstallInfo);
-            info.setWriteInstallationInformation(validateYesNo(writeInstallInfoString));
-        }
-        
-        IXMLElement readInstallInfo = root.getFirstChildNamed("readinstallationinformation");
-        if (readInstallInfo != null)
-        {
-            String readInstallInfoString = xmlCompilerHelper.requireContent(readInstallInfo);
-            info.setReadInstallationInformation(validateYesNo(readInstallInfoString));
-        }
-
-        IXMLElement isSingleInstance = root.getFirstChildNamed("singleinstance");
-        if (isSingleInstance != null)
-        {
-            String isSingleInstanceString = xmlCompilerHelper.requireContent(isSingleInstance);
-            info.setSingleInstance(validateYesNo(isSingleInstanceString));
-        }
-
         // look for an unpacker class
         String unpackerclass = propertyManager.getProperty("UNPACKER_CLASS");
         info.setUnpackerClassName(unpackerclass);
 
-        // Check if any temp directories have been specified
-        List<IXMLElement> tempdirs = root.getChildrenNamed(TEMP_DIR_ELEMENT_NAME);
-        if (null != tempdirs && tempdirs.size() > 0)
-        {
-            Set<String> tempDirAttributeNames = new HashSet<String>();
-            for (IXMLElement tempdir : tempdirs)
-            {
-                final String prefix;
-                if (tempdir.hasAttribute(TEMP_DIR_PREFIX_ATTRIBUTE))
-                {
-                    prefix = tempdir.getAttribute("prefix");
-                }
-                else
-                {
-                    prefix = DEFAULT_TEMP_DIR_PREFIX;
-                }
-                final String suffix;
-                if (tempdir.hasAttribute(TEMP_DIR_SUFFIX_ATTRIBUTE))
-                {
-                    suffix = tempdir.getAttribute(TEMP_DIR_SUFFIX_ATTRIBUTE);
-                }
-                else
-                {
-                    suffix = DEFAULT_TEMP_DIR_SUFFIX;
-                }
-                final String variableName;
-                if (tempdir.hasAttribute(TEMP_DIR_VARIABLE_NAME_ATTRIBUTE))
-                {
-                    variableName = tempdir.getAttribute(TEMP_DIR_VARIABLE_NAME_ATTRIBUTE);
-                }
-                else
-                {
-                    if (tempDirAttributeNames.contains(TEMP_DIR_DEFAULT_PROPERTY_NAME))
-                    {
-                        throw new CompilerException(
-                                "Only one temporary directory may be specified without a " + TEMP_DIR_VARIABLE_NAME_ATTRIBUTE
-                                        + " attribute. (Line: " + tempdir.getLineNr() + ").");
-                    }
-                    variableName = TEMP_DIR_DEFAULT_PROPERTY_NAME;
-                }
-                if (tempDirAttributeNames.contains(variableName))
-                {
-                    throw new CompilerException("Temporary directory variable names must be unique, the name "
-                                                        + variableName + " is used more than once. (Line: " + tempdir.getLineNr() + ").");
-                }
-                tempDirAttributeNames.add(variableName);
-                info.addTempDir(new TempDir(variableName, prefix, suffix));
-            }
-        }
-
         packager.setInfo(info);
-        notifyCompilerListener("addInfo", CompilerListener.END, data);
+        notifyCompilerListener("addInfoConditional", CompilerListener.END, data);
     }
 
     /**
