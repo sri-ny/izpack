@@ -101,14 +101,34 @@ public class LooseFileUnpacker extends FileUnpacker
         }
         if (resolvedFile.exists())
         {
-            InputStream stream = new FileInputStream(resolvedFile);
-            // may have a different length & last modified than we had at compile time, therefore we have to
-            // build a new PackFile for the copy process...
-            file = new PackFile(resolvedFile.getParentFile(), resolvedFile, file.getTargetPath(),
-                                file.osConstraints(), file.override(), file.overrideRenameTo(),
-                                file.blockable(), file.getAdditionals());
+            InputStream stream = null;
+            try
+            {
+                stream = new FileInputStream(resolvedFile);
+                // may have a different length & last modified than we had at compile time, therefore we have to
+                // build a new PackFile for the copy process...
+                file = new PackFile(resolvedFile.getParentFile(), resolvedFile, file.getTargetPath(),
+                                    file.osConstraints(), file.override(), file.overrideRenameTo(),
+                                    file.blockable(), file.getAdditionals());
 
-            copy(file, stream, target);
+                copy(file, stream, target);
+            }
+            catch (IOException e)
+            {
+                logger.warning("Error when copying file " + resolvedFile + ": " + e);
+            }
+            finally
+            {
+                try
+                {
+                    if (stream != null)
+                        stream.close();
+                }
+                catch(IOException e)
+                {
+                    logger.warning("Error when closing stream: " + e);
+                }
+            }
         }
         else
         {
