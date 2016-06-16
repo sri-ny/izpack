@@ -390,6 +390,7 @@ public abstract class PackagerBase implements IPackager
         {
             for (DynamicVariable var : dynVariables)
             {
+                graph.addVertex(var);
                 for (String childName : var.getUnresolvedVariableNames())
                 {
                     List<DynamicVariable> childVars = dynamicVariables.get(childName);
