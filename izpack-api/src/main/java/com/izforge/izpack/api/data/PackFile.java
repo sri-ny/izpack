@@ -64,6 +64,11 @@ public class PackFile implements Serializable
     private List<OsModel> osConstraints = null;
 
     /**
+     * The packed file
+     */
+    private File packedFile;
+
+    /**
      * The length of the file in bytes
      */
     private long length = 0;
@@ -163,6 +168,7 @@ public class PackFile implements Serializable
             target = target.substring(0, target.length() - 1);
         }
 
+        this.packedFile = src;
         this.sourcePath = src.getPath().replace(File.separatorChar, '/');
         this.relativePath = (relativeSourcePath != null) ? relativeSourcePath.replace(File.separatorChar, '/') : relativeSourcePath;
 
@@ -215,6 +221,14 @@ public class PackFile implements Serializable
     public final List<OsModel> osConstraints()
     {
         return osConstraints;
+    }
+
+    /**
+     * The packed file object
+     */
+    public final File getFile()
+    {
+        return packedFile;
     }
 
     /**
