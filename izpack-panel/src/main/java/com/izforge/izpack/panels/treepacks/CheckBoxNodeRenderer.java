@@ -66,8 +66,6 @@ class CheckBoxNodeRenderer implements TreeCellRenderer
                                                   boolean selected, boolean expanded, boolean leaf, int row,
                                                   boolean hasFocus)
     {
-        treePacksPanel.updateViewFromModel(tree);
-
         if (selected)
         {
             checkbox.setForeground(selectionForeground);
