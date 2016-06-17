@@ -135,6 +135,11 @@ public class ElementReader
                 {
                     return matcher.matchesCurrentPlatform(forOs);
                 }
+
+                @Override
+                public Set<String> getNeededVariableNames() {
+                    return new HashSet<String>(0);
+                }
             };
             osMatcherCondition.setId(osMatcherCondition.toString());
             globalConditions.add(osMatcherCondition);
