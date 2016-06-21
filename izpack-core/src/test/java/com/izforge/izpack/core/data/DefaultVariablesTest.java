@@ -267,8 +267,8 @@ public class DefaultVariablesTest
         rules.readConditionMap(conditions);
         ((DefaultVariables) variables).setRules(rules);
 
-        variables.add(createDynamicCheckonce("previous.wrapper.conf", "${INSTALL_PATH}/conf/wrapper.conf".replaceAll("/+", File.separator), "haveInstallPath"));
-        variables.add(createDynamicCheckonce("previous.wrapper.conf", "${INSTALL_PATH}/wrapper.conf".replaceAll("/+", File.separator), "haveInstallPath+!previous.wrapper.conf.exists"));
+        variables.add(createDynamicCheckonce("previous.wrapper.conf", "${INSTALL_PATH}/conf/wrapper.conf".replace("/", File.separator), "haveInstallPath"));
+        variables.add(createDynamicCheckonce("previous.wrapper.conf", "${INSTALL_PATH}/wrapper.conf".replace("/", File.separator), "haveInstallPath+!previous.wrapper.conf.exists"));
 
         File installPath = null;
         File confFile = null;
