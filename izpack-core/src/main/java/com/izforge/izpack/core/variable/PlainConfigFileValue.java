@@ -83,8 +83,8 @@ public class PlainConfigFileValue extends ConfigFileValue implements Serializabl
     @Override
     public Set<String> getUnresolvedVariableNames()
     {
-        Set<String> unresolvedNames = super.getUnresolvedVariableNames();
-        unresolvedNames.add(location);
-        return parseUnresolvedVariableNames(unresolvedNames.toArray(new String[unresolvedNames.size()]));
+        Set<String> unresolvedNames = parseUnresolvedVariableNames(location); 
+        unresolvedNames.addAll(super.getUnresolvedVariableNames());
+        return unresolvedNames;
     }
 }

@@ -59,6 +59,15 @@ public class TestCompilerContainer extends CompilerContainer
      */
     private FrameworkMethod testMethod;
 
+    /**
+     * The name of the installer.xml used in this installer
+     */
+    private String installFileName;
+
+    /**
+     * @return the installFileName
+     */
+    public String getXmlFileName() { return installFileName; }
 
     /**
      * Constructs a <tt>TestCompilerContainer</tt>.
@@ -112,7 +121,7 @@ public class TestCompilerContainer extends CompilerContainer
         {
             installFile = testClass.getAnnotation(InstallFile.class);
         }
-        String installFileName = installFile.value();
+        installFileName = installFile.value();
 
         File installerFile = FileUtil.convertUrlToFile(getClass().getClassLoader().getResource(installFileName));
         File baseDir = installerFile.getParentFile();
