@@ -174,6 +174,14 @@ public class DynVariableOrderTest
         testOrder("file", "ini"); testOrder("key", "ini"); testOrder("section", "ini");
         testOrder("file", "opt"); testOrder("key", "opt");
         testOrder("file", "xml"); testOrder("key", "xml");
+
+        testOrder("file", "jar_ini"); testOrder("entry", "jar_ini"); testOrder("key", "jar_ini"); testOrder("section", "jar_ini");
+        testOrder("file", "jar_opt"); testOrder("entry", "jar_ini"); testOrder("key", "jar_opt");
+        testOrder("file", "jar_xml"); testOrder("entry", "jar_ini"); testOrder("key", "jar_xml");
+
+        testOrder("file", "zip_ini"); testOrder("entry", "jar_ini"); testOrder("key", "zip_ini"); testOrder("section", "zip_ini");
+        testOrder("file", "zip_opt"); testOrder("entry", "jar_ini"); testOrder("key", "zip_opt");
+        testOrder("file", "zip_xml"); testOrder("entry", "jar_ini"); testOrder("key", "zip_xml");
     }
 
     private void testOrder(String... names)

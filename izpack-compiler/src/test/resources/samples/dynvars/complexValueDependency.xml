@@ -19,6 +19,7 @@
 
     <variables>
         <variable name="file"     value="file" />
+        <variable name="entry"    value="entry" />
         <variable name="section"  value="section" />
         <variable name="key"      value="key" />
     </variables>
@@ -27,6 +28,14 @@
         <variable name="ini" type="ini"     file="${file}" key="${key}" section="${section}"/>
         <variable name="opt" type="options" file="${file}" key="${key}" />
         <variable name="xml" type="xml"     file="${file}" key="${key}" />
+
+        <variable name="jar_ini" type="ini"     jarfile="${file}" entry="${entry}" key="${key}" section="${section}"/>
+        <variable name="jar_opt" type="options" jarfile="${file}" entry="${entry}" key="${key}" />
+        <variable name="jar_xml" type="xml"     jarfile="${file}" entry="${entry}" key="${key}" />
+
+        <variable name="zip_ini" type="ini"     zipfile="${file}" entry="${entry}" key="${key}" section="${section}"/>
+        <variable name="zip_opt" type="options" zipfile="${file}" entry="${entry}" key="${key}" />
+        <variable name="zip_xml" type="xml"     zipfile="${file}" entry="${entry}" key="${key}" />
     </dynamicvariables>
 
     <panels>
