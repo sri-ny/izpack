@@ -41,10 +41,6 @@ import com.izforge.izpack.test.junit.PicoRunner;
 /**
  * Tests for correct order of dynamic variable computation
  * 
- * Cave: 
- * o If this tests do fail, we definitely have a problem in computation of dynamic variables.
- * o If this test do succeed, this is NOT a guarantee for correct implementation. The order
- *   of variable computation can be correct by random and may fail on other examples
  */
 @RunWith(PicoRunner.class)
 @Container(TestCompilerContainer.class)
@@ -83,6 +79,26 @@ public class DynVariableOrderTest
             sb.append(name).append(", ");
         }
         System.out.println(sb);
+    }
+
+    /**
+     * Check the default order of variables without dependencies
+     */
+    @Test
+    @InstallFile(xmlDir+"checkOrder.xml")
+    public void testDefaultOrder() 
+    {
+        // TODO 
+        // Actual there is no deterministic order of variables.
+        // Because of this a passed test is NOT a guarantee for correct implementation.
+        // The order of variable computation can be correct by random and may fail on other examples.
+        // 
+        // Therefore a deterministic default ordering of variables without dependency would be
+        // useful. Ideally in the order of definition in the installer.xml with static variables before
+        // dynamic variables.
+
+        // Until this, the test is skipped:
+        //testOrder("static1", "static2", "static3", "static4", "static5", "dyn1", "dyn2", "dyn3", "dyn4", "dyn5");
     }
 
     /**
