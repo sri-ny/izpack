@@ -20,6 +20,7 @@
 package com.izforge.izpack.core.variable;
 
 import java.io.InputStream;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -114,5 +115,13 @@ public class ZipEntryConfigFileValue extends ConfigFileValue
         {
             throw new Exception("Error opening zip file " + filename, ze);
         }
+    }
+
+    @Override
+    public Set<String> getUnresolvedVariableNames()
+    {
+        Set<String> unresolvedNames = parseUnresolvedVariableNames(filename, entryname);
+        unresolvedNames.addAll(super.getUnresolvedVariableNames());
+        return unresolvedNames;
     }
 }

@@ -22,6 +22,7 @@
 package com.izforge.izpack.core.variable;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
@@ -138,5 +139,16 @@ public class ExecValue extends ValueImpl implements Serializable
             }
         }
         return null;
+    }
+
+    @Override
+    public Set<String> getUnresolvedVariableNames()
+    {
+        Set<String> unresolvedNames = parseUnresolvedVariableNames(cmd);
+        if (dir != null)
+        {
+            unresolvedNames.addAll(parseUnresolvedVariableNames(dir));
+        }
+        return unresolvedNames;
     }
 }
