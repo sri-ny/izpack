@@ -183,6 +183,8 @@ public class DynVariableOrderTest
         testOrder("file", "zip_opt"); testOrder("entry", "jar_ini"); testOrder("key", "zip_opt");
         testOrder("file", "zip_xml"); testOrder("entry", "jar_ini"); testOrder("key", "zip_xml");
 
+        testOrder("regkey", "reg"); testOrder("regvalue", "reg");
+
         testOrder("executable", "exec"); testOrder("dir", "exec"); testOrder("arg", "exec");
     }
 
