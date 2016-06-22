@@ -803,6 +803,8 @@
             <configuration>
               <includes>
                 <include>**/integration/**</include>
+              </includes>
+              <excludes>
                 <exclude>**/InstallationTest.java</exclude>
                 <exclude>**/EventTest.java</exclude>
                 <exclude>**/ExecutableFileTest.java</exclude>
@@ -817,8 +819,6 @@
                 <exclude>**/PackagingTest.java</exclude>
                 <exclude>**/PanelActionTest.java</exclude>
                 <exclude>**/MultiVolumeInstallationTest.java</exclude>
-              </includes>
-              <excludes>
                 <exclude>**/Abstract*</exclude>
                 <exclude>**/Test*Container*</exclude>
               </excludes>
