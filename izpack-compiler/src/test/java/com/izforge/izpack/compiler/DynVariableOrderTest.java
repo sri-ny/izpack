@@ -182,6 +182,8 @@ public class DynVariableOrderTest
         testOrder("file", "zip_ini"); testOrder("entry", "jar_ini"); testOrder("key", "zip_ini"); testOrder("section", "zip_ini");
         testOrder("file", "zip_opt"); testOrder("entry", "jar_ini"); testOrder("key", "zip_opt");
         testOrder("file", "zip_xml"); testOrder("entry", "jar_ini"); testOrder("key", "zip_xml");
+
+        testOrder("executable", "exec"); testOrder("dir", "exec"); testOrder("arg", "exec");
     }
 
     private void testOrder(String... names)
