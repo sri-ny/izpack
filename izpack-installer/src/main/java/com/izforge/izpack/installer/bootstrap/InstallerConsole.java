@@ -38,7 +38,7 @@ public class InstallerConsole
 {
   private static final Logger logger = Logger.getLogger(InstallerConsole.class.getName());
   
-  public static void run(final int type, final int consoleAction, final String path, final String langCode, final String mediaPath, final String[] args)
+  public static void run(final int consoleAction, final String path, final String langCode, final String mediaPath, final String[] args)
   {
     final InstallerContainer applicationComponent = new ConsoleInstallerContainer();
     final Container installerContainer = applicationComponent.getComponent(Container.class);

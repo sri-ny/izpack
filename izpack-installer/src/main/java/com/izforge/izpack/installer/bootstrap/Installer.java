@@ -221,7 +221,7 @@ public class Installer
                 break;
 
             case INSTALLER_CONSOLE:
-                InstallerConsole.run(type, consoleAction, path, langCode, mediaDir, args);
+                InstallerConsole.run(consoleAction, path, langCode, mediaDir, args);
                 break;
         }
     }

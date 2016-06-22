@@ -140,6 +140,20 @@ public interface Variables
     Properties getProperties();
 
     /**
+     * Whether the override exists of the given name.
+     *
+     * @return true if the override exists
+     */
+    boolean containsOverride(String name);
+
+    /**
+     * Exposes the variables as properties.
+     *
+     * @return the variables
+     */
+    void setOverrides(Properties overrides);
+
+    /**
      * Register a set of variable names for blocking from further changes.
      *
      * @param names Variable names

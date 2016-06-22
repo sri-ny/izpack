@@ -21,18 +21,6 @@
 
 package com.izforge.izpack.core.data;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.InstallerException;
@@ -40,6 +28,15 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -54,6 +51,11 @@ public class DefaultVariables implements Variables
      * The variables.
      */
     private final Properties properties;
+
+    /**
+     * The forced override values.
+     */
+    private Properties overrides;
 
     /**
      * The dynamic variables.
@@ -96,6 +98,31 @@ public class DefaultVariables implements Variables
      */
     public DefaultVariables(Properties properties)
     {
+        InputStream overridePropsStream = null;
+        try
+        {
+            File jarFile = new File(
+                    DefaultVariables.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+            String jarDir = jarFile.getParentFile().getPath();
+            File overridePropFile = new File(jarDir, FilenameUtils.getBaseName(jarFile.getPath()) + ".properties");
+            if (overridePropFile.exists())
+            {
+                overridePropsStream = new FileInputStream(overridePropFile);
+                Properties overrideProps = new Properties();
+                overrideProps.load(overridePropsStream);
+                setOverrides(overrideProps);
+                logger.info("Loaded " + overrideProps.size() + " override(s) from " + overridePropFile);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.log(Level.SEVERE, "Failed loading overrides", e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(overridePropsStream);
+        }
+
         this.properties = properties;
         replacer = new VariableSubstitutorImpl(properties);
     }
@@ -140,7 +167,7 @@ public class DefaultVariables implements Variables
     @Override
     public String get(String name)
     {
-        return properties.getProperty(name);
+        return containsOverride(name) ? overrides.getProperty(name) : properties.getProperty(name);
     }
 
     /**
@@ -152,7 +179,8 @@ public class DefaultVariables implements Variables
     @Override
     public String get(String name, String defaultValue)
     {
-        return properties.getProperty(name, defaultValue);
+        final String value = properties.getProperty(name, defaultValue);
+        return containsOverride(name) ? overrides.getProperty(name, value) : value;
     }
 
     /**
@@ -332,7 +360,7 @@ public class DefaultVariables implements Variables
             for (DynamicVariable variable : dynamicVariables)
             {
                 String name = variable.getName();
-                if (!isBlockedVariableName(name))
+                if (!isBlockedVariableName(name) && !containsOverride(name))
                 {
                     String conditionId = variable.getConditionid();
                     if (conditionId == null || rules.isConditionTrue(conditionId))
@@ -434,6 +462,18 @@ public class DefaultVariables implements Variables
     public Properties getProperties()
     {
         return properties;
+    }
+
+    @Override
+    public boolean containsOverride(String name)
+    {
+        return (overrides != null) && overrides.containsKey(name);
+    }
+
+    @Override
+    public void setOverrides(Properties overrides)
+    {
+        this.overrides = overrides;
     }
 
     @Override

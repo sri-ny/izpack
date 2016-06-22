@@ -23,10 +23,7 @@ package com.izforge.izpack.core.data;
 
 import static org.junit.Assert.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Test;
 
@@ -287,7 +284,7 @@ public class DefaultVariablesTest
 
     /**
      * Tests dynamic variables with a deeper dependency
-     * @see https://jira.codehaus.org/browse/IZPACK-1182
+     * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1182">https://izpack.atlassian.net/browse/IZPACK-1182</a>
      */
     @Test
    public void testDependentDynamicVariables()
@@ -303,7 +300,7 @@ public class DefaultVariablesTest
 
     /**
      * Tests dynamic variables with a deeper dependency
-     * @see https://jira.codehaus.org/browse/IZPACK-1182
+     * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1182">https://izpack.atlassian.net/browse/IZPACK-1182</a>
      */
     @Test
    public void testDependentDynamicVariables2()
@@ -320,7 +317,7 @@ public class DefaultVariablesTest
     
    /**
     * Tests dynamic variables with a deeper dependency and checkonce==true
-    * @see https://jira.codehaus.org/browse/IZPACK-1182
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1182">https://izpack.atlassian.net/browse/IZPACK-1182</a>
     */
    @Test
    public void testDependentDynamicVariablesWithCheckOnce()
@@ -350,7 +347,7 @@ public class DefaultVariablesTest
     *   <variable name="thechoice" value="choice1" condition="cond1" />
     *   <variable name="thechoice" value="choice2" condition="cond2" />
     * </dynamicvariables>
-    * @see http://docs.codehaus.org/display/IZPACK/Lifecycle+of+dynamic+variables
+    * @see <a href="https://izpack.atlassian.net/wiki/display/IZPACK/Dynamic+Variables">https://izpack.atlassian.net/wiki/display/IZPACK/Dynamic+Variables</a>
     */
    @Test
    public void testMixedDynamicVariables()
@@ -437,7 +434,7 @@ public class DefaultVariablesTest
     * <conditions>
     *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
     * </conditions>
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1215">https://izpack.atlassian.net/browse/IZPACK-1215</a>
     */
    @Test
    public void testLoopWithConditions()
@@ -483,7 +480,7 @@ public class DefaultVariablesTest
     * <conditions>
     *  <condition id="cond1" type="variable"> <name>var5</name> <value>1</value> </condition>
     * </conditions>
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1215">https://izpack.atlassian.net/browse/IZPACK-1215</a>
     */
    @Test
    public void testLoopWithConditionsReversedDefiniton()
@@ -521,7 +518,7 @@ public class DefaultVariablesTest
     * </dynamicvariables>
     * 
     * This example is not useful, but should not create a loop
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1215">https://izpack.atlassian.net/browse/IZPACK-1215</a>
     */
    @Test
    public void testCyclicReference()
@@ -541,8 +538,8 @@ public class DefaultVariablesTest
    /**
     * Test loop detection with no dynamic variables at all
     * Ensure, that no exception is thrown 
-    * 
-    * @see http://jira.codehaus.org/browse/IZPACK-1215
+    *
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1215">https://izpack.atlassian.net/browse/IZPACK-1215</a>
     */
    @Test
    public void testNoDynamicVariables()
@@ -634,8 +631,8 @@ public class DefaultVariablesTest
 
    /**
     * Test for blocking of dynamic variables
-    * 
-    * @see http://jira.codehaus.org/browse/IZPACK-1199
+    *
+    * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1199">https://izpack.atlassian.net/browse/IZPACK-1199</a>
     */
    @Test
    public void testBlockedDynamicVariables()
@@ -750,7 +747,7 @@ public class DefaultVariablesTest
      * Creates a dynamic variable from a ini file.
      *
      * @param name        the variable name
-     * @param value       the variable value
+     * @param file        the INI file
      * @param filesection the section in the ini file
      * @param filekey     the key in the ini file
      * @param autounset   whether to unset, when undefined
@@ -764,6 +761,24 @@ public class DefaultVariablesTest
         result.setValue(new PlainConfigFileValue(file, ConfigFileValue.CONFIGFILE_TYPE_INI, filesection, filekey, escape));
         result.setAutoUnset(autounset);
         return result;
+    }
+
+    /**
+     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>)
+     */
+    @Test
+    public void testOverrides()
+    {
+        Properties overrides = new Properties();
+        overrides.setProperty("var1", "override1");
+        variables.setOverrides(overrides);
+
+        variables.set("var1", "value1");
+        variables.add(createDynamic("var1", "dynValue"));
+
+        assertEquals("override before refresh", "override1", variables.get("var1"));
+        variables.refresh();
+        assertEquals("override after refresh", "override1", variables.get("var1"));
     }
 
 }
