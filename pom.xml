@@ -450,7 +450,8 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
               <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
-              <forkMode>always</forkMode>
+              <forkCount>1</forkCount>
+              <reuseFork>false</reuseFork>
           </configuration>
       </plugin>
       <plugin>
@@ -696,7 +697,8 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <jvm>/opt/jdk/jdk1.6.0/bin/java</jvm>
-              <forkMode>once</forkMode>
+              <forkCount>1</forkCount>
+              <reuseFork>false</reuseFork>
             </configuration>
           </plugin>
         </plugins>
