@@ -39,7 +39,12 @@ import com.izforge.izpack.test.InstallFile;
 import com.izforge.izpack.test.junit.PicoRunner;
 
 /**
- * Test for correct order of dynamic variable computation
+ * Tests for correct order of dynamic variable computation
+ * 
+ * Cave: 
+ * o If this tests do fail, we definitely have a problem in computation of dynamic variables.
+ * o If this test do succeed, this is NOT a guarantee for correct implementation. The order
+ *   of variable computation can be correct by random and may fail on other examples
  */
 @RunWith(PicoRunner.class)
 @Container(TestCompilerContainer.class)
@@ -141,6 +146,18 @@ public class DynVariableOrderTest
     {
         testOrder("dyn7", "dyn5", "dyn3", "dyn1", "dyn10");
         testOrder("dyn2", "dyn4", "dyn6", "dyn8", "dyn10");
+    }
+
+    /**
+     * Test variables with values with indirect variable references
+     */
+    @Test
+    @InstallFile(xmlDir+"complexValueDependency.xml")
+    public void testComplexValueDependency() 
+    {
+        testOrder("file", "ini"); testOrder("key", "ini"); testOrder("section", "ini");
+        testOrder("file", "opt"); testOrder("key", "opt");
+        testOrder("file", "xml"); testOrder("key", "xml");
     }
 
     private void testOrder(String... names)
