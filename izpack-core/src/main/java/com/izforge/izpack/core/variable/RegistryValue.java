@@ -191,6 +191,6 @@ public class RegistryValue extends ValueImpl implements Serializable
     @Override
     public Set<String> getUnresolvedVariableNames()
     {
-        return parseUnresolvedVariableNames(new String[]{root, key, value});
+        return parseUnresolvedVariableNames(root, key, value);
     }
 }
