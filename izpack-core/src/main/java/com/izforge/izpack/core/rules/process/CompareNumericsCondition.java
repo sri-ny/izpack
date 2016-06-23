@@ -22,7 +22,6 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -90,10 +89,8 @@ public class CompareNumericsCondition extends CompareCondition
 
     @Override
     public Set<String> getNeededVariableNames() {
-        HashSet<String> vars = new HashSet<String>(4);
-        vars.addAll(ValueUtils.parseUnresolvedVariableNames(this.operand1));
-        vars.addAll(ValueUtils.parseUnresolvedVariableNames(this.operand2));
-        return vars;
+        return ValueUtils.parseUnresolvedVariableNames(this.operand1,
+                                                       this.operand2);
     }
 
 }

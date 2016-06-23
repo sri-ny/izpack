@@ -127,10 +127,8 @@ public class CompareVersionsCondition extends CompareCondition
 
     @Override
     public Set<String> getNeededVariableNames() {
-        HashSet<String> vars = new HashSet<String>(4);
-        vars.addAll(ValueUtils.parseUnresolvedVariableNames(this.operand1));
-        vars.addAll(ValueUtils.parseUnresolvedVariableNames(this.operand2));
-        return vars;
+        return ValueUtils.parseUnresolvedVariableNames(this.operand1,
+                                                       this.operand2);
     }
 
     private class Version implements Comparable<Version> {
