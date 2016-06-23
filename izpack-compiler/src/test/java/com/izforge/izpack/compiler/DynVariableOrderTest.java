@@ -102,6 +102,32 @@ public class DynVariableOrderTest
     }
 
     /**
+     * Test behaviour of cyclic dependencies
+     */
+    @Test
+    @InstallFile(xmlDir+"cyclicDependency.xml")
+    public void testCyclicDependency() 
+    {
+        // TODO
+        // A cyclic variable definition should be evaluated in the order of install.xml
+        // Because there is no deterministic ordering yet (see above), the ordering is not checked: 
+        // testOrder("dyn1", "dyn2");
+        // testOrder("dyn10", "dyn11");
+        // but at least the test should not run in an endless loop :-)
+    }
+
+    /**
+     * Test behaviour of cyclic dependencies
+     */
+    @Test
+    @InstallFile(xmlDir+"selfReference.xml")
+    public void testSelfReference() 
+    {
+        testContained("dyn1");
+        testContained("dyn2");
+    }
+
+    /**
      * Test a simple dependency: a dynamic variable depends on a static variable and a second one standing alone
      */
     @Test
@@ -182,6 +208,44 @@ public class DynVariableOrderTest
         testOrder("file", "zip_ini"); testOrder("entry", "jar_ini"); testOrder("key", "zip_ini"); testOrder("section", "zip_ini");
         testOrder("file", "zip_opt"); testOrder("entry", "jar_ini"); testOrder("key", "zip_opt");
         testOrder("file", "zip_xml"); testOrder("entry", "jar_ini"); testOrder("key", "zip_xml");
+
+        testOrder("regkey", "reg"); testOrder("regvalue", "reg");
+
+        testOrder("executable", "exec"); testOrder("dir", "exec"); testOrder("arg", "exec");
+    }
+
+    /**
+     * Test variables with values with indirect variable references
+     */
+    @Test
+    @InstallFile(xmlDir+"conditionDependency.xml")
+    public void testConditionDependency() 
+    {
+        // conditions with two arguments
+        testOrder("arg1a", "var1"); testOrder("arg1b", "var1");
+        testOrder("arg2a", "var2"); testOrder("arg2b", "var2");
+        testOrder("arg3a", "var3"); testOrder("arg3b", "var3");
+        testOrder("arg4a", "var4"); // no var substitution: testOrder("arg4b", "var4");
+        testOrder("arg5a", "var5"); // no var substitution: testOrder("arg5b", "var5");
+
+        // conditions with a single argument
+        testOrder("arg20", "var20");
+        testOrder("arg21", "var21");
+        testOrder("arg22", "var22");
+        testOrder("arg23", "var23");
+
+        // conditions, which directly refer to a variable (name)
+        testOrder("arg50", "var50");
+        testOrder("arg51", "var51");
+        testOrder("arg52", "var52");
+        testOrder("arg60a", "var60"); // no var substitution: testOrder("arg60b", "var60");
+
+        // aggregate conditions
+        testOrder("arg90a", "var90"); testOrder("arg90b", "var90");
+        testOrder("arg91a", "var91"); testOrder("arg91b", "var91");
+        testOrder("arg92a", "var92"); testOrder("arg92b", "var92");
+        testOrder("arg93", "var93");
+        testOrder("arg94", "var94");
     }
 
     private void testOrder(String... names)
@@ -216,4 +280,3 @@ public class DynVariableOrderTest
     }
 
 }
-

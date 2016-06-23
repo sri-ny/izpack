@@ -145,10 +145,7 @@ public class ExecValue extends ValueImpl implements Serializable
     public Set<String> getUnresolvedVariableNames()
     {
         Set<String> unresolvedNames = parseUnresolvedVariableNames(cmd);
-        if (dir != null)
-        {
-            unresolvedNames.addAll(parseUnresolvedVariableNames(dir));
-        }
+        unresolvedNames.addAll(parseUnresolvedVariableNames(dir));
         return unresolvedNames;
     }
 }

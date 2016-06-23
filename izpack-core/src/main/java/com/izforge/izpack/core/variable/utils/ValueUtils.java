@@ -35,16 +35,19 @@ public class ValueUtils
         Set<String> unresolvedNames = new HashSet<String>();
         for (String s : strings)
         {
-            Matcher matcher = RESOLVER_PATTERN.matcher(s);
-            while (matcher.find()) {
-                for (int i = 0; i < matcher.groupCount(); i++)
-                {
-                    String name = matcher.group(i+1);
-                    if (name != null)
+            if (s!=null)
+            {
+                Matcher matcher = RESOLVER_PATTERN.matcher(s);
+                while (matcher.find()) {
+                    for (int i = 0; i < matcher.groupCount(); i++)
                     {
-                        unresolvedNames.add(name);
+                        String name = matcher.group(i+1);
+                        if (name != null)
+                        {
+                            unresolvedNames.add(name);
+                        }
                     }
-                }
+            }
             }
         }
         return unresolvedNames;
