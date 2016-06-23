@@ -102,6 +102,21 @@ public class DynVariableOrderTest
     }
 
     /**
+     * Test behaviour of cyclic dependencies
+     */
+    @Test
+    @InstallFile(xmlDir+"cyclicDependency.xml")
+    public void testCyclicDependency() 
+    {
+        // TODO
+        // A cyclic variable definition should be evaluated in the order of install.xml
+        // Because there is no deterministic ordering yet (see above), the ordering is not checked: 
+        // testOrder("dyn1", "dyn2");
+        // testOrder("dyn10", "dyn11");
+        // but at least the test should not run in an endless loop :-)
+    }
+
+    /**
      * Test a simple dependency: a dynamic variable depends on a static variable and a second one standing alone
      */
     @Test
