@@ -117,6 +117,17 @@ public class DynVariableOrderTest
     }
 
     /**
+     * Test behaviour of cyclic dependencies
+     */
+    @Test
+    @InstallFile(xmlDir+"selfReference.xml")
+    public void testSelfReference() 
+    {
+        testContained("dyn1");
+        testContained("dyn2");
+    }
+
+    /**
      * Test a simple dependency: a dynamic variable depends on a static variable and a second one standing alone
      */
     @Test
