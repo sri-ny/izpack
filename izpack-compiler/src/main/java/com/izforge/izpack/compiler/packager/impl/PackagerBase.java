@@ -24,6 +24,7 @@ package com.izforge.izpack.compiler.packager.impl;
 
 import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.rules.Condition;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
@@ -38,6 +39,7 @@ import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.compiler.util.graph.DependencyGraph;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -101,6 +103,12 @@ public abstract class PackagerBase implements IPackager
      * The compiler data.
      */
     private final CompilerData compilerData;
+
+
+    /**
+     * The rules engine.
+     */
+    private final RulesEngine rulesEngine;
 
     /**
      * Installer requirements.
@@ -188,7 +196,8 @@ public abstract class PackagerBase implements IPackager
      */
     public PackagerBase(Properties properties, PackagerListener listener, JarOutputStream installerJar,
                         MergeManager mergeManager, CompilerPathResolver pathResolver,
-                        MergeableResolver mergeableResolver, PackCompressor compressor, CompilerData compilerData)
+                        MergeableResolver mergeableResolver, PackCompressor compressor, CompilerData compilerData,
+                        RulesEngine rulesEngine)
     {
         this.properties = properties;
         this.listener = listener;
@@ -198,6 +207,7 @@ public abstract class PackagerBase implements IPackager
         this.mergeableResolver = mergeableResolver;
         this.compressor = compressor;
         this.compilerData = compilerData;
+        this.rulesEngine = rulesEngine;
     }
 
     @Override
@@ -385,13 +395,12 @@ public abstract class PackagerBase implements IPackager
     private List<DynamicVariable> buildVariableList()
     {
         DependencyGraph<DynamicVariable> graph = new DependencyGraph<DynamicVariable>();
-
         for (List<DynamicVariable> dynVariables : dynamicVariables.values())
         {
             for (DynamicVariable var : dynVariables)
             {
                 graph.addVertex(var);
-                for (String childName : var.getUnresolvedVariableNames(rules))
+                for (String childName : var.getUnresolvedVariableNames(rulesEngine))
                 {
                     List<DynamicVariable> childVars = dynamicVariables.get(childName);
                     if (childVars != null)

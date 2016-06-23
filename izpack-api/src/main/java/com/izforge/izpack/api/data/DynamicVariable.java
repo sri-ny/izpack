@@ -25,10 +25,9 @@ package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import com.izforge.izpack.api.rules.Condition;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 /**
@@ -100,6 +99,6 @@ public interface DynamicVariable extends Serializable
      * 
      * @return  the names of all variables referenced by this variable 
      */
-    Set<String> getUnresolvedVariableNames(Map<String, Condition> rules);
+    Set<String> getUnresolvedVariableNames(RulesEngine rulesEngine);
 }
 
