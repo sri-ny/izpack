@@ -346,17 +346,21 @@ public class DefaultVariablesTest
 
     /**
      * Tests dynamic variables with a deeper dependency
+     * Before IZPACK-1406 the recursion was done by iterations of variables.refresh().
+     * Since IZPACK-1406 the variables are preordered by PackagerBase.buildVariableList().
+     * Therefore we have to provide the variables here in the correct order.
+     * @see com.izforge.izpack.compiler.DynVariableOrderTest for ordering tests 
      */
     @Test
     public void testDependentDynamicVariables()
     {
-        variables.set("depVar3", "depValue");
-        variables.add(createDynamic("depVar2", "${depVar3}"));
-        variables.add(createDynamic("depVar1", "${depVar2}"));
+        variables.set("depVar1", "depValue");
+        variables.add(createDynamic("depVar2", "${depVar1}"));
+        variables.add(createDynamic("depVar3", "${depVar2}"));
 
-        assertNull(variables.get("depVar1")); // not created till variables refreshed
+        assertNull(variables.get("depVar3")); // not created till variables refreshed
         variables.refresh();
-        assertEquals("check dependent variable", "depValue", variables.get("depVar1"));
+        assertEquals("check dependent variable", "depValue", variables.get("depVar3"));
     }
 
     /**
@@ -365,12 +369,12 @@ public class DefaultVariablesTest
     @Test
     public void testDependentDynamicVariables2()
     {
-        variables.add(createDynamic("name2", "someValue"));
+        variables.add(createDynamic("name1", "someValue"));
+        variables.add(createDynamic("name2", "${name1}"));
         variables.add(createDynamic("name3", "${name2}"));
-        variables.add(createDynamic("name1", "${name3}"));
-        assertNull(variables.get("name1")); // not created till variables refreshed
+        assertNull(variables.get("name3")); // not created till variables refreshed
         variables.refresh();
-        assertEquals("check dependent variable", "someValue", variables.get("name1"));
+        assertEquals("check dependent variable", "someValue", variables.get("name3"));
     }
 
     /**
@@ -379,19 +383,19 @@ public class DefaultVariablesTest
     @Test
     public void testDependentDynamicVariablesWithCheckOnce()
     {
-        variables.set("depVar3", "depValue");
-        variables.add(createDynamic("depVar2", "${depVar3}"));
-        variables.add(createDynamic("depVar1", "${depVar2}"));
+        variables.set("depVar1", "depValue");
+        variables.add(createDynamic("depVar2", "${depVar1}"));
+        variables.add(createDynamic("depVar3", "${depVar2}"));
 
-        variables.add(createDynamicCheckonce("checkonceVar", "${depVar1}"));
+        variables.add(createDynamicCheckonce("checkonceVar", "${depVar3}"));
 
         variables.refresh();
-        assertEquals("check dependent variable", "depValue", variables.get("depVar1"));
+        assertEquals("check dependent variable", "depValue", variables.get("depVar3"));
         assertEquals("check variable with checkonce=true", "depValue", variables.get("checkonceVar"));
 
-        variables.set("depVar3", "newValue");
+        variables.set("depVar1", "newValue");
         variables.refresh();
-        assertEquals("recheck dependent variable", "newValue", variables.get("depVar1")); // should be changed
+        assertEquals("recheck dependent variable", "newValue", variables.get("depVar3")); // should be changed
         assertEquals("recheck variable with checkonce=true", "depValue", variables.get("checkonceVar")); // should not change any more
     }
 
