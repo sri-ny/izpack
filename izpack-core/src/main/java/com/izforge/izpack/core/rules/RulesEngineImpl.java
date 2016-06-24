@@ -922,5 +922,10 @@ public class RulesEngineImpl implements RulesEngine
             return result;
         }
 
+        @Override
+        public Set<String> getVarRefs() {
+            return new HashSet<String>(0);
+        }
+
     }
 }

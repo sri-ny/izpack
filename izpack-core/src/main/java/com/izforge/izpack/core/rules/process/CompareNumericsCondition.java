@@ -22,12 +22,14 @@
 
 package com.izforge.izpack.core.rules.process;
 
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.rules.CompareCondition;
 import com.izforge.izpack.api.rules.ComparisonOperator;
+import com.izforge.izpack.core.variable.utils.ValueUtils;
 
 public class CompareNumericsCondition extends CompareCondition
 {
@@ -84,4 +86,11 @@ public class CompareNumericsCondition extends CompareCondition
         }
         return result;
     }
+
+    @Override
+    public Set<String> getVarRefs() {
+        return ValueUtils.parseUnresolvedVariableNames(this.operand1,
+                                                       this.operand2);
+    }
+
 }

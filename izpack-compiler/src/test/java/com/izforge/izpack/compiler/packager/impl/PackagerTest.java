@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.mockito.Mockito;
 
 import com.izforge.izpack.api.data.Info;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
@@ -54,8 +55,10 @@ public class PackagerTest extends AbstractPackagerTest
         CompilerPathResolver pathResolver = Mockito.mock(CompilerPathResolver.class);
         MergeableResolver resolver = Mockito.mock(MergeableResolver.class);
         CompilerData data = new CompilerData("", "", "", true, false);
+        RulesEngine rulesEngine = Mockito.mock(RulesEngine.class);
         Packager packager = new Packager(properties, listener, jar, compressor, jar, mergeManager,
-                                         pathResolver, resolver, data);
+                                         pathResolver, resolver, data,
+                                         rulesEngine);
         packager.setInfo(new Info());
         return packager;
     }

@@ -25,12 +25,15 @@ package com.izforge.izpack.core.data;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.Value;
 import com.izforge.izpack.api.data.ValueFilter;
+import com.izforge.izpack.api.rules.Condition;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.variable.PlainValue;
 
@@ -329,5 +332,19 @@ public class DynamicVariableImpl implements DynamicVariable
     public void setChecked()
     {
         checked = true;
+    }
+
+    @Override
+    public Set<String> getVarRefs(RulesEngine rulesEngine)
+    {
+        Set<String> vars = value.getVarRefs();
+        if (this.conditionid!=null) {
+            Condition condition = rulesEngine.getCondition(this.conditionid);
+            if (condition!=null)
+            {
+                vars.addAll(condition.getVarRefs());
+            }
+        }
+        return vars;
     }
 }
