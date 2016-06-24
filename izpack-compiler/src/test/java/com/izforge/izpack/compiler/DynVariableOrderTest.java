@@ -249,6 +249,17 @@ public class DynVariableOrderTest
     }
 
     /**
+     * Test variables with conditions in expression language
+     */
+    @Test
+    @InstallFile(xmlDir+"expressionLanguage.xml")
+    public void testExpressionLanguageDependency() 
+    {
+        testOrder("arg1a", "var1"); testOrder("arg1b", "var1");
+        testOrder("arg2a", "var2"); testOrder("arg2b", "var2");
+    }
+
+    /**
      * Test case for IZPACK-1260
      * @see <a href="https://izpack.atlassian.net/browse/IZPACK-1260">IZPACK-1260</a>
      * @see com.izforge.izpack.core.data.DefaultVariablesTest#testDynamicVariablesIZPACK1260()
