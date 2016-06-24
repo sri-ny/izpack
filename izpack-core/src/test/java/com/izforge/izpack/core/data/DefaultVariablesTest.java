@@ -728,9 +728,8 @@ public class DefaultVariablesTest
     {
         Properties overrides = new Properties();
         overrides.setProperty("var1", "override1");
-        variables.setOverrides(overrides);
-
         variables.set("var1", "value1");
+        variables.setOverrides(overrides);
         variables.add(createDynamic("var1", "dynValue"));
 
         assertEquals("override before refresh", "override1", variables.get("var1"));

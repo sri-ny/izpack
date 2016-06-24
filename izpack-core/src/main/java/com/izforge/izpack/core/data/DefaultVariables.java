@@ -139,7 +139,8 @@ public class DefaultVariables implements Variables
     }
 
     /**
-     * Sets a variable.
+     * Sets a variable explicitly.
+     * This is considered a permanent user change and overrides on the according name are removed.
      *
      * @param name  the variable name
      * @param value the variable value. May be {@code null}
@@ -147,6 +148,13 @@ public class DefaultVariables implements Variables
     @Override
     public void set(String name, String value)
     {
+        // Prevent from re-applying when pressing Previous button in panel
+        // but preserve user values made at the panel where Previous has been pressed
+        if (overrides != null)
+        {
+            overrides.remove(name);
+        }
+
         if (value != null)
         {
             properties.setProperty(name, value);
