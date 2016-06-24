@@ -142,7 +142,7 @@ public class ExecValue extends ValueImpl implements Serializable
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
         Set<String> unresolvedNames = parseUnresolvedVariableNames(cmd);
         unresolvedNames.addAll(parseUnresolvedVariableNames(dir));

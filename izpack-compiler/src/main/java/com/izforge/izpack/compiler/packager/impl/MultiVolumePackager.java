@@ -37,6 +37,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.data.XPackFile;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
@@ -120,10 +121,10 @@ public class MultiVolumePackager extends PackagerBase
     public MultiVolumePackager(Properties properties, PackagerListener listener, JarOutputStream installerJar,
                                MergeManager mergeManager, CompilerPathResolver pathResolver,
                                MergeableResolver mergeableResolver, PackCompressor compressor,
-                               CompilerData compilerData)
+                               CompilerData compilerData, RulesEngine rulesEngine)
     {
         super(properties, listener, installerJar, mergeManager, pathResolver, mergeableResolver, compressor,
-              compilerData);
+              compilerData, rulesEngine);
     }
 
     /**

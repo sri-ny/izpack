@@ -79,8 +79,8 @@ public class JarEntryConfigValue extends ZipEntryConfigFileValue
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
-        return super.getUnresolvedVariableNames();
+        return super.getVarRefs();
     }
 }

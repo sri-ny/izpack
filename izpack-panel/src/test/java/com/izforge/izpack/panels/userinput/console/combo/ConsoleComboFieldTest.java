@@ -138,7 +138,7 @@ public class ConsoleComboFieldTest extends AbstractConsoleFieldTest
         public boolean isTrue() { return this.value; }
 
         @Override
-        public Set<String> getNeededVariableNames()
+        public Set<String> getVarRefs()
         {
             return new HashSet<String>(1);
         }

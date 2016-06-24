@@ -126,7 +126,7 @@ public class CompareVersionsCondition extends CompareCondition
     }
 
     @Override
-    public Set<String> getNeededVariableNames() {
+    public Set<String> getVarRefs() {
         return ValueUtils.parseUnresolvedVariableNames(this.operand1,
                                                        this.operand2);
     }

@@ -106,5 +106,5 @@ public abstract class Condition implements Serializable
      * 
      * @return  the names of all variables referenced by this condition 
      */
-    public abstract Set<String> getNeededVariableNames();
+    public abstract Set<String> getVarRefs();
 }

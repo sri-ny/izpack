@@ -38,6 +38,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
+import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
@@ -85,10 +86,11 @@ public class Packager extends PackagerBase
      */
     public Packager(Properties properties, PackagerListener listener, JarOutputStream jarOutputStream,
                     PackCompressor compressor, OutputStream outputStream, MergeManager mergeManager,
-                    CompilerPathResolver pathResolver, MergeableResolver mergeableResolver, CompilerData compilerData)
+                    CompilerPathResolver pathResolver, MergeableResolver mergeableResolver, CompilerData compilerData,
+                    RulesEngine rulesEngine)
     {
         super(properties, listener, jarOutputStream, mergeManager, pathResolver, mergeableResolver, compressor,
-              compilerData);
+              compilerData, rulesEngine);
         this.outputStream = outputStream;
     }
 

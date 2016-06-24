@@ -33,7 +33,7 @@ public interface Value
 
     String resolve(VariableSubstitutor... substitutors) throws Exception;
 
-    Set<String> getUnresolvedVariableNames();
+    Set<String> getVarRefs();
 
     InstallData getInstallData();
 

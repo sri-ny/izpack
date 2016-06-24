@@ -40,7 +40,7 @@ public abstract class ConditionReference extends Condition
     public abstract void resolveReference();
 
     @Override
-    public Set<String> getNeededVariableNames() {
-        return referencedCondition.getNeededVariableNames();
+    public Set<String> getVarRefs() {
+        return referencedCondition.getVarRefs();
     }
 }
