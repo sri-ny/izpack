@@ -139,7 +139,7 @@ public class VariableCondition extends Condition
     }
 
     @Override
-    public Set<String> getNeededVariableNames() {
+    public Set<String> getVarRefs() {
         HashSet<String> vars = new HashSet<String>(2);
         vars.add(variablename);     // add the referenced variable
         // in this.value no variable substition is made, therefore not added here 

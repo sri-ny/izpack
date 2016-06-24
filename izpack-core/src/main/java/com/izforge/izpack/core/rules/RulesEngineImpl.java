@@ -923,7 +923,7 @@ public class RulesEngineImpl implements RulesEngine
         }
 
         @Override
-        public Set<String> getNeededVariableNames() {
+        public Set<String> getVarRefs() {
             return new HashSet<String>(0);
         }
 

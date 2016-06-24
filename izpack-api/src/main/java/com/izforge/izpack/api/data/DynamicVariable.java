@@ -99,6 +99,6 @@ public interface DynamicVariable extends Serializable
      * 
      * @return  the names of all variables referenced by this variable 
      */
-    Set<String> getUnresolvedVariableNames(RulesEngine rulesEngine);
+    Set<String> getVarRefs(RulesEngine rulesEngine);
 }
 

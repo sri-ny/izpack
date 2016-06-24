@@ -42,10 +42,10 @@ public abstract class ConditionWithMultipleOperands extends Condition
     }
 
     @Override
-    public Set<String> getNeededVariableNames() {
+    public Set<String> getVarRefs() {
         HashSet<String> vars = new HashSet<String>();
         for (Condition condition : nestedConditions) {
-            vars.addAll(condition.getNeededVariableNames());
+            vars.addAll(condition.getVarRefs());
         }
         return vars;
     }

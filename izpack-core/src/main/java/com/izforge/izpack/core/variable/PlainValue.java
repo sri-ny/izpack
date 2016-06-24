@@ -80,7 +80,7 @@ public class PlainValue extends ValueImpl implements Serializable
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
         return parseUnresolvedVariableNames(value);
     }

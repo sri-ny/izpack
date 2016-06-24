@@ -311,7 +311,7 @@ public class ContainsCondition extends Condition {
   }
 
     @Override
-    public Set<String> getNeededVariableNames() {
+    public Set<String> getVarRefs() {
         HashSet<String> vars = new HashSet<String>(2);
         switch (contentType)
         {

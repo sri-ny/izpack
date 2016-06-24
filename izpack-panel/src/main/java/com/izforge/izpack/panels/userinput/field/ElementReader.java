@@ -137,7 +137,7 @@ public class ElementReader
                 }
 
                 @Override
-                public Set<String> getNeededVariableNames() {
+                public Set<String> getVarRefs() {
                     return new HashSet<String>(0);
                 }
             };

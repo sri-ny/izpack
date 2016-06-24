@@ -335,14 +335,14 @@ public class DynamicVariableImpl implements DynamicVariable
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames(RulesEngine rulesEngine)
+    public Set<String> getVarRefs(RulesEngine rulesEngine)
     {
-        Set<String> vars = value.getUnresolvedVariableNames();
+        Set<String> vars = value.getVarRefs();
         if (this.conditionid!=null) {
             Condition condition = rulesEngine.getCondition(this.conditionid);
             if (condition!=null)
             {
-                vars.addAll(condition.getNeededVariableNames());
+                vars.addAll(condition.getVarRefs());
             }
         }
         return vars;

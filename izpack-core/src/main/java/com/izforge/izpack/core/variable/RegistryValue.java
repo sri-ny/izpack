@@ -189,7 +189,7 @@ public class RegistryValue extends ValueImpl implements Serializable
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
         return parseUnresolvedVariableNames(root, key, value);
     }

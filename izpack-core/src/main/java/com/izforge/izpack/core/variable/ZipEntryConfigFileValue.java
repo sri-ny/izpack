@@ -118,10 +118,10 @@ public class ZipEntryConfigFileValue extends ConfigFileValue
     }
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
         Set<String> unresolvedNames = parseUnresolvedVariableNames(filename, entryname);
-        unresolvedNames.addAll(super.getUnresolvedVariableNames());
+        unresolvedNames.addAll(super.getVarRefs());
         return unresolvedNames;
     }
 }

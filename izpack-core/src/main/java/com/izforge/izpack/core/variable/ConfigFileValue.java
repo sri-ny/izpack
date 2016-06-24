@@ -214,7 +214,7 @@ public abstract class ConfigFileValue extends ValueImpl implements Serializable
 
 
     @Override
-    public Set<String> getUnresolvedVariableNames()
+    public Set<String> getVarRefs()
     {
         Set<String> unresolvedNames = parseUnresolvedVariableNames(key); 
         if (type == CONFIGFILE_TYPE_INI)
