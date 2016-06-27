@@ -164,7 +164,7 @@ public class PacksPanelAutomationHelper implements PanelAutomation
                             logger.warning("Pack [" + packInfo.toString()
                                                    + "] must be installed because it is required");
                         }
-                        else
+                        else if (!rules.canInstallPack(pack.getName(), idata.getVariables()))
                         {
                             // Pack can be removed from selection because it is required but conditions are not met
                             idata.getSelectedPacks().remove(pack);
