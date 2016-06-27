@@ -21,20 +21,21 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.SwingUtilities;
+
 import com.izforge.izpack.api.container.Container;
-import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.installer.container.impl.GUIInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
+import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.SplashScreen;
 import com.izforge.izpack.installer.language.LanguageDialog;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.util.Housekeeper;
-
-import java.util.logging.Logger;
-
-import javax.swing.*;
 
 /**
  * Gui-dedicated installer bootstrap
@@ -43,48 +44,93 @@ public class InstallerGui
 {
     private static final Logger logger = Logger.getLogger(InstallerGui.class.getName());
     
+    private static SplashScreen splashScreen = null;
+
+    
     public static void run(final String langCode, final String mediaPath) throws Exception
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
 
+        final Object trigger = new Object();
+        
+        // display the splash screen from AWT thread
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
             {
                 try
                 {
-                    final SplashScreen splashScreen = installerContainer.getComponent(SplashScreen.class);
-                    splashScreen.displaySplashScreen();
-
-                    if (mediaPath != null)
-                    {
-                        InstallData installData = applicationComponent.getComponent(InstallData.class);
-                        installData.setMediaPath(mediaPath);
-                    }
-
-                    InstallerController controller = installerContainer.getComponent(InstallerController.class);
-                    splashScreen.removeSplashScreen();
-                    if (langCode == null)
-                    {
-                      installerContainer.getComponent(LanguageDialog.class).initLangPack();
-                    }
-                    else
-                    {
-                      installerContainer.getComponent(LanguageDialog.class).propagateLocale(langCode);
-                    }
-                    if (!installerContainer.getComponent(RequirementsChecker.class).check())
-                    {
-                        logger.info("Not all installer requirements are fulfilled.");
-                        installerContainer.getComponent(Housekeeper.class).shutDown(-1);
-                    }
-                    controller.buildInstallation().launchInstallation();
+                    splashScreen = installerContainer.getComponent(SplashScreen.class);
+                    splashScreen.displaySplashScreen(trigger);
                 }
                 catch (Exception e)
                 {
+                	logger.log(Level.WARNING, "Prepare and display splashScreen failed.", e);
+                	
+                	// TODO not sure this works because thrown from AWT thread ...
                     throw new IzPackException(e);
                 }
             }
         });
+        
+
+        try {
+        	GUIInstallData installData = applicationComponent.getComponent(GUIInstallData.class);
+
+            if (mediaPath != null)
+	        {
+	            installData.setMediaPath(mediaPath);
+	        }
+	
+	        InstallerController controller = installerContainer.getComponent(InstallerController.class);
+	        
+	        if (installData.guiPrefs.modifier.containsKey("useSplashScreen")) {
+		        int duration = Integer.parseInt(installData.guiPrefs.modifier.get("useSplashScreen"));
+		        if (duration > 0) {
+		            // wait for creation and signal that the splash screen display duration has elapsed
+			        synchronized (trigger) {
+			        	trigger.wait(duration);
+					}
+		        }
+	        }
+	        
+	        if (splashScreen != null) {
+	        	// remove the splash screen from AWT thread
+	        	SwingUtilities.invokeLater(new Runnable()
+	            {
+	                public void run()
+	                {
+	                	try {
+	                		splashScreen.removeSplashScreen();
+	                	}
+	                	catch (Exception e)
+	                	{
+	                		throw new IzPackException(e);
+	                	}
+	                }
+	            });
+	        }
+	        
+	        if (langCode == null)
+	        {
+	          installerContainer.getComponent(LanguageDialog.class).initLangPack();
+	        }
+	        else
+	        {
+	          installerContainer.getComponent(LanguageDialog.class).propagateLocale(langCode);
+	        }
+	        if (!installerContainer.getComponent(RequirementsChecker.class).check())
+	        {
+	            logger.info("Not all installer requirements are fulfilled.");
+	            installerContainer.getComponent(Housekeeper.class).shutDown(-1);
+	        }
+	        controller.buildInstallation().launchInstallation();
+	    }
+	    catch (Exception e)
+	    {
+	        throw new IzPackException(e);
+	    }
+        
     }
 }
