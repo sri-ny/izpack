@@ -1,14 +1,11 @@
 package com.izforge.izpack.installer.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,13 +41,14 @@ public class SplashScreen
     {
         if (installData.guiPrefs.modifier.containsKey("useSplashScreen"))
         {
-            URL splashIconUrl = resources.getURL("/resources/Splash.image");
-            if (splashIconUrl != null)
+//            URL splashIconUrl = resources.getURL("/resources/Splash.image");
+            ImageIcon splashIcon = resources.getImageIcon("/resources/Splash.image");
+            if (splashIcon != null)
             {
             	try {
             		// must use ImageIO to support BMP files
-            		Image image = ImageIO.read(splashIconUrl);
-            		ImageIcon splashIcon = new ImageIcon(image);
+//            		Image image = ImageIO.read(splashIconUrl);
+//            		ImageIcon splashIcon = new ImageIcon(image);
 	            	
 	            	frame = new JFrame();
 	            	frame.setUndecorated(true);

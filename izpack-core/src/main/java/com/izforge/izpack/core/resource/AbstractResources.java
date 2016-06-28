@@ -21,18 +21,22 @@
 
 package com.izforge.izpack.core.resource;
 
-import com.izforge.izpack.api.exception.ResourceException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
-import com.izforge.izpack.api.resource.Resources;
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
-
-import javax.swing.*;
+import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.Arrays;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
+
+import com.izforge.izpack.api.exception.ResourceException;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
+import com.izforge.izpack.api.resource.Resources;
 
 
 /**
@@ -226,7 +230,17 @@ public abstract class AbstractResources implements Resources
             }
             throw new ResourceNotFoundException(message.toString());
         }
-        return new ImageIcon(result);
+
+        // must use ImageIO to support BMP files
+        try {
+			Image image = ImageIO.read(result);
+			return new ImageIcon(image);
+        }
+        catch (IOException ex) {
+            StringBuilder message = new StringBuilder("Image icon resource not available from url: ");
+            message.append(result);
+            throw new ResourceNotFoundException(message.toString());
+        }
     }
 
     /**
