@@ -41,15 +41,10 @@ public class SplashScreen
     {
         if (installData.guiPrefs.modifier.containsKey("useSplashScreen"))
         {
-//            URL splashIconUrl = resources.getURL("/resources/Splash.image");
             ImageIcon splashIcon = resources.getImageIcon("/resources/Splash.image");
             if (splashIcon != null)
             {
             	try {
-            		// must use ImageIO to support BMP files
-//            		Image image = ImageIO.read(splashIconUrl);
-//            		ImageIcon splashIcon = new ImageIcon(image);
-	            	
 	            	frame = new JFrame();
 	            	frame.setUndecorated(true);
 	            	
