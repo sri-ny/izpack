@@ -21,9 +21,14 @@
 
 package com.izforge.izpack.core.resource;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import javax.swing.ImageIcon;
+
 import org.junit.Test;
+
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
 
 /**
  * Tests the {@link ResourceManager}.
@@ -32,7 +37,6 @@ import org.junit.Test;
  */
 public class ResourceManagerTest
 {
-
     /**
      * Verifies images can be retrieved for each of the supported countries and languages.
      */
@@ -59,4 +63,26 @@ public class ResourceManagerTest
         }
     }
 
+    @Test
+    public void testBmpImage()
+    {
+        ResourceManager resources = new ResourceManager();
+        resources.setResourceBasePath("/com/izforge/izpack/core/resource/");
+        
+        ImageIcon icon = resources.getImageIcon("testbmp.bmp");
+        assertNotNull(icon);
+        
+        assertEquals(20, icon.getIconWidth());
+        assertEquals(20, icon.getIconHeight());
+    }
+    
+    @Test(expected=ResourceNotFoundException.class)
+    public void testInvalidImageName()
+    {
+        ResourceManager resources = new ResourceManager();
+        resources.setResourceBasePath("/com/izforge/izpack/core/resource/");
+        
+        // this resource does not exist
+        resources.getImageIcon("testbmp.bmpx");
+    }
 }
