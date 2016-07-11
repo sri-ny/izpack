@@ -146,6 +146,7 @@ public class PacksPanelAutomationHelper implements PanelAutomation
         // Now merge the selected pack from automated install installDataGUI with the selected packs form
         // autoinstall.xml
         logger.fine("Modify pack selection");
+        RulesEngine rules = idata.getRules();
         for (Pack pack : idata.getAvailablePacks())
         {
             // Check if the pack is in the List of autoinstall.xml (search by name and index)
@@ -158,10 +159,16 @@ public class PacksPanelAutomationHelper implements PanelAutomation
                     if (pack.isRequired())
                     {
                         // Do not modify required packs
-                        if (!packInfo.isSelected())
+                        if (!packInfo.isSelected() && rules.canInstallPack(pack.getName(), idata.getVariables()))
                         {
                             logger.warning("Pack [" + packInfo.toString()
                                                    + "] must be installed because it is required");
+                        }
+                        else if (!rules.canInstallPack(pack.getName(), idata.getVariables()))
+                        {
+                            // Pack can be removed from selection because it is required but conditions are not met
+                            idata.getSelectedPacks().remove(pack);
+                            logger.fine("Pack [" + packInfo.toString() + "] removed from selection.");
                         }
                     }
                     else
@@ -169,7 +176,6 @@ public class PacksPanelAutomationHelper implements PanelAutomation
                         if (packInfo.isSelected())
                         {
                             // Check if the conditions allow to select the pack
-                            RulesEngine rules = idata.getRules();
                             if (idata.getSelectedPacks().indexOf(pack) < 0
                                     && rules.canInstallPack(pack.getName(), idata.getVariables()))
                             {
