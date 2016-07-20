@@ -81,7 +81,7 @@ public class LanguageConsoleDialog {
             console.println(uie.getMessage());
             // At this time the locale may not be set so translated message is not used
             console.println("[ Console installation ABORTED by the user! ]");
-            housekeeper.shutDown(1, false);
+            housekeeper.shutDown(1);
         } 
     }
   }
