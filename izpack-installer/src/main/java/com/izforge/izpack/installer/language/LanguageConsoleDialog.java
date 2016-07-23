@@ -18,10 +18,12 @@
  */
 package com.izforge.izpack.installer.language;
 
+import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.installer.container.provider.AbstractInstallDataProvider;
 import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.util.Housekeeper;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -33,14 +35,16 @@ import java.util.logging.Logger;
 public class LanguageConsoleDialog {
   private final ConsoleInstallData installData;
   private final Console console;
+  private final Housekeeper housekeeper;
   private final Locales locales;
   private Map<String, String> displayNames = new LinkedHashMap<String, String>();
   private static final Logger logger = Logger.getLogger(LanguageConsoleDialog.class.getName());
   
-  public LanguageConsoleDialog(Locales locales, ConsoleInstallData installData, Console console)
+  public LanguageConsoleDialog(Locales locales, ConsoleInstallData installData, Console console, Housekeeper housekeeper)
   {
     this.installData = installData;
     this.console = console;
+    this.housekeeper = housekeeper;
     this.locales = locales;
   }
   
@@ -67,9 +71,18 @@ public class LanguageConsoleDialog {
           console.println(i + "  [" + (i == 0 ? "x" : " ") + "] " + iterator.next());
           i++;
         }
-        int numberOfUniqueLanguage = console.prompt(installData.getMessages().get("ConsoleInstaller.inputSelection"), 0, displayNames.keySet().size() - 1, 0, 0);
-        String[] keys = displayNames.keySet().toArray(new String[0]);
-        propagateLocale(keys[numberOfUniqueLanguage]);
+        try {
+            int numberOfUniqueLanguage = console.prompt(installData.getMessages().get("ConsoleInstaller.inputSelection"), 0, displayNames.keySet().size() - 1, 0, 0);
+            String[] keys = displayNames.keySet().toArray(new String[0]);
+            propagateLocale(keys[numberOfUniqueLanguage]);
+        }
+        catch (UserInterruptException uie)
+        {
+            console.println(uie.getMessage());
+            // At this time the locale may not be set so translated message is not used
+            console.println("[ Console installation ABORTED by the user! ]");
+            housekeeper.shutDown(1);
+        } 
     }
   }
   
