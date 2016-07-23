@@ -29,12 +29,8 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.core.variable.utils.ValueUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+import com.izforge.izpack.api.config.Options;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +52,7 @@ public class DefaultVariables implements Variables
     /**
      * The forced override values.
      */
-    private Properties overrides;
+    private Options overrides;
 
     /**
      * The dynamic variables.
@@ -99,33 +95,8 @@ public class DefaultVariables implements Variables
      */
     public DefaultVariables(Properties properties)
     {
-        InputStream overridePropsStream = null;
-        try
-        {
-            File jarFile = new File(
-                    DefaultVariables.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-            String jarDir = jarFile.getParentFile().getPath();
-            File overridePropFile = new File(jarDir, FilenameUtils.getBaseName(jarFile.getPath()) + ".properties");
-            if (overridePropFile.exists())
-            {
-                overridePropsStream = new FileInputStream(overridePropFile);
-                Properties overrideProps = new Properties();
-                overrideProps.load(overridePropsStream);
-                setOverrides(overrideProps);
-                logger.info("Loaded " + overrideProps.size() + " override(s) from " + overridePropFile);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.SEVERE, "Failed loading overrides", e);
-        }
-        finally
-        {
-            IOUtils.closeQuietly(overridePropsStream);
-        }
-
         this.properties = properties;
-        replacer = new VariableSubstitutorImpl(properties);
+        replacer = new VariableSubstitutorImpl(this);
     }
 
     /**
@@ -176,7 +147,7 @@ public class DefaultVariables implements Variables
     @Override
     public String get(String name)
     {
-        return containsOverride(name) ? overrides.getProperty(name) : properties.getProperty(name);
+        return containsOverride(name) ? overrides.fetch(name) : properties.getProperty(name);
     }
 
     /**
@@ -189,7 +160,7 @@ public class DefaultVariables implements Variables
     public String get(String name, String defaultValue)
     {
         final String value = properties.getProperty(name, defaultValue);
-        return containsOverride(name) ? overrides.getProperty(name, value) : value;
+        return containsOverride(name) ? overrides.get(name, value) : value;
     }
 
     /**
@@ -304,13 +275,6 @@ public class DefaultVariables implements Variables
         return result;
     }
 
-    /**
-     * Replaces any variables in the supplied value.
-     *
-     * @param value the value. May be {@code null}
-     * @return the value with variables replaced, or {@code value} if there were no variables to replace, or
-     *         replacement failed
-     */
     @Override
     public String replace(String value)
     {
@@ -457,9 +421,15 @@ public class DefaultVariables implements Variables
     }
 
     @Override
-    public void setOverrides(Properties overrides)
+    public void setOverrides(Options overrides)
     {
         this.overrides = overrides;
+    }
+
+    @Override
+    public Options getOverrides()
+    {
+        return this.overrides;
     }
 
     @Override

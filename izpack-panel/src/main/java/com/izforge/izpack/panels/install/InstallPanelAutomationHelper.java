@@ -22,6 +22,7 @@
 package com.izforge.izpack.panels.install;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
@@ -58,57 +59,46 @@ public class InstallPanelAutomationHelper extends PanelAutomationHelper implemen
     @Override
     public void createInstallationRecord(InstallData idata, IXMLElement panelRoot) {}
 
-    /**
-     * Perform the installation actions.
-     *
-     * @param panelRoot The panel XML tree root.
-     * @return true if the installation was successful.
-     */
+    @Override
     public void runAutomated(InstallData idata, IXMLElement panelRoot) throws InstallerException
     {
         unpacker.run();
         if (!unpacker.getResult())
         {
-            throw new InstallerException("Unpack failed (xml line " + panelRoot.getLineNr() + ")");
+            throw new InstallerException("Unpacking failed (xml line " + panelRoot.getLineNr() + ")");
         }
     }
 
-    /**
-     * Reports progress on System.out
-     */
+    @Override
+    public void processOptions(InstallData installData, Options options)
+    {
+        unpacker.run();
+        if (!unpacker.getResult())
+        {
+            throw new InstallerException("Unpacking failed");
+        }
+    }
+
+    @Override
     public void startAction(String name, int no_of_steps)
     {
         System.out.println("[ Starting to unpack ]");
         this.noOfPacks = no_of_steps;
     }
 
-    /**
-     * Sets state variable for thread sync.
-     */
+    @Override
     public void stopAction()
     {
         System.out.println("[ Unpacking finished ]");
     }
 
-    /**
-     * Null op.
-     *
-     * @param val
-     * @param msg
-     */
+    @Override
     public void progress(int val, String msg)
     {
-        // silent for now. should log individual files here, if we had a verbose
-        // mode?
+        // silent for now. should log individual files here, if we had a verbose mode?
     }
 
-    /**
-     * Reports progress to System.out
-     *
-     * @param packName The currently installing pack.
-     * @param stepno   The number of the pack
-     * @param stepsize unused
-     */
+    @Override
     public void nextStep(String packName, int stepno, int stepsize)
     {
         System.out.print("[ Processing package: " + packName + " (");
@@ -118,30 +108,21 @@ public class InstallPanelAutomationHelper extends PanelAutomationHelper implemen
         System.out.println(") ]");
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setSubStepNo(int no_of_substeps)
     {
         // not used here
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void progress(String message)
     {
         // no-op
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void restartAction(String name, String overallMessage, String tip, int steps)
     {
         // no-op
     }
-
 }

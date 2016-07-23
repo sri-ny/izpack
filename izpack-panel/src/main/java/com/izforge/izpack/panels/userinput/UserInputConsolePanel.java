@@ -21,13 +21,6 @@
 
 package com.izforge.izpack.panels.userinput;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
@@ -47,6 +40,9 @@ import com.izforge.izpack.panels.userinput.field.FieldHelper;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.PlatformModelMatcher;
+import com.izforge.izpack.api.config.Options;
+
+import java.util.*;
 
 /**
  * The user input panel console implementation.
@@ -192,14 +188,21 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     }
 
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
+        boolean commented = false;
         for (ConsoleField field : fields)
         {
             String name = field.getVariable();
             if (name != null)
             {
-                printWriter.println(name + "=");
+                options.put(name, installData.getVariable(name));
+                if (!commented)
+                {
+                    options.addEmptyLine(name);
+                    options.putComment(name, Arrays.asList(panel.getPanelId()));
+                    commented = true;
+                }
             }
         }
         return true;

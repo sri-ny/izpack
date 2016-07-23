@@ -39,13 +39,13 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.LookupType;
-import com.izforge.izpack.util.config.base.BasicProfile;
-import com.izforge.izpack.util.config.base.Config;
-import com.izforge.izpack.util.config.base.Configurable;
-import com.izforge.izpack.util.config.base.Ini;
-import com.izforge.izpack.util.config.base.OptionMap;
-import com.izforge.izpack.util.config.base.Options;
-import com.izforge.izpack.util.config.base.Reg;
+import com.izforge.izpack.api.config.BasicProfile;
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Configurable;
+import com.izforge.izpack.api.config.Ini;
+import com.izforge.izpack.api.config.OptionMap;
+import com.izforge.izpack.api.config.Options;
+import com.izforge.izpack.api.config.Reg;
 
 public abstract class SingleConfigurableTask implements ConfigurableTask
 {
@@ -130,7 +130,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
     /**
      * Whether to interpret escape at the end of line for joining lines
      *
-     * @param escape - true to interpret escape at the end of line for joining lines
+     * @param escapeNewLine - true to interpret escape at the end of line for joining lines
      */
     public void setEscapeNewLine(boolean escapeNewLine)
     {

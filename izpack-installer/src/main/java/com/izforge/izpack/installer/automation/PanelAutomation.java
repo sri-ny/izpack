@@ -24,6 +24,7 @@ package com.izforge.izpack.installer.automation;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.InstallerException;
+import com.izforge.izpack.api.config.Options;
 
 /**
  * Defines the Interface that must be implemented for running Panels in automated (or "silent",
@@ -57,4 +58,18 @@ public interface PanelAutomation
      *          if the automated work  failed critically.
      */
     void runAutomated(InstallData installData, IXMLElement panelRoot) throws InstallerException;
+
+    /**
+     * Process options delivered to the installer from outside.
+     * <p>
+     * These options are additionally helt as variables overrides, there is no need to explicitely set installer
+     * variables of the same name.
+     * <p>
+     * This method is not called if an installation record exists for this panel in an auto-install.xml
+     * (e.g. in this case @(see runAutomated) is launched).
+     *
+     * @param installData
+     * @param options
+     */
+    void processOptions(InstallData installData, Options options);
 }

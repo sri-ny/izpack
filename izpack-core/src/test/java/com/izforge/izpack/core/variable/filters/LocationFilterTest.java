@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
 
+import com.izforge.izpack.core.data.DefaultVariables;
 import org.junit.Test;
 
 import com.izforge.izpack.api.data.ValueFilter;
@@ -18,7 +19,7 @@ public class LocationFilterTest
     @Test
     public void testOneDirUp()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new LocationFilter("C:\\Program Files\\MyApp\\subdir");
         try
         {
@@ -37,7 +38,7 @@ public class LocationFilterTest
     {
         Properties props = new Properties();
         props.setProperty("INSTALL_PATH", "C:\\Program Files\\MyApp");
-        VariableSubstitutor subst = new VariableSubstitutorImpl(props);
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(props));
         ValueFilter filter = new LocationFilter("${INSTALL_PATH}\\subdir");
         try
         {

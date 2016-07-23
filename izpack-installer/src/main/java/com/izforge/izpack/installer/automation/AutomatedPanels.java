@@ -21,14 +21,13 @@
 
 package com.izforge.izpack.installer.automation;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.installer.panel.AbstractPanels;
 import com.izforge.izpack.installer.panel.Panels;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -93,9 +92,12 @@ public class AutomatedPanels extends AbstractPanels<AutomatedPanelView, PanelAut
             }
             else
             {
-                logger.log(Level.SEVERE, "No configuration for panel: " + newPanel.getPanel().getPanelId());
-                result = false;
+                // This cannot happen for auto-install.xml
+                view.processOptions(installData, installData.getVariables().getOverrides());
+                installData.getVariables().registerBlockedVariableNames(newPanel.getPanel().getAffectedVariableNames(), newPanel.getPanelId());
+                result = executeValidationActions(newPanel, true);
             }
+
         }
         return result;
     }

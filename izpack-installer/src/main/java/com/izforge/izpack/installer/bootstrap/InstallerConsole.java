@@ -19,10 +19,14 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.language.LanguageConsoleDialog;
@@ -38,31 +42,49 @@ public class InstallerConsole
 {
   private static final Logger logger = Logger.getLogger(InstallerConsole.class.getName());
   
-  public static void run(final int consoleAction, final String path, final String langCode, final String mediaPath, final String[] args)
+  public static void run(final ConsoleInstallerAction consoleAction, final String path, final String langCode,
+                         final String mediaPath, Options defaults, final String[] args)
   {
     final InstallerContainer applicationComponent = new ConsoleInstallerContainer();
     final Container installerContainer = applicationComponent.getComponent(Container.class);
     try
     {
+      InstallData installData = applicationComponent.getComponent(InstallData.class);
+
       if (mediaPath != null)
       {
-        InstallData installData = applicationComponent.getComponent(InstallData.class);
         installData.setMediaPath(mediaPath);
       }
+
+      if (defaults != null)
+      {
+        Config config = defaults.getConfig();
+        config.setInstallData(installData);
+        defaults.load();
+        logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
+
+        DefaultVariables variables = applicationComponent.getComponent(DefaultVariables.class);
+        variables.setOverrides(defaults);
+      }
+
+      if (consoleAction != ConsoleInstallerAction.CONSOLE_GEN_TEMPLATE)
+      {
+        if (langCode == null)
+        {
+          installerContainer.getComponent(LanguageConsoleDialog.class).initLangPack();
+        }
+        else
+        {
+          installerContainer.getComponent(LanguageConsoleDialog.class).propagateLocale(langCode);
+        }
+        if (!installerContainer.getComponent(RequirementsChecker.class).check())
+        {
+          logger.info("Not all installer requirements are fulfilled.");
+          installerContainer.getComponent(Housekeeper.class).shutDown(-1);
+        }
+      }
+
       ConsoleInstaller consoleInstaller = installerContainer.getComponent(ConsoleInstaller.class);
-      if (langCode == null)
-      {
-        installerContainer.getComponent(LanguageConsoleDialog.class).initLangPack();
-      }
-      else
-      {
-        installerContainer.getComponent(LanguageConsoleDialog.class).propagateLocale(langCode);
-      }
-      if (!installerContainer.getComponent(RequirementsChecker.class).check())
-      {
-        logger.info("Not all installer requirements are fulfilled.");
-        installerContainer.getComponent(Housekeeper.class).shutDown(-1);
-      }
       consoleInstaller.run(consoleAction, path, args);
     }
     catch (Exception e)

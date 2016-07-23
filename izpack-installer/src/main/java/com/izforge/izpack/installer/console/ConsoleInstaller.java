@@ -26,7 +26,6 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.exception.UserInterruptException;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.base.InstallerBase;
-import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.ConsoleInstallData;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
@@ -123,10 +122,10 @@ public class ConsoleInstaller implements InstallerBase
      * This method does not return - it invokes {@code System.exit(0)} on successful installation, or
      * {@code System.exit(1)} on failure.
      *
-     * @param type the type of the action to perform
+     * @param type the type of the console action to perform
      * @param path the path to use for the action. May be <tt>null</tt>
      */
-    public void run(int type, String path, String[] args)
+    public void run(ConsoleInstallerAction type, String path, String[] args)
     {
         PrivilegedRunner runner = new PrivilegedRunner(installData.getPlatform());
         if (!runner.hasCorrectPermissions(installData.getInfo(), installData.getRules()))
@@ -153,8 +152,11 @@ public class ConsoleInstaller implements InstallerBase
             panels.setAction(action);
             while (panels.hasNext())
             {
-                success = panels.next();
-                success = panels.getView().handlePanelValidationResult(success);
+                success = panels.next(action.isValidating());
+                if (action.isValidating())
+                {
+                    success = panels.getView().handlePanelValidationResult(success);
+                }
                 if (!success)
                 {
                     break;
@@ -162,8 +164,11 @@ public class ConsoleInstaller implements InstallerBase
             }
             if (success)
             {
-                // last panel needs to be validated
-                success = panels.getView().handlePanelValidationResult(panels.isValid());
+                if (action.isValidating())
+                {
+                    // last panel needs to be validated
+                    success = panels.getView().handlePanelValidationResult(panels.isValid());
+                }
                 if (success)
                 {
                     success = action.complete();
@@ -285,24 +290,24 @@ public class ConsoleInstaller implements InstallerBase
      * @return a new {@link ConsoleAction}
      * @throws IOException for any I/O error
      */
-    private ConsoleAction createConsoleAction(int type, String path, Console console) throws IOException
+    private ConsoleAction createConsoleAction(ConsoleInstallerAction type, String path, Console console) throws IOException
     {
         ConsoleAction action;
         switch (type)
         {
-            case Installer.CONSOLE_GEN_TEMPLATE:
+            case CONSOLE_GEN_TEMPLATE:
                 action = createGeneratePropertiesAction(path);
                 break;
 
-            case Installer.CONSOLE_FROM_TEMPLATE:
+            case CONSOLE_FROM_TEMPLATE:
                 action = createInstallFromPropertiesFileAction(path);
                 break;
 
-            case Installer.CONSOLE_FROM_SYSTEMPROPERTIES:
+            case CONSOLE_FROM_SYSTEMPROPERTIES:
                 action = new PropertyInstallAction(installData, uninstallDataWriter, System.getProperties());
                 break;
 
-            case Installer.CONSOLE_FROM_SYSTEMPROPERTIESMERGE:
+            case CONSOLE_FROM_SYSTEMPROPERTIESMERGE:
                 action = createInstallFromSystemPropertiesMergeAction(path, console);
                 break;
 

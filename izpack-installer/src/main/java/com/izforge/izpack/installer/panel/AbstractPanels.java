@@ -30,8 +30,8 @@ import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.installer.data.UninstallData;
+import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -247,7 +247,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         boolean result = false;
 
         // Evaluate and set variables for current panel before verifying panel conditions
-        if (isValid())
+        if (!validate || isValid())
         {
             int newIndex = getNext(index, false);
             if (newIndex != -1)
@@ -440,11 +440,11 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
     @Override
     public void writeInstallationRecord(File file, UninstallData uninstallData) throws Exception
     {
-        FileOutputStream out = new FileOutputStream(file);
-        BufferedOutputStream outBuff = new BufferedOutputStream(out);
+        FileOutputStream out = null;
 
         try
         {
+            out = new FileOutputStream(file);
             IXMLWriter writer = new XMLWriter(out);
             IXMLElement panelsRoot = installData.getInstallationRecord();
             for (T panelView : panelViews)
@@ -461,7 +461,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
         }
         finally
         {
-            outBuff.close();
+            IOUtils.closeQuietly(out);
 
             //Only remove the automatic installation for if its placed in installation path
             //We would like to contain any removal of data within the install path

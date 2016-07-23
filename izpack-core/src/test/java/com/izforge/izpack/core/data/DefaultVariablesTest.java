@@ -36,6 +36,7 @@ import com.izforge.izpack.core.variable.ConfigFileValue;
 import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.util.Platforms;
+import com.izforge.izpack.api.config.Options;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +44,10 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -62,7 +66,7 @@ public class DefaultVariablesTest
     /**
      * The variables.
      */
-    private final Variables variables = new DefaultVariables();
+    private final DefaultVariables variables = new DefaultVariables();
 
 
     /**
@@ -346,8 +350,9 @@ public class DefaultVariablesTest
      * Before IZPACK-1406 the recursion was done by iterations of variables.refresh().
      * Since IZPACK-1406 the variables are preordered by PackagerBase.buildVariableList().
      * Therefore we have to provide the variables here in the correct order.
-     * @see com.izforge.izpack.compiler.DynVariableOrderTest for ordering tests 
+     * @see com.izforge.izpack.compiler.DynVariableOrderTest for ordering tests
      */
+    @SuppressWarnings("JavadocReference")
     @Test
     public void testDependentDynamicVariables()
     {
@@ -730,8 +735,8 @@ public class DefaultVariablesTest
     @Test
     public void testOverrides()
     {
-        Properties overrides = new Properties();
-        overrides.setProperty("var1", "override1");
+        Options overrides = new Options();
+        overrides.put("var1", "override1");
         variables.set("var1", "value1");
         variables.setOverrides(overrides);
         variables.add(createDynamic("var1", "dynValue"));

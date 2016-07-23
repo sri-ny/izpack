@@ -21,17 +21,17 @@
 
 package com.izforge.izpack.integration.console;
 
-import java.io.File;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.compiler.container.TestConsoleInstallerContainer;
 import com.izforge.izpack.compiler.packager.impl.MultiVolumePackager;
-import com.izforge.izpack.installer.bootstrap.Installer;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.console.TestConsoleInstaller;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.multiunpacker.MultiVolumeUnpacker;
 import com.izforge.izpack.integration.multivolume.AbstractMultiVolumeInstallationTest;
 import com.izforge.izpack.test.util.TestConsole;
+
+import java.io.File;
 
 
 /**
@@ -72,7 +72,7 @@ public class MultiVolumeConsoleInstallationTest extends AbstractMultiVolumeInsta
         console.addScript("TargetPanel", "\n", "1");
         console.addScript("InstallPanel");
         console.addScript("FinishPanel");
-        installer.run(Installer.CONSOLE_INSTALL, installPath.getPath(), new String[0]);
+        installer.run(ConsoleInstallerAction.CONSOLE_INSTALL, installPath.getPath(), new String[0]);
     }
 
 }

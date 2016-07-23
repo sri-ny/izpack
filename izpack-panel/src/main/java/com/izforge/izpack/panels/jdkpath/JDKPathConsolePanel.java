@@ -21,9 +21,6 @@
 
 package com.izforge.izpack.panels.jdkpath;
 
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.resource.Messages;
@@ -34,6 +31,10 @@ import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.path.PathInputBase;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
+
+import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * The JDKPathPanel panel console helper class.
@@ -152,9 +153,12 @@ public class JDKPathConsolePanel extends AbstractConsolePanel
     }
 
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
-        printWriter.println(InstallData.INSTALL_PATH + "=");
+        final String name =JDKPathPanelHelper.JDK_PATH;
+        options.add(name, installData.getVariable(name));
+        options.addEmptyLine(name);
+        options.putComment(name, Arrays.asList(getPanel().getPanelId()));
         return true;
     }
 

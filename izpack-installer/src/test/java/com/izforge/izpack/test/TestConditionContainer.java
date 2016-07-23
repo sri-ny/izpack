@@ -1,10 +1,5 @@
 package com.izforge.izpack.test;
 
-import java.util.Properties;
-
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoException;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ContainerException;
 import com.izforge.izpack.api.rules.RulesEngine;
@@ -18,6 +13,10 @@ import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoException;
+
+import java.util.Properties;
 
 /**
  * Container for condition tests.

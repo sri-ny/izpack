@@ -20,10 +20,6 @@
  */
 package com.izforge.izpack.panels.userpath;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.resource.Messages;
@@ -33,6 +29,10 @@ import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Properties;
 
 /**
  * The UserPath panel console helper class.
@@ -87,7 +87,7 @@ public class UserPathConsolePanel extends AbstractConsolePanel
         return messages.get(id);
     }
 
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, PrintWriter printWriter)
     {
         // not implemented
         return false;

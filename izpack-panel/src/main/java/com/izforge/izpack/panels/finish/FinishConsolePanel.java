@@ -21,29 +21,23 @@
 
 package com.izforge.izpack.panels.finish;
 
-import java.io.File;
-import java.util.Properties;
-import java.util.logging.Logger;
-
-import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.handler.Prompt.Option;
 import com.izforge.izpack.api.handler.Prompt.Options;
 import com.izforge.izpack.api.handler.Prompt.Type;
-import com.izforge.izpack.installer.automation.AutomatedPanelView;
-import com.izforge.izpack.installer.automation.AutomatedPanels;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
 import com.izforge.izpack.installer.console.ConsolePanel;
-import com.izforge.izpack.installer.console.ConsolePanelAutomationHelper;
-import com.izforge.izpack.installer.container.provider.AutomatedPanelsProvider;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.PlatformModelMatcher;
+
+import java.io.File;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Console implementation of the {@link FinishPanel}.
@@ -182,35 +176,6 @@ public class FinishConsolePanel extends AbstractConsolePanel
         catch (Exception err)
         {
             console.println("Failed to save the installation into file [" + file.getAbsolutePath() + "]");
-        }
-    }
-
-    protected AutomatedPanels getAutomatedPanels(final InstallData aInstallData)
-    {
-        AutomatedPanelsProvider provider;
-        provider = new AutomatedPanelsProvider();
-
-        AutomatedPanels automatedPanels;
-        automatedPanels = provider.provide(factory, (AutomatedInstallData) aInstallData,
-                new ConsolePanelAutomationHelper(), matcher);
-
-        return automatedPanels;
-    }
-
-    protected void makeXML(final AutomatedPanelView panelView, final InstallData installData,
-            final IXMLElement root)
-    {
-        try
-        {
-            panelView.getView().createInstallationRecord(installData, root);
-
-        }
-        catch (Exception e)
-        {
-            // some panels have no Automated counter-part
-            LOGGER.warning("Unsupported panel " + panelView.getPanel().getClassName()
-                    + ": no automated helper associated?");
-            prompt.warn(e.getMessage());
         }
     }
 }

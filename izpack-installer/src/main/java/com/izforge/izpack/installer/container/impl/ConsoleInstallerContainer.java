@@ -78,7 +78,6 @@ public class ConsoleInstallerContainer extends InstallerContainer
         container
                 .addAdapter(new ProviderAdapter(new ConsoleInstallDataProvider()))
                 .addAdapter(new ProviderAdapter(new ConsolePanelsProvider()))
-                //.addAdapter(new ProviderAdapter(new AutomatedPanelsProvider()))
                 .addAdapter(new ProviderAdapter(new MessagesProvider())) // required by ConsolePrompt and Console
                 .addAdapter(new ProviderAdapter(new ConsolePrefsProvider())); // required by Console
 
