@@ -23,6 +23,7 @@ package com.izforge.izpack.panels.defaulttarget;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 
@@ -56,25 +57,30 @@ public class DefaultTargetPanelAutomationHelper implements PanelAutomation
     /**
      * Asks to run in the automated mode.
      *
-     * @param idata     The installation installDataGUI.
+     * @param installData     The installation installDataGUI.
      * @param panelRoot The XML tree to read the installDataGUI from.
      */
-    public void runAutomated(InstallData idata, IXMLElement panelRoot)
+    public void runAutomated(InstallData installData, IXMLElement panelRoot)
     {
         // We set the installation path
         IXMLElement ipath = panelRoot.getFirstChildNamed("installpath");
 
         // Allow for variable substitution of the installpath value
         String path = ipath.getContent();
-        try
-        {
-            path = idata.getVariables().replace(path);
-        }
-        catch (Exception e)
-        {
-            // ignore
-        }
+        handleInstallPath(installData, path);
+    }
 
-        idata.setInstallPath(path);
+    @Override
+    public void processOptions(InstallData installData, Options options)
+    {
+        String path = options.get(InstallData.INSTALL_PATH);
+        handleInstallPath(installData, path);
+    }
+
+    private void handleInstallPath(InstallData installData, String path)
+    {
+        // Allow for variable substitution of the installpath value
+        path = installData.getVariables().replace(path);
+        installData.setInstallPath(path);
     }
 }

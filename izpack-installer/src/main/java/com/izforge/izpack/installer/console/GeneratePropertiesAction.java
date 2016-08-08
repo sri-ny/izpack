@@ -21,12 +21,17 @@
 
 package com.izforge.izpack.installer.console;
 
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
+import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
-import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 /**
  * Action to generate properties for each panel.
@@ -35,10 +40,14 @@ import java.io.PrintWriter;
  */
 class GeneratePropertiesAction extends ConsoleAction
 {
+    private static final Logger logger = Logger.getLogger(GeneratePropertiesAction.class.getName());
+
     /**
-     * The writer to write properties to.
+     * The options files to write properties to.
      */
-    private final PrintWriter writer;
+    private final Options options;
+    private final String path;
+
 
     /**
      * Constructs a <tt>GeneratePropertiesAction</tt>.
@@ -51,7 +60,15 @@ class GeneratePropertiesAction extends ConsoleAction
     public GeneratePropertiesAction(InstallData installData, String path) throws FileNotFoundException
     {
         super(installData);
-        writer = new PrintWriter(new FileOutputStream(path), true);
+
+        Info info = installData.getInfo();
+        this.options = new Options();
+        Config config = this.options.getConfig();
+        config.setEmptyLines(true);
+        config.setHeaderComment(true);
+        config.setFileEncoding(Charset.forName("ISO-8859-1"));
+        this.options.setHeaderComment(Arrays.asList(info.getAppName() + " " + info.getAppVersion()));
+        this.path = path;
     }
 
     /**
@@ -74,7 +91,7 @@ class GeneratePropertiesAction extends ConsoleAction
     @Override
     public boolean run(ConsolePanelView panel)
     {
-        return panel.getView().generateProperties(getInstallData(), writer);
+        return panel.getView().generateOptions(getInstallData(), options);
     }
 
     /**
@@ -85,7 +102,16 @@ class GeneratePropertiesAction extends ConsoleAction
     @Override
     public boolean complete()
     {
-        IOUtils.closeQuietly(writer);
+        try
+        {
+            options.store(new File(path));
+        }
+        catch (IOException e)
+        {
+            logger.severe("Error saving the option file.");
+            return false;
+        }
+
         return true;
     }
 }

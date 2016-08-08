@@ -25,8 +25,8 @@ import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.compiler.container.TestConsoleInstallationContainer;
-import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.console.TestConsoleInstaller;
 import com.izforge.izpack.test.Container;
@@ -126,7 +126,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         console.addScript("LicensePanel", "\n", "2");
 
         installData.setInstallPath(installPath.getAbsolutePath());
-        installer.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+        installer.run(ConsoleInstallerAction.CONSOLE_INSTALL, null, new String[0]);
 
         assertFalse(installData.isInstallSuccess());
         assertFalse(installPath.exists());
@@ -166,7 +166,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         File installPath = new File(temporaryFolder.getRoot(), "izpackTest");
         installData.setInstallPath(installPath.getAbsolutePath());
 
-        installer.run(Installer.CONSOLE_GEN_TEMPLATE, file.getPath(), new String[0]);
+        installer.run(ConsoleInstallerAction.CONSOLE_GEN_TEMPLATE, file.getPath(), new String[0]);
 
         // verify the installation thinks it was successful
         assertTrue(installData.isInstallSuccess());
@@ -176,7 +176,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         properties.load(new FileInputStream(file));
         assertEquals(1, properties.size());
         assertTrue(properties.containsKey(InstallData.INSTALL_PATH));
-        assertEquals("", properties.getProperty(InstallData.INSTALL_PATH));
+        assertEquals(installPath.getPath(), properties.getProperty(InstallData.INSTALL_PATH));
     }
 
     /**
@@ -197,7 +197,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
         properties.store(new FileOutputStream(file), "IzPack installation properties");
 
         TestConsole console = installer.getConsole();
-        installer.run(Installer.CONSOLE_FROM_TEMPLATE, file.getPath(), new String[0]);
+        installer.run(ConsoleInstallerAction.CONSOLE_FROM_TEMPLATE, file.getPath(), new String[0]);
 
         // make sure there were no attempts to read from the console, as no prompting should occur
         assertEquals(0, console.getReads());
@@ -222,7 +222,7 @@ public class ConsoleInstallationTest extends AbstractConsoleInstallationTest
 
         try
         {
-            installer.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+            installer.run(ConsoleInstallerAction.CONSOLE_INSTALL, null, new String[0]);
         }
         catch (IzPackException e)
         {

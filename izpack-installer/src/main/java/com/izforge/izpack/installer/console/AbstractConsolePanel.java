@@ -29,8 +29,8 @@ import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.installer.util.PanelHelper;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,17 +59,8 @@ public abstract class AbstractConsolePanel implements ConsolePanel
         this.panel = panel;
     }
 
-    /**
-     * Generates a properties file for each input field or variable.
-     * <p/>
-     * This implementation is a no-op.
-     *
-     * @param installData the installation data
-     * @param printWriter the properties file to write to
-     * @return {@code true}
-     */
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
         return true;
     }

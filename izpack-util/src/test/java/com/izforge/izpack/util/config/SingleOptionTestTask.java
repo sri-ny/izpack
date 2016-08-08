@@ -1,6 +1,6 @@
 package com.izforge.izpack.util.config;
 
-import com.izforge.izpack.util.config.base.Options;
+import com.izforge.izpack.api.config.Options;
 
 public class SingleOptionTestTask extends SingleConfigurableTask
 {

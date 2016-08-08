@@ -21,17 +21,17 @@
 
 package com.izforge.izpack.integration.console;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
 import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.console.TestConsoleInstaller;
 import com.izforge.izpack.integration.AbstractDestroyerTest;
 import com.izforge.izpack.test.util.TestConsole;
+
+import java.io.File;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -73,7 +73,7 @@ public class AbstractConsoleInstallationTest extends AbstractDestroyerTest
      */
     protected void checkInstall(TestConsoleInstaller installer, InstallData installData, boolean expectUninstaller)
     {
-        installer.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+        installer.run(ConsoleInstallerAction.CONSOLE_INSTALL, null, new String[0]);
 
         // verify the installation thinks it was successful
         assertTrue(installData.isInstallSuccess());

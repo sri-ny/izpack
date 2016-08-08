@@ -78,6 +78,18 @@ public abstract class ConsoleAction
     }
 
     /**
+     * Determines if this action should lead to panel validation.
+     * <p/>
+     * This default implementation always returns  <tt>true</tt>.
+     *
+     * @return <tt>true</tt>
+     */
+    public boolean isValidating()
+    {
+        return true;
+    }
+
+    /**
      * Returns the installation data.
      *
      * @return the installation data

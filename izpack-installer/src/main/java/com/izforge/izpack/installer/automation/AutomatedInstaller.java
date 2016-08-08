@@ -21,11 +21,6 @@
 
 package com.izforge.izpack.installer.automation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
@@ -38,6 +33,11 @@ import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PrivilegedRunner;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Runs the install process in text only (no GUI) mode.
@@ -123,11 +123,15 @@ public class AutomatedInstaller implements InstallerBase
             }
             System.exit(0);
         }
-        File input = new File(inputFilename);
-        IXMLElement installRecord = getXMLData(input);
-        installData.setInstallationRecord(installRecord);
-        String code = installRecord.getAttribute("langpack", "eng");
-        locales.setLocale(code);
+        if (inputFilename != null)
+        {
+            File input = new File(inputFilename);
+            IXMLElement installRecord = getXMLData(input);
+            installData.setInstallationRecord(installRecord);
+            String code = installRecord.getAttribute("langpack", "eng");
+            locales.setLocale(code);
+        }
+
         installData.setMessages(locales.getMessages());
         installData.setLocale(locales.getLocale(), locales.getISOCode());
         installData.setMediaPath(mediaPath);
@@ -141,6 +145,7 @@ public class AutomatedInstaller implements InstallerBase
     public void doInstall() throws Exception
     {
         boolean success = false;
+
         // check installer conditions
         if (!requirements.check())
         {
@@ -154,21 +159,37 @@ public class AutomatedInstaller implements InstallerBase
 
         try
         {
-            List<IXMLElement> panelRoots = installData.getInstallationRecord().getChildren();
-            for (IXMLElement panelRoot : panelRoots)
+            IXMLElement installationRecord = installData.getInstallationRecord();
+            if (installationRecord != null && installationRecord.hasChildren())
             {
-                String panelId = panelRoot.getAttribute(AutomatedInstallData.AUTOINSTALL_PANELROOT_ATTR_ID);
-                for (AutomatedPanelView panelView : panels.getPanelViews())
+                List<IXMLElement> panelRoots = installationRecord.getChildren();
+                for (IXMLElement panelRoot : panelRoots)
                 {
-                    if (panelView.getPanelId().equals(panelId))
+                    String panelId = panelRoot.getAttribute(AutomatedInstallData.AUTOINSTALL_PANELROOT_ATTR_ID);
+                    for (AutomatedPanelView panelView : panels.getPanelViews())
                     {
-                        success = panels.switchPanel(panelView.getIndex(), true);
+                        if (panelView.getPanelId().equals(panelId))
+                        {
+                            success = panels.switchPanel(panelView.getIndex(), true);
+                            break;
+                        }
+                    }
+                    if (!success)
+                    {
                         break;
                     }
                 }
-                if (!success)
+            }
+            else
+            {
+                //List<AutomatedPanelView> panelViews = panels.getPanelViews();
+                while (panels.hasNext())
                 {
-                    break;
+                    success = panels.next();
+                    if (!success)
+                    {
+                        break;
+                    }
                 }
             }
 

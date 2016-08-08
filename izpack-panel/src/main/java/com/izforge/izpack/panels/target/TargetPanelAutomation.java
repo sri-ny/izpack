@@ -23,6 +23,7 @@ package com.izforge.izpack.panels.target;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.installer.automation.PanelAutomation;
@@ -62,9 +63,23 @@ public class TargetPanelAutomation implements PanelAutomation
     {
         // We set the installation path
         IXMLElement ipath = panelRoot.getFirstChildNamed("installpath");
-
-        // Allow for variable substitution of the installpath value
         String path = ipath.getContent();
+        handleInstallPath(installData, path);
+    }
+
+    @Override
+    public void processOptions(InstallData installData, Options options)
+    {
+        String path = options.get(InstallData.INSTALL_PATH);
+        if (path != null)
+        {
+            handleInstallPath(installData, path);
+        }
+    }
+
+    private void handleInstallPath(InstallData installData, String path)
+    {
+        // Allow for variable substitution of the installpath value
         path = installData.getVariables().replace(path);
         if (TargetPanelHelper.isIncompatibleInstallation(path, installData.getInfo().isReadInstallationInformation()))
         {

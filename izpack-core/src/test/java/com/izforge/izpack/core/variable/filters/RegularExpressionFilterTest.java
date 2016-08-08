@@ -3,6 +3,7 @@ package com.izforge.izpack.core.variable.filters;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.izforge.izpack.core.data.DefaultVariables;
 import org.junit.Test;
 
 import com.izforge.izpack.api.data.ValueFilter;
@@ -15,7 +16,7 @@ public class RegularExpressionFilterTest
     @Test
     public void testSelectNumberValue()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new RegularExpressionFilter("^(\\d+)$", "\\1", "3000", true);
         try
         {
@@ -32,7 +33,7 @@ public class RegularExpressionFilterTest
     @Test
     public void testSelectDefaultValue()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new RegularExpressionFilter("^(\\d+)$", "\\1", "3000", true);
         try
         {
@@ -49,7 +50,7 @@ public class RegularExpressionFilterTest
     @Test
     public void testReplaceNumberValueGlobal()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new RegularExpressionFilter("\\d+", ".", "abc", true, true);
         try
         {
@@ -66,7 +67,7 @@ public class RegularExpressionFilterTest
     @Test
     public void testReplaceNumberValueOnce()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new RegularExpressionFilter("\\d+", ".", "abc", true, false);
         try
         {
@@ -83,7 +84,7 @@ public class RegularExpressionFilterTest
     @Test
     public void testReplaceDefaultValue()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(System.getProperties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(System.getProperties()));
         ValueFilter filter = new RegularExpressionFilter("\\d+", ".", "abc", true, true);
         try
         {
