@@ -137,7 +137,7 @@ public abstract class AbstractInstallDataProvider implements Provider
             {
                 TemporaryDirectory directory = new TemporaryDirectory(tempDir, installData, housekeeper);
                 directory.create();
-                directory.cleanUp();
+                directory.deleteOnExit();
             }
         }
     }
