@@ -1,8 +1,5 @@
 package com.izforge.izpack.panels.process;
 
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.handler.Prompt.Type;
@@ -14,6 +11,9 @@ import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
 import com.izforge.izpack.util.PlatformModelMatcher;
+
+import java.io.PrintWriter;
+import java.util.Properties;
 
 
 public class ProcessConsolePanel extends AbstractConsolePanel implements ConsolePanel, AbstractUIProcessHandler
@@ -117,8 +117,8 @@ public class ProcessConsolePanel extends AbstractConsolePanel implements Console
 
     }
 
-    public boolean generateProperties(InstallData installData,
-                                      PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData,
+                                   PrintWriter printWriter)
     {
         // TODO finish this
         return false;

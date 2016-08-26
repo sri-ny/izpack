@@ -18,9 +18,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
-import com.izforge.izpack.util.config.base.Config;
-import com.izforge.izpack.util.config.base.Options;
-import com.izforge.izpack.util.config.base.spi.OptionsBuilder;
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
+import com.izforge.izpack.api.config.spi.OptionsBuilder;
 
 public class SingleConfigurableTaskTest
 {

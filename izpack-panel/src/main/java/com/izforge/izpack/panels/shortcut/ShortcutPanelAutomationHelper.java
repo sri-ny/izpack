@@ -23,6 +23,7 @@
 package com.izforge.izpack.panels.shortcut;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.resource.Resources;
@@ -84,12 +85,6 @@ public class ShortcutPanelAutomationHelper extends PanelAutomationHelper impleme
         }
     }
 
-    /**
-     * Implementation of the Shortcut specific automation code.
-     *
-     * @param installData Installation data
-     * @param panelRoot   panel specific data from autoinstall.xml
-     */
     @Override
     public void runAutomated(InstallData installData, IXMLElement panelRoot)
     {
@@ -107,4 +102,7 @@ public class ShortcutPanelAutomationHelper extends PanelAutomationHelper impleme
             }
         }
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 }

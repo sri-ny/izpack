@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
+import com.izforge.izpack.core.data.DefaultVariables;
 import org.junit.Test;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
@@ -17,7 +18,7 @@ public class CaseStyleFilterTest
     public void testLowerCase()
     {
         final String text = "Some Text";
-        VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(new Properties()));
         try
         {
             assertEquals("some text", new CaseStyleFilter("lower").filter(text, subst));
@@ -33,7 +34,7 @@ public class CaseStyleFilterTest
     public void testUpperCase()
     {
         final String text = "Some Text";
-        VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(new Properties()));
         try
         {
             assertEquals("SOME TEXT", new CaseStyleFilter("upper").filter(text, subst));

@@ -29,9 +29,10 @@ import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.path.PathInputBase;
 import com.izforge.izpack.panels.path.PathInputConsolePanel;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -54,9 +55,12 @@ public class TargetConsolePanel extends PathInputConsolePanel implements Console
     }
 
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
-        printWriter.println(InstallData.INSTALL_PATH + "=");
+        final String name = InstallData.INSTALL_PATH;
+        options.add(name, installData.getInstallPath());
+        options.addEmptyLine(name);
+        options.putComment(name, Arrays.asList(getPanel().getPanelId()));
         return true;
     }
 

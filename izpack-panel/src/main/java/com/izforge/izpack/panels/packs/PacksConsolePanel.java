@@ -42,7 +42,7 @@ import com.izforge.izpack.installer.util.PackHelper;
 import com.izforge.izpack.util.Console;
 
 /**
- * Console implementation for the TreePacksPanel.
+ * Console implementation for the PacksPanel.
  * <p/>
  * Based on PacksConsolePanelHelper
  *
@@ -106,31 +106,18 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
         out(Type.INFORMATION, installData.getMessages().get("PacksPanel.info"));
         out(Type.INFORMATION, "");
 
-        List<Pack> availablePacks = installData.getAvailablePacks();
-        computePacks(availablePacks);
-        if (selectedPacks == null)
-        {
-            selectedPacks = new LinkedList<Pack>();
-            for (Pack pack : availablePacks)
-            {
-                if (!pack.isHidden())
-                {
-                    // Initially, add all available packs by default
-                    selectedPacks.add(pack);
-                }
-            }
-        }
+        selectedPacks = new LinkedList<Pack>();
+        computePacks(installData.getAvailablePacks());
 
-        // private HashMap<String, Pack> names;
         for (String key : names.keySet())
         {
-            drawHelper(key, selectedPacks, installData);
+            drawHelper(key);
         }
         out(Type.INFORMATION, "Done!");
 
         installData.setSelectedPacks(selectedPacks);
 
-        if (selectedPacks.size() == 0)
+        if (selectedPacks.isEmpty())
         {
             out(Type.WARNING, "You have not selected any packs!");
             return promptRerunPanel(installData, console);
@@ -151,74 +138,32 @@ public class PacksConsolePanel extends AbstractConsolePanel implements ConsolePa
      * well and you won't be prompted to install them.
      *
      * @param pack          - the pack to install
-     * @param selectedPacks - the packs that are selected by the user are added there
-     * @param installData   - Database of izpack
      */
-    private void drawHelper(final String pack, final List<Pack> selectedPacks, final InstallData installData)
+    private void drawHelper(final String pack)
     {
         Pack p = names.get(pack);
-        Boolean conditionSatisfied = checkCondition(installData, p);
-
         //get the pack localized name
         String packName = PackHelper.getPackName(p, messages);
-
-        final boolean required = p.isRequired();
-        final boolean packConditionTrue = conditionSatisfied == null || conditionSatisfied.booleanValue();
-
-        if (packConditionTrue)
+        if (installData.getRules().canInstallPack(pack, installData.getVariables()))
         {
-            // Pack 'condition' not set or 'condition' evaluates true
-            if (required)
+            if (p.isRequired())
             {
+                if (!p.isHidden())
+                {
+                    out(Type.INFORMATION, "  [x] Pack '" + packName + "' required");
+                }
                 // Force selecting the pack
-                out(Type.INFORMATION, "  [x] Pack '" + packName + "' required");
+                selectedPacks.add(p);
             }
             else
             {
-                boolean contained = selectedPacks.contains(p);
+                boolean contained = installData.getSelectedPacks().contains(p);
                 String cbView = contained ? "x" : " ";
                 if (askUser("  ["+ cbView +"] Include optional pack '" + packName + "'", (contained ? Option.YES : Option.NO)))
                 {
-                    if (!contained)
-                    {
-                        selectedPacks.add(p);
-                    }
-                }
-                else
-                {
-                    if (contained)
-                    {
-                        selectedPacks.remove(p);
-                    }
+                    selectedPacks.add(p);
                 }
             }
-        }
-        else
-        {
-            // Force not selecting the pack
-            selectedPacks.remove(p);
-            out(Type.INFORMATION, "  [ ] Pack '" + packName + "' not enabled");
-        }
-    }
-
-    /**
-     * helper method to know if the condition assigned to the pack is satisfied
-     *
-     * @param installData - the data of izpack
-     * @param pack        - the pack whose condition needs to be checked·
-     * @return true             - if the condition is satisfied
-     *         false            - if condition not satisfied
-     *         null             - if no condition assigned
-     */
-    private Boolean checkCondition(InstallData installData, Pack pack)
-    {
-        if (pack.hasCondition())
-        {
-            return installData.getRules().isConditionTrue(pack.getCondition());
-        }
-        else
-        {
-            return null;
         }
     }
 

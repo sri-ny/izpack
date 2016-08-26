@@ -30,7 +30,7 @@ import com.izforge.izpack.core.os.RegistryDefaultHandler;
 import com.izforge.izpack.core.os.RegistryHandler;
 import com.izforge.izpack.event.RegistryInstallerListener;
 import com.izforge.izpack.event.RegistryUninstallerListener;
-import com.izforge.izpack.installer.bootstrap.Installer;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.console.TestConsoleInstaller;
 import com.izforge.izpack.installer.container.impl.ConsoleInstallerContainer;
 import com.izforge.izpack.integration.UninstallHelper;
@@ -282,7 +282,7 @@ public class WindowsConsoleInstallationTest extends AbstractConsoleInstallationT
         console2.addScript("CheckedHelloPanel", "n");
 
         assertFalse(registryKeyExists(handler2, UNINSTALL_KEY2));
-        installer2.run(Installer.CONSOLE_INSTALL, null, new String[0]);
+        installer2.run(ConsoleInstallerAction.CONSOLE_INSTALL, null, new String[0]);
 
         // verify the installation thinks it was unsuccessful
         assertFalse(installData2.isInstallSuccess());

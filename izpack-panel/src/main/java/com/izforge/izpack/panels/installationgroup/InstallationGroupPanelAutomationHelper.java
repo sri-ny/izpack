@@ -21,16 +21,17 @@
 
 package com.izforge.izpack.panels.installationgroup;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.panels.installationgroup.InstallationGroupPanel.GroupData;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * An automation helper for the InstallationGroupPanel
@@ -91,4 +92,7 @@ public class InstallationGroupPanelAutomationHelper implements PanelAutomation
             logger.fine("Set selectedPacks to: " + idata.getSelectedPacks());
         }
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 }

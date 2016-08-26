@@ -46,6 +46,7 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.core.variable.ConfigFileValue;
@@ -385,7 +386,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
         }
 
         // Read specific attributes and nested elements
-        substlocal = new VariableSubstitutorImpl(readVariables(el));
+        substlocal = new VariableSubstitutorImpl(new DefaultVariables(readVariables(el)));
         act.setActionTasks(readConfigurables(el));
         act.addActionTasks(readConfigurableSets(el));
 

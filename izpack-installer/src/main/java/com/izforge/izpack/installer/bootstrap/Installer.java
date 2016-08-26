@@ -21,15 +21,24 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.automation.AutomatedInstaller;
+import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.container.impl.AutomatedInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.StringTool;
+import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -52,8 +61,6 @@ public class Installer
     private static Logger logger;
 
     public static final int INSTALLER_GUI = 0, INSTALLER_AUTO = 1, INSTALLER_CONSOLE = 2;
-    public static final int CONSOLE_INSTALL = 0, CONSOLE_GEN_TEMPLATE = 1, CONSOLE_FROM_TEMPLATE = 2,
-            CONSOLE_FROM_SYSTEMPROPERTIES = 3, CONSOLE_FROM_SYSTEMPROPERTIESMERGE = 4;
 
     public static final String LOGGING_CONFIGURATION = "/com/izforge/izpack/installer/logging/logging.properties";
 
@@ -131,10 +138,11 @@ public class Installer
             Iterator<String> args_it = Arrays.asList(args).iterator();
 
             int type = INSTALLER_GUI;
-            int consoleAction = CONSOLE_INSTALL;
+            ConsoleInstallerAction consoleAction = ConsoleInstallerAction.CONSOLE_INSTALL;
             String path = null;
             String langcode = null;
             String media = null;
+            String defaultsFile = null;
 
             while (args_it.hasNext())
             {
@@ -145,27 +153,39 @@ public class Installer
                     {
                         type = INSTALLER_CONSOLE;
                     }
+                    else if ("-auto".equalsIgnoreCase(arg))
+                    {
+                        type = INSTALLER_AUTO;
+                    }
+                    else if ("-defaults-file".equalsIgnoreCase(arg))
+                    {
+                        defaultsFile = args_it.next().trim();
+                    }
                     else if ("-options-template".equalsIgnoreCase(arg))
                     {
+                        //TODO Make this available also for GUI installations.
                         type = INSTALLER_CONSOLE;
-                        consoleAction = CONSOLE_GEN_TEMPLATE;
+                        consoleAction = ConsoleInstallerAction.CONSOLE_GEN_TEMPLATE;
                         path = args_it.next().trim();
                     }
                     else if ("-options".equalsIgnoreCase(arg))
                     {
+                        //TODO Make this available also for GUI installations.
                         type = INSTALLER_CONSOLE;
-                        consoleAction = CONSOLE_FROM_TEMPLATE;
+                        consoleAction = ConsoleInstallerAction.CONSOLE_FROM_TEMPLATE;
                         path = args_it.next().trim();
                     }
                     else if ("-options-system".equalsIgnoreCase(arg))
                     {
+                        //TODO Make this available also for GUI installations.
                         type = INSTALLER_CONSOLE;
-                        consoleAction = CONSOLE_FROM_SYSTEMPROPERTIES;
+                        consoleAction = ConsoleInstallerAction.CONSOLE_FROM_SYSTEMPROPERTIES;
                     }
                     else if ("-options-auto".equalsIgnoreCase(arg))
                     {
+                        //TODO Make this available also for GUI installations.
                         type = INSTALLER_CONSOLE;
-                        consoleAction = CONSOLE_FROM_SYSTEMPROPERTIESMERGE;
+                        consoleAction = ConsoleInstallerAction.CONSOLE_FROM_SYSTEMPROPERTIESMERGE;
                         path = args_it.next().trim();
                     }
                     else if ("-language".equalsIgnoreCase(arg))
@@ -189,7 +209,16 @@ public class Installer
                 }
             }
 
-            launchInstall(type, consoleAction, path, langcode, media, args);
+            Options defaults = getDefaults(defaultsFile);
+            if (type == INSTALLER_AUTO && path == null && defaults == null)
+            {
+                logger.log(Level.SEVERE,
+                        "Unattended installation mode needs either a defaults file specified by '-defaults-file'" +
+                        " or an installation record XML file as argument");
+                System.exit(1);
+            }
+
+            launchInstall(type, consoleAction, path, langcode, media, defaults, args);
 
         }
         catch (Exception e)
@@ -199,8 +228,45 @@ public class Installer
         }
     }
 
-    private void launchInstall(int type, int consoleAction, String path, String langCode,
-                               String mediaDir, String[] args) throws Exception
+    public Options getDefaults(String path)
+    {
+        File overridePropFile = null;
+
+        if (path != null)
+        {
+            overridePropFile = new File(path);
+        }
+        else
+        {
+            try
+            {
+                File jarFile = new File(
+                        DefaultVariables.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                String jarDir = jarFile.getParentFile().getPath();
+                overridePropFile = new File(jarDir, FilenameUtils.getBaseName(jarFile.getPath()) + ".defaults");
+                if (!overridePropFile.exists())
+                {
+                    overridePropFile = null;
+                }
+            }
+            catch (URISyntaxException e) { /* Should not happen */ }
+        }
+
+        if (overridePropFile != null)
+        {
+            Config config = Config.getGlobal().clone();
+            config.setFileEncoding(Charset.forName("UTF-8"));
+            config.setInclude(true);
+            Options opts = new Options(config);
+            opts.setFile(overridePropFile);
+            return opts;
+        }
+
+        return null;
+    }
+
+    private void launchInstall(int type, ConsoleInstallerAction consoleAction, String path, String langCode,
+                               String mediaDir, Options defaults, String[] args) throws Exception
     {
         // if headless, just use the console mode
         if (type == INSTALLER_GUI && GraphicsEnvironment.isHeadless())
@@ -213,15 +279,15 @@ public class Installer
         switch (type)
         {
             case INSTALLER_GUI:
-                InstallerGui.run(langCode, mediaDir);
+                InstallerGui.run(langCode, mediaDir, defaults);
                 break;
 
             case INSTALLER_AUTO:
-                launchAutomatedInstaller(path, mediaDir, args);
+                launchAutomatedInstaller(path, mediaDir, defaults, args);
                 break;
 
             case INSTALLER_CONSOLE:
-                InstallerConsole.run(type, consoleAction, path, langCode, mediaDir, args);
+                InstallerConsole.run(consoleAction, path, langCode, mediaDir, defaults, args);
                 break;
         }
     }
@@ -231,11 +297,25 @@ public class Installer
      *
      * @param path     the input file path
      * @param mediaDir the multi-volume media directory. May be <tt>null</tt>
+     * @param defaults the overrides, pre-initialized with a file name but not loaded
+     * @param args more command line arguments
      * @throws Exception for any error
      */
-    private void launchAutomatedInstaller(String path, String mediaDir, String[] args) throws Exception
+    private void launchAutomatedInstaller(String path, String mediaDir, Options defaults, String[] args) throws Exception
     {
         InstallerContainer container = new AutomatedInstallerContainer();
+
+        if (defaults != null)
+        {
+            Config config = defaults.getConfig();
+            config.setInstallData(container.getComponent(AutomatedInstallData.class));
+            defaults.load();
+            logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
+
+            DefaultVariables variables = container.getComponent(DefaultVariables.class);
+            variables.setOverrides(defaults);
+        }
+
         AutomatedInstaller automatedInstaller = container.getComponent(AutomatedInstaller.class);
         automatedInstaller.init(path, mediaDir, args);
         automatedInstaller.doInstall();

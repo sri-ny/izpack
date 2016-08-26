@@ -21,9 +21,6 @@
 
 package com.izforge.izpack.panels.defaulttarget;
 
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.console.AbstractConsolePanel;
@@ -31,6 +28,9 @@ import com.izforge.izpack.installer.console.ConsolePanel;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.panels.target.TargetPanelHelper;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
+
+import java.util.Properties;
 
 /**
  * Console implementation of the {@link DefaultTargetPanel}.
@@ -52,17 +52,10 @@ public class DefaultTargetConsolePanel extends AbstractConsolePanel
         this.installData = installData;
     }
 
-    /**
-     * Generates a properties file for each input field or variable.
-     *
-     * @param installData the installation data
-     * @param printWriter the properties file to write to
-     * @return {@code true}
-     */
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
-        printWriter.println(InstallData.INSTALL_PATH + "=");
+        options.add(InstallData.INSTALL_PATH, installData.getInstallPath());
         return true;
     }
 

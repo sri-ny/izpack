@@ -23,6 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Properties;
 
+import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.core.data.DefaultVariables;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +52,8 @@ public class VariableSubstitutorImplTest
         Properties properties = new Properties(System.getProperties());
         properties.put("MY_PROP", "one");
         properties.put("MY_PROP2", "two");
-        variableSubstitutor = new VariableSubstitutorImpl(properties);
+        Variables variables = new DefaultVariables(properties);
+        variableSubstitutor = new VariableSubstitutorImpl(variables);
     }
 
     @Test

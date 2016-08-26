@@ -25,7 +25,7 @@ package com.izforge.izpack.util.config;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.izforge.izpack.util.config.base.Reg;
+import com.izforge.izpack.api.config.Reg;
 
 public class RegistryTask extends SingleConfigurableTask
 {

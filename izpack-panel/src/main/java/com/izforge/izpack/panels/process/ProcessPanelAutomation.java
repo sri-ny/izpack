@@ -22,6 +22,7 @@
 package com.izforge.izpack.panels.process;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.resource.Resources;
@@ -66,11 +67,6 @@ public class ProcessPanelAutomation extends PanelAutomationHelper implements Pan
         // installation information is generated
     }
 
-    /**
-     * Perform the installation actions.
-     *
-     * @param panelRoot The panel XML tree root.
-     */
     public void runAutomated(InstallData idata, IXMLElement panelRoot) throws InstallerException
     {
         processPanelWorker.run();
@@ -80,6 +76,9 @@ public class ProcessPanelAutomation extends PanelAutomationHelper implements Pan
                     "The work done by the ProcessPanel (line " + panelRoot.getLineNr() + ") failed");
         }
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 
     public void logOutput(String message, boolean stderr)
     {

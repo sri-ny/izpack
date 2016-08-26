@@ -20,7 +20,6 @@
 package com.izforge.izpack.api.data;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.util.Platform;
@@ -103,19 +102,9 @@ public class AutomatedInstallData implements InstallData
     private IXMLElement xmlData;
 
     /**
-     * Custom data.
-     */
-    private Map<String, List> customData = new HashMap<String, List>();
-
-    /**
      * The variables.
      */
     private final Variables variables;
-
-    /**
-     * Dynamic variables
-     */
-    private Map<String, List<DynamicVariable>> dynamicvariables;
 
     /**
      * Dynamic conditions
@@ -149,11 +138,6 @@ public class AutomatedInstallData implements InstallData
      * The default install drive (Windows only, otherwise not set)
      */
     public final static String DEFAULT_INSTALL_DRIVE = "DEFAULT_INSTALL_DRIVE";
-
-    /**
-     * The listeners.
-     */
-    private List<InstallerListener> installerListener = new ArrayList<InstallerListener>();
 
 
     /**

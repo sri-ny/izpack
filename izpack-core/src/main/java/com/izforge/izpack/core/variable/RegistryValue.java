@@ -26,7 +26,7 @@ import java.util.Set;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.util.OsVersion;
-import com.izforge.izpack.util.config.base.Reg;
+import com.izforge.izpack.api.config.Reg;
 
 
 public class RegistryValue extends ValueImpl implements Serializable

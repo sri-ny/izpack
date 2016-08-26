@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import com.izforge.izpack.api.data.Variables;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -33,7 +34,8 @@ public class DynamicVariableImplTest
     {
         Properties props = new Properties();
         props.setProperty("INSTALL_PATH", "C:\\Program Files\\MyApp");
-        VariableSubstitutor subst = new VariableSubstitutorImpl(props);
+        Variables variables = new DefaultVariables(props);
+        VariableSubstitutor subst = new VariableSubstitutorImpl(variables);
         ValueFilter filter = new LocationFilter("${INSTALL_PATH}\\subdir");
 
         DynamicVariable dynvar = new DynamicVariableImpl();
@@ -53,7 +55,7 @@ public class DynamicVariableImplTest
     @Test
     public void testBackSlashesWithRegex()
     {
-        VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(new Properties()));
         ValueFilter filter = new RegularExpressionFilter("[/\\\\]+", "/", null, Boolean.FALSE, Boolean.TRUE);
 
         DynamicVariable dynvar = new DynamicVariableImpl();
@@ -92,7 +94,7 @@ public class DynamicVariableImplTest
             fail(e.getMessage());
         }
 
-        VariableSubstitutor subst = new VariableSubstitutorImpl(new Properties());
+        VariableSubstitutor subst = new VariableSubstitutorImpl(new DefaultVariables(new Properties()));
         ValueFilter filter = new RegularExpressionFilter("[/\\\\]+", "/", null, Boolean.FALSE, Boolean.TRUE);
 
         DynamicVariable dynvar = new DynamicVariableImpl();

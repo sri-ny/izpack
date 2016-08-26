@@ -23,6 +23,7 @@ package com.izforge.izpack.panels.userpath;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 
@@ -71,4 +72,7 @@ public class UserPathPanelAutomationHelper implements PanelAutomation
             idata.setVariable(UserPathPanel.pathVariableName, path);
         }
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 }

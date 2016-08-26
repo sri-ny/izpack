@@ -21,16 +21,17 @@
 
 package com.izforge.izpack.panels.packs;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.installer.automation.PanelAutomation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Functions to support automated usage of the PacksPanel
@@ -139,8 +140,7 @@ public class PacksPanelAutomationHelper implements PanelAutomation
                     || selectedString.equalsIgnoreCase("on");
             final PInfo packInfo = new PInfo(selected, index, name);
             autoinstallPackInfoList.add(packInfo);
-            logger.fine("Try to " + (selected ? "add to" : "remove from") + " selection ["
-                                + packInfo.toString() + "]");
+            logger.fine("Try to " + (selected ? "add to" : "remove from") + " selection [" + packInfo.toString() + "]");
         }
 
         // Now merge the selected pack from automated install installDataGUI with the selected packs form
@@ -202,4 +202,7 @@ public class PacksPanelAutomationHelper implements PanelAutomation
         }
         createInstallationRecord(idata, panelRoot);
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 }

@@ -19,12 +19,6 @@
 
 package com.izforge.izpack.compiler.container;
 
-import java.util.Properties;
-
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.picocontainer.parameters.ComponentParameter;
-
 import com.izforge.izpack.api.exception.ContainerException;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.rules.RulesEngine;
@@ -32,11 +26,7 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.compiler.Compiler;
 import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.cli.CliAnalyzer;
-import com.izforge.izpack.compiler.container.provider.CompilerDataProvider;
-import com.izforge.izpack.compiler.container.provider.CompressedOutputStreamProvider;
-import com.izforge.izpack.compiler.container.provider.JarOutputStreamProvider;
-import com.izforge.izpack.compiler.container.provider.PackCompressorProvider;
-import com.izforge.izpack.compiler.container.provider.XmlCompilerHelperProvider;
+import com.izforge.izpack.compiler.container.provider.*;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.helper.AssertionHelper;
 import com.izforge.izpack.compiler.helper.CompilerHelper;
@@ -44,6 +34,7 @@ import com.izforge.izpack.compiler.listener.CmdlinePackagerListener;
 import com.izforge.izpack.compiler.resource.ResourceFinder;
 import com.izforge.izpack.core.container.AbstractContainer;
 import com.izforge.izpack.core.container.PlatformProvider;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.factory.DefaultObjectFactory;
 import com.izforge.izpack.core.rules.ConditionContainer;
 import com.izforge.izpack.core.rules.RulesEngineImpl;
@@ -53,6 +44,11 @@ import com.izforge.izpack.merge.MergeManagerImpl;
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.picocontainer.parameters.ComponentParameter;
+
+import java.util.Properties;
 
 /**
  * Container for compiler.
@@ -93,6 +89,7 @@ public class CompilerContainer extends AbstractContainer
     protected void fillContainer(MutablePicoContainer container)
     {
         addComponent(Properties.class);
+        addComponent(DefaultVariables.class);
         addComponent(CompilerContainer.class, this);
         addComponent(CliAnalyzer.class);
         addComponent(CmdlinePackagerListener.class);

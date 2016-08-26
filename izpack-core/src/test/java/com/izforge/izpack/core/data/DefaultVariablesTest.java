@@ -36,6 +36,7 @@ import com.izforge.izpack.core.variable.ConfigFileValue;
 import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.util.Platforms;
+import com.izforge.izpack.api.config.Options;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,11 +59,14 @@ import static org.junit.Assert.*;
  */
 public class DefaultVariablesTest
 {
+    @Rule
+    public TemporaryFolder rootFolder = new TemporaryFolder();
+
 
     /**
      * The variables.
      */
-    private final Variables variables = new DefaultVariables();
+    private final DefaultVariables variables = new DefaultVariables();
 
 
     /**
@@ -246,9 +250,6 @@ public class DefaultVariablesTest
         assertEquals("/usr/local/bin", variables.get("INSTALL_PATH"));
     }
 
-    @Rule
-    public TemporaryFolder rootFolder = new TemporaryFolder();
-
     /**
      * Tests for IZPACK-1260
      */
@@ -349,8 +350,9 @@ public class DefaultVariablesTest
      * Before IZPACK-1406 the recursion was done by iterations of variables.refresh().
      * Since IZPACK-1406 the variables are preordered by PackagerBase.buildVariableList().
      * Therefore we have to provide the variables here in the correct order.
-     * @see com.izforge.izpack.compiler.DynVariableOrderTest for ordering tests 
+     * @see com.izforge.izpack.compiler.DynVariableOrderTest for ordering tests
      */
+    @SuppressWarnings("JavadocReference")
     @Test
     public void testDependentDynamicVariables()
     {
@@ -725,6 +727,23 @@ public class DefaultVariablesTest
         result.setValue(new PlainConfigFileValue(file, ConfigFileValue.CONFIGFILE_TYPE_INI, filesection, filekey, escape));
         result.setAutoUnset(autounset);
         return result;
+    }
+
+    /**
+     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>)
+     */
+    @Test
+    public void testOverrides()
+    {
+        Options overrides = new Options();
+        overrides.put("var1", "override1");
+        variables.set("var1", "value1");
+        variables.setOverrides(overrides);
+        variables.add(createDynamic("var1", "dynValue"));
+
+        assertEquals("override before refresh", "override1", variables.get("var1"));
+        variables.refresh();
+        assertEquals("override after refresh", "override1", variables.get("var1"));
     }
 
 }

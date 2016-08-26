@@ -22,10 +22,8 @@
 
 package com.izforge.izpack.panels.compile;
 
-import java.io.IOException;
-import java.io.PrintStream;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.resource.Resources;
@@ -34,14 +32,16 @@ import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.installer.automation.PanelAutomationHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
+import java.io.IOException;
+import java.io.PrintStream;
+
 /**
  * Functions to support automated usage of the CompilePanel
  *
  * @author Jonathan Halliday
  * @author Tino Schwarze
  */
-public class CompilePanelAutomationHelper extends PanelAutomationHelper
-implements PanelAutomation, CompileHandler
+public class CompilePanelAutomationHelper extends PanelAutomationHelper implements PanelAutomation, CompileHandler
 {
 
     private CompileWorker worker = null;
@@ -94,12 +94,6 @@ implements PanelAutomation, CompileHandler
         // installation information is generated
     }
 
-    /**
-     * Perform the installation actions.
-     *
-     * @param panelRoot The panel XML tree root.
-     * @throws InstallerException if something went wrong.
-     */
     public void runAutomated(InstallData idata, IXMLElement panelRoot) throws InstallerException
     {
         IXMLElement compiler_xml = panelRoot.getFirstChildNamed("compiler");
@@ -152,6 +146,9 @@ implements PanelAutomation, CompileHandler
             throw new InstallerException(e);
         }
     }
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 
     /**
      * Reports progress on System.out

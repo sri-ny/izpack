@@ -660,7 +660,7 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
      *
      * @return IXMLElement The prepared panel record XML
      */
-    protected final IXMLElement createPanelRootRecord()
+    public final IXMLElement createPanelRootRecord()
     {
         IXMLElement panelRoot = new XMLElementImpl(panel.getClassName(), installData.getInstallationRecord());
         String panelId = panel.getPanelId();

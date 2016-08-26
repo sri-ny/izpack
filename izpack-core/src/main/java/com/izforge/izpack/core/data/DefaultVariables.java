@@ -29,6 +29,7 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.core.variable.utils.ValueUtils;
+import com.izforge.izpack.api.config.Options;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -47,6 +48,11 @@ public class DefaultVariables implements Variables
      * The variables.
      */
     private final Properties properties;
+
+    /**
+     * The forced override values.
+     */
+    private Options overrides;
 
     /**
      * The dynamic variables.
@@ -90,7 +96,7 @@ public class DefaultVariables implements Variables
     public DefaultVariables(Properties properties)
     {
         this.properties = properties;
-        replacer = new VariableSubstitutorImpl(properties);
+        replacer = new VariableSubstitutorImpl(this);
     }
 
     /**
@@ -104,7 +110,8 @@ public class DefaultVariables implements Variables
     }
 
     /**
-     * Sets a variable.
+     * Sets a variable explicitly.
+     * This is considered a permanent user change and overrides on the according name are removed.
      *
      * @param name  the variable name
      * @param value the variable value. May be {@code null}
@@ -112,6 +119,13 @@ public class DefaultVariables implements Variables
     @Override
     public void set(String name, String value)
     {
+        // Prevent from re-applying when pressing Previous button in panel
+        // but preserve user values made at the panel where Previous has been pressed
+        if (overrides != null)
+        {
+            overrides.remove(name);
+        }
+
         if (value != null)
         {
             properties.setProperty(name, value);
@@ -133,7 +147,7 @@ public class DefaultVariables implements Variables
     @Override
     public String get(String name)
     {
-        return properties.getProperty(name);
+        return containsOverride(name) ? overrides.fetch(name) : properties.getProperty(name);
     }
 
     /**
@@ -145,7 +159,8 @@ public class DefaultVariables implements Variables
     @Override
     public String get(String name, String defaultValue)
     {
-        return properties.getProperty(name, defaultValue);
+        final String value = properties.getProperty(name, defaultValue);
+        return containsOverride(name) ? overrides.get(name, value) : value;
     }
 
     /**
@@ -260,13 +275,6 @@ public class DefaultVariables implements Variables
         return result;
     }
 
-    /**
-     * Replaces any variables in the supplied value.
-     *
-     * @param value the value. May be {@code null}
-     * @return the value with variables replaced, or {@code value} if there were no variables to replace, or
-     *         replacement failed
-     */
     @Override
     public String replace(String value)
     {
@@ -311,7 +319,7 @@ public class DefaultVariables implements Variables
         for (DynamicVariable variable : dynamicVariables)
         {
             String name = variable.getName();
-            if (!isBlockedVariableName(name))
+            if (!isBlockedVariableName(name) && !containsOverride(name))
             {
                 String conditionId = variable.getConditionid();
                 if (conditionId == null || rules.isConditionTrue(conditionId))
@@ -404,6 +412,24 @@ public class DefaultVariables implements Variables
     public Properties getProperties()
     {
         return properties;
+    }
+
+    @Override
+    public boolean containsOverride(String name)
+    {
+        return (overrides != null) && overrides.containsKey(name);
+    }
+
+    @Override
+    public void setOverrides(Options overrides)
+    {
+        this.overrides = overrides;
+    }
+
+    @Override
+    public Options getOverrides()
+    {
+        return this.overrides;
     }
 
     @Override

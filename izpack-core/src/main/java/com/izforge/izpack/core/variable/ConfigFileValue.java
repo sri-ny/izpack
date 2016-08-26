@@ -40,9 +40,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
-import com.izforge.izpack.util.config.base.Config;
-import com.izforge.izpack.util.config.base.Ini;
-import com.izforge.izpack.util.config.base.Options;
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Ini;
+import com.izforge.izpack.api.config.Options;
 
 public abstract class ConfigFileValue extends ValueImpl implements Serializable
 {

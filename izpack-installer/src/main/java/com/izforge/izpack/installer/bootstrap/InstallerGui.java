@@ -21,21 +21,24 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
-
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.container.impl.GUIInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.data.GUIInstallData;
+import com.izforge.izpack.installer.data.InstallData;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.SplashScreen;
 import com.izforge.izpack.installer.language.LanguageDialog;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.util.Housekeeper;
+
+import javax.swing.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Gui-dedicated installer bootstrap
@@ -47,7 +50,7 @@ public class InstallerGui
     private static SplashScreen splashScreen = null;
 
     
-    public static void run(final String langCode, final String mediaPath) throws Exception
+    public static void run(final String langCode, final String mediaPath, final Options defaults) throws Exception
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
@@ -82,8 +85,19 @@ public class InstallerGui
 	        {
 	            installData.setMediaPath(mediaPath);
 	        }
-	
-	        InstallerController controller = installerContainer.getComponent(InstallerController.class);
+
+			if (defaults != null)
+			{
+				Config config = defaults.getConfig();
+				config.setInstallData(applicationComponent.getComponent(InstallData.class));
+				defaults.load();
+				logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
+
+				DefaultVariables variables = applicationComponent.getComponent(DefaultVariables.class);
+				variables.setOverrides(defaults);
+			}
+
+			InstallerController controller = installerContainer.getComponent(InstallerController.class);
 	        
 	        if (installData.guiPrefs.modifier.containsKey("useSplashScreen")) {
 		        int duration = Integer.parseInt(installData.guiPrefs.modifier.get("useSplashScreen"));

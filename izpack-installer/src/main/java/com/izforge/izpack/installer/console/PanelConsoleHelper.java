@@ -24,8 +24,8 @@ package com.izforge.izpack.installer.console;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.panel.PanelView;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
 
-import java.io.PrintWriter;
 import java.util.Properties;
 
 /**
@@ -56,19 +56,10 @@ abstract public class PanelConsoleHelper extends AbstractConsolePanel implements
         super(panel);
     }
 
-    /**
-     * Generates a properties file for each input field or variable.
-     * <p/>
-     * This implementation is a no-op.
-     *
-     * @param installData the installation data
-     * @param printWriter the properties file to write to
-     * @return {@code true}
-     */
     @Override
-    public boolean generateProperties(InstallData installData, PrintWriter printWriter)
+    public boolean generateOptions(InstallData installData, Options options)
     {
-        return runGeneratePropertiesFile(installData, printWriter);
+        return runGeneratePropertiesFile(installData, options);
     }
 
     /**

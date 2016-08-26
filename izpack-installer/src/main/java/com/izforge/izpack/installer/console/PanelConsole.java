@@ -21,11 +21,11 @@
 
 package com.izforge.izpack.installer.console;
 
-import java.io.PrintWriter;
-import java.util.Properties;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.util.Console;
+import com.izforge.izpack.api.config.Options;
+
+import java.util.Properties;
 
 /**
  * Defines the Interface that must be implemented for running Panels in console mode.
@@ -44,10 +44,10 @@ public interface PanelConsole extends ConsolePanel
      * Generates a properties file for each input field or variable.
      *
      * @param installData the installation data
-     * @param printWriter the properties file to write to
+     * @param options the options file to write to
      * @return <tt>true</tt> if the generation is successful, otherwise <tt>false</tt>
      */
-    boolean runGeneratePropertiesFile(InstallData installData, PrintWriter printWriter);
+    boolean runGeneratePropertiesFile(InstallData installData, Options options);
 
     /**
      * Runs the panel using the supplied properties.

@@ -118,7 +118,7 @@ public abstract class VariableSubstitutorBase implements VariableSubstitutor
         typeNameToConstantMap.put("ant", TYPE_ANT);
     }
 
-    public abstract Value getValue(String name);
+    public abstract String get(String name);
 
     /**
      * Get whether this substitutor requires braces.
@@ -397,11 +397,7 @@ public abstract class VariableSubstitutorBase implements VariableSubstitutor
                 }
                 else
                 {
-                    Value val = getValue(name);
-                    if (val != null)
-                    {
-                        varvalue = val.resolve();
-                    }
+                    varvalue = get(name);
                 }
 
                 subs++;

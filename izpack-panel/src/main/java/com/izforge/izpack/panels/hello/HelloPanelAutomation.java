@@ -1,19 +1,20 @@
 package com.izforge.izpack.panels.hello;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 
-public class HelloPanelAutomation implements PanelAutomation{
+public class HelloPanelAutomation implements PanelAutomation
+{
 
-    public HelloPanelAutomation() {
-    }
+    public HelloPanelAutomation() {}
 
     /**
      * Creates an installation record for unattended installations and adds it to a XML root element.
      *
      * @param installData The installation data
-     * @param rootElement The root element to add panel-specific child elements to
+     * @param panelRoot The root element to add panel-specific child elements to
      */
     @Override
     public void createInstallationRecord(InstallData installData, IXMLElement panelRoot)
@@ -36,6 +37,8 @@ public class HelloPanelAutomation implements PanelAutomation{
     {
         // we do nothing for the HelloPanel in unattended installations
     }
-    
+
+    @Override
+    public void processOptions(InstallData installData, Options options) {}
 }
 
