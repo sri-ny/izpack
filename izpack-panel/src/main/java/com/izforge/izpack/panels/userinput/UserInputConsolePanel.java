@@ -239,6 +239,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                             || (panel.getReadonlyCondition() != null && rules.isConditionTrue(panel.getReadonlyCondition())),
                             rules);
                     addToPanel = true;
+                    field.setDisplayed(true);
                 }
                 else if (required
                         && (
@@ -251,6 +252,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                 {
                     readonly = true;
                     addToPanel = true;
+                    field.setDisplayed(false);
                 }
                 else
                 {

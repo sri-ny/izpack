@@ -73,18 +73,16 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
     {
         ChoiceField field = getField();
         printDescription();
-
+        List<Choice> choices = field.getChoices();
+        final int selectedRealIndex = field.getSelectedIndex();
+        MappedSelection visibleToRealMapping = listChoices(choices, selectedRealIndex);
         if (isReadonly())
         {
-            println(field.getValue());
+            field.setValue(choices.get(field.getSelectedIndex() == -1 ? 0 : field.getSelectedIndex()).getKey());
             return true;
         }
         else
         {
-            List<Choice> choices = field.getChoices();
-            final int selectedRealIndex = field.getSelectedIndex();
-            MappedSelection visibleToRealMapping = listChoices(choices, selectedRealIndex);
-
             int selectedVisibleIndex = getConsole().prompt(getMessage("ConsoleInstaller.inputSelection"), 0,
                     visibleToRealMapping.size() - 1, visibleToRealMapping.getDefaultVisibleIndex(), -1);
             if (selectedVisibleIndex == -1)

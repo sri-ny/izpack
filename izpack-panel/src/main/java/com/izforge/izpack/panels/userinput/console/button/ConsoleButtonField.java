@@ -35,34 +35,34 @@ public class ConsoleButtonField  extends ConsoleField
     public boolean display()
     {
         boolean proceed = true;
-
         println(getField().getLabel());
+        String value;
 
         if (isReadonly())
         {
-            println("field.getButtonName() + " + getField());
-            return true;
+            println(field.getButtonName() + " [y/n]: [" + field.getInitialValue() + "]");
+            value = field.getInitialValue();
         }
         else
         {
-            String value = getConsole().prompt(field.getButtonName() + " [y/n]: [n]", "n");
+            value = getConsole().prompt(field.getButtonName() + " [y/n]: [n]", "n");
+        }
 
-            if(value.equalsIgnoreCase("y"))
+        if(value.equalsIgnoreCase("y"))
+        {
+            for(ButtonAction buttonAction : field.getButtonActions())
             {
-                for(ButtonAction buttonAction : field.getButtonActions())
+                proceed = buttonAction.execute(getConsole());
+                if (!proceed)
                 {
-                    proceed = buttonAction.execute(getConsole());
-                    if (!proceed)
-                    {
-                        break;
-                    }
-                }
-                if(proceed)
-                {
-                    println(field.getSucessMsg());
+                    break;
                 }
             }
-            return true;
+            if(proceed)
+            {
+                println(field.getSucessMsg());
+            }
         }
+        return true;
     }
 }

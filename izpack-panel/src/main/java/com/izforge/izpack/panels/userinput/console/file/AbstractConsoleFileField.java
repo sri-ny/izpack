@@ -75,7 +75,8 @@ public class AbstractConsoleFileField extends ConsoleField
         }
         if (isReadonly())
         {
-            println(label + (label.isEmpty()?" ":"") + "[" + field.getValue() + "]");
+            println(label + (label.isEmpty()?" ":"") + "[" + initialValue + "]");
+            field.setValue(initialValue);
             result = true;
         }
         else

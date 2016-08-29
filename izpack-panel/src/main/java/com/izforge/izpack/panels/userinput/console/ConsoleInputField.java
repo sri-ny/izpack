@@ -59,14 +59,16 @@ public abstract class ConsoleInputField extends ConsoleField
         boolean result = false;
         printDescription();
         Field field = getField();
+        String initialValue = field.getInitialValue();
+        
         if (isReadonly())
         {
-            println(field.getLabel() + " [" + field.getValue() + "] ");
+            println(field.getLabel() + " [" + initialValue + "] ");
+            field.setValue(initialValue);
             return true;
         }
         else
         {
-            String initialValue = field.getInitialValue();
             if (initialValue == null)
             {
                 initialValue = "";

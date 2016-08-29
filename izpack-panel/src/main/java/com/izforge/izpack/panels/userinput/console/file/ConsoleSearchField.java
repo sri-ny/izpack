@@ -31,15 +31,15 @@ public class ConsoleSearchField extends ConsoleField { // ConsoleComboField { //
     {
         SearchField field = (SearchField)getField();
         printDescription();
+        
+        List<String> choices = field.getChoices();
+        listChoices(choices, field.getSelectedIndex());
 
         if (isReadonly())
         {
-            println(field.getValue());
+            field.setValue(choices.get(field.getSelectedIndex() == -1 ? 0 : field.getSelectedIndex()));
             return true;
         }
-
-        List<String> choices = field.getChoices();
-        listChoices(choices, field.getSelectedIndex());
 
         int selected = getConsole().prompt("input selection: ", 0, choices.size() - 1, field.getSelectedIndex(), -1);
         if (selected == -1)
