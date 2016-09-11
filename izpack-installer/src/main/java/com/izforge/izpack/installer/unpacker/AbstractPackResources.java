@@ -40,6 +40,11 @@ import com.izforge.izpack.api.resource.Resources;
 public abstract class AbstractPackResources implements PackResources
 {
     /**
+     * Temporary directory for web installers.
+     */
+    protected static final String WEB_TEMP_SUB_PATH = "/IzpackWebTemp";
+
+    /**
      * The resources.
      */
     private final Resources resources;
