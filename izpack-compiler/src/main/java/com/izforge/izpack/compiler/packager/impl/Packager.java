@@ -20,20 +20,6 @@
 
 package com.izforge.izpack.compiler.packager.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Pack200;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Pack;
@@ -53,9 +39,16 @@ import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.IoHelper;
 
+import java.io.*;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Pack200;
+import java.util.zip.Deflater;
+
 /**
- * The packager class. The packager is used by the compiler to put files into an installer, and
- * create the actual installer files.
+ * The packager class. The packager is used by the compiler to put files into an
+ * installer, and create the actual installer files.
  *
  * @author Julien Ponge
  * @author Chadwick McHenry
@@ -63,12 +56,7 @@ import com.izforge.izpack.util.IoHelper;
 public class Packager extends PackagerBase
 {
 
-    /**
-     * Decoration of the installer jar stream.
-     * May be compressed or not depending on the compiler data.
-     */
-    private final OutputStream outputStream;
-
+    private final CompilerData compilerData;
 
     /**
      * Constructs a <tt>Packager</tt>.
@@ -77,8 +65,8 @@ public class Packager extends PackagerBase
      * @param listener          the packager listener
      * @param jarOutputStream   the installer jar output stream
      * @param compressor        the pack compressor
-     * @param outputStream      decoration of the installer jar stream. May be compressed or not depending on the
-     *                          compiler data.
+     * @param outputStream      decoration of the installer jar stream. May be
+     *                          compressed or not depending on the compiler data.
      * @param mergeManager      the merge manager
      * @param pathResolver      the path resolver
      * @param mergeableResolver the mergeable resolver
@@ -90,8 +78,33 @@ public class Packager extends PackagerBase
                     RulesEngine rulesEngine)
     {
         super(properties, listener, jarOutputStream, mergeManager, pathResolver, mergeableResolver, compressor,
-              compilerData, rulesEngine);
-        this.outputStream = outputStream;
+                compilerData, rulesEngine);
+        this.compilerData = compilerData;
+    }
+
+    private JarOutputStream getJarOutputStream(File jarFile) throws IOException
+    {
+        JarOutputStream jarOutputStream;
+        if (jarFile.exists())
+        {
+            jarFile.delete();
+        }
+        if (compilerData.isMkdirs())
+        {
+            jarFile.getParentFile().mkdirs();
+        }
+        jarOutputStream = new JarOutputStream(jarFile);
+        int level = compilerData.getComprLevel();
+        if (level >= 0 && level < 10)
+        {
+            jarOutputStream.setLevel(level);
+        } else
+        {
+            jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
+        }
+        jarOutputStream.setPreventClose(true); // Needed at using
+        // FilterOutputStreams which calls close
+        return jarOutputStream;
     }
 
     /**
@@ -128,25 +141,25 @@ public class Packager extends PackagerBase
             Pack pack = packInfo.getPack();
             pack.setFileSize(0);
 
-            // create a pack specific jar if required
-            // REFACTOR : Repare web installer
-            // REFACTOR : Use a mergeManager for each packages that will be added to the main merger
-
-//            if (packJarsSeparate) {
-            // See installer.Unpacker#getPackAsStream for the counterpart
-//                String name = baseFile.getName() + ".pack-" + pack.id + ".jar";
-//                packStream = IoHelper.getJarOutputStream(name, baseFile.getParentFile());
-//            }
-
             sendMsg("Writing Pack " + packNumber + ": " + pack.getName(), PackagerListener.MSG_VERBOSE);
 
-            // Retrieve the correct output stream
-            org.apache.tools.zip.ZipEntry entry = new org.apache.tools.zip.ZipEntry(
-                    RESOURCES_PATH + "packs/pack-" + pack.getName());
-            installerJar.putNextEntry(entry);
-            installerJar.flush(); // flush before we start counting
+            org.apache.tools.zip.ZipEntry entry = null;
+            JarOutputStream packJar = installerJar;
+            if (packSeparateJars())
+            {
+                // TODO REFACTOR : Use a mergeManager for each packages that will be added to the main merger
+                String jarFile = getInfo().getInstallerBase() + ".pack-" + pack.getName() + ".jar";
+                packJar = getJarOutputStream(new File(jarFile));
+                entry = new org.apache.tools.zip.ZipEntry("packs/pack-" + pack.getName());
+            } else
+            {
+                entry = new org.apache.tools.zip.ZipEntry(RESOURCES_PATH + "packs/pack-" + pack.getName());
+            }
 
-            ByteCountingOutputStream dos = new ByteCountingOutputStream(outputStream);
+            packJar.putNextEntry(entry);
+            packJar.flush(); // flush before we start counting
+
+            ByteCountingOutputStream dos = new ByteCountingOutputStream(packJar);
             ObjectOutputStream objOut = new ObjectOutputStream(dos);
 
             // We write the actual pack files
@@ -184,17 +197,18 @@ public class Packager extends PackagerBase
                     {
                         /*
                          * Warning!
-                         *
-                         * Pack200 archives must be stored in separated streams, as the Pack200 unpacker
-                         * reads the entire stream...
-                         *
-                         * See http://java.sun.com/javase/6/docs/api/java/util/jar/Pack200.Unpacker.html
-                         */
+						 *
+						 * Pack200 archives must be stored in separated streams,
+						 * as the Pack200 unpacker reads the entire stream...
+						 *
+						 * See
+						 * http://java.sun.com/javase/6/docs/api/java/util/jar
+						 * /Pack200.Unpacker.html
+						 */
                         pack200Map.put(pack200Counter, file);
                         objOut.writeInt(pack200Counter);
                         pack200Counter = pack200Counter + 1;
-                    }
-                    else
+                    } else
                     {
                         FileInputStream inStream = new FileInputStream(file);
                         long bytesWritten = IoHelper.copyStream(inStream, objOut);
@@ -205,7 +219,10 @@ public class Packager extends PackagerBase
                         }
                     }
 
-                    storedFiles.put(file, new Object[]{pack.getName(), pos}); // TODO - see IZPACK-799
+                    storedFiles.put(file, new Object[]{pack.getName(), pos}); // TODO
+                    // -
+                    // see
+                    // IZPACK-799
                 }
 
                 // even if not written, it counts towards pack size
@@ -243,15 +260,15 @@ public class Packager extends PackagerBase
             objOut.flush();
             if (!getCompressor().useStandardCompression())
             {
-                outputStream.close();
+                packJar.close();
             }
 
-            installerJar.closeEntry();
+            packJar.closeEntry();
 
             // close pack specific jar if required
             if (packSeparateJars())
             {
-                installerJar.closeAlways();
+                packJar.closeAlways();
             }
 
             IXMLElement child = new XMLElementImpl("pack", root);
@@ -325,14 +342,20 @@ public class Packager extends PackagerBase
     }
 
     /**
-     * ********************************************************************************************
-     * Stream utilites for creation of the installer.
-     * ********************************************************************************************
+     * *************************************************************************
+     * ******************* Stream utilites for creation of the installer.
+     * *******
+     * *******************************************************************
+     * ******************
      */
 
-    /* (non-Javadoc)
-    * @see com.izforge.izpack.compiler.packager.IPackager#addConfigurationInformation(com.izforge.izpack.api.adaptator.IXMLElement)
-    */
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * com.izforge.izpack.compiler.packager.IPackager#addConfigurationInformation
+	 * (com.izforge.izpack.api.adaptator.IXMLElement)
+	 */
     @Override
     public void addConfigurationInformation(IXMLElement data)
     {
