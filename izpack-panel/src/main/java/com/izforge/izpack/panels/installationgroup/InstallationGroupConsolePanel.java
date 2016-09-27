@@ -19,6 +19,7 @@
 
 package com.izforge.izpack.panels.installationgroup;
 
+import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
@@ -48,6 +49,8 @@ public class InstallationGroupConsolePanel extends AbstractConsolePanel implemen
     private final Prompt prompt;
     private final AutomatedInstallData automatedInstallData;
     private final PlatformModelMatcher matcher;
+    
+    private GroupData[] rows;
 
     @SuppressWarnings("UnusedDeclaration")
     public InstallationGroupConsolePanel(PanelView<ConsolePanel> panel, Prompt prompt,
@@ -103,8 +106,23 @@ public class InstallationGroupConsolePanel extends AbstractConsolePanel implemen
 
         setSelectedPacksBySelectedGroup(selected);
 
+        rows = new GroupData[installGroups.size()];
+        int count = 0;
+        for (GroupData gd : sortedGroups) {
+          rows[count] = gd;
+          count++;
+        }
+
         out(Prompt.Type.INFORMATION, DONE);
         return promptEndPanel(installData, console);
+    }
+    
+    @Override
+    public void createInstallationRecord(IXMLElement panelRoot)
+    {
+        InstallationGroupPanelAutomationHelper helper = new InstallationGroupPanelAutomationHelper();
+        this.automatedInstallData.setAttribute("GroupData", rows);
+        helper.createInstallationRecord(this.automatedInstallData, panelRoot);
     }
 
     protected void setSelectedPacksBySelectedGroup(GroupData selected)
