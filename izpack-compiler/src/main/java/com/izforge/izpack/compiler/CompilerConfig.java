@@ -1712,7 +1712,9 @@ public class CompilerConfig extends Thread
                         addConfigurationOptions(validatorElement, configurable);
                         logger.finer("Validator " + validatorType.getName()
                                 + " extends the " + PanelValidator.class.getSimpleName()
-                                + "interface and adds " + configurable.getNames().size() + " parameters");
+                                + "interface and adds "
+                                + (configurable!=null&&configurable.getNames()!=null?configurable.getNames().size():"no")
+                                + " parameters");
                     }
                     logger.fine("Adding validator '" + validator + "' to panel '" + panel.getPanelId() + "'");
                     panel.addValidator(validatorType.getName(), validatorCondition, configurable);
