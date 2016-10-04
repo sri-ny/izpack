@@ -271,7 +271,7 @@ public class GUIPrompt extends AbstractPrompt
             buttons.add(detailsButton);
             buttons.add(copyButton);
         }
-        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")) );
+        final String basicMessage = ((message != null) ? normalizeAsHTML(message, 550) : ((throwMessage != null) ? normalizeAsHTML(throwMessage, 550) : UIManager.getString("installer.errorMessage")));
 
         final JPanel topPanel = new JPanel();
         final JLabel messageLabel = new JLabel();
@@ -415,6 +415,13 @@ public class GUIPrompt extends AbstractPrompt
         }
         b.append("</html>");
         return b.toString();
+    }
+
+    private String normalizeAsHTML(String message, int size)
+    {
+        StringBuilder sb = new StringBuilder("<html><body><p style='width:");
+        sb.append(size).append("px;'>").append(message).append("</p></body></html>");
+        return sb.toString();
     }
 
     /**
