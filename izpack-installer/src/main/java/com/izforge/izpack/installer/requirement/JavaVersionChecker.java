@@ -66,7 +66,27 @@ public class JavaVersionChecker implements RequirementChecker
     {
         String version = getJavaVersion();
         String required = installData.getInfo().getJavaVersion();
-        boolean result = required == null || version == null || version.compareTo(required) >= 0;
+        if ((required == null && !installData.getInfo().getJavaVersionStrict()) || version == null)
+        {
+            return true;
+        }
+        Boolean result;
+        if (required.contains("_"))
+        {
+            String[] splitRequiredVersion = required.split("_");
+            String[] splitCurrentVersion = version.split("_");
+            if (splitCurrentVersion[0].compareTo(splitRequiredVersion[0]) >= 0) {
+                result = Integer.parseInt(splitRequiredVersion[1]) < Integer.parseInt(splitCurrentVersion[1]) || !installData.getInfo().getJavaVersionStrict();
+            }
+            else
+            {
+                result = false;
+            }
+        }
+        else
+        {
+            result = version.compareTo(required) >= 0;
+        }
         if (!result)
         {
             versionNotAvailable(version, required);
