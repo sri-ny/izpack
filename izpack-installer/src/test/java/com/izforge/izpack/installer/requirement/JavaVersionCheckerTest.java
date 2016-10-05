@@ -52,9 +52,10 @@ public class JavaVersionCheckerTest extends AbstractRequirementCheckerTest
         assertTrue(checker.check());
         
         installData.getInfo().setJavaVersion(currentVersion + "9");
-        assertTrue(checker.check());
-        
-        installData.getInfo().setJavaVersionStrict(true);
         assertFalse(checker.check());
+        
+        String[] splitCurrentVersion = currentVersion.split("_");
+        installData.getInfo().setJavaVersion(splitCurrentVersion[0]);
+        assertTrue(checker.check());
     }
 }

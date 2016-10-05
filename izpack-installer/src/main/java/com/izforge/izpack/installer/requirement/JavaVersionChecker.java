@@ -24,6 +24,8 @@ package com.izforge.izpack.installer.requirement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.installer.RequirementChecker;
+import com.izforge.izpack.api.rules.ComparisonOperator;
+import com.izforge.izpack.core.rules.process.CompareVersionsMajorCondition;
 
 /**
  * Verifies that the correct java version is available for installation to proceed.
@@ -66,32 +68,21 @@ public class JavaVersionChecker implements RequirementChecker
     {
         String version = getJavaVersion();
         String required = installData.getInfo().getJavaVersion();
-        if ((required == null && !installData.getInfo().getJavaVersionStrict()) || version == null)
+        if (required == null || version == null)
         {
             return true;
         }
-        Boolean result;
-        if (required.contains("_"))
-        {
-            String[] splitRequiredVersion = required.split("_");
-            String[] splitCurrentVersion = version.split("_");
-            if (splitCurrentVersion[0].compareTo(splitRequiredVersion[0]) >= 0) {
-                result = Integer.parseInt(splitRequiredVersion[1]) < Integer.parseInt(splitCurrentVersion[1]) || !installData.getInfo().getJavaVersionStrict();
-            }
-            else
-            {
-                result = false;
-            }
-        }
-        else
-        {
-            result = version.compareTo(required) >= 0;
-        }
-        if (!result)
+        CompareVersionsMajorCondition comparator = new CompareVersionsMajorCondition();
+        comparator.setInstallData(installData);
+        comparator.setLeftOperand(version);
+        comparator.setRightOperand(required);
+        comparator.setOperator(ComparisonOperator.GREATEREQUAL);
+        if (!comparator.isTrue())
         {
             versionNotAvailable(version, required);
+            return false;
         }
-        return result;
+        return true;
     }
 
     /**
