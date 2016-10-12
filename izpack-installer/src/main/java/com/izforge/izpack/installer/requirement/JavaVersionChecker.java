@@ -24,6 +24,8 @@ package com.izforge.izpack.installer.requirement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.installer.RequirementChecker;
+import com.izforge.izpack.api.rules.ComparisonOperator;
+import com.izforge.izpack.core.rules.process.CompareVersionsMajorCondition;
 
 /**
  * Verifies that the correct java version is available for installation to proceed.
@@ -66,12 +68,21 @@ public class JavaVersionChecker implements RequirementChecker
     {
         String version = getJavaVersion();
         String required = installData.getInfo().getJavaVersion();
-        boolean result = required == null || version == null || version.compareTo(required) >= 0;
-        if (!result)
+        if (required == null || version == null)
+        {
+            return true;
+        }
+        CompareVersionsMajorCondition comparator = new CompareVersionsMajorCondition();
+        comparator.setInstallData(installData);
+        comparator.setLeftOperand(version);
+        comparator.setRightOperand(required);
+        comparator.setOperator(ComparisonOperator.GREATEREQUAL);
+        if (!comparator.isTrue())
         {
             versionNotAvailable(version, required);
+            return false;
         }
-        return result;
+        return true;
     }
 
     /**
