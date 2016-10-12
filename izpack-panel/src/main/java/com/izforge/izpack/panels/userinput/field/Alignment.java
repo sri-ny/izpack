@@ -28,5 +28,5 @@ package com.izforge.izpack.panels.userinput.field;
 */
 public enum Alignment
 {
-    LEFT, CENTER, RIGHT, TOP
+    LEFT, CENTER, RIGHT, TOP, BOTTOM
 }

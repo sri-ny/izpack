@@ -594,13 +594,42 @@
 
     <xs:simpleType name="alignType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="left"/>
-            <xs:enumeration value="center"/>
-            <xs:enumeration value="right"/>
+            <xs:enumeration value="left">
+                <as:annotation>
+                    <xs:documentation>
+                        At present only used by "title" fields. Note that "top" and "bottom" are
+                        not applicable to "title" fields.
+                    </xs:documentation>
+                </as:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="center">
+                <as:annotation>
+                    <xs:documentation>
+                        At present only used by "title" fields. Note that "top" and "bottom" are
+                        not applicable to "title" fields.
+                    </xs:documentation>
+                </as:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="right">
+                <as:annotation>
+                    <xs:documentation>
+                        At present only used by "title" fields. Note that "top" and "bottom" are
+                        not applicable to "title" fields.
+                    </xs:documentation>
+                </as:annotation>
+            </xs:enumeration>
             <xs:enumeration value="top">
                 <as:annotation>
                     <xs:documentation>
-                        At present only used by "divider" fields. Note that "left", "center" and "top" are
+                        At present only used by "divider" fields. Note that "left", "center" and "right" are
+                        not applicable to "divider" fields.
+                    </xs:documentation>
+                </as:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="bottom">
+                <as:annotation>
+                    <xs:documentation>
+                        At present only used by "divider" fields. Note that "left", "center" and "right" are
                         not applicable to "divider" fields.
                     </xs:documentation>
                 </as:annotation>
