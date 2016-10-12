@@ -274,7 +274,7 @@ public class GUIPrompt extends AbstractPrompt
             buttons.add(detailsButton);
             buttons.add(copyButton);
         }
-        final String basicMessage = ((message != null) ? message : ((throwMessage != null) ? message : UIManager.getString("installer.errorMessage")));
+        final String basicMessage = ((message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")));
 
         Font font = UIManager.getFont("OptionPane.font");
         AffineTransform at = new AffineTransform();     
