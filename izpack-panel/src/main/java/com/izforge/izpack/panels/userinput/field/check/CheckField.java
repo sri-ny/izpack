@@ -102,7 +102,7 @@ public class CheckField extends Field
     {
         if (originalValue != null)
         {
-            return Boolean.parseBoolean(originalValue)
+            return Boolean.parseBoolean(replaceVariables(originalValue))
                     ? replaceVariables(trueValue)
                     : replaceVariables(falseValue);
         }
@@ -112,12 +112,6 @@ public class CheckField extends Field
     @Override
     public String wrapDefaultValue(String originalValue)
     {
-        if (originalValue != null)
-        {
-            return Boolean.parseBoolean(originalValue)
-                    ? replaceVariables(trueValue)
-                    : replaceVariables(falseValue);
-        }
-        return null;
+        return wrapInitialValue(originalValue);
     }
 }
