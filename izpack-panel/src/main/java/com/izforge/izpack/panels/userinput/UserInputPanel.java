@@ -462,11 +462,10 @@ public class UserInputPanel extends IzPanel
      */
     private void updateDialog()
     {
-        boolean skipValidation = true;
         if (this.eventsActivated)
         {
             this.eventsActivated = false;
-            readInput(LoggingPrompt.INSTANCE, skipValidation); // read from the input fields, but don't display a prompt for errors
+            readInput(LoggingPrompt.INSTANCE, true); // read from the input fields, but don't display a prompt for errors
             updateUIElements();
             buildUI();
             revalidate();
