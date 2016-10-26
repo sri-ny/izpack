@@ -38,21 +38,34 @@ public class AntPathMatcher {
         pattern = pattern.replaceAll("\\.", "\\\\.");
         pattern = pattern.replaceAll("\\*", "[^/]*");
         pattern = pattern.replaceAll("(\\[\\^/\\]\\*){2}", ".*");
+        pattern = unifyVarReferences(pattern);
+        pattern = pattern.replaceAll("\\$", "\\\\\\$");
 
-        Matcher m = VAR_PATTERN.matcher(pattern);
-        StringBuffer s = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(s, "\\\\Q\\$\\{"+m.group(1)+"\\}\\\\E");
-        }
-        m.appendTail(s);
+        path = unifyVarReferences(path);
 
         int flags = 0;
         if (!caseSensitive)
         {
             flags |= Pattern.CASE_INSENSITIVE;
         }
-        Pattern p = Pattern.compile(s.toString(), flags);
+        Pattern p = Pattern.compile(pattern, flags);
 
         return p.matcher(path).matches();
+    }
+
+    /**
+     * This function unifies variable references by replacing references in the form of ${...} with $...
+     *
+     * @param input the string that may contain variable references to be replaced
+     * @return the input string after unifying the variable references
+     */
+    private String unifyVarReferences(String input) {
+      Matcher m = VAR_PATTERN.matcher(input);
+      StringBuffer s = new StringBuffer();
+      while (m.find()) {
+        m.appendReplacement(s, "\\$"+m.group(1));
+      }
+      m.appendTail(s);
+      return s.toString();
     }
 }
