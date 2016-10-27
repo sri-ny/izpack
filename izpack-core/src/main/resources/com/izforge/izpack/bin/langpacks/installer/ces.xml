@@ -201,6 +201,6 @@ file we looked for -->
     <str id="ProcessPanel.heading" txt="Probíhá"/>
 
     <str id="data.validation.error.title" txt="Ověrování selhalo"/>
-    <str id="data.validation.warning.title" txt="Ověrování selhalo - pokračuji instalaci"/>
+    <str id="data.validation.warning.title" txt="Důležité upozornění"/>
 
 </izpack:langpack>

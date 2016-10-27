@@ -383,6 +383,6 @@ for each category (message/warning/error) start at 0 -->
     <str id="debug.changevariable" txt="Wert ändern"/>
 
     <str id="data.validation.error.title" txt="Überprüfung fehlgeschlagen"/>
-    <str id="data.validation.warning.title" txt="Überprüfung fehlgeschlagen - Installation wird fortgesetzt"/>
+    <str id="data.validation.warning.title" txt="Wichtiger Hinweis"/>
 
 </izpack:langpack>
