@@ -28,7 +28,7 @@ public class AntPathMatcher {
      * according to this PathMatcher's matching strategy.
      * @param pattern the pattern to match against
      * @param path the path String to test
-     * @param caseInsensitive whether the test should be case-insensitive
+     * @param caseSensitive whether the test should be case-sensitive
      * @return <code>true</code> if the supplied <code>path</code> matched,
      * <code>false</code> if it didn't
      */
@@ -38,6 +38,7 @@ public class AntPathMatcher {
         pattern = pattern.replaceAll("\\.", "\\\\.");
         pattern = pattern.replaceAll("\\*", "[^/]*");
         pattern = pattern.replaceAll("(\\[\\^/\\]\\*){2}", ".*");
+        pattern = pattern.replaceAll("/\\.\\*", "(/.*)*");
         pattern = unifyVarReferences(pattern);
         pattern = pattern.replaceAll("\\$", "\\\\\\$");
 
