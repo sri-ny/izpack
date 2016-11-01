@@ -21,15 +21,15 @@
 
 package com.izforge.izpack.util.os;
 
+import com.izforge.izpack.util.Librarian;
+import com.izforge.izpack.util.StringTool;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.util.Librarian;
-import com.izforge.izpack.util.StringTool;
 
 /*---------------------------------------------------------------------------*/
 
@@ -212,23 +212,6 @@ public class Win_Shortcut extends Shortcut
     }
 
     /*--------------------------------------------------------------------------*/
-
-    /**
-     * Returns the path of the directory where the link file is stored, if it was necessary during
-     * the previous save operation to create the directory. This method returns <code>null</code>
-     * if no save operation was carried out or there was no need to create a directory during the
-     * previous save operation.
-     *
-     * @return the path of the directory where the link file is stored or <code>null</code> if no
-     *         save operation was carried out or there was no need to create a directory during the previous
-     *         save operation.
-     */
-    @Override
-    public String getDirectoryCreated()
-    {
-        String directoryCreated = shortcut.getDirectoryCreated();
-        return (directoryCreated);
-    }
 
     /*--------------------------------------------------------------------------*/
 
