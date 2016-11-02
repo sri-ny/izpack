@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- 
-	ATTENTION!!! do not edit with an editor which do not handle UTF-8 in a right manner!!
-	Storing with a wrong editor can crash this file!
+	ATTENTION!!! do not edit with an editor which does not handle UTF-8 in a right manner!!
+	Storing with a wrong editor can break this file!
     Registry definition file for IzPack Installation.
-    $Id$
 -->
 
 <izpack:registry version="5.0"
@@ -35,9 +34,11 @@
                string="$APP_URL"/>
     </pack>
     <pack name="Core">
+        <!--
         <key
                 keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME\ЮникодТестКлюч"
                 root="HKLM"/>
+                -->
         <value name="Path"
                keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME"
                root="HKLM"
@@ -46,6 +47,7 @@
                keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME"
                root="HKLM"
                dword="42"/>
+        <!--
         <value name="BIN"
                keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME"
                root="HKLM">
@@ -59,6 +61,8 @@
             <multi data="Element two"/>
             <multi data="Element three"/>
         </value>
+        -->
+        <!--
         <value name="ЮникодМногострочныйТест"
                keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME"
                root="HKLM">
@@ -69,7 +73,9 @@
                keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME"
                root="HKLM"
                string="это тестовая строка для поддержки юникода"/>
+               -->
     </pack>
+    <!--
     <pack name="Documentation-HTML">
         <key keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME\Documentation\HTML" root="HKLM"/>
     </pack>
@@ -82,6 +88,7 @@
     <pack name="Documentation-NanoXML">
         <key keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME\Documentation\NanoXML" root="HKLM"/>
     </pack>
+    -->
     <pack name="Sample">
         <key keypath="SOFTWARE\IzForge\IzPack\$UNINSTALL_NAME\Sample" root="HKLM"/>
     </pack>
