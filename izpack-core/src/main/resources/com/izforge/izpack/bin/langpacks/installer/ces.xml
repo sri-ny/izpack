@@ -161,11 +161,22 @@
     <str id="ShortcutPanel.location.startMenu" txt="Startovní Menu"/>
     <str id="ShortcutPanel.location.startup" txt="Skupina Autostart"/>
 
+    <!-- SummaryPanel strings -->
+    <str id="SummaryPanel.info"
+         txt="Instalace bude nyní probíhat podle následujících voleb. Stiskni tlačítko Další na pokráčování."/>
+    <str id="TargetPanel.summaryCaption" txt="Instalační adresář"/>
+    <str id="JDKPathPanel.summaryCaption" txt="Cesta k JDK"/>
+    <str id="InstallationGroupPanel.summaryCaption" txt="Instalační prvky"/>
+    <str id="PacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="ImgPacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="TreePacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="UserPathPanel.summaryCaption" txt="Vybraná cesta"/>
+    <str id="DefaultTargetPanel.summaryCaption" txt="Instalační adresář"/>
+
     <str id="UserInputPanel.error.caption" txt="Problém při spouštění"/>
     <str id="UserInputPanel.search.autodetect" txt="Automatická detekce"/>
 
-    <!-- more descriptive error message would be cool, like specifying what
-file we looked for -->
+    <!-- more descriptive error message would be cool, like specifying what file we looked for -->
     <str id="UserInputPanel.search.autodetect.failed.message" txt="Automatická detekce selhala."/>
     <str id="UserInputPanel.search.autodetect.failed.caption" txt="Automatická detekce selhala."/>
     <str id="UserInputPanel.search.autodetect.tooltip" txt="Zkontrolujte soubor nebo adrešář v zadané cestě."/>
