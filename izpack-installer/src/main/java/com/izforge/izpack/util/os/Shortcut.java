@@ -21,10 +21,10 @@
 
 package com.izforge.izpack.util.os;
 
+import com.izforge.izpack.installer.data.UninstallData;
+
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
-import com.izforge.izpack.installer.data.UninstallData;
 
 /*---------------------------------------------------------------------------*/
 
@@ -157,18 +157,6 @@ public abstract class Shortcut
      * @return an empty <code>String</code>
      */
     public abstract String getFileName();
-
-    /*--------------------------------------------------------------------------*/
-
-    /**
-     * Subclass implementations return the path of the directory where the link file is stored, if
-     * it was necessary during the previous save operation to create the directory. This method
-     * returns <code>null</code> if no save operation was carried out or there was no need to create
-     * a directory during the previous save operation.
-     *
-     * @return this implementation returns always <code>null</code>.
-     */
-    public abstract String getDirectoryCreated();
 
     /*--------------------------------------------------------------------------*/
 
