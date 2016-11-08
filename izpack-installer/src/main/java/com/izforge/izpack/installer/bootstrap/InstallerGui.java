@@ -21,9 +21,8 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import com.izforge.izpack.api.config.Config;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.container.Container;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.container.impl.GUIInstallerContainer;
@@ -50,7 +49,7 @@ public class InstallerGui
     private static SplashScreen splashScreen = null;
 
     
-    public static void run(final String langCode, final String mediaPath, final Options defaults) throws Exception
+    public static void run(final String langCode, final String mediaPath, final Overrides defaults) throws Exception
     {
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
@@ -88,8 +87,7 @@ public class InstallerGui
 
 			if (defaults != null)
 			{
-				Config config = defaults.getConfig();
-				config.setInstallData(applicationComponent.getComponent(InstallData.class));
+				defaults.setInstallData(applicationComponent.getComponent(InstallData.class));
 				defaults.load();
 				logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
 

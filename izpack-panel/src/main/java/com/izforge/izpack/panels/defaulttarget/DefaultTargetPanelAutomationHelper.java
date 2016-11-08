@@ -23,8 +23,8 @@ package com.izforge.izpack.panels.defaulttarget;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 
 /**
@@ -71,9 +71,9 @@ public class DefaultTargetPanelAutomationHelper implements PanelAutomation
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options)
+    public void processOptions(InstallData installData, Overrides overrides)
     {
-        String path = options.get(InstallData.INSTALL_PATH);
+        String path = overrides.fetch(InstallData.INSTALL_PATH);
         handleInstallPath(installData, path);
     }
 
