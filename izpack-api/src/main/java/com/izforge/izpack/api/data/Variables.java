@@ -22,7 +22,6 @@
 package com.izforge.izpack.api.data;
 
 
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.exception.InstallerException;
 
 import java.util.Properties;
@@ -174,12 +173,12 @@ public interface Variables
      *
      * @return the variables
      */
-    void setOverrides(Options overrides);
+    void setOverrides(Overrides overrides);
 
     /**
      * Return all variables overrides.
      *
      * @return the variables overrides
      */
-    Options getOverrides();
+    Overrides getOverrides();
 }

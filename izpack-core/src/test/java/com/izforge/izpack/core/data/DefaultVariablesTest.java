@@ -21,10 +21,7 @@
 
 package com.izforge.izpack.core.data;
 
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.DynamicVariable;
-import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.core.container.DefaultContainer;
@@ -36,7 +33,6 @@ import com.izforge.izpack.core.variable.ConfigFileValue;
 import com.izforge.izpack.core.variable.PlainConfigFileValue;
 import com.izforge.izpack.core.variable.PlainValue;
 import com.izforge.izpack.util.Platforms;
-import com.izforge.izpack.api.config.Options;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -730,20 +726,32 @@ public class DefaultVariablesTest
     }
 
     /**
-     * Tests a variable defined both static (<variables>) and dynamic (<dynamicvariables>)
+     * Tests variable overrides to be passed to the installer
      */
     @Test
     public void testOverrides()
     {
-        Options overrides = new Options();
-        overrides.put("var1", "override1");
-        variables.set("var1", "value1");
+        File file = new File("src/test/resources/com/izforge/izpack/core/data/test.defaults");
+        assertTrue("File " + file + " not found", file.exists());
+        Overrides overrides = null;
+        try
+        {
+            overrides = new DefaultOverrides(file);
+            overrides.load();
+        }
+        catch (IOException e)
+        {
+            fail(e.getMessage());
+        }
+        variables.add(createDynamic("var1", "dynamic_definition"));
         variables.setOverrides(overrides);
-        variables.add(createDynamic("var1", "dynValue"));
-
-        assertEquals("override before refresh", "override1", variables.get("var1"));
         variables.refresh();
-        assertEquals("override after refresh", "override1", variables.get("var1"));
+        assertEquals("Wrong override after refresh without explicitly setting the variable",
+                "OVERRIDE1", variables.get("var1"));
+        variables.set("var1", "explicit_value");
+        assertEquals("Explicitly set variable value not present not present after refresh"
+                        + "- user input will not override the defaults contents",
+                "explicit_value", variables.get("var1"));
     }
 
 }

@@ -24,8 +24,8 @@ package com.izforge.izpack.panels.userinput;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.installer.automation.PanelAutomation;
@@ -177,5 +177,5 @@ public class UserInputPanelAutomationHelper implements PanelAutomation
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options) {}
+    public void processOptions(InstallData installData, Overrides overrides) {}
 }

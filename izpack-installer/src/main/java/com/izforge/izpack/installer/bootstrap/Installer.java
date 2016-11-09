@@ -21,9 +21,9 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import com.izforge.izpack.api.config.Config;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.Overrides;
+import com.izforge.izpack.core.data.DefaultOverrides;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.automation.AutomatedInstaller;
 import com.izforge.izpack.installer.console.ConsoleInstallerAction;
@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -209,7 +208,7 @@ public class Installer
                 }
             }
 
-            Options defaults = getDefaults(defaultsFile);
+            Overrides defaults = getDefaults(defaultsFile);
             if (type == INSTALLER_AUTO && path == null && defaults == null)
             {
                 logger.log(Level.SEVERE,
@@ -228,7 +227,7 @@ public class Installer
         }
     }
 
-    public Options getDefaults(String path)
+    public Overrides getDefaults(String path) throws IOException
     {
         File overridePropFile = null;
 
@@ -254,19 +253,14 @@ public class Installer
 
         if (overridePropFile != null)
         {
-            Config config = Config.getGlobal().clone();
-            config.setFileEncoding(Charset.forName("UTF-8"));
-            config.setInclude(true);
-            Options opts = new Options(config);
-            opts.setFile(overridePropFile);
-            return opts;
+            return new DefaultOverrides(overridePropFile);
         }
 
         return null;
     }
 
     private void launchInstall(int type, ConsoleInstallerAction consoleAction, String path, String langCode,
-                               String mediaDir, Options defaults, String[] args) throws Exception
+                               String mediaDir, Overrides defaults, String[] args) throws Exception
     {
         // if headless, just use the console mode
         if (type == INSTALLER_GUI && GraphicsEnvironment.isHeadless())
@@ -301,14 +295,13 @@ public class Installer
      * @param args more command line arguments
      * @throws Exception for any error
      */
-    private void launchAutomatedInstaller(String path, String mediaDir, Options defaults, String[] args) throws Exception
+    private void launchAutomatedInstaller(String path, String mediaDir, Overrides defaults, String[] args) throws Exception
     {
         InstallerContainer container = new AutomatedInstallerContainer();
 
         if (defaults != null)
         {
-            Config config = defaults.getConfig();
-            config.setInstallData(container.getComponent(AutomatedInstallData.class));
+            defaults.setInstallData(container.getComponent(AutomatedInstallData.class));
             defaults.load();
             logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
 
