@@ -30,6 +30,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -271,11 +274,25 @@ public class GUIPrompt extends AbstractPrompt
             buttons.add(detailsButton);
             buttons.add(copyButton);
         }
-        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")) );
+        final String basicMessage = ((message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")));
 
+        Font font = UIManager.getFont("OptionPane.font");
+        AffineTransform at = new AffineTransform();     
+        FontRenderContext frc = new FontRenderContext(at, true, true);
+        final int basicMessageWidth = (int)font.getStringBounds(basicMessage, frc).getWidth();
         final JPanel topPanel = new JPanel();
         final JLabel messageLabel = new JLabel();
         messageLabel.setText(basicMessage);
+        if (basicMessageWidth > 700)
+        {
+            messageLabel.setText(wrapHtml(basicMessage));
+            messageLabel.setSize(new Dimension(700, 10)); // add small height so that preferred size is filled correctly
+            messageLabel.setPreferredSize(new Dimension (700, messageLabel.getPreferredSize().height));
+        }
+        else
+        {
+            messageLabel.setText(basicMessage);
+        }
         topPanel.add(messageLabel);
 
         final JPanel centerPanel = new JPanel();
@@ -316,14 +333,28 @@ public class GUIPrompt extends AbstractPrompt
                     String label = detailsButton.getText();
                     if (label.startsWith(UIManager.getString(SHOW_DETAILS_BUTTON)))
                     {
-                        messageLabel.setText(basicMessage);
+                        if (basicMessageWidth > 700)
+                        {
+                            messageLabel.setText(wrapHtml(basicMessage));
+                        }
+                        else
+                        {
+                            messageLabel.setText(basicMessage);
+                        }
                         centerPanel.setVisible(true);
                         detailsButton.setText(UIManager.getString(HIDE_DETAILS_BUTTON));
                         dialog.pack(); // resize dialog to fit details
                     }
                     else
                     {
-                        messageLabel.setText(basicMessage);
+                        if (basicMessageWidth > 700)
+                        {
+                            messageLabel.setText(wrapHtml(basicMessage));
+                        }
+                        else
+                        {
+                            messageLabel.setText(basicMessage);
+                        }
                         centerPanel.setVisible(false);
                         detailsButton.setText(UIManager.getString(SHOW_DETAILS_BUTTON));
                         dialog.pack();
@@ -567,6 +598,9 @@ public class GUIPrompt extends AbstractPrompt
         return result;
     }
 
+    private String wrapHtml(String string) {
+      return "<html><body><div style='float:left; width:540px;'>" + string + "</div></body></html>";
+    }
 
     // A test program to demonstrate the class
     public static class Test

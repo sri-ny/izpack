@@ -119,11 +119,7 @@ public class ConsolePasswordGroupField extends ConsoleField
         String[] values = new String[fields.size()];
         for (int i = 0; i < fields.size(); ++i)
         {
-            String value = console.promptPassword(fields.get(i).getLabel(), null);
-            if (value == null)
-            {
-                return null;
-            }
+            String value = console.promptPassword(fields.get(i).getLabel(), "");
             values[i] = value;
         }
         return values;

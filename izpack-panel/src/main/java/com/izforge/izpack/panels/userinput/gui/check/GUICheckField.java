@@ -110,6 +110,48 @@ public class GUICheckField extends GUIField
         return true;
     }
 
+    /**
+     * Updates the view from the field.
+     *
+     * @return {@code true} if the view was updated
+     */
+    @Override
+    public boolean updateView()
+    {
+        boolean result = super.updateView();
+        CheckField field = getField();
+        String value = field.getInitialValue();
+
+        if (value != null)
+        {
+            setValue(value);
+            result = true;
+        }
+        else
+        {
+            // Set default value here for getting current variable values replaced
+            String defaultValue = field.getDefaultValue();
+            if (defaultValue != null)
+            {
+                setValue(defaultValue);
+            }
+        }
+        return result;
+    }
+
+    private void setValue(String value)
+    {
+        CheckField field = getField();
+        if (value.equals(field.getTrueValue()))
+        {
+            checkbox.setSelected(true);
+        }
+        else
+        {
+            checkbox.setSelected(false);
+        }
+    }
+
     @Override
     public JComponent getFirstFocusableComponent()
     {

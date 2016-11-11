@@ -388,7 +388,11 @@ public abstract class Field
         if (result == null)
         {
             result = getValue();
-            if (result == null)
+            if (result != null)
+            {
+                result = replaceVariables(result);
+            }
+            else
             {
                 result = getDefaultValue();
             }
