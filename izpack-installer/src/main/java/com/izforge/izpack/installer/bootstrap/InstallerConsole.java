@@ -19,10 +19,9 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import com.izforge.izpack.api.config.Config;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.console.ConsoleInstaller;
@@ -43,7 +42,7 @@ public class InstallerConsole
   private static final Logger logger = Logger.getLogger(InstallerConsole.class.getName());
   
   public static void run(final ConsoleInstallerAction consoleAction, final String path, final String langCode,
-                         final String mediaPath, Options defaults, final String[] args)
+                         final String mediaPath, Overrides defaults, final String[] args)
   {
     final InstallerContainer applicationComponent = new ConsoleInstallerContainer();
     final Container installerContainer = applicationComponent.getComponent(Container.class);
@@ -58,8 +57,7 @@ public class InstallerConsole
 
       if (defaults != null)
       {
-        Config config = defaults.getConfig();
-        config.setInstallData(installData);
+        defaults.setInstallData(installData);
         defaults.load();
         logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
 

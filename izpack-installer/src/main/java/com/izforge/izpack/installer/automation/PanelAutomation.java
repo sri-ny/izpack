@@ -23,8 +23,8 @@ package com.izforge.izpack.installer.automation;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.api.config.Options;
 
 /**
  * Defines the Interface that must be implemented for running Panels in automated (or "silent",
@@ -68,8 +68,8 @@ public interface PanelAutomation
      * This method is not called if an installation record exists for this panel in an auto-install.xml
      * (e.g. in this case @(see runAutomated) is launched).
      *
-     * @param installData
-     * @param options
+     * @param installData the runtime data of the installer session
+     * @param overrides the variable overrides
      */
-    void processOptions(InstallData installData, Options options);
+    void processOptions(InstallData installData, Overrides overrides);
 }

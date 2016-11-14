@@ -23,9 +23,9 @@
 package com.izforge.izpack.panels.shortcut;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.automation.PanelAutomation;
 import com.izforge.izpack.installer.automation.PanelAutomationHelper;
@@ -104,5 +104,5 @@ public class ShortcutPanelAutomationHelper extends PanelAutomationHelper impleme
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options) {}
+    public void processOptions(InstallData installData, Overrides overrides) {}
 }
