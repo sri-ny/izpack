@@ -22,20 +22,17 @@
 
 package com.izforge.izpack.core.rules.process;
 
-import java.io.File;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.core.variable.utils.ValueUtils;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * This condition checks if a certain variable has a value. If it is not
@@ -81,7 +78,7 @@ public class ExistsCondition extends Condition
                 if (this.content != null)
                 {
                     Variables variables = getInstallData().getVariables();
-                    File file = new File(variables.replace(this.content));
+                    File file = new File(FilenameUtils.normalize(variables.replace(this.content)));
                     if (file.exists())
                     {
                         result = true;
