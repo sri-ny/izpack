@@ -20,19 +20,6 @@
  */
 package com.izforge.izpack.installer.gui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.izforge.izpack.api.container.Container;
 import com.izforge.izpack.api.data.LocaleDatabase;
 import com.izforge.izpack.api.data.Panel;
@@ -50,6 +37,14 @@ import com.izforge.izpack.gui.IconsDatabase;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.panel.Panels;
 import com.izforge.izpack.util.Platforms;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DefaultNavigator}.
@@ -180,7 +175,6 @@ public class DefaultNavigatorTest
 
         // verify the next button is disabled, and that navigation is disabled
         assertFalse(navigator.isNextEnabled());
-        assertFalse(navigator.next());
         assertEquals(1, panels.getIndex());
 
         // enable the next button and verify the third panel can be navigated to
@@ -222,11 +216,6 @@ public class DefaultNavigatorTest
         assertFalse(navigator.isPreviousEnabled());
         assertFalse(navigator.previous());
         assertEquals(1, panels.getIndex());
-
-        // enable the previous button and verify the first panel can be navigated to
-        navigator.setPreviousEnabled(true);
-        assertTrue(navigator.previous());
-        assertEquals(0, panels.getIndex());
     }
 
     /**

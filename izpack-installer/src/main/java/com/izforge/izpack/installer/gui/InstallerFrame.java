@@ -893,35 +893,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     }
 
     /**
-     * Check to see if there is another panel that can be navigated to next. This checks the
-     * successive panels to see if at least one can be shown based on the conditions associated with
-     * the panels.
-     *
-     * @param startPanel  The panel to check from
-     * @param visibleOnly Only check the visible panels
-     * @return The panel that we can navigate to next or -1 if there is no panel that we can
-     *         navigate next to
-     */
-    public int hasNavigateNext(int startPanel, boolean visibleOnly)
-    {
-        return panels.getNext(startPanel, visibleOnly);
-    }
-
-    /**
-     * Check to see if there is another panel that can be navigated to previous. This checks the
-     * previous panels to see if at least one can be shown based on the conditions associated with
-     * the panels.
-     *
-     * @param endingPanel The panel to check from
-     * @return The panel that we can navigate to previous or -1 if there is no panel that we can
-     *         navigate previous to
-     */
-    public int hasNavigatePrevious(int endingPanel, boolean visibleOnly)
-    {
-        return panels.getPrevious(endingPanel, visibleOnly);
-    }
-
-    /**
      * This function moves to the previous panel
      */
     @Override

@@ -201,28 +201,6 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
     }
 
     /**
-     * Determines if the next panel may be navigated to.
-     *
-     * @param enable if {@code true}, enable navigation, otherwise disable it
-     */
-    @Override
-    public void setNextEnabled(boolean enable)
-    {
-        nextEnabled = enable;
-    }
-
-    /**
-     * Determines if navigation to the next panel has been enabled.
-     * <p/>
-     * return {@code true} if navigation is enabled
-     */
-    @Override
-    public boolean isNextEnabled()
-    {
-        return nextEnabled && hasNext();
-    }
-
-    /**
      * Navigates to the next panel.
      * <br/>
      * Navigation can only occur if the current panel is valid.
@@ -260,28 +238,6 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
     }
 
     /**
-     * Determines if the previous panel may be navigated to.
-     *
-     * @param enable if {@code true}, enable navigation, otherwise disable it
-     */
-    @Override
-    public void setPreviousEnabled(boolean enable)
-    {
-        previousEnabled = enable;
-    }
-
-    /**
-     * Determines if navigation to the previous panel has been enabled.
-     * <p/>
-     * return {@code true} if navigation is enabled
-     */
-    @Override
-    public boolean isPreviousEnabled()
-    {
-        return previousEnabled && hasPrevious();
-    }
-
-    /**
      * Determines if there is panel prior to the current panel.
      *
      * @return {@code true} if there is a panel prior to the current panel
@@ -314,7 +270,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
     public boolean previous(int index)
     {
         boolean result = false;
-        if (isPreviousEnabled())
+        if (hasPrevious())
         {
             int newIndex = getPrevious(index, true);
             if (newIndex != -1)
@@ -491,7 +447,7 @@ public abstract class AbstractPanels<T extends AbstractPanelView<V>, V> implemen
             panel.saveData();
         }
 
-        if ((newIndex > index) && !isNextEnabled()) // NOTE: actions may change isNextEnabled() status
+        if ((newIndex > index) && !hasNext()) // NOTE: actions may change isNextEnabled() status
         {
             return false;
         }

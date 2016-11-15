@@ -21,9 +21,9 @@
 
 package com.izforge.izpack.installer.panel;
 
-import java.util.List;
-
 import com.izforge.izpack.api.data.Panel;
+
+import java.util.List;
 
 
 /**
@@ -87,20 +87,6 @@ public interface Panels
     boolean next(boolean validate);
 
     /**
-     * Determines if the next panel may be navigated to.
-     *
-     * @param enable if {@code true}, enable navigation, otherwise disable it
-     */
-    void setNextEnabled(boolean enable);
-
-    /**
-     * Determines if navigation to the next panel has been enabled.
-     * <p/>
-     * return {@code true} if navigation is enabled
-     */
-    boolean isNextEnabled();
-
-    /**
      * Determines if there is panel prior to the current panel.
      *
      * @return {@code true} if there is a panel prior to the current panel
@@ -113,20 +99,6 @@ public interface Panels
      * @return {@code true} if the previous panel was navigated to
      */
     boolean previous();
-
-    /**
-     * Determines if the previous panel may be navigated to.
-     *
-     * @param enable if {@code true}, enable navigation, otherwise disable it
-     */
-    void setPreviousEnabled(boolean enable);
-
-    /**
-     * Determines if navigation to the previous panel has been enabled.
-     * <p/>
-     * return {@code true} if navigation is enabled
-     */
-    boolean isPreviousEnabled();
 
     /**
      * Navigates to the panel before the specified index.
