@@ -1,25 +1,22 @@
 package com.izforge.izpack.core.rules.process;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.core.variable.utils.ValueUtils;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ContainsCondition extends Condition {
 
@@ -73,7 +70,7 @@ public class ContainsCondition extends Condition {
         break;
 
     case FILE:
-        File file = new File(variables.replace(this.source));
+        File file = new File(FilenameUtils.normalize(variables.replace(this.source)));
         byte[] buffer = new byte[(int) file.length()];
         BufferedInputStream f = null;
         try
