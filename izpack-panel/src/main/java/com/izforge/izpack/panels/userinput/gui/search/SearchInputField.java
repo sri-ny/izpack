@@ -19,23 +19,6 @@
 
 package com.izforge.izpack.panels.userinput.gui.search;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
@@ -45,6 +28,19 @@ import com.izforge.izpack.panels.userinput.field.search.ResultType;
 import com.izforge.izpack.panels.userinput.field.search.SearchField;
 import com.izforge.izpack.panels.userinput.field.search.SearchType;
 
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * This class encapsulates a lot of search field functionality.
  * <p/>
@@ -53,6 +49,9 @@ import com.izforge.izpack.panels.userinput.field.search.SearchType;
  */
 public class SearchInputField implements ActionListener
 {
+    private static final Logger logger = Logger.getLogger(SearchInputField.class.getName());
+
+    private final SearchField field;
 
     private final String filename;
 
@@ -84,9 +83,10 @@ public class SearchInputField implements ActionListener
      * @param autobutton   the autodetection button for triggering autodetection
      * @param browsebutton the browse button to look for the file
      */
-    public SearchInputField(SearchField field, final InstallerFrame parent, JComboBox combobox, JButton autobutton,
+    public SearchInputField(final SearchField field, final InstallerFrame parent, JComboBox combobox, JButton autobutton,
                             JButton browsebutton, InstallData installData)
     {
+        this.field = field;
         this.filename = field.getFilename();
         this.checkFilename = field.getCheckFilename();
         this.parent = parent;
@@ -130,7 +130,7 @@ public class SearchInputField implements ActionListener
                 Document doc = editor.getDocument();
                 try
                 {
-                    if (pathMatches(doc.getText(0, doc.getLength())))
+                    if (field.pathMatches(doc.getText(0, doc.getLength())))
                     {
                         parent.unlockNextButton(false);
                     }
@@ -143,90 +143,6 @@ public class SearchInputField implements ActionListener
                 {/* ignore, it not happens */}
             }
         });
-
-        autodetect();
-    }
-    
-    /**
-     * Resolve Windows environment variables
-     * @param path - eg: "%JAVA_HOME%\\bin"
-     * @param env - System.getenv() (or forced config for testing)
-     */
-    static String resolveEnvValue( String path, Map<String, String> env ) {
-    	StringBuilder str = new StringBuilder();
-    	int start = 0, envStart;
-    	
-    	while( (envStart = path.indexOf('%', start)) >= 0 ) {
-    		int end = path.indexOf('%', envStart + 1);
-    		if( end < 0 ) {
-    			break;
-    		}
-    		String envKey = path.substring(envStart + 1, end);
-    		String envValue = env.get(envKey); //System.getenv( envKey );
-
-    		if( envStart > start ) {
-    			str.append( path.substring(start, envStart) );
-    		}
-    		str.append( envValue );
-    		start = end + 1;
-    	}
-    	if( start > 0 ) {
-    		str.append( path.substring(start) );
-    		return str.toString();
-    	}
-    	
-    	return path;
-    }
-
-    /**
-     * check whether the given path matches
-     */
-    private boolean pathMatches(String path)
-    {
-        if (path != null)
-        {
-        	path = resolveEnvValue(path, System.getenv());
-        	
-            File file;
-            if (filename == null || searchType == SearchType.DIRECTORY)
-            {
-                file = new File(path);
-            }
-            else
-            {
-                file = new File(path, filename);
-            }
-
-            if (file.exists())
-            {
-                if (checkFilename == null)
-                {        
-                    return true;        // no file to check for
-                }
-
-                if( file.isDirectory() ) 
-                {
-                    file = new File(file, checkFilename);
-                    if( !file.exists() ) 
-                    {
-                        System.out.println( file.getAbsolutePath() + " does not exist");                            
-                        return false;
-                    }
-                } 
-                else 
-                {
-                    // Check that the file's path and name ends with "checkFilename"
-                    if( !file.getAbsolutePath().endsWith( checkFilename.replaceAll("\\\\/", File.separator) ) ) 
-                    {
-                        return false;
-                    }
-                }
-
-                // "file" now points to "checkfilename", but is it the correct type?
-                return file.isDirectory() == (searchType == SearchType.DIRECTORY);
-            }
-        }
-        return false;
     }
 
     /**
@@ -234,12 +150,10 @@ public class SearchInputField implements ActionListener
      */
     public boolean autodetect()
     {
-        List<String> items = new ArrayList<String>();
-        
         // Try all of <choice> options - see if any are valid
         for (int x = 0; x < pathComboBox.getItemCount(); x++)
         {
-        	if( pathMatches( (String)pathComboBox.getItemAt(x) ) ) {
+        	if( field.pathMatches( (String)pathComboBox.getItemAt(x) ) ) {
         		pathComboBox.setSelectedIndex(x);
         		break;
         	}
@@ -264,47 +178,17 @@ public class SearchInputField implements ActionListener
         }
         if (!found)
         {
-            // System.out.println("Not found in Itemlist");
-            pathComboBox.addItem(pathComboBox.getSelectedItem());
+            // Not found in item list
+            pathComboBox.addItem(selected);
         }
 
-        // Checks whether a placeholder item is in the combobox
-        // and resolve the paths automatically:
-        // /usr/lib/* searches all folders in usr/lib to find
-        // /usr/lib/*/lib/tools.jar
+        List<String> currentItems = new ArrayList<String>();
         for (int i = 0; i < pathComboBox.getItemCount(); ++i)
         {
-            String path = (String) pathComboBox.getItemAt(i);
-            path = installData.getVariables().replace(path);
-            if (path.endsWith("*"))
-            {
-                path = path.substring(0, path.length() - 1);
-                File dir = new File(path);
-
-                if (dir.isDirectory())
-                {
-                    File[] subdirs = dir.listFiles();
-                    if (subdirs != null)
-                    {
-                        for (File subdir : subdirs)
-                        {
-                            String search = subdir.getAbsolutePath();
-                            if (pathMatches(search))
-                            {
-                                items.add(search);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (pathMatches(path))
-                {
-                    items.add(path);
-                }
-            }
+            currentItems.add((String) pathComboBox.getItemAt(i));
         }
+        List<String> items = field.getChoices(currentItems);
+
         // Make the entries in the vector unique
         items = new ArrayList<String>(new LinkedHashSet<String>(items));
 
@@ -322,7 +206,7 @@ public class SearchInputField implements ActionListener
         {
             String path = (String) pathComboBox.getItemAt(i);
 
-            if (pathMatches(path))
+            if (field.pathMatches(path))
             {
                 pathComboBox.setSelectedIndex(i);
                 parent.unlockNextButton();
@@ -332,7 +216,7 @@ public class SearchInputField implements ActionListener
         }
 
         // if the user entered something else, it's not listed as an item
-        if (pathMatches((String) pathComboBox.getSelectedItem()))
+        if (field.pathMatches((String) pathComboBox.getSelectedItem()))
         {
             parent.unlockNextButton();
             return true;
@@ -340,6 +224,7 @@ public class SearchInputField implements ActionListener
         parent.lockNextButton();
         return false;
     }
+
 
     /*--------------------------------------------------------------------------*/
 
@@ -352,7 +237,8 @@ public class SearchInputField implements ActionListener
     @Override
     public void actionPerformed(ActionEvent event)
     {
-        if (event.getSource() == autodetectButton)
+        Object source = event.getSource();
+        if (source == autodetectButton)
         {
             if (!autodetect())
             {
@@ -360,7 +246,7 @@ public class SearchInputField implements ActionListener
                         "UserInputPanel.search.autodetect.failed.message");
             }
         }
-        else if (event.getSource() == browseButton)
+        else if (source == browseButton)
         {
             JFileChooser chooser = new JFileChooser();
 
@@ -389,7 +275,7 @@ public class SearchInputField implements ActionListener
                 pathComboBox.setSelectedItem(selectedFile.getAbsolutePath());
 
                 // use any given directory directly
-                if (resultType != ResultType.FILE && !pathMatches(selectedFile.getAbsolutePath()))
+                if (resultType != ResultType.FILE && !field.pathMatches(selectedFile.getAbsolutePath()))
                 {
                     warning("UserInputPanel.search.wrongselection.caption",
                             "UserInputPanel.search.wrongselection.message");
@@ -414,43 +300,12 @@ public class SearchInputField implements ActionListener
     /*--------------------------------------------------------------------------*/
     public String getResult()
     {
-        String item = (String) pathComboBox.getSelectedItem();
-        if (item != null)
-        {
-            item = item.trim();
-        }
-        String path = item;
+        return field.getResult((String) pathComboBox.getSelectedItem());
+    }
 
-        File file = new File(item);
-
-        if (!file.isDirectory())
-        {
-            path = file.getParent();
-        }
-
-        // path now contains the final content of the combo box
-        if (resultType == ResultType.DIRECTORY)
-        {
-            return path;
-        }
-        else if (resultType == ResultType.FILE)
-        {
-            if (filename != null)
-            {
-                return path + File.separatorChar + filename;
-            }
-            else
-            {
-                return item;
-            }
-        }
-        else if (resultType == ResultType.PARENTDIR)
-        {
-            File dir = new File(path);
-            return dir.getParent();
-        }
-
-        return null;
+    public void setResult(String item)
+    {
+        pathComboBox.setSelectedItem(item);
     }
 
     private void warning(String title, String message)
