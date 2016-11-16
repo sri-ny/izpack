@@ -156,7 +156,7 @@ public class DefaultNavigator implements Navigator
     @Override
     public boolean isNextEnabled()
     {
-        return panels.isNextEnabled();
+        return next.isEnabled();
     }
 
     /**
@@ -165,10 +165,9 @@ public class DefaultNavigator implements Navigator
      * @param enable if {@code true}, enable navigation, otherwise disable it
      */
     @Override
-    public void setNextEnabled(boolean enable)
+    public void setNextEnabled(final boolean enable)
     {
         configureNext = !switchPanel;
-        panels.setNextEnabled(enable);
         next.setEnabled(enable);
     }
 
@@ -213,7 +212,7 @@ public class DefaultNavigator implements Navigator
     @Override
     public boolean isPreviousEnabled()
     {
-        return panels.isPreviousEnabled();
+        return previous.isEnabled();
     }
 
     /**
@@ -225,7 +224,6 @@ public class DefaultNavigator implements Navigator
     public void setPreviousEnabled(boolean enable)
     {
         configurePrevious = !switchPanel;
-        panels.setPreviousEnabled(enable);
         previous.setEnabled(enable);
     }
 
@@ -337,19 +335,17 @@ public class DefaultNavigator implements Navigator
     public boolean next(boolean validate)
     {
         boolean result = false;
-        if (panels.isNextEnabled())
+        try
         {
-            try
-            {
-                preSwitchPanel();
-                result = panels.next(validate);
-            }
-            finally
-            {
-                postSwitchPanel();
-            }
-            configureVisibility();
+            preSwitchPanel();
+            result = panels.next(validate);
         }
+        finally
+        {
+            postSwitchPanel();
+        }
+        configureVisibility();
+
         return result;
     }
 
@@ -362,7 +358,7 @@ public class DefaultNavigator implements Navigator
     public boolean previous()
     {
         boolean result = false;
-        if (panels.isPreviousEnabled())
+        if (isPreviousEnabled())
         {
             try
             {
