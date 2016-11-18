@@ -53,7 +53,7 @@ public class ConsoleStaticText extends ConsoleField
     @Override
     public boolean display()
     {
-        String text = getField().getLabel();
+        String text = getField().getLabel(true);
         if (text != null)
         {
             println(text);

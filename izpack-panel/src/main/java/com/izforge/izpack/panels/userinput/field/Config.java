@@ -345,9 +345,6 @@ public class Config
                 // no localised message found, so use the txt attribute
                 result = element.getAttribute(TEXT);
             }
-
-            // replace any variables
-            result = installData.getVariables().replace(result);
         }
         return result;
     }
