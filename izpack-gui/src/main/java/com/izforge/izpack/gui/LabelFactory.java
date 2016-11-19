@@ -193,7 +193,7 @@ public class LabelFactory implements SwingConstants
      */
     public static JLabel create(String text, Icon image, int horizontalAlignment, boolean isFullLine)
     {
-        JLabel retval = null;
+        JLabel retval;
         if (image != null && isUseLabelIcons())
         {
             if (isFullLine)
