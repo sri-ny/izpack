@@ -48,16 +48,16 @@
     <str id="installer.help" txt="Ajuda"/>
     <str id="installer.help.close" txt="Fechar"/>
     <str id="installer.step" txt="Passo"/>
-    <str id="installer.of" txt="de" />
-    <str id="installer.Message" txt="Mensagem" />
-    <str id="installer.errorMessage" txt="Ocorreu um erro" />
-    <str id="installer.close" txt="Fechar" />
-    <str id="installer.showDetails" txt="Mostrar Detalhes" />
-    <str id="installer.hideDetails" txt="Ocultar Detalhes" />
-    <str id="installer.copy" txt="Copiar" />
-    <str id="installer.sendReport" txt="Enviar Relatório" />
-    <str id="installer.continueQuestion" txt="Deseja Continuar?" />
-    <str id="installer.cancelled" txt="Instalação cancelada" />
+    <str id="installer.of" txt="de"/>
+    <str id="installer.Message" txt="Mensagem"/>
+    <str id="installer.errorMessage" txt="Ocorreu um erro"/>
+    <str id="installer.close" txt="Fechar"/>
+    <str id="installer.showDetails" txt="Mostrar Detalhes"/>
+    <str id="installer.hideDetails" txt="Ocultar Detalhes"/>
+    <str id="installer.copy" txt="Copiar"/>
+    <str id="installer.sendReport" txt="Enviar Relatório"/>
+    <str id="installer.continueQuestion" txt="Deseja Continuar?"/>
+    <str id="installer.cancelled" txt="Instalação cancelada"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Isto removerá o(s) aplicativo(s) instalado(s) !"/>
@@ -78,33 +78,33 @@
     <str id="CheckedHelloPanel.infoOverUninstallKey" txt="A chave de desinstalação será chamada: "/>
 
     <!-- ConsolePrompt strings -->
-    <str id="ConsolePrompt.okCancel" txt="Pressione O (Ok), (C) Cancelar: " />
-    <str id="ConsolePrompt.yesNo" txt="Pressione (S) Sim, (N) Não: " />
-    <str id="ConsolePrompt.yesNoCancel" txt="Pressione S (Sim), (N) Não ou C (Cancelar): " />
-    <str id="ConsolePrompt.ok" txt="O" />
-    <str id="ConsolePrompt.cancel" txt="C" />
-    <str id="ConsolePrompt.yes" txt="S" />
-    <str id="ConsolePrompt.no" txt="N" />
+    <str id="ConsolePrompt.okCancel" txt="Pressione O (Ok), (C) Cancelar: "/>
+    <str id="ConsolePrompt.yesNo" txt="Pressione (S) Sim, (N) Não: "/>
+    <str id="ConsolePrompt.yesNoCancel" txt="Pressione S (Sim), (N) Não ou C (Cancelar): "/>
+    <str id="ConsolePrompt.ok" txt="O"/>
+    <str id="ConsolePrompt.cancel" txt="C"/>
+    <str id="ConsolePrompt.yes" txt="S"/>
+    <str id="ConsolePrompt.no" txt="N"/>
 
 
     <!-- ConsoleInstaller strings -->
     <str id="ConsoleInstaller.continueQuitRedisplay"
-    txt="Pressione: (1) continuar, (2) sair, (3) mostrar novamente" />
+    txt="Pressione: (1) continuar, (2) sair, (3) mostrar novamente"/>
     <str id="ConsoleInstaller.acceptRejectRedisplay"
-    txt="Pressione: (1) aceitar, (2) rejeitar, (3) mostrar novamente" />
-    <str id="ConsoleInstaller.redisplayQuit" txt="Pressione: (1) mostrar novamente, (2) sair" />
+    txt="Pressione: (1) aceitar, (2) rejeitar, (3) mostrar novamente"/>
+    <str id="ConsoleInstaller.redisplayQuit" txt="Pressione: (1) mostrar novamente, (2) sair"/>
     <str id="ConsoleInstaller.permissionError"
-    txt="Previlégios administrativos necessário. Por favor reexecute o instalador com previlégios administrativos." />
-    <str id="ConsoleInstaller.inputSelection" txt="Selecione: " />
-    <str id="ConsoleInstaller.pagingMore" txt="Mais" />
-    <str id="ConsoleInstaller.aborted.PressedCTRL-C" txt="CTRL-C pessionado" />
-    <str id="ConsoleInstaller.aborted.LicenseRejected" txt="Licença rejeitada" />
-    <str id="ConsoleInstaller.aborted.PressedQuit" txt="Sair pressionado" />
-    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Há operações de arquivo pendentes após a reinicialização" />
-    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="O sistemas será reiniciando" />
-    <str id="ConsoleInstaller.shutdown.done" txt="Instalção concluída" />
-    <str id="ConsoleInstaller.shutdown.aborted" txt="Instalação abortada!" />
-    <str id="ConsoleInstaller.shutdown.failed" txt="Instalação falhou!" />
+    txt="Previlégios administrativos necessário. Por favor reexecute o instalador com previlégios administrativos."/>
+    <str id="ConsoleInstaller.inputSelection" txt="Selecione: "/>
+    <str id="ConsoleInstaller.pagingMore" txt="Mais"/>
+    <str id="ConsoleInstaller.aborted.PressedCTRL-C" txt="CTRL-C pessionado"/>
+    <str id="ConsoleInstaller.aborted.LicenseRejected" txt="Licença rejeitada"/>
+    <str id="ConsoleInstaller.aborted.PressedQuit" txt="Sair pressionado"/>
+    <str id="ConsoleInstaller.shutdown.pendingFileOperations" txt="Há operações de arquivo pendentes após a reinicialização"/>
+    <str id="ConsoleInstaller.shutdown.rebootingNow" txt="O sistemas será reiniciando"/>
+    <str id="ConsoleInstaller.shutdown.done" txt="Instalção concluída"/>
+    <str id="ConsoleInstaller.shutdown.aborted" txt="Instalação abortada!"/>
+    <str id="ConsoleInstaller.shutdown.failed" txt="Instalação falhou!"/>
 
 
     <str id="LicencePanel.info" txt="Por favor, leia o seguinte contrato de licença :"/>
