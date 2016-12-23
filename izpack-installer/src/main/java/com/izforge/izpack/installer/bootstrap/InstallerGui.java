@@ -124,19 +124,31 @@ public class InstallerGui
 	            });
 	        }
 	        
-	        if (langCode == null)
-	        {
-	          installerContainer.getComponent(LanguageDialog.class).initLangPack();
-	        }
-	        else
-	        {
-	          installerContainer.getComponent(LanguageDialog.class).propagateLocale(langCode);
-	        }
-	        if (!installerContainer.getComponent(RequirementsChecker.class).check())
-	        {
-	            logger.info("Not all installer requirements are fulfilled.");
-	            installerContainer.getComponent(Housekeeper.class).shutDown(-1);
-	        }
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (langCode == null)
+                        {
+                            try
+                            {
+                                installerContainer.getComponent(LanguageDialog.class).initLangPack();
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.severe("The language pack couldn't be initialized.");
+                            }
+                        }
+                        else
+                        {
+                          installerContainer.getComponent(LanguageDialog.class).propagateLocale(langCode);
+                        }
+                        if (!installerContainer.getComponent(RequirementsChecker.class).check())
+                        {
+                            logger.info("Not all installer requirements are fulfilled.");
+                            installerContainer.getComponent(Housekeeper.class).shutDown(-1);
+                        }
+                    }
+                });
 	        controller.buildInstallation().launchInstallation();
 	    }
 	    catch (Exception e)
