@@ -250,7 +250,11 @@ public class Unix_Shortcut extends Shortcut
 
         result.append("Comment=").append(description).append(N);
         result.append("Comment[").append(userLanguage).append("]=").append(description).append(N);
-        result.append("Encoding=").append(encoding).append(N);
+        if (!encoding.isEmpty()) {
+            logger.warning(String.format("using deprecated Desktop Entry key "
+                    + "Encoding with value %s", encoding));
+            result.append("Encoding=").append(encoding).append(N);
+        }
 
         // this causes too many problems
         // result.append("TryExec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
