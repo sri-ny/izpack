@@ -23,6 +23,7 @@
 package com.izforge.izpack.compiler.packager.impl;
 
 import com.izforge.izpack.api.data.*;
+import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.compiler.compressor.PackCompressor;
@@ -32,15 +33,15 @@ import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.merge.PanelMerge;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.stream.JarOutputStream;
+import com.izforge.izpack.compiler.util.graph.DependencyGraph;
 import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.compiler.util.graph.DependencyGraph;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
@@ -277,7 +278,12 @@ public abstract class PackagerBase implements IPackager
     public void addResource(String resId, URL url)
     {
         sendMsg("Adding resource: " + resId, PackagerListener.MSG_VERBOSE);
-        installerResourceURLMap.put(resId, url);
+        URL oldUrl = installerResourceURLMap.put(resId, url);
+        if (oldUrl != null)
+        {
+            throw new CompilerException("Resource '" + resId + "' has been already defined at URL '" + oldUrl + "'"
+            + " and going to be overridden by URL '" + url +  "'");
+        }
     }
 
     @Override
@@ -525,20 +531,32 @@ public abstract class PackagerBase implements IPackager
         for (Map.Entry<String, URL> stringURLEntry : installerResourceURLMap.entrySet())
         {
             URL url = stringURLEntry.getValue();
-            InputStream in = url.openStream();
-
-            org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(
-                    RESOURCES_PATH + stringURLEntry.getKey());
-            long dateTime = FileUtil.getFileDateTime(url);
-            if (dateTime != -1)
+            InputStream in = null;
+            try
             {
-                newEntry.setTime(dateTime);
-            }
-            installerJar.putNextEntry(newEntry);
+                in = url.openStream();
+                org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(
+                        RESOURCES_PATH + stringURLEntry.getKey());
+                long dateTime = FileUtil.getFileDateTime(url);
+                if (dateTime != -1)
+                {
+                    newEntry.setTime(dateTime);
+                }
 
-            IoHelper.copyStream(in, installerJar);
-            installerJar.closeEntry();
-            in.close();
+                try
+                {
+                    installerJar.putNextEntry(newEntry);
+                    IOUtils.copy(in, installerJar);
+                }
+                finally
+                {
+                    installerJar.closeEntry();
+                }
+            }
+            finally
+            {
+                IOUtils.closeQuietly(in);
+            }
         }
     }
 

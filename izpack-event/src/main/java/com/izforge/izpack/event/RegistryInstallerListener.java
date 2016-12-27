@@ -581,7 +581,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             FileUtils.createNewFile(uninstallerIcon, true);
             
             out = new FileOutputStream(uninstallerIcon);
-            IoHelper.copyStream(in, out);
+            IOUtils.copy(in, out);
             out.flush();
             out.close();
             registry.setValue(keyName, "DisplayIcon", iconPath);
