@@ -63,7 +63,7 @@ public class IconsProvider implements Provider
         }
         catch (Throwable exception)
         {
-            logger.warning("Resource " + Resources.CUSTOM_ICONS_RESOURCE_NAME
+            logger.fine("Resource " + Resources.CUSTOM_ICONS_RESOURCE_NAME
                                    + " not defined. No custom icons available");
             return;
         }

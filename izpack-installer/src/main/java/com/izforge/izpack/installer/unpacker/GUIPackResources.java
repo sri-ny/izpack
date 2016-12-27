@@ -3,7 +3,6 @@ package com.izforge.izpack.installer.unpacker;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.exception.ResourceInterruptedException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.web.WebRepositoryAccessor;
 import com.izforge.izpack.util.IoHelper;
