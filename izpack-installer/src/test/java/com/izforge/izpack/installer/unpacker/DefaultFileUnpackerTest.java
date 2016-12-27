@@ -22,16 +22,10 @@
 package com.izforge.izpack.installer.unpacker;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
-import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 
 
 /**
@@ -54,7 +48,7 @@ public class DefaultFileUnpackerTest extends AbstractFileUnpackerTest
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream objectOut = new ObjectOutputStream(out);
-        IoHelper.copyStream(new FileInputStream(source), objectOut);
+        IOUtils.copy(new FileInputStream(source), objectOut);
         objectOut.close();
         return new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
     }

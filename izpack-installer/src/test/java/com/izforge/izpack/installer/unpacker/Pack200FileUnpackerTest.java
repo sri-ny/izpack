@@ -21,30 +21,17 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.zip.ZipEntry;
-
-import org.mockito.Mockito;
-
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.util.jar.*;
+import java.util.zip.ZipEntry;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link Pack200FileUnpacker} class.
@@ -91,7 +78,7 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
         {
             if (entry.getName().endsWith("packs/pack200-1"))
             {
-                IoHelper.copyStream(stream, bytes);
+                IOUtils.copy(stream, bytes);
                 break;
             }
         }
@@ -174,7 +161,7 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
             {
                 if (entry.getName().endsWith(name))
                 {
-                    IoHelper.copyStream(stream, bytes);
+                    IOUtils.copy(stream, bytes);
                     return bytes.toByteArray();
                 }
             }

@@ -22,17 +22,6 @@
 package com.izforge.izpack.installer.multiunpacker;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
-
-import org.junit.Test;
-
 import com.izforge.izpack.api.data.Blockable;
 import com.izforge.izpack.api.data.OverrideType;
 import com.izforge.izpack.api.data.PackFile;
@@ -44,9 +33,15 @@ import com.izforge.izpack.core.io.VolumeLocator;
 import com.izforge.izpack.installer.unpacker.AbstractFileUnpackerTest;
 import com.izforge.izpack.installer.unpacker.FileQueueFactory;
 import com.izforge.izpack.installer.unpacker.FileUnpacker;
-import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.Platforms;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
+import java.io.*;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -137,7 +132,7 @@ public class MultiVolumeFileUnpackerTest extends AbstractFileUnpackerTest
         volume = new File(temporaryFolder.getRoot(), "volume");
         FileSpanningOutputStream out = new FileSpanningOutputStream(volume, 8192);
         FileInputStream in = new FileInputStream(source);
-        IoHelper.copyStream(in, out);
+        IOUtils.copy(in, out);
 
         // verify there is more than one volume
         out.close();
