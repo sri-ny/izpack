@@ -1,8 +1,14 @@
 package com.izforge.izpack.util.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import com.izforge.izpack.api.config.Config;
+import com.izforge.izpack.api.config.Options;
+import com.izforge.izpack.api.config.spi.OptionsBuilder;
+import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,16 +17,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
-import com.izforge.izpack.api.config.Config;
-import com.izforge.izpack.api.config.Options;
-import com.izforge.izpack.api.config.spi.OptionsBuilder;
+import static org.junit.Assert.*;
 
 public class SingleConfigurableTaskTest
 {
@@ -201,6 +198,38 @@ public class SingleConfigurableTaskTest
     }
 
     @Test
+    public void testAutoNumberingEmbeddedKeyPatchPreserveEntriesAndLessValues() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.xyz0.0.key", "value0");
+        ob.handleOption("abc.xyz0.1.key", "value1");
+        ob.handleOption("abc.xyz0.2.key", "value2");
+        ob.handleOption("abc.xyz0.3.key", "value3");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder ob2 = OptionsBuilder.newInstance(fromOptions);
+        ob2.handleOption("abc.xyz0.0.key", "value3");
+        ob2.handleOption("abc.xyz0.1.key", "value4");
+        ob2.handleOption("abc.xyz0.2.key", "value5");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc.xyz0..key"));
+        assertEquals( 4, result.length("abc.xyz0..key") );
+        assertEquals("value3", result.get("abc.xyz0..key", 0));
+        assertEquals("value4", result.get("abc.xyz0..key", 1));
+        assertEquals("value5", result.get("abc.xyz0..key", 2));
+        assertEquals("value3", result.get("abc.xyz0..key", 3));
+    }
+
+    @Test
     public void testAutoNumberingPatchPreserveEntriesAndValuesWithOverride() throws Exception
     {
         Config config = new Config();
@@ -246,6 +275,51 @@ public class SingleConfigurableTaskTest
     }
 
     @Test
+    public void testAutoNumberingEmbeddedKeyPatchPreserveEntriesAndValuesWithOverride() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder ob = OptionsBuilder.newInstance(fromOptions);
+        ob.handleOption("abc.0.xyz0", "value0");
+        ob.handleOption("abc.1.xyz0", "value1");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder ob2 = OptionsBuilder.newInstance(fromOptions);
+        ob2.handleOption("abc.0.xyz0", "value3");
+        ob2.handleOption("abc.1.xyz0", "value4");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        Entry entry = new Entry();
+        entry.setKey("abc.0.xyz0");
+        entry.setValue("value0_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.1.xyz0");
+        entry.setValue("value1_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.xyz.unnumbered");
+        entry.setValue("value_unnumbered_overridden");
+        task.addEntry(entry);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc..xyz0"));
+        assertEquals( 2, result.length("abc..xyz0") );
+        Assert.assertNull(result.get("abc.0.xyz0"));
+        Assert.assertNull(result.get("abc.1.xyz0"));
+        Assert.assertNotNull(result.get("abc..xyz0", 0));
+        Assert.assertNotNull(result.get("abc..xyz0", 1));
+        Assert.assertNotNull(result.get("abc.xyz.unnumbered"));
+        assertEquals("value0_overridden", result.get("abc..xyz0", 0));
+        assertEquals("value1_overridden", result.get("abc..xyz0", 1));
+        assertEquals("value_unnumbered_overridden", result.get("abc.xyz.unnumbered"));
+    }
+
+    @Test
     public void testAutoNumberingPatchPreserveEntriesAndValuesFromIndex1() throws Exception
     {
         Config config = new Config();
@@ -276,6 +350,39 @@ public class SingleConfigurableTaskTest
         Assert.assertNotNull(result.get("abc.xyz0.", 2));
         assertEquals("value1_overridden", result.get("abc.xyz0.", 1));
         assertEquals("value2_overridden", result.get("abc.xyz0.", 2));
+    }
+
+    @Test
+    public void testAutoNumberingEmbeddedKeyPatchPreserveEntriesAndValuesFromIndex1() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        Options toOptions = new Options(config);
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(true);
+        task.setPatchPreserveValues(true);
+        Entry entry = new Entry();
+        entry.setKey("abc.1.xyz0");
+        entry.setValue("value1_overridden");
+        task.addEntry(entry);
+        entry = new Entry();
+        entry.setKey("abc.2.xyz0");
+        entry.setValue("value2_overridden");
+        task.addEntry(entry);
+        task.execute();
+        Options result = task.getResult();
+        Assert.assertTrue(result.keySet().contains("abc..xyz0"));
+        assertEquals( 3, result.length("abc..xyz0") );
+        Assert.assertNull(result.get("abc.1.xyz0"));
+        Assert.assertNull(result.get("abc.2.xyz0"));
+        Assert.assertNull(result.get("abc..xyz0", 0));
+        Assert.assertNotNull(result.get("abc..xyz0", 1));
+        Assert.assertNotNull(result.get("abc..xyz0", 2));
+        assertEquals("value1_overridden", result.get("abc..xyz0", 1));
+        assertEquals("value2_overridden", result.get("abc..xyz0", 2));
     }
 
     @Test
