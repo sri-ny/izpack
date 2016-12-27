@@ -361,9 +361,6 @@ public class CompilerConfig extends Thread
         checkReferencedConditions();
         checkReferencedPacks();
 
-        // merge multiple packlang.xml files
-        mergePacksLangFiles();
-
         // We ask the packager to create the installer
         compiler.createInstaller();
     }
@@ -1956,8 +1953,6 @@ public class CompilerConfig extends Thread
                 }
             }
 
-            packager.addResource(id, url);
-
             // remembering references to all added packsLang.xml files
             if (id.startsWith(Resources.PACK_TRANSLATIONS_RESOURCE_NAME))
             {
@@ -1972,113 +1967,120 @@ public class CompilerConfig extends Thread
                     packsLangUrlMap.put(id, packsLangURLs);
                 }
                 packsLangURLs.add(url);
+                // Do not add resource to packager here to prevent adding it multiple times later.
+                // Languages are merged into one file per language and added by {@link addMergedTranslationResources()} later.
             }
-            else if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
+            else
             {
-                // Check user input panel definitions
-                if (userInputSpec == null)
+                packager.addResource(id, url);
+
+                if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
                 {
-                    // Parse only if not validating for avoiding parsing twice
-                    userInputSpec = new XMLParser(false).parse(url);
-                }
-                for (IXMLElement userPanelDef : userInputSpec.getChildrenNamed(UserInputPanelSpec.PANEL))
-                {
-                    String userPanelId = xmlCompilerHelper.requireAttribute(userPanelDef, "id");
-                    if (userInputPanelIds == null)
+                    // Check user input panel definitions
+                    if (userInputSpec == null)
                     {
-                        userInputPanelIds = new HashSet<String>();
+                        // Parse only if not validating for avoiding parsing twice
+                        userInputSpec = new XMLParser(false).parse(url);
                     }
-                    if (!userInputPanelIds.add(userPanelId))
+                    for (IXMLElement userPanelDef : userInputSpec.getChildrenNamed(UserInputPanelSpec.PANEL))
                     {
-                        assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
-                                + ": Duplicate user input panel identifier '"
-                                + userPanelId + "'");
-                    }
-                    // Collect referenced conditions in UserInputPanelSpec for checking them later
-                    for (IXMLElement fieldDef : userPanelDef.getChildrenNamed(UserInputPanelSpec.FIELD))
-                    {
-                        String fieldConditionId = fieldDef.getAttribute("conditionid");
-                        if (fieldConditionId != null)
+                        String userPanelId = xmlCompilerHelper.requireAttribute(userPanelDef, "id");
+                        if (userInputPanelIds == null)
                         {
-                            List<IXMLElement> elList = referencedConditionsUserInputSpec.get(fieldConditionId);
-                            if (elList == null)
-                            {
-                                elList = new ArrayList<IXMLElement>();
-                                referencedConditionsUserInputSpec.put(fieldConditionId, elList);
-                            }
-                            elList.add(fieldDef);
+                            userInputPanelIds = new HashSet<String>();
                         }
-                        for (IXMLElement fieldSpecDef : fieldDef.getChildrenNamed(FieldReader.SPEC))
+                        if (!userInputPanelIds.add(userPanelId))
                         {
-                            for (IXMLElement choiceDef : fieldSpecDef.getChildrenNamed(SimpleChoiceReader.CHOICE))
+                            assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
+                                    + ": Duplicate user input panel identifier '"
+                                    + userPanelId + "'");
+                        }
+                        // Collect referenced conditions in UserInputPanelSpec for checking them later
+                        for (IXMLElement fieldDef : userPanelDef.getChildrenNamed(UserInputPanelSpec.FIELD))
+                        {
+                            String fieldConditionId = fieldDef.getAttribute("conditionid");
+                            if (fieldConditionId != null)
                             {
-                                String choiceConditionId = choiceDef.getAttribute("conditionid");
-                                if (choiceConditionId != null)
+                                List<IXMLElement> elList = referencedConditionsUserInputSpec.get(fieldConditionId);
+                                if (elList == null)
                                 {
-                                    List<IXMLElement> elList = referencedConditionsUserInputSpec.get(choiceConditionId);
-                                    if (elList == null)
-                                    {
-                                        elList = new ArrayList<IXMLElement>();
-                                        referencedConditionsUserInputSpec.put(choiceConditionId, elList);
-                                    }
-                                    elList.add(choiceDef);
+                                    elList = new ArrayList<IXMLElement>();
+                                    referencedConditionsUserInputSpec.put(fieldConditionId, elList);
                                 }
+                                elList.add(fieldDef);
                             }
-                            // Check whether button field run class can be loaded
-                            for (IXMLElement runDef : fieldSpecDef.getChildrenNamed(ButtonFieldReader.RUN_ELEMENT))
+                            for (IXMLElement fieldSpecDef : fieldDef.getChildrenNamed(FieldReader.SPEC))
                             {
-                                String actionClassName = runDef.getAttribute(ButtonFieldReader.RUN_ELEMENT_CLASS_ATTR);
-                                if (actionClassName != null)
+                                for (IXMLElement choiceDef : fieldSpecDef.getChildrenNamed(SimpleChoiceReader.CHOICE))
                                 {
-                                    try
+                                    String choiceConditionId = choiceDef.getAttribute("conditionid");
+                                    if (choiceConditionId != null)
                                     {
-                                        Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClassName);
-                                    }
-                                    catch (ClassNotFoundException e)
-                                    {
-                                        assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
-                                                + ": Button action class '" + actionClassName + "' cannot be loaded");
+                                        List<IXMLElement> elList = referencedConditionsUserInputSpec.get(choiceConditionId);
+                                        if (elList == null)
+                                        {
+                                            elList = new ArrayList<IXMLElement>();
+                                            referencedConditionsUserInputSpec.put(choiceConditionId, elList);
+                                        }
+                                        elList.add(choiceDef);
                                     }
                                 }
+                                // Check whether button field run class can be loaded
+                                for (IXMLElement runDef : fieldSpecDef.getChildrenNamed(ButtonFieldReader.RUN_ELEMENT))
+                                {
+                                    String actionClassName = runDef.getAttribute(ButtonFieldReader.RUN_ELEMENT_CLASS_ATTR);
+                                    if (actionClassName != null)
+                                    {
+                                        try
+                                        {
+                                            Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClassName);
+                                        }
+                                        catch (ClassNotFoundException e)
+                                        {
+                                            assertionHelper.parseError(userInputSpec, "Resource " + UserInputPanelSpec.SPEC_FILE_NAME
+                                                    + ": Button action class '" + actionClassName + "' cannot be loaded");
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-            else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
-            {
-                if (antActionSpec == null)
+                } else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
                 {
-                    // Parse only if not validating for avoiding parsing twice
-                    antActionSpec = new XMLParser(false).parse(url);
-                }
-                for (IXMLElement packDef : antActionSpec.getChildrenNamed(SpecHelper.PACK_KEY))
-                {
-                    String packName = xmlCompilerHelper.requireAttribute(packDef, SpecHelper.PACK_NAME);
-                    // Collect referenced packs in AntActionSpec for checking them later
-                    if (referencedPacksAntActionSpec.put(packName, packDef) != null)
+                    if (antActionSpec == null)
                     {
-                        assertionHelper.parseError(antActionSpec, "Resource " + AntActionInstallerListener.SPEC_FILE_NAME
-                                + ": Duplicate pack identifier '"
-                                + packName + "'");
+                        // Parse only if not validating for avoiding parsing twice
+                        antActionSpec = new XMLParser(false).parse(url);
                     }
-                    for (IXMLElement antCallSpecDef : packDef.getChildrenNamed(AntAction.ANTCALL))
+                    for (IXMLElement packDef : antActionSpec.getChildrenNamed(SpecHelper.PACK_KEY))
                     {
-                        String antCallConditionId = antCallSpecDef.getAttribute(ActionBase.ANTCALL_CONDITIONID_ATTR);
-                        if (antCallConditionId != null)
+                        String packName = xmlCompilerHelper.requireAttribute(packDef, SpecHelper.PACK_NAME);
+                        // Collect referenced packs in AntActionSpec for checking them later
+                        if (referencedPacksAntActionSpec.put(packName, packDef) != null)
                         {
-                            List<IXMLElement> elList = referencedConditionsAntActionSpec.get(antCallConditionId);
-                            if (elList == null)
+                            assertionHelper.parseError(antActionSpec, "Resource " + AntActionInstallerListener.SPEC_FILE_NAME
+                                    + ": Duplicate pack identifier '"
+                                    + packName + "'");
+                        }
+                        for (IXMLElement antCallSpecDef : packDef.getChildrenNamed(AntAction.ANTCALL))
+                        {
+                            String antCallConditionId = antCallSpecDef.getAttribute(ActionBase.ANTCALL_CONDITIONID_ATTR);
+                            if (antCallConditionId != null)
                             {
-                                elList = new ArrayList<IXMLElement>();
-                                referencedConditionsAntActionSpec.put(antCallConditionId, elList);
+                                List<IXMLElement> elList = referencedConditionsAntActionSpec.get(antCallConditionId);
+                                if (elList == null)
+                                {
+                                    elList = new ArrayList<IXMLElement>();
+                                    referencedConditionsAntActionSpec.put(antCallConditionId, elList);
+                                }
+                                elList.add(antCallSpecDef);
                             }
-                            elList.add(antCallSpecDef);
                         }
                     }
                 }
             }
         }
+        addMergedTranslationResources(packsLangUrlMap);
         notifyCompilerListener("addResources", CompilerListener.END, data);
     }
 
@@ -3212,10 +3214,10 @@ public class CompilerConfig extends Thread
      *
      * @throws CompilerException
      */
-    private void mergePacksLangFiles() throws CompilerException
+    private void addMergedTranslationResources(Map<String, List<URL>> resourceUrlMap) throws CompilerException
     {
         // just one packslang file. nothing to do here
-        if (packsLangUrlMap.size() <= 0)
+        if (resourceUrlMap.size() <= 0)
         {
             return;
         }
@@ -3224,11 +3226,11 @@ public class CompilerConfig extends Thread
         try
         {
             // loop through all packsLang resources, e.g. packsLang.xml_eng, packsLang.xml_deu, ...
-            for (String id : packsLangUrlMap.keySet())
+            for (String id : resourceUrlMap.keySet())
             {
                 URL mergedPackLangFileURL;
 
-                List<URL> packsLangURLs = packsLangUrlMap.get(id);
+                List<URL> packsLangURLs = resourceUrlMap.get(id);
                 if (packsLangURLs.size() == 0)
                 {
                     continue;
@@ -3267,10 +3269,7 @@ public class CompilerConfig extends Thread
                     // writing merged strings to a new file
                     File mergedPackLangFile = File.createTempFile("izpp", null, TEMP_DIR);
                     mergedPackLangFile.deleteOnExit();
-
-                    FileOutputStream outFile = new FileOutputStream(mergedPackLangFile);
-                    os = new BufferedOutputStream(outFile);
-
+                    os = FileUtils.openOutputStream(mergedPackLangFile);
                     IXMLWriter xmlWriter = new XMLWriter(os);
                     xmlWriter.write(mergedPacksLang);
                     os.close();
