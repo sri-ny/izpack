@@ -81,12 +81,12 @@ import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -1580,7 +1580,7 @@ public class CompilerConfig extends Thread
                 temp.deleteOnExit();
 
                 FileOutputStream out = new FileOutputStream(temp);
-                IoHelper.copyStream(zin, out);
+                IOUtils.copy(zin, out);
                 out.close();
 
                 String target = targetdir + "/" + zentry.getName();
