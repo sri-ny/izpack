@@ -1760,6 +1760,12 @@ public class CompilerConfig extends Thread
     private void addResources(IXMLElement data) throws CompilerException
     {
         notifyCompilerListener("addResources", CompilerListener.BEGIN, data);
+
+        // A list of packsLang-files that were defined by the user in the resource-section The key of
+        // this map is an packsLang-file identifier, e.g. <code>packsLang.xml_eng</code>, the values
+        // are lists of {@link URL} pointing to the concrete packsLang-files.         *
+        final Map<String, List<URL>> packsLangUrlMap = new HashMap<String, List<URL>>();
+
         IXMLElement root = data.getFirstChildNamed("resources");
         if (root == null)
         {
