@@ -59,7 +59,7 @@ public class ResourceManager extends AbstractResources
     /**
      * The base path where to find the resources: resourceBasePathDefaultConstant = "/res/"
      */
-    public final String resourceBasePathDefaultConstant = "/resources/";
+    public final static String RESOURCE_BASEPATH_DEFAULT = "/resources/";
 
     /**
      * Internally used resourceBasePath = "/resources/"
@@ -112,7 +112,7 @@ public class ResourceManager extends AbstractResources
         }
         else
         {
-            this.setResourceBasePath(resourceBasePathDefaultConstant);
+            this.setResourceBasePath(RESOURCE_BASEPATH_DEFAULT);
         }
     }
 
@@ -131,6 +131,7 @@ public class ResourceManager extends AbstractResources
      * @return an InputStream contains the requested resource
      * @throws ResourceNotFoundException thrown if there is no resource found
      */
+    @Override
     public InputStream getInputStream(String resource)
     {
         resource = getLanguageResourceString(resource);
