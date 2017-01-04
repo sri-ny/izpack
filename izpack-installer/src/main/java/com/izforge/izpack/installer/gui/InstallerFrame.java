@@ -23,6 +23,7 @@
 package com.izforge.izpack.installer.gui;
 
 import com.izforge.izpack.api.data.Info;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
@@ -304,6 +305,9 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
 
         Messages messages = locales.getMessages();
         navigator.updateButtonText(messages);
+        
+        // set the frame title
+        setTitle(getTitle(installdata));
 
         JPanel navPanel = new JPanel();
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.X_AXIS));
@@ -1503,6 +1507,26 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             wipeAborted();
             housekeeper.shutDown(0);
         }
+    }
+
+    private String getTitle(InstallData installData)
+    {
+        // Use a alternate message if defined.
+        final String key = "installer.reversetitle";
+        Messages messages = installData.getMessages();
+        String message = messages.get(key);
+        // message equal to key -> no message defined.
+        if (message.equals(key))
+        {
+            message = messages.get("installer.title") + " " + installData.getInfo().getAppName();
+        }
+        else
+        {
+            // Attention! The alternate message has to contain the whole message including
+            // $APP_NAME and may be $APP_VER.
+            message = installData.getVariables().replace(message);
+        }
+        return message;
     }
 
 }
