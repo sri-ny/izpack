@@ -306,9 +306,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
         Messages messages = locales.getMessages();
         navigator.updateButtonText(messages);
         
-        // set the frame title
-        setTitle(getTitle(installdata));
-
         JPanel navPanel = new JPanel();
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.X_AXIS));
         TitledBorder border = BorderFactory.createTitledBorder(
@@ -1509,22 +1506,23 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
         }
     }
 
-    private String getTitle(InstallData installData)
+    @Override
+    public String getTitle()
     {
         // Use a alternate message if defined.
         final String key = "installer.reversetitle";
-        Messages messages = installData.getMessages();
+        Messages messages = installdata.getMessages();
         String message = messages.get(key);
         // message equal to key -> no message defined.
         if (message.equals(key))
         {
-            message = messages.get("installer.title") + " " + installData.getInfo().getAppName();
+            message = messages.get("installer.title") + " " + installdata.getInfo().getAppName();
         }
         else
         {
             // Attention! The alternate message has to contain the whole message including
             // $APP_NAME and may be $APP_VER.
-            message = installData.getVariables().replace(message);
+            message = installdata.getVariables().replace(message);
         }
         return message;
     }
