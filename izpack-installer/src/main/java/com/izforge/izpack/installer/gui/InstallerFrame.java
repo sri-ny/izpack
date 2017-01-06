@@ -205,7 +205,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * Constructs an <tt>InstallerFrame</tt>.
      *
-     * @param title               the window title
      * @param installData         the installation data
      * @param rules               the rules engine
      * @param icons               the icons database
@@ -217,12 +216,12 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
      * @param navigator           the panel navigator
      * @param log                 the log
      */
-    public InstallerFrame(String title, GUIInstallData installData, RulesEngine rules, IconsDatabase icons,
+    public InstallerFrame(GUIInstallData installData, RulesEngine rules, IconsDatabase icons,
                           IzPanels panels, UninstallDataWriter uninstallDataWriter,
                           ResourceManager resourceManager, UninstallData uninstallData, Housekeeper housekeeper,
                           DefaultNavigator navigator, Log log, Locales locales)
     {
-        super(title);
+        super();
         guiListener = new ArrayList<GUIListener>();
         this.installdata = installData;
         this.rules = rules;

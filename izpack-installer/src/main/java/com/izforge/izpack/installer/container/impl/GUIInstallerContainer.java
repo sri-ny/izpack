@@ -86,7 +86,6 @@ public class GUIInstallerContainer extends InstallerContainer
     protected void resolveComponents(final MutablePicoContainer pico)
     {
         super.resolveComponents(pico);
-        pico.addConfig("title", "title"); // Configuration of title parameter in InstallerFrame
         
         try
         {
