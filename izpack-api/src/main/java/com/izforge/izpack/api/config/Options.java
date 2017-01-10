@@ -225,11 +225,18 @@ public class Options extends BasicOptionMap implements Persistable, Configurable
             {
                 String value = get(name, i);
 
-                if (getConfig().isAutoNumbering() && name.endsWith("."))
+                if (getConfig().isAutoNumbering() && name.matches("(.+\\.\\..+)|(.+\\.)+"))
                 {
                     if (value != null)
                     {
-                        formatter.handleOption(name + i, value);
+                        if (name.matches(".+\\.\\..+"))
+                        {
+                            formatter.handleOption(name.replaceFirst("\\.\\.", Integer.toString(i)), value);
+                        }
+                        else if (name.matches("(.+\\.)+"))
+                        {
+                            formatter.handleOption(name + i, value);
+                        }
                     }
                 }
                 else
