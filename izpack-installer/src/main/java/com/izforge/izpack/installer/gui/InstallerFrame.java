@@ -23,6 +23,7 @@
 package com.izforge.izpack.installer.gui;
 
 import com.izforge.izpack.api.data.Info;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
@@ -204,7 +205,6 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * Constructs an <tt>InstallerFrame</tt>.
      *
-     * @param title               the window title
      * @param installData         the installation data
      * @param rules               the rules engine
      * @param icons               the icons database
@@ -216,12 +216,12 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
      * @param navigator           the panel navigator
      * @param log                 the log
      */
-    public InstallerFrame(String title, GUIInstallData installData, RulesEngine rules, IconsDatabase icons,
+    public InstallerFrame(GUIInstallData installData, RulesEngine rules, IconsDatabase icons,
                           IzPanels panels, UninstallDataWriter uninstallDataWriter,
                           ResourceManager resourceManager, UninstallData uninstallData, Housekeeper housekeeper,
                           DefaultNavigator navigator, Log log, Locales locales)
     {
-        super(title);
+        super();
         guiListener = new ArrayList<GUIListener>();
         this.installdata = installData;
         this.rules = rules;
@@ -304,7 +304,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
 
         Messages messages = locales.getMessages();
         navigator.updateButtonText(messages);
-
+        
         JPanel navPanel = new JPanel();
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.X_AXIS));
         TitledBorder border = BorderFactory.createTitledBorder(
@@ -1503,6 +1503,27 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             wipeAborted();
             housekeeper.shutDown(0);
         }
+    }
+
+    @Override
+    public String getTitle()
+    {
+        // Use a alternate message if defined.
+        final String key = "installer.reversetitle";
+        Messages messages = installdata.getMessages();
+        String message = messages.get(key);
+        // message equal to key -> no message defined.
+        if (message.equals(key))
+        {
+            message = messages.get("installer.title") + " " + installdata.getInfo().getAppName();
+        }
+        else
+        {
+            // Attention! The alternate message has to contain the whole message including
+            // $APP_NAME and may be $APP_VER.
+            message = installdata.getVariables().replace(message);
+        }
+        return message;
     }
 
 }

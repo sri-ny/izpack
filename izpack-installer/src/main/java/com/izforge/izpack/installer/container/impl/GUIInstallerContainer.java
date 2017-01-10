@@ -1,16 +1,13 @@
 package com.izforge.izpack.installer.container.impl;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.installer.gui.SplashScreen;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.injectors.ProviderAdapter;
 
-import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ContainerException;
-import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.gui.GUIPrompt;
 import com.izforge.izpack.gui.log.Log;
 import com.izforge.izpack.installer.container.provider.GUIInstallDataProvider;
@@ -19,6 +16,7 @@ import com.izforge.izpack.installer.container.provider.IzPanelsProvider;
 import com.izforge.izpack.installer.gui.DefaultNavigator;
 import com.izforge.izpack.installer.gui.InstallerController;
 import com.izforge.izpack.installer.gui.InstallerFrame;
+import com.izforge.izpack.installer.gui.SplashScreen;
 import com.izforge.izpack.installer.language.LanguageDialog;
 import com.izforge.izpack.installer.multiunpacker.MultiVolumeUnpackerHelper;
 import com.izforge.izpack.installer.unpacker.GUIPackResources;
@@ -88,10 +86,7 @@ public class GUIInstallerContainer extends InstallerContainer
     protected void resolveComponents(final MutablePicoContainer pico)
     {
         super.resolveComponents(pico);
-        InstallData installdata = pico.getComponent(InstallData.class);
-        pico
-                .addConfig("title", getTitle(installdata)); // Configuration of title parameter in InstallerFrame
-
+        
         try
         {
             SwingUtilities.invokeAndWait(new Runnable()
@@ -111,25 +106,4 @@ public class GUIInstallerContainer extends InstallerContainer
         }
 
     }
-
-    private String getTitle(InstallData installData)
-    {
-        // Use a alternate message if defined.
-        final String key = "installer.reversetitle";
-        Messages messages = installData.getMessages();
-        String message = messages.get(key);
-        // message equal to key -> no message defined.
-        if (message.equals(key))
-        {
-            message = messages.get("installer.title") + " " + installData.getInfo().getAppName();
-        }
-        else
-        {
-            // Attention! The alternate message has to contain the whole message including
-            // $APP_NAME and may be $APP_VER.
-            message = installData.getVariables().replace(message);
-        }
-        return message;
-    }
-
 }
