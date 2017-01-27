@@ -65,7 +65,10 @@ import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.data.*;
-import com.izforge.izpack.event.*;
+import com.izforge.izpack.event.AntAction;
+import com.izforge.izpack.event.AntActionInstallerListener;
+import com.izforge.izpack.event.ConfigurationInstallerListener;
+import com.izforge.izpack.event.RegistryInstallerListener;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.merge.MergeManager;
@@ -75,7 +78,6 @@ import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
-import com.izforge.izpack.panels.userinput.action.ButtonAction;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
@@ -146,15 +148,6 @@ public class CompilerConfig extends Thread
     private final List<CompilerListener> compilerListeners = new ArrayList<CompilerListener>();
 
     /**
-     * A list of packsLang-files that were defined by the user in the resource-section The key of
-     * this map is an packsLang-file identifier, e.g. <code>packsLang.xml_eng</code>, the values
-     * are lists of {@link URL} pointing to the concrete packsLang-files.
-     *
-     * @see #mergePacksLangFiles()
-     */
-    private final Map<String, List<URL>> packsLangUrlMap = new HashMap<String, List<URL>>();
-
-    /**
      * Maps condition IDs to XML elements referring to them for checking at the end of compilation
      * whether referenced conditions exist for all elements.
      */
@@ -213,17 +206,11 @@ public class CompilerConfig extends Thread
     private final CompilerClassLoader classLoader;
 
     private static final String TEMP_DIR_ELEMENT_NAME = "tempdir";
-
     private static final String TEMP_DIR_PREFIX_ATTRIBUTE = "prefix";
-
     private static final String DEFAULT_TEMP_DIR_PREFIX = "IzPack";
-
     private static final String TEMP_DIR_SUFFIX_ATTRIBUTE = "suffix";
-
     private static final String DEFAULT_TEMP_DIR_SUFFIX = "Install";
-
     private static final String TEMP_DIR_VARIABLE_NAME_ATTRIBUTE = "variablename";
-
     private static final String TEMP_DIR_DEFAULT_PROPERTY_NAME = "TEMP_DIRECTORY";
 
     /**
@@ -780,7 +767,7 @@ public class CompilerConfig extends Thread
      * Helper method to recursively add more packs from refpack XML packs definitions
      *
      * @param data The XML data
-     * @throws CompilerException
+     * @throws CompilerException an error occured during compiling
      */
     private void addPacksSingle(IXMLElement data) throws CompilerException
     {
@@ -1047,8 +1034,8 @@ public class CompilerConfig extends Thread
 
     /**
      * Process onSelect tags within pack tags
-     * @param packElement
-     * @param pack
+     * @param packElement pack XML element
+     * @param pack object holding pack information
      */
     private void processOnSelect(IXMLElement packElement, PackInfo pack)
     {
@@ -1062,8 +1049,8 @@ public class CompilerConfig extends Thread
 
     /**
      * Process onDeselect tags within pack tags
-     * @param packElement
-     * @param pack
+     * @param packElement pack XML element
+     * @param pack object holding pack information
      */
     private void processOnDeselect(IXMLElement packElement, PackInfo pack)
     {
@@ -1710,7 +1697,7 @@ public class CompilerConfig extends Thread
                         logger.finer("Validator " + validatorType.getName()
                                 + " extends the " + PanelValidator.class.getSimpleName()
                                 + "interface and adds "
-                                + (configurable!=null&&configurable.getNames()!=null?configurable.getNames().size():"no")
+                                + (configurable.getNames()!=null?configurable.getNames().size():"no")
                                 + " parameters");
                     }
                     logger.fine("Adding validator '" + validator + "' to panel '" + panel.getPanelId() + "'");
@@ -2039,7 +2026,7 @@ public class CompilerConfig extends Thread
                                     {
                                         try
                                         {
-                                            Class<ButtonAction> buttonActionClass = (Class<ButtonAction>) Class.forName(actionClassName);
+                                            Class.forName(actionClassName);
                                         }
                                         catch (ClassNotFoundException e)
                                         {
@@ -2070,7 +2057,7 @@ public class CompilerConfig extends Thread
                         }
                         for (IXMLElement antCallSpecDef : packDef.getChildrenNamed(AntAction.ANTCALL))
                         {
-                            String antCallConditionId = antCallSpecDef.getAttribute(ActionBase.ANTCALL_CONDITIONID_ATTR);
+                            String antCallConditionId = antCallSpecDef.getAttribute(AntAction.CONDITIONID_ATTR);
                             if (antCallConditionId != null)
                             {
                                 List<IXMLElement> elList = referencedConditionsAntActionSpec.get(antCallConditionId);
@@ -2129,7 +2116,7 @@ public class CompilerConfig extends Thread
      * Builds the Info class from the XML tree (part that sets just strings).
      *
      * @param data The XML data. return The Info.
-     * @throws Exception Description of the Exception
+     * @throws CompilerException an error occured during compiling
      */
     private void addInfoStrings(IXMLElement data)
     {
@@ -2313,7 +2300,6 @@ public class CompilerConfig extends Thread
      * Builds the Info class from the XML tree (part that sets conditions).
      *
      * @param data The XML data. return The Info.
-     * @throws Exception Description of the Exception
      */
     private void addInfoConditional(IXMLElement data)
     {
@@ -2828,7 +2814,7 @@ public class CompilerConfig extends Thread
             for (IXMLElement installerrequirement : installerRequirementList)
             {
                 Status severity = Status.valueOf(xmlCompilerHelper.requireAttribute(installerrequirement, "severity"));
-                if (severity == null || severity == Status.OK)
+                if (severity == Status.OK)
                 {
                     assertionHelper.parseError(installerrequirement, "invalid value for attribute \"severity\"");
                 }
@@ -2847,7 +2833,7 @@ public class CompilerConfig extends Thread
      * Parse conditions and add them to the compiler.
      *
      * @param data the conditions configuration
-     * @throws CompilerException
+     * @throws CompilerException an error occured during compiling
      */
     private void addConditions(IXMLElement data) throws CompilerException
     {
@@ -2969,7 +2955,7 @@ public class CompilerConfig extends Thread
         Enumeration<String> attributes = element.enumerateAttributeNames();
         while (attributes.hasMoreElements())
         {
-            String name = (String) attributes.nextElement();
+            String name = attributes.nextElement();
             try
             {
                 String value = variableSubstitutor.substitute(element.getAttribute(name), SubstitutionType.TYPE_AT);
@@ -3040,8 +3026,7 @@ public class CompilerConfig extends Thread
      *
      * @param blockableElement the blockable XML element to parse
      * @param osList           constraint list to maintain and return
-     * @return blockable level
-     * @throws CompilerException
+     * @throws CompilerException an error occured during compiling
      */
     private Blockable getBlockableValue(IXMLElement blockableElement, List<OsModel> osList) throws CompilerException
     {
@@ -3218,7 +3203,7 @@ public class CompilerConfig extends Thread
      *    &lt;res src=&quot;/tmp/izpp47881.tmp&quot; id=&quot;packsLang.xml&quot;/&gt;
      * </pre>
      *
-     * @throws CompilerException
+     * @throws CompilerException an error occured during compiling
      */
     private void addMergedTranslationResources(Map<String, List<URL>> resourceUrlMap) throws CompilerException
     {
@@ -3313,9 +3298,9 @@ public class CompilerConfig extends Thread
     /**
      * Adds panel actions configured in an XML element to a panel.
      *
-     * @param xmlPanel the panel configuration
+     * @param xmlPanel the panel XML element
      * @param panel    the panel
-     * @throws CompilerException
+     * @throws CompilerException an error occured during compiling
      */
     private void addPanelActions(IXMLElement xmlPanel, Panel panel) throws CompilerException
     {
@@ -3524,8 +3509,7 @@ public class CompilerConfig extends Thread
 
     private void checkReferencedConditions()
     {
-        boolean failure = false;
-        failure |= checkReferencedConditions(referencedConditions, assertionHelper);
+        boolean failure = checkReferencedConditions(referencedConditions, assertionHelper);
         failure |= checkReferencedConditions(referencedConditionsUserInputSpec,
                 new AssertionHelper("Resource " + UserInputPanelSpec.SPEC_FILE_NAME));
         failure |= checkReferencedConditions(referencedConditionsAntActionSpec,
@@ -3593,19 +3577,19 @@ public class CompilerConfig extends Thread
     private void logAddingFile(String source, String target)
     {
         logger.log(Level.FINE, "Adding file {0} => {1}",
-                new String[]{source, target.replaceFirst("\\$\\{*INSTALL_PATH\\}*[/\\\\]+", "")});
+                new String[]{source, target.replaceFirst("\\$\\{*INSTALL_PATH}*[/\\\\]+", "")});
     }
 
     private void logMarkFileExecutable(String target)
     {
         logger.log(Level.INFO, "Marked target file executable: {0}",
-                new String[]{target.replaceFirst("\\$\\{*INSTALL_PATH\\}*[/\\\\]+", "")});
+                new String[]{target.replaceFirst("\\$\\{*INSTALL_PATH}*[/\\\\]+", "")});
     }
 
     private void logMarkFileParsable(String target)
     {
         logger.log(Level.INFO, "Marked target file parsable: {0}",
-                new String[]{target.replaceFirst("\\$\\{*INSTALL_PATH\\}*[/\\\\]+", "")});
+                new String[]{target.replaceFirst("\\$\\{*INSTALL_PATH}*[/\\\\]+", "")});
     }
 
     private void logAddingPack(PackInfo packInfo)

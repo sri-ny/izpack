@@ -99,12 +99,12 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     /**
      * The unpacker.
      */
-    private IUnpacker unpacker;
+    private final IUnpacker unpacker;
 
     /**
      * The variable substituter.
      */
-    private VariableSubstitutor substituter;
+    private final VariableSubstitutor substitutor;
 
     /**
      * The uninstallation data.
@@ -146,7 +146,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * Constructs a <tt>RegistryInstallerListener</tt>.
      *
      * @param unpacker      the unpacker
-     * @param substituter   the variable substituter
+     * @param substitutor   the variable substituter
      * @param installData   the installation data
      * @param uninstallData the uninstallation data
      * @param rules         the rules
@@ -154,13 +154,13 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * @param housekeeper   the housekeeper
      * @param handler       the registry handler reference
      */
-    public RegistryInstallerListener(IUnpacker unpacker, VariableSubstitutor substituter,
+    public RegistryInstallerListener(IUnpacker unpacker, VariableSubstitutor substitutor,
                                      InstallData installData, UninstallData uninstallData,
                                      Resources resources, RulesEngine rules, Housekeeper housekeeper,
                                      RegistryDefaultHandler handler)
     {
         super(installData);
-        this.substituter = substituter;
+        this.substitutor = substitutor;
         this.unpacker = unpacker;
         this.uninstallData = uninstallData;
         this.resources = resources;
@@ -200,7 +200,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             try
             {
                 // need to read the spec now rather than in initialise(), in order to do variable replacement
-                spec.readSpec(SPEC_FILE_NAME, substituter);
+                spec.readSpec(SPEC_FILE_NAME);
             }
             catch (Exception exception)
             {
@@ -386,9 +386,9 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     private void performValueSetting(IXMLElement regEntry) throws InstallerException, NativeLibException
     {
         String name = spec.getRequiredAttribute(regEntry, REG_BASENAME);
-        name = substituter.substitute(name);
+        name = substitutor.substitute(name);
         String keypath = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
-        keypath = substituter.substitute(keypath);
+        keypath = substitutor.substitute(keypath);
         String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
         int rootId = resolveRoot(regEntry, root);
 
@@ -411,14 +411,14 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         String value = regEntry.getAttribute(REG_DWORD);
         if (value != null)
         { // Value type is DWord; placeholder possible.
-            value = substituter.substitute(value);
+            value = substitutor.substitute(value);
             registry.setValue(keypath, name, Long.parseLong(value));
             return;
         }
         value = regEntry.getAttribute(REG_STRING);
         if (value != null)
         { // Value type is string; placeholder possible.
-            value = substituter.substitute(value);
+            value = substitutor.substitute(value);
             registry.setValue(keypath, name, value);
             return;
         }
@@ -431,7 +431,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             {
                 IXMLElement element = multiIter.next();
                 multiString[i] = spec.getRequiredAttribute(element, REG_DATA);
-                multiString[i] = substituter.substitute(multiString[i]);
+                multiString[i] = substitutor.substitute(multiString[i]);
             }
             registry.setValue(keypath, name, multiString);
             return;
@@ -453,7 +453,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
                     buf.append(",");
                 }
             }
-            byte[] bytes = extractBytes(regEntry, substituter.substitute(buf.toString()));
+            byte[] bytes = extractBytes(regEntry, substitutor.substitute(buf.toString()));
             registry.setValue(keypath, name, bytes);
             return;
         }
@@ -505,7 +505,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     private void performKeySetting(IXMLElement regEntry) throws InstallerException, NativeLibException
     {
         String path = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
-        path = substituter.substitute(path);
+        path = substitutor.substitute(path);
         String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
         int rootId = resolveRoot(regEntry, root);
         registry.setRoot(rootId);
@@ -517,7 +517,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
 
     private int resolveRoot(IXMLElement regEntry, String root)
     {
-        String root1 = substituter.substitute(root);
+        String root1 = substitutor.substitute(root);
         Integer tmp = RegistryHandler.ROOT_KEY_MAP.get(root1);
         if (tmp != null)
         {
