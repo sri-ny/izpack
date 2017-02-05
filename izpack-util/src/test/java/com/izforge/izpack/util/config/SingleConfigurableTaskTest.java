@@ -10,12 +10,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -132,6 +130,50 @@ public class SingleConfigurableTaskTest
         assertEquals("value0", result.get("abc.xyz0.", 0));
         assertEquals("value1", result.get("abc.xyz0.", 1));
         assertEquals("value2", result.get("abc.xyz0.", 2));
+    }
+
+    @Test
+    public void testAutoNumberingPatchPreserveEntries2() throws Exception
+    {
+        Config config = new Config();
+        config.setAutoNumbering(true);
+        Options fromOptions = new Options(config);
+        OptionsBuilder fromBuilder = OptionsBuilder.newInstance(fromOptions);
+        fromBuilder.handleOption("http.param.os.1", "Windows");
+        fromBuilder.handleOption("http.param.os.1.nativelib.1", "bin/x86-32/native_1.jar");
+        fromBuilder.handleOption("http.param.os.1.nativelib.2", "bin/x86-32/native_2.jar");
+
+        Options toOptions = new Options(config);
+        OptionsBuilder toBuilder = OptionsBuilder.newInstance(toOptions);
+        toBuilder.handleOption("http.param.os.1", "Windows");
+        toBuilder.handleOption("http.param.os.1.nativelib.1", "bin/x86-32/native_1.jar");
+        toBuilder.handleOption("http.param.os.1.nativelib.2", "bin/x86-32/native_2.jar");
+
+        SingleOptionTestTask task = new SingleOptionTestTask(fromOptions, toOptions);
+        task.setAutoNumbering(true);
+        task.setPatchPreserveEntries(false);
+        task.setPatchPreserveValues(true);
+        task.execute();
+        Options result = task.getResult();
+
+        Assert.assertTrue(result.keySet().contains("http.param.os."));
+        assertEquals("Windows", result.get("http.param.os.", 1));
+        Assert.assertTrue(result.keySet().contains("http.param.os..nativelib.1"));
+        assertEquals("bin/x86-32/native_1.jar", result.get("http.param.os..nativelib.1", 1));
+        assertEquals("bin/x86-32/native_2.jar", result.get("http.param.os..nativelib.2", 1));
+
+        // Test correct mapping back in OptionsFormatter to properties during storing the options
+        StringWriter sw = new StringWriter();
+        toOptions.store(sw);
+        Properties props = new Properties();
+        StringReader sr = new StringReader(sw.toString());
+        props.load(sr);
+        assertEquals(3, props.size() );
+        assertEquals("Windows", props.getProperty("http.param.os.1"));
+        assertEquals("bin/x86-32/native_1.jar", props.getProperty("http.param.os.1.nativelib.1"));
+        assertEquals("bin/x86-32/native_2.jar", props.getProperty("http.param.os.1.nativelib.2"));
+        sr.close();
+        sw.close();
     }
 
     @Test
