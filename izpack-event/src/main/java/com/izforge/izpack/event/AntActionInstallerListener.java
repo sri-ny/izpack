@@ -70,22 +70,22 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
     /**
      * The uninstall actions.
      */
-    private List<AntAction> uninstActions = new ArrayList<AntAction>();
+    private final List<AntAction> uninstActions = new ArrayList<AntAction>();
 
     /**
      * The variable replacer.
      */
-    private VariableSubstitutor replacer;
+    private final VariableSubstitutor replacer;
 
     /**
      * The uninstallation data.
      */
-    private UninstallData uninstallData;
+    private final UninstallData uninstallData;
 
     /**
      * The specification helper.
      */
-    private SpecHelper spec;
+    private final SpecHelper spec;
 
     /**
      * The logger.
@@ -124,7 +124,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
         {
             // Read it here and not in initialize, for getting the
             // current variable values substituted
-            spec.readSpec(SPEC_FILE_NAME, replacer);
+            spec.readSpec(SPEC_FILE_NAME);
         }
         catch (Exception exception)
         {
@@ -256,7 +256,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * @return a list which contains all defined actions for the given pack and order
      */
     // -------------------------------------------------------
-    protected List<AntAction> getActions(String packName, String order)
+    private List<AntAction> getActions(String packName, String order)
     {
         Map<Object, List<AntAction>> packActions = actions.get(packName);
         if (packActions == null || packActions.isEmpty())
@@ -342,43 +342,43 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
             throw new InstallerException(e);
         }
 
-        act.setQuiet(spec.isAttributeYes(el, ActionBase.ANTCALL_QUIET_ATTR, false));
-        act.setVerbose(spec.isAttributeYes(el, ActionBase.ANTCALL_VERBOSE_ATTR, false));
+        act.setQuiet(spec.isAttributeYes(el, "quiet", false));
+        act.setVerbose(spec.isAttributeYes(el, "verbose", false));
         if (!(act.isQuiet() || act.isVerbose()))
         {
-            String logLevelAttrValue = el.getAttribute(ActionBase.ANTCALL_LOGLEVEL_ATTR);
+            String logLevelAttrValue = el.getAttribute("loglevel");
             AntLogLevel logLevel = AntLogLevel.fromName(logLevelAttrValue);
             if (logLevel == null)
             {
                 if (logLevelAttrValue != null)
                 {
-                    throw new InstallerException("Bad value for attribute " + ActionBase.ANTCALL_LOGLEVEL_ATTR);
+                    throw new InstallerException("Bad value for attribute " + "loglevel");
                 }
                 logLevel = AntLogLevel.INFO;
             }
             act.setLogLevel(logLevel);
         }
 
-        String severityAttrValue = el.getAttribute(ActionBase.ANTCALL_SEVERITY_ATTR);
+        String severityAttrValue = el.getAttribute("severity");
         AntSeverity severity = AntSeverity.fromName(severityAttrValue);
         if (severity == null)
         {
             if (severityAttrValue != null)
             {
-                throw new InstallerException("Bad value for attribute " + ActionBase.ANTCALL_SEVERITY_ATTR);
+                throw new InstallerException("Bad value for attribute " + "severity");
             }
             severity = AntSeverity.ERROR;
         }
         act.setSeverity(severity.getLevel());
 
-        buildDir = el.getAttribute(ActionBase.ANTCALL_DIR_ATTR);
+        buildDir = el.getAttribute("dir");
         if (buildDir != null)
         {
-            buildDir = replacer.substitute(buildDir);
-            act.setBuildDir(new File(replacer.substitute(buildDir)));
+            buildDir = resolveVariables(buildDir);
+            act.setBuildDir(new File(resolveVariables(buildDir)));
         }
-        buildFile = el.getAttribute(ActionBase.ANTCALL_BUILDFILE_ATTR);
-        act.setConditionId(el.getAttribute(ActionBase.ANTCALL_CONDITIONID_ATTR));
+        buildFile = el.getAttribute("buildfile");
+        act.setConditionId(el.getAttribute(AntAction.CONDITIONID_ATTR));
         File buildResourceFile = getBuildFileFromResource(spec, el);
         if (null == buildFile && null == buildResourceFile)
         {
@@ -397,7 +397,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
         {
             try
             {
-                effectiveBuildFile = FileUtil.getAbsoluteFile(replacer.substitute(buildFile), effectiveBaseDir);
+                effectiveBuildFile = FileUtil.getAbsoluteFile(resolveVariables(buildFile), effectiveBaseDir);
             }
             catch (Exception e)
             {
@@ -409,53 +409,55 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
             effectiveBuildFile = buildResourceFile;
         }
         act.setBuildFile(effectiveBuildFile);
-        String str = el.getAttribute(ActionBase.ANTCALL_LOGFILE_ATTR);
+        String str = el.getAttribute("logfile");
         if (str != null)
         {
-            String logAppendValue = el.getAttribute(ActionBase.LOGFILE_APPEND);
+            String logAppendValue = el.getAttribute("logfile_append");
             boolean logAppend = false;
             if (logAppendValue != null)
             {
                 logAppend = Boolean.parseBoolean(logAppendValue);
             }
+            str = resolveVariables(str);
             try
             {
-                act.setLogFile(FileUtil.getAbsoluteFile(replacer.substitute(str), installData.getInstallPath()), logAppend);
+                act.setLogFile(FileUtil.getAbsoluteFile(str, installData.getInstallPath()), logAppend);
             }
             catch (Exception e)
             {
                 act.setLogFile(FileUtil.getAbsoluteFile(str, installData.getInstallPath()), logAppend);
             }
         }
-        String msgId = el.getAttribute(ActionBase.ANTCALL_MESSAGEID_ATTR);
+        String msgId = el.getAttribute("messageid");
         if (msgId != null && msgId.length() > 0)
         {
             act.setMessageID(msgId);
         }
 
         // read propertyfiles
-        for (IXMLElement propEl : el.getChildrenNamed(ActionBase.PROPERTYFILE))
+        for (IXMLElement propEl : el.getChildrenNamed("propertyfile"))
         {
-            act.addPropertyFile(spec.getRequiredAttribute(propEl, ActionBase.PATH));
+            act.addPropertyFile(resolveVariables(spec.getRequiredAttribute(propEl, "path")));
         }
 
         // read properties
-        for (IXMLElement propEl : el.getChildrenNamed(ActionBase.PROPERTY))
+        for (IXMLElement propEl : el.getChildrenNamed("property"))
         {
-            act.setProperty(spec.getRequiredAttribute(propEl, ActionBase.NAME), spec
-                    .getRequiredAttribute(propEl, ActionBase.VALUE));
+            act.setProperty(
+                    spec.getRequiredAttribute(propEl, "name"),
+                    resolveVariables(spec.getRequiredAttribute(propEl, "value")));
         }
 
         // read targets
-        for (IXMLElement targEl : el.getChildrenNamed(ActionBase.TARGET))
+        for (IXMLElement targEl : el.getChildrenNamed("target"))
         {
-            act.addTarget(spec.getRequiredAttribute(targEl, ActionBase.NAME));
+            act.addTarget(resolveVariables(spec.getRequiredAttribute(targEl, "name")));
         }
 
         // read uninstall rules
-        for (IXMLElement utargEl : el.getChildrenNamed(ActionBase.UNINSTALL_TARGET))
+        for (IXMLElement utargEl : el.getChildrenNamed("uninstall_target"))
         {
-            act.addUninstallTarget(spec.getRequiredAttribute(utargEl, ActionBase.NAME));
+            act.addUninstallTarget(resolveVariables(spec.getRequiredAttribute(utargEl, "name")));
         }
 
         // see if this was an build_resource and there were uninstall actions
@@ -473,7 +475,7 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
         File buildResourceFile = null;
 
         // See if the build file is a resource
-        String attr = el.getAttribute(ActionBase.ANTCALL_BUILDRESOURCE_ATTR);
+        String attr = el.getAttribute("buildresource");
         if (null != attr)
         {
             // Get the resource
@@ -530,5 +532,10 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
             IOUtils.closeQuietly(bis);
             IOUtils.closeQuietly(bos);
         }
+    }
+
+    private String resolveVariables(String value)
+    {
+        return replacer.substitute(value);
     }
 }

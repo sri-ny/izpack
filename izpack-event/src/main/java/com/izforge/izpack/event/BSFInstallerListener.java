@@ -25,19 +25,20 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
+import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.event.ProgressNotifiers;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.resource.Resources;
+import com.izforge.izpack.api.substitutor.SubstitutionType;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
+import com.izforge.izpack.core.substitutor.VariableSubstitutorInputStream;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,17 +69,19 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
     /**
      * The uninstallation data.
      */
-    private UninstallData uninstallData;
+    private final UninstallData uninstallData;
 
     /**
      * The resources.
      */
     private final Resources resources;
 
+    private final Variables variables;
+
     /**
      * The specification helper.
      */
-    private SpecHelper spec;
+    private final SpecHelper spec;
 
     /**
      * The logger.
@@ -94,10 +97,11 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
      * @param uninstallData the uninstallation data
      * @param notifiers     the progress notifiers
      */
-    public BSFInstallerListener(InstallData installData, VariableSubstitutor replacer, Resources resources,
+    public BSFInstallerListener(InstallData installData, VariableSubstitutor replacer, Variables variables, Resources resources,
                                 UninstallData uninstallData, ProgressNotifiers notifiers)
     {
         super(installData, notifiers);
+        this.variables = variables;
         this.replacer = replacer;
         this.uninstallData = uninstallData;
         this.resources = resources;
@@ -114,7 +118,7 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
     {
         try
         {
-            spec.readSpec(SPEC_FILE_NAME, replacer);
+            spec.readSpec(SPEC_FILE_NAME);
         }
         catch (Exception exception)
         {
@@ -349,26 +353,12 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
         String src = element.getAttribute("src");
         if (src != null)
         {
-            InputStream is = null;
-            InputStream subis = null;
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            VariableSubstitutorInputStream is = null;
             try
             {
-                byte buf[] = new byte[10 * 1024];
-                int read;
-                is = resources.getInputStream(src);
-                subis = new SpecHelper(resources).substituteVariables(is, replacer);
-
-                while ((read = subis.read(buf)) != -1)
-                {
-                    baos.write(buf, 0, read);
-                }
-
-                action.setScript(new String(baos.toByteArray()));
-            }
-            catch (IzPackException exception)
-            {
-                throw exception;
+                is = new VariableSubstitutorInputStream(resources.getInputStream(replacer.substitute(src)), variables,
+                        SubstitutionType.TYPE_PLAIN, false);
+                action.setScript(IOUtils.toString(is, is.getEncoding()));
             }
             catch (Exception exception)
             {
@@ -376,21 +366,20 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
             }
             finally
             {
-                IOUtils.closeQuietly(subis);
                 IOUtils.closeQuietly(is);
             }
         }
         else
         {
-            String script = element.getContent();
+            String script = replacer.substitute(element.getContent());
             if (script == null)
             {
                 script = "";
             }
             action.setScript(script);
         }
-        String language = element.getAttribute("language");
-        action.setLanguage(language);
+
+        action.setLanguage(replacer.substitute(element.getAttribute("language")));
         return action;
     }
 }

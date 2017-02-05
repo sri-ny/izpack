@@ -49,6 +49,7 @@ public class AntAction extends ActionBase
 
     private static final long serialVersionUID = 3258131345250005557L;
 
+    public static final String CONDITIONID_ATTR = "condition";
     public static final String ANTCALL = "antcall";
 
     private boolean quiet = false;
