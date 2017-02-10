@@ -257,4 +257,27 @@
         </xs:restriction>
     </xs:simpleType>
 
+
+    <!--                                                                                                        -->
+    <!--Logging                                                                                                 -->
+    <!--                                                                                                        -->
+
+    <xs:simpleType name="loggingLevelType">
+        <xs:annotation>
+            <xs:documentation>
+                Specifies the java.util.logging default level for the handler.
+                See https://docs.oracle.com/javase/6/docs/api/java/util/logging/Level.html for more information.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SEVERE"/>
+            <xs:enumeration value="WARNING"/>
+            <xs:enumeration value="INFO"/>
+            <xs:enumeration value="CONFIG"/>
+            <xs:enumeration value="FINE"/>
+            <xs:enumeration value="FINER"/>
+            <xs:enumeration value="FINEST"/>
+        </xs:restriction>
+    </xs:simpleType>
+
 </xs:schema>

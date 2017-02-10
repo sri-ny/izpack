@@ -31,6 +31,7 @@ import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.installer.language.LanguageConsoleDialog;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.util.Housekeeper;
+import com.izforge.izpack.util.Platform;
 
 import java.util.logging.Logger;
 
@@ -45,6 +46,9 @@ public class InstallerConsole
                          final String mediaPath, Overrides defaults, final String[] args)
   {
     final InstallerContainer applicationComponent = new ConsoleInstallerContainer();
+
+    logger.info("Detected platform: " + applicationComponent.getComponent(Platform.class));
+
     final Container installerContainer = applicationComponent.getComponent(Container.class);
     try
     {

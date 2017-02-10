@@ -43,6 +43,7 @@
                 <xs:element name="consoleprefs" type="consolePrefsType" minOccurs="0"/>
                 <xs:element name="guiprefs" type="guiPrefsType" minOccurs="0"/>
                 <xs:element name="locale" type="localeType" minOccurs="1"/>
+                <xs:element name="logging" type="loggingType" minOccurs="0"/>
                 <xs:element name="resources" type="resourcesType" minOccurs="0"/>
                 <xs:element name="packaging" type="packagingType" minOccurs="0"/>
                 <xs:element name="jar" type="jarType" minOccurs="0" maxOccurs="unbounded"/>
@@ -253,6 +254,78 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
+    </xs:complexType>
+
+
+    <!--                                                                                                        -->
+    <!-- Logging                                                                                                -->
+    <!--                                                                                                        -->
+    <xs:complexType name="loggingType">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="configuration-file" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="file" type="xs:string" use="required"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="log-file" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="pattern" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies a pattern for generating the output file name. (Defaults to "%h/java%u.log").
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="level" type="types:loggingLevelType" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies the logging level.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="filter" type="types:fullyQualifiedClassNameType" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies the name of a Filter class to use (defaults to no Filter).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="encoding" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                The name of the character set encoding to use (defaults to the default platform encoding).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="limit" type="xs:integer" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies an approximate maximum amount to write (in bytes) to any one file. If this is zero, then there is no limit. (Defaults to no limit).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="count" type="xs:integer" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies how many output files to cycle through (defaults to 1).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="append" type="xs:boolean" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies whether the FileHandler should append onto any existing files (defaults to false).
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
     </xs:complexType>
 
 
