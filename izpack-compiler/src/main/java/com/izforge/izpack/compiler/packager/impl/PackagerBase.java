@@ -484,6 +484,7 @@ public abstract class PackagerBase implements IPackager
         mergeManager.addResourceToMerge("com/izforge/izpack/gui/");
         mergeManager.addResourceToMerge("com/izforge/izpack/merge/");
         mergeManager.addResourceToMerge("com/izforge/izpack/util/");
+        mergeManager.addResourceToMerge("com/izforge/izpack/logging/");
         mergeManager.addResourceToMerge("org/apache/regexp/");
         mergeManager.addResourceToMerge("com/coi/tools/");
         mergeManager.addResourceToMerge("org/apache/tools/zip/");

@@ -25,13 +25,12 @@ import com.izforge.izpack.api.event.ProgressListener;
 
 public interface IUnpacker extends Runnable
 {
-
     /**
      * Return the state of the operation.
      *
      * @return true if the operation was successful, false otherwise.
      */
-    public boolean getResult();
+    boolean getResult();
 
     /**
      * Sets the progress listener.

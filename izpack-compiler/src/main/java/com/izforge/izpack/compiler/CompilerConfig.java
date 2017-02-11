@@ -1,14 +1,5 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2001 Johannes Lehtinen
- * Copyright 2002 Paul Wilkinson
- * Copyright 2004 Gaganis Giorgos
- * Copyright 2007 Syed Khadeer / Hans Aikema
- *
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +50,7 @@ import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.compiler.xml.*;
 import com.izforge.izpack.core.data.DynamicInstallerRequirementValidatorImpl;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
+import com.izforge.izpack.core.resource.ResourceManager;
 import com.izforge.izpack.core.rules.process.PackSelectionCondition;
 import com.izforge.izpack.core.variable.*;
 import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
@@ -71,6 +63,7 @@ import com.izforge.izpack.event.ConfigurationInstallerListener;
 import com.izforge.izpack.event.RegistryInstallerListener;
 import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
+import com.izforge.izpack.logging.FileFormatter;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.panels.extendedinstall.ExtendedInstallPanel;
 import com.izforge.izpack.panels.install.InstallPanel;
@@ -95,6 +88,7 @@ import java.io.*;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -338,6 +332,7 @@ public class CompilerConfig extends Thread
         addConsolePrefs(data);
         addGUIPrefs(data);
         addLangpacks(data);
+        addLogging(data);
         addResources(data);
         addPanelJars(data);
         addListenerJars(data);
@@ -1739,6 +1734,114 @@ public class CompilerConfig extends Thread
     }
 
     /**
+     * Parse and add logging configuration
+     *
+     * @param data
+     * @throws CompilerException
+     */
+    private void addLogging(IXMLElement data) throws CompilerException
+    {
+        notifyCompilerListener("addLogging", CompilerListener.BEGIN, data);
+
+        IXMLElement loggingElement = data.getFirstChildNamed("logging");
+        if (loggingElement == null)
+        {
+            return;
+        }
+
+        List<IXMLElement> configFiles = loggingElement.getChildrenNamed("configuration-file");
+        if (configFiles != null)
+        {
+            for (IXMLElement configFileElement : configFiles)
+            {
+                String fileName = xmlCompilerHelper.requireAttribute(configFileElement, "file");
+                URL url = resourceFinder.findProjectResource(fileName, "Logging configuration from file", configFileElement);
+                packager.addResource(ResourceManager.DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES, url);
+            }
+        }
+
+        List<IXMLElement> logFiles = loggingElement.getChildrenNamed("log-file");
+        if (logFiles != null)
+        {
+            if (configFiles != null && !configFiles.isEmpty() && !logFiles.isEmpty())
+            {
+                assertionHelper.parseError(loggingElement, "Logging configuration by external file and log file specification cannot be mixed");
+            }
+            Properties logConfig = null;
+            for (IXMLElement configFileElement : logFiles)
+            {
+                String cname = FileHandler.class.getName();
+                if (logConfig == null)
+                {
+                    logConfig = new Properties();
+                    logConfig.setProperty("handlers", cname);
+                }
+                logConfig = logConfig;
+
+                String pattern = configFileElement.getAttribute("pattern");
+                if (pattern != null)
+                {
+                    logConfig.setProperty(cname + ".pattern", pattern);
+                }
+                String level = configFileElement.getAttribute("level");
+                if (level != null)
+                {
+                    logConfig.setProperty(cname + ".level", level);
+                }
+                String filter = configFileElement.getAttribute("filter");
+                if (filter != null)
+                {
+                    logConfig.setProperty(cname + ".filter", filter);
+                }
+                String encoding = configFileElement.getAttribute("encoding");
+                if (encoding != null)
+                {
+                    logConfig.setProperty(cname + ".encoding", encoding);
+                }
+                String limit = configFileElement.getAttribute("limit");
+                if (limit != null)
+                {
+                    logConfig.setProperty(cname + ".limit", limit);
+                }
+                String count = configFileElement.getAttribute("count");
+                if (count != null)
+                {
+                    logConfig.setProperty(cname + ".count", count);
+                }
+                String append = configFileElement.getAttribute("append");
+                if (append != null)
+                {
+                    logConfig.setProperty(cname + ".append", append);
+                }
+                logConfig.setProperty(cname + ".formatter", FileFormatter.class.getName());
+            }
+            if (logConfig != null)
+            {
+                FileOutputStream os = null;
+                File temp;
+                try
+                {
+                    temp = File.createTempFile("install_logging", ".properties", TEMP_DIR);
+                    temp.deleteOnExit();
+                    os = FileUtils.openOutputStream(temp);
+                    logConfig.store(os, null);
+                    packager.addResource(ResourceManager.DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES, temp.toURI().toURL());
+                }
+                catch (IOException e)
+                {
+                    throw new CompilerException("Unable to handle temporary resource file: " + e.getMessage(), e);
+                }
+                finally
+                {
+                    IOUtils.closeQuietly(os);
+                }
+            }
+        }
+
+        notifyCompilerListener("addLogging", CompilerListener.END, data);
+    }
+
+    /**
      * Adds the resources.
      *
      * @param data The XML data.
@@ -1788,8 +1891,7 @@ public class CompilerConfig extends Thread
                     // make the substitutions into a temp file
                     File parsedFile = File.createTempFile("izpp", null, TEMP_DIR);
                     parsedFile.deleteOnExit();
-                    FileOutputStream outFile = new FileOutputStream(parsedFile);
-                    os = new BufferedOutputStream(outFile);
+                    os = FileUtils.openOutputStream(parsedFile);
                     // and specify the substituted file to be added to the
                     // packager
                     url = parsedFile.toURI().toURL();

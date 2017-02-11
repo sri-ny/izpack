@@ -18,6 +18,7 @@ package com.izforge.izpack.core.substitutor;
 
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.substitutor.SubstitutionType;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
@@ -27,7 +28,6 @@ import java.io.*;
 public class VariableSubstitutorInputStream extends InputStream
 {
     private String encoding;
-
     private Reader substitutorReader;
 
     public VariableSubstitutorInputStream(InputStream inputStream, Variables variables, SubstitutionType type, boolean bracesRequired) throws UnsupportedEncodingException
@@ -69,6 +69,13 @@ public class VariableSubstitutorInputStream extends InputStream
     public int read() throws IOException
     {
         return substitutorReader.read();
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        IOUtils.closeQuietly(substitutorReader);
+        super.close();
     }
 
     public String getEncoding()
