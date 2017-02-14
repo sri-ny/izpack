@@ -40,7 +40,10 @@ public class LogUtils
 
     public static void loadConfiguration() throws IOException
     {
-        loadConfiguration(LOGGING_CONFIGURATION, null, false);
+        if (OVERRIDE)
+        {
+            loadConfiguration(LOGGING_CONFIGURATION, null, false);
+        }
     }
 
     public static void loadConfiguration(final String resource, Variables variables, final boolean skipFallback) throws IOException
@@ -67,38 +70,8 @@ public class LogUtils
                             resourceStream, null,
                             variables, SubstitutionType.TYPE_JAVA_PROPERTIES, false)
                             : resourceStream;
-
-                    // Workaround for not normalized file paths, for example ${INSTALL_PATH}/../install_log/name.log
-                    // to get them working before creating ${INSTALL_PATH} in the
-                    // com.izforge.izpack.installer.unpacker.UnpackerBase.preUnpack phase
-                    // otherwise the FileHandler will fail when opening files already in constructor and not recover from that.
                     final Properties props = new Properties();
                     props.load(is);
-                    boolean mkdirs = false;
-                    String pattern = null;
-                    final String cname = FileHandler.class.getName();
-                    for (String key : props.stringPropertyNames())
-                    {
-                        if (key.equals(cname + ".pattern"))
-                        {
-                            pattern = FilenameUtils.normalize(props.getProperty(key));
-                            props.setProperty(key, pattern);
-                        }
-                        else
-                        {
-                            // This key goes beyond the capabilities of java.util.logging.FileHandler
-                            if (key.equals(cname + ".mkdirs"))
-                            {
-                                mkdirs = Boolean.parseBoolean(props.getProperty(key));
-                                props.remove(key);
-                            }
-                        }
-                    }
-                    if (mkdirs && pattern != null)
-                    {
-                        FileUtils.forceMkdirParent(new File(pattern));
-                    }
-
                     loadConfiguration(props);
                 }
             }
@@ -117,8 +90,36 @@ public class LogUtils
     {
         if (OVERRIDE)
         {
-            LogManager manager = LogManager.getLogManager();
+            boolean mkdirs = false;
+            String pattern = null;
+            final String cname = FileHandler.class.getName();
+            for (String key : configuration.stringPropertyNames())
+            {
+                if (key.equals(cname + ".pattern"))
+                {
+                    // Workaround for not normalized file paths, for example ${INSTALL_PATH}/../install_log/name.log
+                    // to get them working before creating ${INSTALL_PATH} in the
+                    // com.izforge.izpack.installer.unpacker.UnpackerBase.preUnpack phase
+                    // otherwise the FileHandler will fail when opening files already in constructor and not recover from that.
+                    pattern = FilenameUtils.normalize(configuration.getProperty(key));
+                    configuration.setProperty(key, pattern);
+                }
+                else
+                {
+                    // This key goes beyond the capabilities of java.util.logging.FileHandler
+                    if (key.equals(cname + ".mkdirs"))
+                    {
+                        mkdirs = Boolean.parseBoolean(configuration.getProperty(key));
+                        configuration.remove(key);
+                    }
+                }
+            }
+            if (mkdirs && pattern != null)
+            {
+                FileUtils.forceMkdirParent(new File(pattern));
+            }
 
+            LogManager manager = LogManager.getLogManager();
             final PipedOutputStream out = new PipedOutputStream();
             final PipedInputStream in = new PipedInputStream(out);
             try
@@ -168,6 +169,7 @@ public class LogUtils
         Handler[] rootHandlers = manager.getLogger("").getHandlers();
         for (Handler prevHandler : rootHandlers)
         {
+            //noinspection unchecked
             if (handlerType.isAssignableFrom(prevHandler.getClass()))
             {
                 // IzPack maintains just one log file, don't override the existing handler type of it.
