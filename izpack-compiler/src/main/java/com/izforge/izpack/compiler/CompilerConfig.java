@@ -2465,9 +2465,8 @@ public class CompilerConfig extends Thread
             if (privileged != null)
             {
                 // default behavior for uninstaller elevation: elevate if installer has to be elevated too
-                info.setRequirePrivilegedExecutionUninstaller(xmlCompilerHelper.validateYesNoAttribute(privileged,
-                                                                                                       "uninstaller",
-                                                                                                       YES));
+                info.setRequirePrivilegedExecutionUninstaller(
+                        xmlCompilerHelper.validateYesNoAttribute(privileged,"uninstaller", YES));
             }
 
             if (uninstallInfo != null)
