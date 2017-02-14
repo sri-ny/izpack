@@ -285,6 +285,7 @@
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies the logging level.
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
@@ -292,6 +293,7 @@
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies the name of a Filter class to use (defaults to no Filter).
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
@@ -299,6 +301,7 @@
                         <xs:annotation>
                             <xs:documentation>
                                 The name of the character set encoding to use (defaults to the default platform encoding).
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
@@ -306,6 +309,7 @@
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies an approximate maximum amount to write (in bytes) to any one file. If this is zero, then there is no limit. (Defaults to no limit).
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
@@ -313,6 +317,7 @@
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies how many output files to cycle through (defaults to 1).
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
@@ -320,6 +325,15 @@
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies whether the FileHandler should append onto any existing files (defaults to false).
+                                See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="mkdirs" type="xs:boolean" use="optional" default="false">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies whether the IzPack should recursively create the parent directory of the file
+                                resulting from the 'pattern' attribute before invoking FileHandler.
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>

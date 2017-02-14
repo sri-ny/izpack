@@ -17,16 +17,13 @@
 package com.izforge.izpack.util;
 
 import com.izforge.izpack.api.data.Variables;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.substitutor.SubstitutionType;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -41,12 +38,12 @@ public class LogUtils
             System.getProperty("java.util.logging.config.class") == null
             && System.getProperty("java.util.logging.config.file") == null;
 
-    public static void loadConfiguration()
+    public static void loadConfiguration() throws IOException
     {
         loadConfiguration(LOGGING_CONFIGURATION, null, false);
     }
 
-    public static void loadConfiguration(final String resource, Variables variables, final boolean skipFallback)
+    public static void loadConfiguration(final String resource, Variables variables, final boolean skipFallback) throws IOException
     {
         if (OVERRIDE)
         {
@@ -77,13 +74,29 @@ public class LogUtils
                     // otherwise the FileHandler will fail when opening files already in constructor and not recover from that.
                     final Properties props = new Properties();
                     props.load(is);
+                    boolean mkdirs = false;
+                    String pattern = null;
+                    final String cname = FileHandler.class.getName();
                     for (String key : props.stringPropertyNames())
                     {
-                        if (key.endsWith(".pattern"))
+                        if (key.equals(cname + ".pattern"))
                         {
-                            String value = props.getProperty(key);
-                            props.setProperty(key, FilenameUtils.normalize(value));
+                            pattern = FilenameUtils.normalize(props.getProperty(key));
+                            props.setProperty(key, pattern);
                         }
+                        else
+                        {
+                            // This key goes beyond the capabilities of java.util.logging.FileHandler
+                            if (key.equals(cname + ".mkdirs"))
+                            {
+                                mkdirs = Boolean.parseBoolean(props.getProperty(key));
+                                props.remove(key);
+                            }
+                        }
+                    }
+                    if (mkdirs && pattern != null)
+                    {
+                        FileUtils.forceMkdirParent(new File(pattern));
                     }
 
                     loadConfiguration(props);
@@ -91,7 +104,7 @@ public class LogUtils
             }
             catch (IOException e)
             {
-                throw new ResourceNotFoundException("Cannot find logging configuration resource '" + resource + "'");
+                throw new IOException("Cannot apply log configuration from resource '" + resource + "': " + e.getMessage());
             }
             finally
             {
