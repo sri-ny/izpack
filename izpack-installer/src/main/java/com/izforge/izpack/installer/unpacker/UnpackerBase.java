@@ -1440,7 +1440,14 @@ public abstract class UnpackerBase implements IUnpacker
             // IzPack maintains just one log file, don't override the existing handler type of it.
             // Special use case: Command line argument -logfile "wins" over the <log-file> tag.
             // Assumption at the moment for optimization: Just FileHandler is used for configurations from install.xml.
-            LogUtils.loadConfiguration(ResourceManager.getInstallLoggingConfigurationResourceName(), variables, true);
+            try
+            {
+                LogUtils.loadConfiguration(ResourceManager.getInstallLoggingConfigurationResourceName(), variables, true);
+            }
+            catch (IOException e)
+            {
+                throw new IzPackException(e, Type.WARNING);
+            }
         }
 
         logger = Logger.getLogger(UnpackerBase.class.getName());

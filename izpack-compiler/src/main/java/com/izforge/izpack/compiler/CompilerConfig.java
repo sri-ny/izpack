@@ -1770,30 +1770,28 @@ public class CompilerConfig extends Thread
             Properties logConfig = null;
             for (IXMLElement configFileElement : logFiles)
             {
-                String cname = FileHandler.class.getName();
+                final String cname = FileHandler.class.getName();
                 if (logConfig == null)
                 {
                     logConfig = new Properties();
                     logConfig.setProperty("handlers", cname);
                 }
-                logConfig = logConfig;
-
-                String pattern = configFileElement.getAttribute("pattern");
+                final String pattern = configFileElement.getAttribute("pattern");
                 if (pattern != null)
                 {
                     logConfig.setProperty(cname + ".pattern", pattern);
                 }
-                String level = configFileElement.getAttribute("level");
+                final String level = configFileElement.getAttribute("level");
                 if (level != null)
                 {
                     logConfig.setProperty(cname + ".level", level);
                 }
-                String filter = configFileElement.getAttribute("filter");
+                final String filter = configFileElement.getAttribute("filter");
                 if (filter != null)
                 {
                     logConfig.setProperty(cname + ".filter", filter);
                 }
-                String encoding = configFileElement.getAttribute("encoding");
+                final String encoding = configFileElement.getAttribute("encoding");
                 if (encoding != null)
                 {
                     logConfig.setProperty(cname + ".encoding", encoding);
@@ -1803,15 +1801,20 @@ public class CompilerConfig extends Thread
                 {
                     logConfig.setProperty(cname + ".limit", limit);
                 }
-                String count = configFileElement.getAttribute("count");
+                final String count = configFileElement.getAttribute("count");
                 if (count != null)
                 {
                     logConfig.setProperty(cname + ".count", count);
                 }
-                String append = configFileElement.getAttribute("append");
+                final String append = configFileElement.getAttribute("append");
                 if (append != null)
                 {
                     logConfig.setProperty(cname + ".append", append);
+                }
+                final String mkdirs = configFileElement.getAttribute("mkdirs");
+                if (mkdirs != null)
+                {
+                    logConfig.setProperty(cname + ".mkdirs", Boolean.valueOf(mkdirs).toString());
                 }
                 logConfig.setProperty(cname + ".formatter", FileFormatter.class.getName());
             }
