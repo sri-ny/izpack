@@ -337,37 +337,49 @@ public abstract class Field
     }
 
     /**
-     * Returns the default value of the field.
+     * Returns the default value of the field with resolved variables.
      *
      * @return the default value. May be {@code null}
      */
     public String getDefaultValue()
     {
+        return getDefaultValue(true);
+    }
+
+    /**
+     * Returns the default value of the field.
+     *
+     * @param translated true if variable references in the text should be resolved
+     * @return the default value. May be {@code null}
+     */
+    public String getDefaultValue(boolean translated)
+    {
         String value = wrapDefaultValue(defaultValue);
-        if (value != null)
+        if (translated && value != null)
         {
             return replaceVariables(value);
         }
-        return null;
+        return value;
     }
 
     /**
      * Returns the forced value of the field.
      *
+     * @param translated true if variable references in the text should be resolved
      * @return the forced value. May be {@code null}
      */
-    private String getForcedValue()
+    private String getForcedValue(boolean translated)
     {
         String value = wrapInitialValue(initialValue);
-        if (value != null)
+        if (translated && value != null)
         {
             return replaceVariables(value);
         }
-        return null;
+        return value;
     }
 
     /**
-     * Returns the initial value to use for this field.
+     * Returns the initial value to use for this field with resolved variables.
      * <p/>
      * The following non-null value is used from the following search order
      * <ul>
@@ -380,21 +392,42 @@ public abstract class Field
      */
     public String getInitialValue()
     {
+        return getInitialValue(true);
+    }
+
+    /**
+     * Returns the initial value to use for this field.
+     * <p/>
+     * The following non-null value is used from the following search order
+     * <ul>
+     * <li>initial value (substituting variables)
+     * <li>current variable value
+     * <li>default value (substituting variables)
+     * </ul>
+     *
+     * @param translated true if variable references in the text should be resolved
+     * @return The initial value to use for this field
+     */
+    public String getInitialValue(boolean translated)
+    {
         String result = null;
         if (!installData.getVariables().isBlockedVariableName(variable))
         {
-            result = getForcedValue();
+            result = getForcedValue(translated);
         }
         if (result == null)
         {
             result = getValue();
             if (result != null)
             {
-                result = replaceVariables(result);
+                if (translated)
+                {
+                    result = replaceVariables(result);
+                }
             }
             else
             {
-                result = getDefaultValue();
+                result = getDefaultValue(translated);
             }
         }
         return result;
@@ -556,47 +589,66 @@ public abstract class Field
     }
 
     /**
-     * Returns the field label.
+     * Returns the field label with resolved variable values.
      *
      * @return the field label. May be {@code null}
      */
     public String getLabel()
     {
-        String result = null;
-        if (label != null)
-        {
-            result = replaceVariables(label);
-        }
-        return result;
+        return getLabel(false);
     }
 
     /**
-     * Returns the field description.
+     * Returns the field label.
+     *
+     * @param resolve whether the label should be returned with resolved variables
+     * @return the field label. May be {@code null}
+     */
+    public String getLabel(boolean resolve)
+    {
+        return (resolve && label != null)?replaceVariables(label):label;
+    }
+
+    /**
+     * Returns the field description with resolved variable values.
      *
      * @return the field description. May be {@code null}
      */
     public String getDescription()
     {
-        String result = null;
-        if (description != null)
-        {
-            result = replaceVariables(description);
-        }
-        return result;
+        return getDescription(false);
+    }
+
+    /**
+     * Returns the field description.
+     *
+     * @param resolve whether the description should be returned with resolved variables
+     * @return the field label. May be {@code null}
+     */
+    public String getDescription(boolean resolve)
+    {
+        return (resolve && description != null)?replaceVariables(description):description;
+    }
+
+    /**
+     * Returns the field tooltip with resolved variable values.
+     *
+     * @return the field tooltip. May be {@code null}
+     */
+    public String getTooltip()
+    {
+        return getTooltip(false);
     }
 
     /**
      * Returns the field tooltip.
      *
+     * @param resolve whether the tooltip should be returned with resolved variables
      * @return the field tooltip. May be {@code null}
      */
-    public String getTooltip() {
-        String result = null;
-        if (tooltip != null)
-        {
-            result = replaceVariables(tooltip);
-        }
-        return result;
+    public String getTooltip(boolean resolve)
+    {
+        return (resolve && tooltip != null)?replaceVariables(tooltip):tooltip;
     }
 
     /**

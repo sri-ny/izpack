@@ -21,20 +21,16 @@
 
 package com.izforge.izpack.util.helper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.IXMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.api.substitutor.VariableSubstitutor;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains some helper methods to simplify handling of xml specification files.
@@ -51,7 +47,7 @@ public class SpecHelper
 
     private IXMLElement spec;
 
-    private boolean _haveSpec;
+    private boolean haveSpec;
 
     /**
      * The resources.
@@ -80,40 +76,25 @@ public class SpecHelper
      *
      * @throws Exception for any problems in reading the specification
      */
-    /*--------------------------------------------------------------------------*/
     public void readSpec(String specFileName) throws Exception
     {
-        readSpec(specFileName, null);
-    }
-
-    /*--------------------------------------------------------------------------*/
-
-    /**
-     * Reads the XML specification given by the file name. The result is stored in spec.
-     *
-     * @throws Exception for any problems in reading the specification
-     */
-    /*--------------------------------------------------------------------------*/
-    public void readSpec(String specFileName, VariableSubstitutor substitutor) throws Exception
-    {
-        // open an input stream
-        InputStream input = null;
+        InputStream input;
         try
         {
             input = getResource(specFileName);
         }
         catch (Exception exception)
         {
-            _haveSpec = false;
+            haveSpec = false;
             return;
         }
         if (input == null)
         {
-            _haveSpec = false;
+            haveSpec = false;
             return;
         }
 
-        readSpec(input, substitutor);
+        readSpec(input);
 
         // close the stream
         input.close();
@@ -130,31 +111,12 @@ public class SpecHelper
     /*--------------------------------------------------------------------------*/
     public void readSpec(InputStream input) throws Exception
     {
-        readSpec(input, null);
-    }
-
-    /*--------------------------------------------------------------------------*/
-
-    /**
-     * Reads the XML specification given by the input stream. The result is stored in spec.
-     *
-     * @throws Exception for any problems in reading the specification
-     */
-    /*--------------------------------------------------------------------------*/
-    public void readSpec(InputStream input, VariableSubstitutor substitutor) throws Exception
-    {
-        // first try to substitute the variables
-        if (substitutor != null)
-        {
-            input = substituteVariables(input, substitutor);
-        }
-
         // initialize the parser
         IXMLParser parser = new XMLParser();
 
         // get the data
         spec = parser.parse(input);
-        _haveSpec = true;
+        haveSpec = true;
     }
 
     /**
@@ -220,7 +182,7 @@ public class SpecHelper
      */
     public boolean haveSpec()
     {
-        return _haveSpec;
+        return haveSpec;
     }
 
     /**
@@ -269,7 +231,7 @@ public class SpecHelper
     private List<IXMLElement> getSubChildren(IXMLElement root, String[] childdef, int depth)
     {
         List<IXMLElement> retval = null;
-        List<IXMLElement> retval2 = null;
+        List<IXMLElement> retval2;
         List<IXMLElement> children = root != null ? root.getChildrenNamed(childdef[depth]) : null;
         if (children == null)
         {
@@ -295,36 +257,6 @@ public class SpecHelper
             return (children);
         }
         return (retval);
-    }
-
-    /**
-     * Creates an temp file in to the substitutor the substituted contents of input writes; close it
-     * and (re)open it as FileInputStream. The file will be deleted on exit.
-     *
-     * @param input       the opened input stream which contents should be substituted
-     * @param substitutor substitutor which should substitute the contents of input
-     * @return a file input stream of the created temporary file
-     * @throws Exception
-     */
-    public InputStream substituteVariables(InputStream input, VariableSubstitutor substitutor)
-            throws Exception
-    {
-        File tempFile = File.createTempFile("izpacksubs", "");
-        FileOutputStream fos = null;
-        tempFile.deleteOnExit();
-        try
-        {
-            fos = new FileOutputStream(tempFile);
-            substitutor.substitute(input, fos, null, "UTF-8");
-        }
-        finally
-        {
-            if (fos != null)
-            {
-                fos.close();
-            }
-        }
-        return new FileInputStream(tempFile);
     }
 
     /**

@@ -22,24 +22,6 @@
 package com.izforge.izpack.event;
 
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
-import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
@@ -52,8 +34,25 @@ import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.ProgressNotifiersImpl;
-import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.Platforms;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
+import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link AntActionInstallerListener} class.
@@ -108,7 +107,7 @@ public class AntActionInstallerListenerTest
         installData.setInstallPath(installDir.getPath());
 
         // copy build.xml to the install dir, so that the listener can find it
-        IoHelper.copyStream(getClass().getResourceAsStream("/com/izforge/izpack/event/ant/build.xml"),
+        IOUtils.copy(getClass().getResourceAsStream("/com/izforge/izpack/event/ant/build.xml"),
                             new FileOutputStream(new File(installDir, "build.xml")));
 
         resources = Mockito.mock(Resources.class);

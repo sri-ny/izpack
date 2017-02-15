@@ -397,6 +397,7 @@
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
         <xs:attribute name="conditionid" type="xs:string" use="optional"/>
         <xs:attribute name="processor" type="xs:string" use="optional"/>
         <xs:attribute name="set" type="xs:string" use="optional"/>

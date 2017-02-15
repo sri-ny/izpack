@@ -22,12 +22,11 @@
 package com.izforge.izpack.core.container;
 
 
-import java.util.logging.Logger;
-
-import org.picocontainer.injectors.Provider;
-
 import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.Platforms;
+import org.picocontainer.injectors.Provider;
+
+import java.util.logging.Logger;
 
 
 /**
@@ -51,8 +50,6 @@ public class PlatformProvider implements Provider
      */
     public Platform provide(Platforms platforms)
     {
-        Platform platform = platforms.getCurrentPlatform();
-        logger.info("Detected platform: " + platform);
-        return platform;
+        return platforms.getCurrentPlatform();
     }
 }

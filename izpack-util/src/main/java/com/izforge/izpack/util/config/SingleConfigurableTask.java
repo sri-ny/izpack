@@ -464,7 +464,7 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
                 fromKeySet = ((Options) fromConfigurable).keySet();
                 for (String key : fromKeySet)
                 {
-                    if (fromConfigurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+"))
+                    if (fromConfigurable.getConfig().isAutoNumbering() && key.matches("(.+\\.\\..+)|(.+\\.)+"))
                     {
                         boolean keyFound = toKeySet.contains(key);
                         int i = 0, firstIndex = -1;
@@ -818,11 +818,35 @@ public abstract class SingleConfigurableTask implements ConfigurableTask
         {
             String newKey, newValue;
             int pos = -1;
-            if (configurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+[\\d]+"))
+            if (configurable.getConfig().isAutoNumbering() && key.matches("(.+\\.)+[\\d]+(\\.+.*)*"))
             {
                 String[] parts = key.split("\\.");
-                newKey = key.substring(0, key.length() - parts[parts.length - 1].length() - 1) + ".";
-                pos = Integer.parseInt(parts[parts.length - 1]);
+                StringBuilder sb = new StringBuilder();
+                //int pos = -1;
+                for (String part : parts)
+                {
+                    if (sb.length() > 0)
+                    {
+                        sb.append(".");
+                    }
+                    if (pos != -1)
+                    {
+                        sb.append(part);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            pos = Integer.parseInt(part);
+                            // The first \.\d+\. "wins"
+                        }
+                        catch (NumberFormatException nfe)
+                        {
+                            sb.append(part);
+                        }
+                    }
+                }
+                newKey = sb.toString();
             }
             else
             {

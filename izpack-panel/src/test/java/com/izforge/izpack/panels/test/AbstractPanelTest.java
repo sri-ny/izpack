@@ -253,7 +253,7 @@ public class AbstractPanelTest
                 {
                     panels = new IzPanels(panelViews, container, installData);
                     DefaultNavigator navigator = new DefaultNavigator(panels, icons, installData);
-                    InstallerFrame frame = new InstallerFrame("A title", installData, rules,
+                    InstallerFrame frame = new InstallerFrame(installData, rules,
                                                               icons, panels, uninstallDataWriter, resourceManager,
                                                               Mockito.mock(UninstallData.class),
                                                               Mockito.mock(Housekeeper.class), navigator,

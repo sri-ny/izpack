@@ -1,12 +1,5 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2004 Klaus Bartz
- * Copyright 2004 Thomas Guenter
- * Copyright 2015 René Krell
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +24,10 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.Ant;
 import org.apache.tools.ant.util.JavaEnvUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -49,6 +45,7 @@ public class AntAction extends ActionBase
 
     private static final long serialVersionUID = 3258131345250005557L;
 
+    public static final String CONDITIONID_ATTR = "condition";
     public static final String ANTCALL = "antcall";
 
     private boolean quiet = false;
@@ -136,12 +133,25 @@ public class AntAction extends ActionBase
         }
         PrintStream err = System.err;
         PrintStream out = System.out;
+        Project antProj = new Project();
         try
         {
-            Project antProj = new Project();
             antProj.setInputHandler(new AntActionInputHandler());
             antProj.setName("antcallproject");
-            antProj.addBuildListener(createLogger());
+            if (verbose)
+            {
+                logLevel = AntLogLevel.VERBOSE;
+            }
+            else if (quiet)
+            {
+                logLevel = AntLogLevel.WARNING;
+            }
+            final int antLogLevel = logLevel.getLevel();
+            antProj.addBuildListener(new AntSystemLogBuildListener(antLogLevel));
+            if (logFile != null)
+            {
+                antProj.addBuildListener(new AntActionLogBuildListener(logFile, logFileAppend, antLogLevel));
+            }
             antProj.setSystemProperties();
             addProperties(antProj, getProperties());
             addPropertiesFromPropertyFiles(antProj);
@@ -176,9 +186,11 @@ public class AntAction extends ActionBase
             System.setOut(new PrintStream(new DemuxOutputStream(antProj, false)));
             System.setErr(new PrintStream(new DemuxOutputStream(antProj, true)));
             antProj.executeTarget("calltarget");
+            antProj.fireBuildFinished(null);
         }
         catch (BuildException exception)
         {
+            antProj.fireBuildFinished(exception);
             throw new IzPackException("Ant build failed", exception, getSeverity());
         }
         finally
@@ -191,7 +203,6 @@ public class AntAction extends ActionBase
             System.setErr(err);
         }
     }
-
 
     public String getConditionId()
     {
@@ -478,45 +489,6 @@ public class AntAction extends ActionBase
     public void setVerbose(boolean verbose)
     {
         this.verbose = verbose;
-    }
-
-    private BuildLogger createLogger()
-    {
-        if (verbose)
-        {
-            logLevel = AntLogLevel.VERBOSE;
-        }
-        else if (quiet)
-        {
-            logLevel = AntLogLevel.WARNING;
-        }
-        BuildLogger buildLogger = new DefaultLogger();
-        buildLogger.setMessageOutputLevel(logLevel.getLevel());
-        if (logFile != null)
-        {
-            PrintStream printStream;
-            try
-            {
-                final File canonicalLogFile = logFile.getCanonicalFile();
-                org.apache.commons.io.FileUtils.forceMkdir(canonicalLogFile.getParentFile());
-                org.apache.commons.io.FileUtils.touch(canonicalLogFile);
-                printStream = new PrintStream(new FileOutputStream(canonicalLogFile, logFileAppend));
-                buildLogger.setOutputPrintStream(printStream);
-                buildLogger.setErrorPrintStream(printStream);
-            }
-            catch (IOException e)
-            {
-                logger.warning("Cannot log to file '" + logFile + "': " + e.getMessage());
-                buildLogger.setOutputPrintStream(System.out);
-                buildLogger.setErrorPrintStream(System.err);
-            }
-        }
-        else
-        {
-            buildLogger.setOutputPrintStream(System.out);
-            buildLogger.setErrorPrintStream(System.err);
-        }
-        return buildLogger;
     }
 
     private void addProperties(Project proj, Properties props)

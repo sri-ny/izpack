@@ -37,7 +37,7 @@ import com.izforge.izpack.data.ParsableFile;
 import com.izforge.izpack.data.UpdateCheck;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
-import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.*;
@@ -211,7 +211,7 @@ public class Packager extends PackagerBase
                     } else
                     {
                         FileInputStream inStream = new FileInputStream(file);
-                        long bytesWritten = IoHelper.copyStream(inStream, objOut);
+                        long bytesWritten = IOUtils.copy(inStream, objOut);
                         inStream.close();
                         if (bytesWritten != packFile.length())
                         {

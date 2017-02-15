@@ -22,17 +22,16 @@
 
 package com.izforge.izpack.core.resource;
 
+import com.izforge.izpack.api.exception.ResourceException;
+import com.izforge.izpack.api.exception.ResourceNotFoundException;
+import com.izforge.izpack.api.resource.Locales;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
-
-import javax.swing.ImageIcon;
-
-import com.izforge.izpack.api.exception.ResourceException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
-import com.izforge.izpack.api.resource.Locales;
 
 /**
  * With this ResourceManager you are able to get resources from the jar file.
@@ -59,7 +58,7 @@ public class ResourceManager extends AbstractResources
     /**
      * The base path where to find the resources: resourceBasePathDefaultConstant = "/res/"
      */
-    public final String resourceBasePathDefaultConstant = "/resources/";
+    public final static String RESOURCE_BASEPATH_DEFAULT = "/resources/";
 
     /**
      * Internally used resourceBasePath = "/resources/"
@@ -83,6 +82,11 @@ public class ResourceManager extends AbstractResources
     public ResourceManager(ClassLoader loader)
     {
         super(loader);
+    }
+
+    public static String getInstallLoggingConfigurationResourceName()
+    {
+        return RESOURCE_BASEPATH_DEFAULT + DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES;
     }
 
     /**
@@ -112,7 +116,7 @@ public class ResourceManager extends AbstractResources
         }
         else
         {
-            this.setResourceBasePath(resourceBasePathDefaultConstant);
+            this.setResourceBasePath(RESOURCE_BASEPATH_DEFAULT);
         }
     }
 
@@ -131,6 +135,7 @@ public class ResourceManager extends AbstractResources
      * @return an InputStream contains the requested resource
      * @throws ResourceNotFoundException thrown if there is no resource found
      */
+    @Override
     public InputStream getInputStream(String resource)
     {
         resource = getLanguageResourceString(resource);

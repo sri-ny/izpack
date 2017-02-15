@@ -316,7 +316,7 @@ public class Librarian implements CleanupClient
             file = File.createTempFile(name, extension, FileUtils.getTempDirectory());
             in = url.openStream();
             out = new FileOutputStream(file);
-            IoHelper.copyStream(in, out);
+            IOUtils.copy(in, out);
             path = file.getAbsolutePath();
         }
         catch (IOException exception)

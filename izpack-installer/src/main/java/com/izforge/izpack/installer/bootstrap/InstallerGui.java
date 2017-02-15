@@ -34,6 +34,7 @@ import com.izforge.izpack.installer.gui.SplashScreen;
 import com.izforge.izpack.installer.language.LanguageDialog;
 import com.izforge.izpack.installer.requirement.RequirementsChecker;
 import com.izforge.izpack.util.Housekeeper;
+import com.izforge.izpack.util.Platform;
 
 import javax.swing.*;
 import java.util.logging.Level;
@@ -54,9 +55,10 @@ public class InstallerGui
         final InstallerContainer applicationComponent = new GUIInstallerContainer();
         final Container installerContainer = applicationComponent.getComponent(Container.class);
 
-        final Object trigger = new Object();
-        
-        // display the splash screen from AWT thread
+		logger.info("Detected platform: " + applicationComponent.getComponent(Platform.class));
+
+		final Object trigger = new Object();
+		// display the splash screen from AWT thread
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()

@@ -21,7 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.gui.file;
 
-import java.awt.Dimension;
+import com.izforge.izpack.api.GuiId;
+import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.gui.ButtonFactory;
+import com.izforge.izpack.installer.data.GUIInstallData;
+import com.izforge.izpack.installer.gui.InstallerFrame;
+import com.izforge.izpack.panels.userinput.field.ValidationStatus;
+import com.izforge.izpack.panels.userinput.field.file.MultipleFileField;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -31,26 +40,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-
-import com.izforge.izpack.api.GuiId;
-import com.izforge.izpack.api.resource.Messages;
-import com.izforge.izpack.gui.ButtonFactory;
-import com.izforge.izpack.installer.data.GUIInstallData;
-import com.izforge.izpack.installer.gui.InstallerFrame;
-import com.izforge.izpack.panels.userinput.field.ValidationStatus;
-import com.izforge.izpack.panels.userinput.field.file.MultipleFileField;
 
 
 public class MultipleFileInputField extends JPanel implements ActionListener, FocusListener
@@ -68,7 +57,6 @@ public class MultipleFileInputField extends JPanel implements ActionListener, Fo
     JButton browseBtn;
     JButton deleteBtn;
 
-    String set;
     int size;
     GUIInstallData data;
     String fileExtension;
@@ -89,7 +77,6 @@ public class MultipleFileInputField extends JPanel implements ActionListener, Fo
         this.field = field;
         this.parentFrame = parent;
         this.data = data;
-        this.set = field.getDefaultValue();
         this.size = field.getSize();
         if (size < 1)
         {

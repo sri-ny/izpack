@@ -37,6 +37,7 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.handler.ProgressHandler;
 import com.izforge.izpack.core.handler.PromptUIHandler;
+import com.izforge.izpack.core.resource.ResourceManager;
 import com.izforge.izpack.data.ExecutableFile;
 import com.izforge.izpack.data.ParsableFile;
 import com.izforge.izpack.data.UpdateCheck;
@@ -44,10 +45,7 @@ import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
 import com.izforge.izpack.installer.util.PackHelper;
-import com.izforge.izpack.util.FileExecutor;
-import com.izforge.izpack.util.Housekeeper;
-import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.PlatformModelMatcher;
+import com.izforge.izpack.util.*;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.file.GlobPatternMapper;
 import com.izforge.izpack.util.file.types.FileSet;
@@ -59,6 +57,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.Pack200;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +73,10 @@ import static com.izforge.izpack.installer.bootstrap.Installer.INSTALLER_AUTO;
  */
 public abstract class UnpackerBase implements IUnpacker
 {
+    /**
+     * The logger.
+     */
+    private static Logger logger = Logger.getLogger(UnpackerBase.class.getName());
 
     /**
      * The installation data.
@@ -94,6 +97,11 @@ public abstract class UnpackerBase implements IUnpacker
      * The rules engine.
      */
     private final RulesEngine rules;
+
+    /**
+     * The variables.
+     */
+    private final Variables variables;
 
     /**
      * The variable replacer.
@@ -174,11 +182,6 @@ public abstract class UnpackerBase implements IUnpacker
     private Messages packMessages;
 
     /**
-     * The logger.
-     */
-    private static final Logger logger = Logger.getLogger(UnpackerBase.class.getName());
-
-    /**
      * Constructs an <tt>UnpackerBase</tt>.
      *
      * @param installData         the installation data
@@ -207,6 +210,7 @@ public abstract class UnpackerBase implements IUnpacker
         this.listeners = listeners;
         this.prompt = prompt;
         this.matcher = matcher;
+        this.variables = installData.getVariables();
         cancellable = new Cancellable()
         {
             @Override
@@ -231,8 +235,10 @@ public abstract class UnpackerBase implements IUnpacker
     /**
      * Runs the unpacker.
      */
+    @Override
     public void run()
     {
+        resetLogging();
         unpack();
     }
 
@@ -547,7 +553,6 @@ public abstract class UnpackerBase implements IUnpacker
         }
 
         // translate & build the path
-        Variables variables = getInstallData().getVariables();
         String path = IoHelper.translatePath(file.getTargetPath(), variables);
         File target = new File(path);
         File dir = target;
@@ -1153,6 +1158,7 @@ public abstract class UnpackerBase implements IUnpacker
             List<Pack> packs;
             try
             {
+                //noinspection unchecked
                 packs = (List<Pack>) oin.readObject();
             }
             catch (Exception exception)
@@ -1173,7 +1179,7 @@ public abstract class UnpackerBase implements IUnpacker
         FileOutputStream fout = new FileOutputStream(installationInfo);
         ObjectOutputStream oout = new ObjectOutputStream(fout);
         oout.writeObject(installedPacks);
-        oout.writeObject(installData.getVariables().getProperties());
+        oout.writeObject(variables.getProperties());
 
         logger.fine("Writing installation information finished");
         IOUtils.closeQuietly(oout);
@@ -1182,7 +1188,7 @@ public abstract class UnpackerBase implements IUnpacker
         uninstallData.addFile(installationInfo.getAbsolutePath(), true);
     }
 
-    protected File getAbsoluteInstallSource() throws IOException, InstallerException
+    protected File getAbsoluteInstallSource() throws InstallerException
     {
         if (absoluteInstallSource == null)
         {
@@ -1349,7 +1355,7 @@ public abstract class UnpackerBase implements IUnpacker
             logger.fine("Unpacked parsable: " + file.toString());
             if (!file.hasCondition() || isConditionTrue(file.getCondition()))
             {
-                String path = IoHelper.translatePath(file.getPath(), installData.getVariables());
+                String path = IoHelper.translatePath(file.getPath(), variables);
                 file.setPath(path);
                 parsables.add(file);
             }
@@ -1375,7 +1381,6 @@ public abstract class UnpackerBase implements IUnpacker
             logger.fine("Unpacked executable: " + file.toString());
             if (!file.hasCondition() || isConditionTrue(file.getCondition()))
             {
-                Variables variables = installData.getVariables();
                 file.path = IoHelper.translatePath(file.path, variables);
                 if (null != file.argList && !file.argList.isEmpty())
                 {
@@ -1428,6 +1433,24 @@ public abstract class UnpackerBase implements IUnpacker
         return unpacker;
     }
 
+    private void resetLogging()
+    {
+        if (!LogUtils.isSamePreviousHandlerType(FileHandler.class))
+        {
+            // IzPack maintains just one log file, don't override the existing handler type of it.
+            // Special use case: Command line argument -logfile "wins" over the <log-file> tag.
+            // Assumption at the moment for optimization: Just FileHandler is used for configurations from install.xml.
+            try
+            {
+                LogUtils.loadConfiguration(ResourceManager.getInstallLoggingConfigurationResourceName(), variables, true);
+            }
+            catch (IOException e)
+            {
+                throw new IzPackException(e, Type.WARNING);
+            }
+        }
 
+        logger = Logger.getLogger(UnpackerBase.class.getName());
+    }
 }
 

@@ -197,7 +197,7 @@ public class BSFUninstallerListenerTest
         Mockito.when(resources.getInputStream(BSFInstallerListener.SPEC_FILE_NAME)).thenReturn(specStream);
 
         UninstallData uninstallData = new UninstallData();
-        BSFInstallerListener listener = new BSFInstallerListener(installData, replacer, resources,
+        BSFInstallerListener listener = new BSFInstallerListener(installData, replacer, variables, resources,
                                                                  uninstallData, new ProgressNotifiersImpl());
         listener.initialise();
         Pack pack = new Pack(packName, null, null, null, null, true, true, false, null, true, 0);

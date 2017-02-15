@@ -87,8 +87,7 @@ public class PDFLicencePanelTest {
 				DefaultNavigator navigator = new DefaultNavigator(panels, icons, installData);
 				Locales locales = new DefaultLocales(resourceManager);
 
-				String title = "title";
-				InstallerFrame window = new InstallerFrame(title, installData, rules, icons, panels,
+				InstallerFrame window = new InstallerFrame(installData, rules, icons, panels,
 						uninstallDataWriter, resourceManager, uninstallData, housekeeper, navigator, log, locales);
 
 				PDFLicencePanel licencePanel = new PDFLicencePanel(panel, window, installData, resourceManager, log);

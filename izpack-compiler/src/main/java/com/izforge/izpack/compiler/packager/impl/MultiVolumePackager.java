@@ -21,18 +21,6 @@
  */
 package com.izforge.izpack.compiler.packager.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.tools.zip.ZipEntry;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
@@ -50,7 +38,18 @@ import com.izforge.izpack.data.ParsableFile;
 import com.izforge.izpack.data.UpdateCheck;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
-import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tools.zip.ZipEntry;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Logger;
 
 
 /**
@@ -366,7 +365,7 @@ public class MultiVolumePackager extends PackagerBase
         int volumeCount = volumes.getVolumes();
 
         FileInputStream in = new FileInputStream(file);
-        long bytesWritten = IoHelper.copyStream(in, volumes);
+        long bytesWritten = IOUtils.copy(in, volumes);
         long afterPosition = volumes.getFilePointer();
         logger.fine("File (" + packFile.sourcePath + ") " + beforePosition + " <-> " + afterPosition);
 

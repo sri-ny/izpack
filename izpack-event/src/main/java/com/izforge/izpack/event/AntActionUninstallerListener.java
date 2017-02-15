@@ -21,19 +21,16 @@
 
 package com.izforge.izpack.event;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.izforge.izpack.api.event.AbstractUninstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Uninstaller listener for performing ANT actions at uninstall time. The definition of what should
@@ -220,7 +217,9 @@ public class AntActionUninstallerListener extends AbstractUninstallerListener
                 {
                     // Save it to a temporary file
                     ByteArrayInputStream bin = new ByteArrayInputStream(content);
-                    File buildFile = IoHelper.copyToTempFile(bin, "xml", null);
+                    File buildFile = File.createTempFile("izpack_io", "xml");
+                    buildFile.deleteOnExit();
+                    IOUtils.copy(is, new FileOutputStream(buildFile));
                     buildResource = buildFile.getAbsolutePath();
                 }
                 ois.close();

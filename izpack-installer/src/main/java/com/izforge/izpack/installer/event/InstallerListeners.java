@@ -22,10 +22,6 @@
 package com.izforge.izpack.installer.event;
 
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
@@ -33,9 +29,17 @@ import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.handler.AbstractPrompt;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.handler.Prompt;
+import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.core.handler.ProgressHandler;
+import com.izforge.izpack.core.handler.PromptUIHandler;
 import com.izforge.izpack.event.SimpleInstallerListener;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -144,10 +148,17 @@ public class InstallerListeners
     {
         for (InstallerListener listener : listeners)
         {
-            listener.initialise();
-            if (listener.isFileListener())
+            try
             {
-                fileListeners.add(listener);
+                listener.initialise();
+                if (listener.isFileListener())
+                {
+                    fileListeners.add(listener);
+                }
+            }
+                catch (IzPackException ize)
+            {
+                handleError(ize);
             }
         }
     }
@@ -163,11 +174,18 @@ public class InstallerListeners
     {
         for (InstallerListener l : listeners)
         {
-            if (l instanceof SimpleInstallerListener)
+            try
             {
-                ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                if (l instanceof SimpleInstallerListener)
+                {
+                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                }
+                l.beforePacks(packs);
             }
-            l.beforePacks(packs);
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -183,11 +201,18 @@ public class InstallerListeners
     {
         for (InstallerListener l : listeners)
         {
-            if (l instanceof SimpleInstallerListener)
+            try
             {
-                ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                if (l instanceof SimpleInstallerListener)
+                {
+                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                }
+                l.beforePack(pack, i);
             }
-            l.beforePack(pack, i);
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -213,7 +238,14 @@ public class InstallerListeners
     {
         for (InstallerListener l : fileListeners)
         {
-            l.beforeDir(dir, packFile, pack);
+            try
+            {
+                l.beforeDir(dir, packFile, pack);
+            }
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -229,7 +261,14 @@ public class InstallerListeners
     {
         for (InstallerListener l : fileListeners)
         {
-            l.afterDir(dir, packFile, pack);
+            try
+            {
+                l.afterDir(dir, packFile, pack);
+            }
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -247,7 +286,14 @@ public class InstallerListeners
     {
         for (InstallerListener l : fileListeners)
         {
-            l.beforeFile(file, packFile, pack);
+            try
+            {
+                l.beforeFile(file, packFile, pack);
+            }
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -265,7 +311,14 @@ public class InstallerListeners
     {
         for (InstallerListener l : fileListeners)
         {
-            l.afterFile(file, packFile, pack);
+            try
+            {
+                l.afterFile(file, packFile, pack);
+            }
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -281,11 +334,18 @@ public class InstallerListeners
     {
         for (InstallerListener l : listeners)
         {
-            if (l instanceof SimpleInstallerListener)
+            try
             {
-                ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                if (l instanceof SimpleInstallerListener)
+                {
+                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                }
+                l.afterPack(pack, i);
             }
-            l.afterPack(pack, i);
+            catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
         }
     }
 
@@ -300,11 +360,41 @@ public class InstallerListeners
     {
         for (InstallerListener l : listeners)
         {
-            if (l instanceof SimpleInstallerListener)
+            try
             {
-                ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                if (l instanceof SimpleInstallerListener)
+                {
+                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
+                }
+                l.afterPacks(packs, listener);
             }
-            l.afterPacks(packs, listener);
+                catch (IzPackException ize)
+            {
+                handleError(ize);
+            }
+        }
+    }
+
+    private void handleError(IzPackException ize) throws IzPackException
+    {
+        Messages messages = installData.getMessages();
+
+        // Enable continuing subsequent actions on warnings only
+        switch (ize.getPromptType())
+        {
+            case WARNING:
+                AbstractUIHandler handler = new PromptUIHandler(prompt);
+                if (handler.askWarningQuestion(null,
+                        AbstractPrompt.getThrowableMessage(ize) + "\n" + messages.get("installer.continueQuestion"),
+                        AbstractUIHandler.CHOICES_YES_NO,
+                        AbstractUIHandler.ANSWER_NO) != AbstractUIHandler.ANSWER_YES)
+                {
+                    throw new InstallerException(messages.get("installer.cancelled"));
+                }
+                break;
+
+            default:
+                throw ize;
         }
     }
 
