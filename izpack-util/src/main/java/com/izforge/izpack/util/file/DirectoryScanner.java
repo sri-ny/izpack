@@ -113,9 +113,9 @@ public class DirectoryScanner
         implements FileScanner, /*SelectorScanner, */ResourceFactory
 {
 
-    protected InstallData idata;
+    private InstallData idata;
 
-    /** Is OpenVMS the operating system we're running on? */
+    /* Is OpenVMS the operating system we're running on? */
     //private static final boolean ON_VMS = Os.isFamily("openvms");
 
     /**
@@ -182,79 +182,79 @@ public class DirectoryScanner
     /**
      * The base directory to be scanned.
      */
-    protected File basedir;
+    private File basedir;
 
     /**
      * The patterns for the files to be included.
      */
-    protected String[] includes;
+    private String[] includes;
 
     /**
      * The patterns for the files to be excluded.
      */
-    protected String[] excludes;
+    private String[] excludes;
 
     /**
      * Selectors that will filter which files are in our candidate list.
      */
-    protected FileSelector[] selectors = null;
+    private final FileSelector[] selectors = null;
 
     /**
      * The files which matched at least one include and no excludes
      * and were selected.
      */
-    protected Vector<String> filesIncluded;
+    private Vector<String> filesIncluded;
 
     /**
      * The files which did not match any includes or selectors.
      */
-    protected Vector<String> filesNotIncluded;
+    private Vector<String> filesNotIncluded;
 
     /**
      * The files which matched at least one include and at least
      * one exclude.
      */
-    protected Vector<String> filesExcluded;
+    private Vector<String> filesExcluded;
 
     /**
      * The directories which matched at least one include and no excludes
      * and were selected.
      */
-    protected Vector<String> dirsIncluded;
+    private Vector<String> dirsIncluded;
 
     /**
      * The directories which were found and did not match any includes.
      */
-    protected Vector<String> dirsNotIncluded;
+    private Vector<String> dirsNotIncluded;
 
     /**
      * The directories which matched at least one include and at least one
      * exclude.
      */
-    protected Vector<String> dirsExcluded;
+    private Vector<String> dirsExcluded;
 
     /**
      * The files which matched at least one include and no excludes and
      * which a selector discarded.
      */
-    protected Vector<String> filesDeselected;
+    private Vector<String> filesDeselected;
 
     /**
      * The directories which matched at least one include and no excludes
      * but which a selector discarded.
      */
-    protected Vector<String> dirsDeselected;
+    private Vector<String> dirsDeselected;
 
     /**
      * Whether or not our results were built by a slow scan.
      */
-    protected boolean haveSlowResults = false;
+    private boolean haveSlowResults = false;
 
     /**
      * Whether or not the file system should be treated as a case sensitive
      * one.
      */
-    protected boolean isCaseSensitive = true;
+    private boolean isCaseSensitive = true;
 
     /**
      * Whether or not symbolic links should be followed.
@@ -264,17 +264,17 @@ public class DirectoryScanner
     /**
      * Whether or not everything tested so far has been included.
      */
-    protected boolean everythingIncluded = true;
+    private boolean everythingIncluded = true;
 
     /**
      * Temporary table to speed up the various scanning methods.
      */
-    private Map<File, String[]> fileListMap = new HashMap<File, String[]>();
+    private final Map<File, String[]> fileListMap = new HashMap<File, String[]>();
 
     /**
      * List of all scanned directories.
      */
-    private Set<String> scannedDirs = new HashSet<String>();
+    private final Set<String> scannedDirs = new HashSet<String>();
 
     /**
      * Set of all include patterns that are full file names and don't
@@ -287,7 +287,7 @@ public class DirectoryScanner
      * isIncluded or isExcluded and cleared at the end of the scan
      * method (cleared in clearCaches, actually).</p>
      */
-    private Set<String> includeNonPatterns = new HashSet<String>();
+    private final Set<String> includeNonPatterns = new HashSet<String>();
 
     /**
      * Set of all include patterns that are full file names and don't
@@ -300,7 +300,7 @@ public class DirectoryScanner
      * isIncluded or isExcluded and cleared at the end of the scan
      * method (cleared in clearCaches, actually).</p>
      */
-    private Set<String> excludeNonPatterns = new HashSet<String>();
+    private final Set<String> excludeNonPatterns = new HashSet<String>();
 
     /**
      * Array of all include patterns that contain wildcards.
@@ -334,7 +334,7 @@ public class DirectoryScanner
     /**
      * Scanning lock.
      */
-    private Object scanLock = new Object();
+    private final Object scanLock = new Object();
 
     /**
      * Slow scanning flag.
@@ -344,7 +344,7 @@ public class DirectoryScanner
     /**
      * Slow scanning lock.
      */
-    private Object slowScanLock = new Object();
+    private final Object slowScanLock = new Object();
 
     /**
      * Exception thrown during scan.
@@ -395,8 +395,8 @@ public class DirectoryScanner
      * @return whether or not a given path matches the start of a given
      *         pattern up to the first "**".
      */
-    protected static boolean matchPatternStart(String pattern, String str,
-                                               boolean isCaseSensitive)
+    private static boolean matchPatternStart(String pattern, String str,
+                                             boolean isCaseSensitive)
     {
         return SelectorUtils.matchPatternStart(pattern, str, isCaseSensitive);
     }
@@ -428,8 +428,8 @@ public class DirectoryScanner
      * @return <code>true</code> if the pattern matches against the string,
      *         or <code>false</code> otherwise.
      */
-    protected static boolean matchPath(String pattern, String str,
-                                       boolean isCaseSensitive)
+    private static boolean matchPath(String pattern, String str,
+                                     boolean isCaseSensitive)
     {
         return SelectorUtils.matchPath(pattern, str, isCaseSensitive);
     }
@@ -481,7 +481,7 @@ public class DirectoryScanner
      *         contents of the <code>defaultExcludes</code>
      *         <code>Vector</code>.
      */
-    public static String[] getDefaultExcludes()
+    private static String[] getDefaultExcludes()
     {
         return defaultExcludes.toArray(new String[defaultExcludes
                 .size()]);
@@ -523,7 +523,7 @@ public class DirectoryScanner
      * Go back to the hardwired default exclude patterns.
      *
      */
-    public static void resetDefaultExcludes()
+    private static void resetDefaultExcludes()
     {
         defaultExcludes = new Vector<String>();
         defaultExcludes.addAll(Arrays.asList(DEFAULTEXCLUDES));
@@ -573,7 +573,7 @@ public class DirectoryScanner
      *
      * @return whether or not the scanning is case sensitive.
      */
-    public synchronized boolean isCaseSensitive()
+    private synchronized boolean isCaseSensitive()
     {
         return isCaseSensitive;
     }
@@ -754,10 +754,7 @@ public class DirectoryScanner
                     {
                         scanLock.wait();
                     }
-                    catch (InterruptedException e)
-                    {
-                        continue;
-                    }
+                    catch (InterruptedException ignored) {}
                 }
                 if (illegal != null)
                 {
@@ -863,7 +860,7 @@ public class DirectoryScanner
             // directories
             Enumeration<String> enum2 = newroots.keys();
 
-            File canonBase = null;
+            File canonBase;
             try
             {
                 canonBase = basedir.getCanonicalFile();
@@ -963,7 +960,7 @@ public class DirectoryScanner
     /**
      * Clear the result caches for a scan.
      */
-    protected synchronized void clearResults()
+    private synchronized void clearResults()
     {
         filesIncluded = new Vector<String>();
         filesNotIncluded = new Vector<String>();
@@ -985,7 +982,7 @@ public class DirectoryScanner
      * <p/>
      * Returns immediately if a slow scan has already been completed.
      */
-    protected void slowScan() throws Exception
+    private void slowScan() throws Exception
     {
         synchronized (slowScanLock)
         {
@@ -1001,9 +998,7 @@ public class DirectoryScanner
                     {
                         slowScanLock.wait();
                     }
-                    catch (InterruptedException e)
-                    {
-                    }
+                    catch (InterruptedException ignored) {}
                 }
                 return;
             }
@@ -1077,7 +1072,7 @@ public class DirectoryScanner
      * @see #dirsExcluded
      * @see #slowScan
      */
-    protected void scandir(File dir, String vpath, boolean fast) throws Exception
+    private void scandir(File dir, String vpath, boolean fast) throws Exception
     {
         if (dir == null)
         {
@@ -1257,7 +1252,7 @@ public class DirectoryScanner
      * @return <code>true</code> when the name matches against at least one
      *         include pattern, or <code>false</code> otherwise.
      */
-    protected boolean isIncluded(String name)
+    private boolean isIncluded(String name)
     {
         ensureNonPatternSetsReady();
 
@@ -1285,7 +1280,7 @@ public class DirectoryScanner
      * @return <code>true</code> when the name matches against the start of at
      *         least one include pattern, or <code>false</code> otherwise.
      */
-    protected boolean couldHoldIncluded(String name)
+    private boolean couldHoldIncluded(String name)
     {
         for (String include : includes)
         {
@@ -1370,7 +1365,7 @@ public class DirectoryScanner
      * @return <code>true</code> when the name matches against at least one
      *         exclude pattern, or <code>false</code> otherwise.
      */
-    protected boolean isExcluded(String name)
+    private boolean isExcluded(String name)
     {
         ensureNonPatternSetsReady();
 
@@ -1398,7 +1393,7 @@ public class DirectoryScanner
      * @return <code>false</code> when the selectors says that the file
      *         should not be selected, <code>true</code> otherwise.
      */
-    protected boolean isSelected(String name, File file) throws Exception
+    private boolean isSelected(String name, File file) throws Exception
     {
         if (selectors != null)
         {

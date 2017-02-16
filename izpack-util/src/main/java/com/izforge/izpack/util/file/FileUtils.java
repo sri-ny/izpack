@@ -85,19 +85,6 @@ public class FileUtils
         if (overwrite || !destFile.exists()
                 || destFile.lastModified() < sourceFile.lastModified())
         {
-
-            if (destFile.exists() && destFile.isFile())
-            {
-                destFile.delete();
-            }
-            // ensure that parent dir of dest file exists!
-            // not using getParentFile method to stay 1.1 compat
-            File parent = destFile.getParentFile();
-            if (parent != null && !parent.exists())
-            {
-                parent.mkdirs();
-            }
-
             org.apache.commons.io.FileUtils.copyFile(sourceFile, destFile, preserveLastModified);
         }
     }
@@ -132,24 +119,6 @@ public class FileUtils
     public static File getParentFile(File f)
     {
         return (f == null) ? null : f.getParentFile();
-    }
-
-    /**
-     * Create a new file, optionally creating parent directories.
-     *
-     * @param f      the file to be created.
-     * @param mkdirs <code>boolean</code> whether to create parent directories.
-     * @return true if the file did not exist already.
-     * @throws IOException on error.
-     */
-    public static boolean createNewFile(File f, boolean mkdirs) throws IOException
-    {
-        File parent = f.getParentFile();
-        if (mkdirs && !(parent.exists()))
-        {
-            parent.mkdirs();
-        }
-        return f.createNewFile();
     }
 
     /**
