@@ -58,6 +58,10 @@
     <str id="installer.sendReport" txt="Poslat report"/>
     <str id="installer.cancelled" txt="Instalace byla zrušena"/>
     <str id="installer.continueQuestion" txt="Přesto pokračovat?"/>
+    <str id="installer.started" txt="Instalace probíhá"/>
+    <str id="installer.platform" txt="Platforma: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Instalace skončila"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Tato operace odstraní nainstalovanou aplikaci !"/>
