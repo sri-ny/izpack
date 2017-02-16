@@ -37,8 +37,8 @@ import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.util.CleanupClient;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -578,8 +578,8 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             
             // make sure the 'Uninstaller' directory exists
             File uninstallerIcon = new File(iconPath);
-            FileUtils.createNewFile(uninstallerIcon, true);
-            
+            FileUtils.touch(uninstallerIcon);
+
             out = new FileOutputStream(uninstallerIcon);
             IOUtils.copy(in, out);
             out.flush();
