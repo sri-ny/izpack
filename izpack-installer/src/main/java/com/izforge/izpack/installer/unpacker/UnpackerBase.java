@@ -55,7 +55,11 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.jar.Pack200;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -102,6 +106,11 @@ public abstract class UnpackerBase implements IUnpacker
      * The variables.
      */
     private final Variables variables;
+
+    /**
+     * Translations
+     */
+    private final Messages messages;
 
     /**
      * The variable replacer.
@@ -211,6 +220,7 @@ public abstract class UnpackerBase implements IUnpacker
         this.prompt = prompt;
         this.matcher = matcher;
         this.variables = installData.getVariables();
+        this.messages = installData.getMessages();
         cancellable = new Cancellable()
         {
             @Override
@@ -242,11 +252,45 @@ public abstract class UnpackerBase implements IUnpacker
         unpack();
     }
 
+    private void logIntro()
+    {
+        final String startMessage = messages.get("installer.started");
+        char[] chars = new char[startMessage.length()];
+        Arrays.fill(chars, '=');
+        logger.info( new String(chars));
+        logger.info(startMessage);
+
+        URLClassLoader cl = (URLClassLoader) getClass().getClassLoader();
+        InputStream is = null;
+        try {
+            URL url = cl.findResource("META-INF/MANIFEST.MF");
+            is = url.openStream();
+            Manifest manifest = new Manifest(is);
+            Attributes attr = manifest.getMainAttributes();
+            logger.info(messages.get("installer.version", new Object[]{ attr.getValue("Created-By") }));
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "IzPack version not found in manifest", e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(is);
+        }
+
+        logger.info(messages.get("installer.platform", new Object[]{ matcher.getCurrentPlatform() }));
+    }
+
+    private void logEpilog()
+    {
+        logger.info(messages.get("installer.finished"));
+    }
+
     /**
      * Unpacks the installation files.
      */
     public void unpack()
     {
+        logIntro();
+
         state = State.UNPACKING;
         try
         {
@@ -261,7 +305,6 @@ public abstract class UnpackerBase implements IUnpacker
         {
             setResult(false);
             logger.log(Level.SEVERE, exception.getMessage(), exception);
-            Messages messages = installData.getMessages();
 
             listener.stopAction();
 
@@ -315,6 +358,7 @@ public abstract class UnpackerBase implements IUnpacker
         finally
         {
             cleanup();
+            logEpilog();
         }
     }
 
@@ -837,7 +881,6 @@ public abstract class UnpackerBase implements IUnpacker
     {
         if (packMessages == null)
         {
-            Messages messages = installData.getMessages();
             if (messages != null)
             {
               try {
@@ -1282,7 +1325,6 @@ public abstract class UnpackerBase implements IUnpacker
                     }
                     else // ask the user
                     {
-                        Messages messages = installData.getMessages();
                         Option answer = prompt.confirm(Type.QUESTION,
                                 messages.get("InstallPanel.overwrite.title") + " - " + file.getName(),
                                 messages.get("InstallPanel.overwrite.question") + file.getAbsolutePath(),

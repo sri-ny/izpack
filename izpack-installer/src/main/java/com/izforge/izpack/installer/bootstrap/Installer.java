@@ -32,7 +32,6 @@ import com.izforge.izpack.installer.container.impl.InstallerContainer;
 import com.izforge.izpack.logging.FileFormatter;
 import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.util.LogUtils;
-import com.izforge.izpack.util.Platform;
 import com.izforge.izpack.util.StringTool;
 import org.apache.commons.io.FilenameUtils;
 
@@ -323,8 +322,6 @@ public class Installer
     private void launchAutomatedInstaller(String path, String mediaDir, Overrides defaults, String[] args) throws Exception
     {
         InstallerContainer container = new AutomatedInstallerContainer();
-
-        logger.info("Detected platform: " + container.getComponent(Platform.class));
 
         if (defaults != null)
         {

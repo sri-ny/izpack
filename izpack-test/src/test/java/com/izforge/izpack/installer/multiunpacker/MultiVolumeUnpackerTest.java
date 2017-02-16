@@ -21,34 +21,10 @@
 
 package com.izforge.izpack.installer.multiunpacker;
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileEquals;
-import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.io.FilenameUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.handler.Prompt;
+import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
@@ -78,6 +54,25 @@ import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.Librarian;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
+import org.apache.commons.io.FilenameUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import static com.izforge.izpack.test.util.TestHelper.assertFileEquals;
+import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link MultiVolumeUnpacker}.
@@ -407,6 +402,9 @@ public class MultiVolumeUnpackerTest
         installData.setInstallPath(installDir.getPath());
         installData.setMediaPath(mediaDir.getPath());
         installData.setInfo(new Info());
+        InputStream langPack = getClass().getResourceAsStream("/com/izforge/izpack/bin/langpacks/installer/eng.xml");
+        assertNotNull(langPack);
+        installData.setMessages(new LocaleDatabase(langPack, Mockito.mock(Locales.class)));
         List<Pack> packs = getPacks(resources);
         installData.setAvailablePacks(packs);
         return installData;

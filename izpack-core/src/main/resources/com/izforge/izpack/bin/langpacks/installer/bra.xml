@@ -58,6 +58,10 @@
     <str id="installer.sendReport" txt="Enviar Relatório"/>
     <str id="installer.continueQuestion" txt="Deseja Continuar?"/>
     <str id="installer.cancelled" txt="Instalação cancelada"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Isto removerá o(s) aplicativo(s) instalado(s) !"/>

@@ -79,6 +79,10 @@
     <str id="installer.sendReport" txt="Skicka rapport"/>
     <str id="installer.continueQuestion" txt="Fortsätt ändå?"/>
     <str id="installer.cancelled" txt="Installationen avbryten"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Detta kommer att ta bort den installerade applikationen!"/>
