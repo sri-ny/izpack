@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="خوش آمدید"/>
     <str id="CompilePanel.headline" txt="کامپایل منابع جاوا"/>
     <str id="ConditionalUserInputPanel.headline" txt="اطلاعات کاربر"/>
-    <str id="ExtendedInstallPanel.headline" txt="نصب و پیکربندی"/>
     <str id="FinishPanel.headline" txt="نصب به پایان رسید."/>
     <str id="HelloPanel.headline" txt="خوش آمدید"/>
     <str id="HTMLInfoPanel.headline" txt="اطلاعات"/>

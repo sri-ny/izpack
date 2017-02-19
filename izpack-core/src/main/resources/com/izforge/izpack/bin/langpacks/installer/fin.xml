@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Tervetuloa"/>
     <str id="CompilePanel.headline" txt="Käännä Java-lähdekoodit"/>
     <str id="ConditionalUserInputPanel.headline" txt="Käyttäjän data"/>
-    <str id="ExtendedInstallPanel.headline" txt="Asennus ja asetukset"/>
     <str id="FinishPanel.headline" txt="Asennus on päättynyt"/>
     <str id="HelloPanel.headline" txt="Tervetuloa"/>
     <str id="HTMLInfoPanel.headline" txt="Tiedot"/>

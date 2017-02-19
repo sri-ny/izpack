@@ -20,26 +20,12 @@
  */
 package com.izforge.izpack.compiler.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
-import com.izforge.izpack.event.AntActionInstallerListener;
-import com.izforge.izpack.event.AntActionUninstallerListener;
-import com.izforge.izpack.event.BSFInstallerListener;
-import com.izforge.izpack.event.BSFUninstallerListener;
-import com.izforge.izpack.event.ConfigurationInstallerListener;
-import com.izforge.izpack.event.ProgressBarInstallerListener;
-import com.izforge.izpack.event.RegistryInstallerListener;
-import com.izforge.izpack.event.RegistryUninstallerListener;
-import com.izforge.izpack.event.SummaryLoggerInstallerListener;
+import com.izforge.izpack.event.*;
 import com.izforge.izpack.installer.web.DownloadPanel;
 import com.izforge.izpack.panels.checkedhello.CheckedHelloPanel;
 import com.izforge.izpack.panels.compile.CompilePanel;
 import com.izforge.izpack.panels.datacheck.DataCheckPanel;
 import com.izforge.izpack.panels.defaulttarget.DefaultTargetPanel;
-import com.izforge.izpack.panels.extendedinstall.ExtendedInstallPanel;
 import com.izforge.izpack.panels.finish.FinishPanel;
 import com.izforge.izpack.panels.hello.HelloPanel;
 import com.izforge.izpack.panels.htmlhello.HTMLHelloPanel;
@@ -66,14 +52,13 @@ import com.izforge.izpack.panels.userinput.processor.PasswordEncryptionProcessor
 import com.izforge.izpack.panels.userinput.processor.PortProcessor;
 import com.izforge.izpack.panels.userinput.processor.UnixGroupProcessor;
 import com.izforge.izpack.panels.userinput.processor.UnixUserProcessor;
-import com.izforge.izpack.panels.userinput.validator.HostAddressValidator;
-import com.izforge.izpack.panels.userinput.validator.IsPortValidator;
-import com.izforge.izpack.panels.userinput.validator.NotEmptyValidator;
-import com.izforge.izpack.panels.userinput.validator.PasswordEqualityValidator;
-import com.izforge.izpack.panels.userinput.validator.PortValidator;
-import com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator;
+import com.izforge.izpack.panels.userinput.validator.*;
 import com.izforge.izpack.panels.userpath.UserPathPanel;
 import com.izforge.izpack.panels.xinfo.XInfoPanel;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests the {@link DefaultClassNameMapper}.
@@ -159,7 +144,6 @@ public class DefaultClassNameMapperTest
         assertEquals(DataCheckPanel.class.getName(), mapper.map("DataCheckPanel"));
         assertEquals(DefaultTargetPanel.class.getName(), mapper.map("DefaultTargetPanel"));
         assertEquals(DownloadPanel.class.getName(), mapper.map("DownloadPanel"));
-        assertEquals(ExtendedInstallPanel.class.getName(), mapper.map("ExtendedInstallPanel"));
         assertEquals(FinishPanel.class.getName(), mapper.map("FinishPanel"));
         assertEquals(HTMLHelloPanel.class.getName(), mapper.map("HTMLHelloPanel"));
         assertEquals(HTMLInfoPanel.class.getName(), mapper.map("HTMLInfoPanel"));

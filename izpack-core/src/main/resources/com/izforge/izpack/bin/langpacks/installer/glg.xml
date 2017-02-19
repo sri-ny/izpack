@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Benvido"/>
     <str id="CompilePanel.headline" txt="Compilar Código Java"/>
     <str id="ConditionalUserInputPanel.headline" txt="Datos do Usuario"/>
-    <str id="ExtendedInstallPanel.headline" txt="Instalación e Configuración"/>
     <str id="FinishPanel.headline" txt="Instalación Finalizada"/>
     <str id="HelloPanel.headline" txt="Benvido"/>
     <str id="HTMLInfoPanel.headline" txt="Información"/>
