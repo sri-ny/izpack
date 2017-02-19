@@ -40,7 +40,6 @@
     <str id="CompilePanel.tip" txt="Postęp kompilacji:"/>
     <str id="ConditionalUserInputPanel.headline" txt="Dane użytkownika"/>
     <str id="debug.changevariable" txt="zmodyfikuj wartość"/>
-    <str id="ExtendedInstallPanel.headline" txt="Instalacja i konfiguracja"/>
     <str id="FinishPanel.auto" txt="Generuj skrypt automatycznej instalacji"/>
     <str id="FinishPanel.auto.dialog.filterdesc" txt="Pliki XML"/>
     <str id="FinishPanel.auto.tip" txt="Użyj tego skryptu, aby powtorzyć instalację na innych komputerach."/>

@@ -65,8 +65,6 @@ import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.logging.FileFormatter;
 import com.izforge.izpack.merge.MergeManager;
-import com.izforge.izpack.panels.extendedinstall.ExtendedInstallPanel;
-import com.izforge.izpack.panels.install.InstallPanel;
 import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
 import com.izforge.izpack.panels.treepacks.PackValidator;
@@ -1665,11 +1663,6 @@ public class CompilerConfig extends Thread
                             + "' has not been defined in resource "
                             + UserInputPanelSpec.SPEC_FILE_NAME);
                 }
-            }
-            else if (type.equals(ExtendedInstallPanel.class))
-            {
-                logger.warning(ExtendedInstallPanel.class.getSimpleName() + " is deprecated. Use "
-                                       + InstallPanel.class.getSimpleName() + " instead");
             }
             panel.setClassName(type.getName());
 
