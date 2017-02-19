@@ -80,7 +80,14 @@ import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -94,7 +101,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import static com.izforge.izpack.api.data.Info.EXPIRE_DATE_FORMAT;
 
@@ -993,36 +999,41 @@ public class CompilerConfig extends Thread
 
     private void processFileSetChildren(File baseDir, IXMLElement packElement, PackInfo pack) throws CompilerException
     {
-        for (TargetFileSet fs : readFileSets(packElement))
+        try
         {
-            try
+            for (TargetFileSet fs : readFileSets(packElement))
             {
-                String[][] includedFilesAndDirs = new String[][]{
-                        fs.getDirectoryScanner().getIncludedDirectories(),
-                        fs.getDirectoryScanner().getIncludedFiles()
-                };
-                for (String[] filesOrDirs : includedFilesAndDirs)
+                processFileSetChildren(fs, baseDir, pack);
+            }
+        }
+        catch (Exception e)
+        {
+            assertionHelper.parseError(packElement, e.getMessage(), e);
+        }
+    }
+
+    private void processFileSetChildren(TargetFileSet fs, File baseDir, PackInfo pack) throws Exception
+    {
+        String[][] includedFilesAndDirs = new String[][]{
+                fs.getDirectoryScanner().getIncludedDirectories(),
+                fs.getDirectoryScanner().getIncludedFiles()
+        };
+        for (String[] filesOrDirs : includedFilesAndDirs)
+        {
+            if (filesOrDirs != null)
+            {
+                for (String filePath : filesOrDirs)
                 {
-                    if (filesOrDirs != null)
+                    if (!filePath.isEmpty()) // not the basedir itself
                     {
-                        for (String filePath : filesOrDirs)
-                        {
-                            if (!filePath.isEmpty()) // not the basedir itself
-                            {
-                                File file = new File(fs.getDir(), filePath);
-                                String target = new File(fs.getTargetDir(), filePath).getPath();
-                                logAddingFile(file.toString(), target);
-                                pack.addFile(baseDir, file, target, fs.getOsList(),
-                                             fs.getOverride(), fs.getOverrideRenameTo(),
-                                             fs.getBlockable(), fs.getAdditionals(), fs.getCondition());
-                            }
-                        }
+                        File file = new File(fs.getDir(), filePath);
+                        String target = new File(fs.getTargetDir(), filePath).getPath();
+                        logAddingFile(file.toString(), target);
+                        pack.addFile(baseDir, file, target, fs.getOsList(),
+                                     fs.getOverride(), fs.getOverrideRenameTo(),
+                                     fs.getBlockable(), fs.getAdditionals(), fs.getCondition());
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                assertionHelper.parseError(packElement, e.getMessage(), e);
             }
         }
     }
@@ -1172,7 +1183,7 @@ public class CompilerConfig extends Thread
                         if (unpack)
                         {
                             logger.info("Adding content from archive: " + abssrcfile);
-                            addArchiveContent(baseDir, abssrcfile, fs.getTargetDir(),
+                            addArchiveContent(fileNode, baseDir, abssrcfile, fs.getTargetDir(),
                                               fs.getOsList(), fs.getOverride(), fs.getOverrideRenameTo(),
                                               fs.getBlockable(), pack, fs.getAdditionals(), fs.getCondition());
                         }
@@ -1522,74 +1533,135 @@ public class CompilerConfig extends Thread
      * Add files in an archive to a pack
      *
      * @param archive     the archive file to unpack
-     * @param targetdir   the target directory where the content of the archive will be installed
+     * @param targetDir   the target directory where the content of the archive will be installed
      * @param osList      The target OS constraints.
      * @param override    Overriding behaviour.
      * @param pack        Pack to be packed into
      * @param additionals Map which contains additional data
      * @param condition   condition that must evaluate {@code} true for the file to be installed. May be {@code null}
      */
-    private void addArchiveContent(File baseDir, File archive, String targetdir,
+    private void addArchiveContent(IXMLElement fileNode, File baseDir, File archive, String targetDir,
                                    List<OsModel> osList, OverrideType override, String overrideRenameTo,
                                    Blockable blockable, PackInfo pack, Map<String, ?> additionals,
-                                   String condition) throws IOException
+                                   String condition) throws Exception
     {
+        String archiveName = archive.getName();
 
-        FileInputStream fin = new FileInputStream(archive);
-        ZipInputStream zin = new ZipInputStream(fin);
-        List<String> allDirList = new ArrayList<String>();
-        while (true)
+        InputStream originalInputStream = IOUtils.buffer(FileUtils.openInputStream(archive));
+
+        InputStream uncompressedInputStream;
+        try
         {
-            ZipEntry zentry = zin.getNextEntry();
-            if (zentry == null)
-            {
-                break;
-            }
-            if (zentry.isDirectory())
-            {
-                // add to all dir listing/empty dir needs to be handle
-                String dName = zentry.getName().substring(0, zentry.getName().length() - 1);
-                allDirList.add(dName);
-                continue;
-            }
-
-            try
-            {
-                File temp = File.createTempFile("izpack", null, TEMP_DIR);
-                temp.deleteOnExit();
-
-                FileOutputStream out = new FileOutputStream(temp);
-                IOUtils.copy(zin, out);
-                out.close();
-
-                String target = targetdir + "/" + zentry.getName();
-                logAddingFile(zentry.getName() + "("+archive.getName()+")", target);
-                pack.addFile(baseDir, temp, target, osList, override,
-                             overrideRenameTo, blockable, additionals, condition);
-            }
-            catch (IOException e)
-            {
-                throw new IOException("Couldn't create temporary file for " + zentry.getName()
-                                              + " in archive " + archive + " (" + e.getMessage() + ")");
-            }
-
+            uncompressedInputStream = IOUtils.buffer(new CompressorStreamFactory().createCompressorInputStream(originalInputStream));
+            // file is compressed, may be a compressed archive
+        }
+        catch (CompressorException e)
+        {
+            // file is not a single compressed file, may be an uncompressed archive
+            uncompressedInputStream = originalInputStream;
         }
 
-        // This corrects issues that could arise due to subfolders
-        File tempDir = com.izforge.izpack.util.file.FileUtils.createTempDirectory("izpack", TEMP_DIR);
-        tempDir.deleteOnExit();
-        Collections.sort(allDirList);
-        for (String dirName : allDirList)
+        List<IXMLElement> filesetNodes = fileNode.getChildrenNamed("archivefileset");
+        final boolean hasNoFileSet = (filesetNodes == null || filesetNodes.isEmpty());
+
+        ArchiveInputStream archiveInputStream = null;
+        File baseTempDir = null;
+        try
         {
-            File tmp = new File(tempDir, dirName);
-            org.apache.commons.io.FileUtils.forceMkdir(tmp);
-            org.apache.commons.io.FileUtils.forceDeleteOnExit(tmp);
-            String target = targetdir + "/" + dirName;
-            logAddingFile(tmp.toString(), target);
-            pack.addFile(baseDir, tmp, target, osList,
-                         override, overrideRenameTo, blockable, additionals, condition);
+            archiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(uncompressedInputStream);
+
+            // file is an archive (incl. ZIP archive) - unpack recursively
+            baseTempDir = com.izforge.izpack.util.file.FileUtils.createTempDirectory("izpack", TEMP_DIR);
+
+            while (true)
+            {
+                ArchiveEntry entry = archiveInputStream.getNextEntry();
+                if (entry == null)
+                {
+                    break;
+                }
+                String entryName = entry.getName();
+                if (entry.isDirectory())
+                {
+                    String dName = entryName.substring(0, entryName.length() - 1);
+                    File tempDir = new File(baseTempDir, dName);
+                    FileUtils.forceMkdir(tempDir);
+                    if (hasNoFileSet)
+                    {
+                        String target = targetDir + "/" + dName;
+                        logAddingFile(dName + " (" + archiveName + ")", target);
+                        pack.addFile(baseDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+                    }
+                }
+                else
+                {
+                    FileOutputStream tempFileStream = null;
+                    try
+                    {
+                        File tempFile = new File(baseTempDir, entryName);
+                        tempFileStream = FileUtils.openOutputStream(tempFile);
+                        IOUtils.copy(archiveInputStream, tempFileStream);
+                        tempFileStream.close();
+
+                        if (hasNoFileSet)
+                        {
+                            String target = targetDir + "/" + entryName;
+                            logAddingFile(entryName + " (" + archiveName + ")", target);
+                            pack.addFile(baseDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+                        }
+                    }
+                    finally
+                    {
+                        IOUtils.closeQuietly(tempFileStream);
+                    }
+                }
+            }
+
+            if (!hasNoFileSet)
+            {
+                for (IXMLElement fileSetNode : filesetNodes)
+                {
+                    processFileSetChildren(readArchiveFileSet(fileSetNode, baseTempDir, targetDir), baseTempDir, pack);
+                }
+            }
         }
-        fin.close();
+        catch (ArchiveException e)
+        {
+            if (baseTempDir != null)
+            {
+                FileUtils.deleteDirectory(baseTempDir);
+            }
+
+            if (uncompressedInputStream == originalInputStream)
+            {
+                throw new Exception("No compression or archiving format detected for file " + archive + " marked to be unpacked");
+            }
+
+            if (!hasNoFileSet)
+            {
+                throw new Exception("Nested archive filesets not applicable because " + archive + " is not an archive file");
+            }
+
+            // uncompressed file is not an archive
+            File temp = File.createTempFile("izpack", null, TEMP_DIR);
+            FileUtils.forceDeleteOnExit(temp);
+            FileUtils.copyInputStreamToFile(uncompressedInputStream, temp);
+
+            String uncompressedArchiveName = FilenameUtils.getBaseName(archiveName);
+            String target = targetDir + "/" + uncompressedArchiveName;
+            logAddingFile(uncompressedArchiveName + " (" + archiveName + ")", target);
+            pack.addFile(baseDir, temp, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(archiveInputStream);
+            IOUtils.closeQuietly(uncompressedInputStream);
+            IOUtils.closeQuietly(originalInputStream);
+            if (baseTempDir != null)
+            {
+                FileUtils.forceDeleteOnExit(baseTempDir);
+            }
+        }
     }
 
     /**
@@ -1736,8 +1808,8 @@ public class CompilerConfig extends Thread
     /**
      * Parse and add logging configuration
      *
-     * @param data
-     * @throws CompilerException
+     * @param data the XML root tag of the installer descriptor
+     * @throws CompilerException an error ocurred during compiling
      */
     private void addLogging(IXMLElement data) throws CompilerException
     {
@@ -3485,10 +3557,43 @@ public class CompilerConfig extends Thread
 
     private TargetFileSet readFileSet(IXMLElement fileSetNode) throws CompilerException
     {
+        String dir_attr = xmlCompilerHelper.requireAttribute(fileSetNode, "dir");
+        File baseDir = null;
+        if (dir_attr != null)
+        {
+            baseDir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
+            // if the path does not exist, maybe it contains variables
+            if (!baseDir.exists()) {
+                baseDir = new File(variableSubstitutor.substitute(baseDir.getAbsolutePath()));
+            }
+        }
+        String targetDir = fileSetNode.getAttribute("targetdir", "${INSTALL_PATH}");
+
+        return readFileSet(fileSetNode, baseDir, targetDir);
+    }
+
+    private TargetFileSet readArchiveFileSet(IXMLElement fileSetNode, File baseDir, String targetDir) throws CompilerException
+    {
+        String dir_attr = fileSetNode.getAttribute("dir");
+        File extractedBaseDir = baseDir;
+        if (dir_attr != null)
+        {
+            extractedBaseDir = new File(baseDir, variableSubstitutor.substitute(dir_attr));
+            if (!extractedBaseDir.exists()) {
+                assertionHelper.parseError(fileSetNode, "Archive does not contain a base directory " + dir_attr);
+            }
+        }
+
+        return readFileSet(fileSetNode, extractedBaseDir, targetDir);
+    }
+
+
+    private TargetFileSet readFileSet(IXMLElement fileSetNode, File baseDir, String targetDir) throws CompilerException
+    {
         TargetFileSet fs = new TargetFileSet();
 
-        fs.setTargetDir(fileSetNode.getAttribute("targetdir", "${INSTALL_PATH}"));
-        List<OsModel> osList = OsConstraintHelper.getOsList(fileSetNode); // TODO: unverified
+        fs.setTargetDir(targetDir);
+        List<OsModel> osList = OsConstraintHelper.getOsList(fileSetNode);
         fs.setOsList(osList);
         fs.setOverride(getOverrideValue(fileSetNode));
         fs.setOverrideRenameTo(getOverrideRenameToValue(fileSetNode));
@@ -3500,18 +3605,9 @@ public class CompilerConfig extends Thread
             fs.setCondition(conditionId);
         }
 
-        String dir_attr = xmlCompilerHelper.requireAttribute(fileSetNode, "dir");
         try
         {
-            if (dir_attr != null)
-            {
-                File dir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
-                // if the path does not exist, maybe it contains variables
-                if (! dir.exists()) {
-                    dir = new File(variableSubstitutor.substitute(dir.getAbsolutePath()));
-                }
-                fs.setDir(dir);
-            }
+            fs.setDir(baseDir);
         }
         catch (Exception e)
         {
