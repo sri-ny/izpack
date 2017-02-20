@@ -107,6 +107,10 @@
     <str id="installer.step" txt="ステップ"/>
     <str id="installer.of" txt="/"/>
     <str id="installer.Message" txt="メッセージ"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="この操作は、インストール済のアプリケーションを削除します!"/>
