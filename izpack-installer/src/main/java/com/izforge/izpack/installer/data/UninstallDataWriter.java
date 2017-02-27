@@ -4,7 +4,7 @@ import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.merge.Mergeable;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.api.data.ExecutableFile;
 import com.izforge.izpack.merge.resolve.PathResolver;
 import com.izforge.izpack.util.IoHelper;
 import org.apache.commons.io.IOUtils;
@@ -27,17 +27,17 @@ public class UninstallDataWriter
     /**
      * Uninstall data.
      */
-    private UninstallData uninstallData;
+    private final UninstallData uninstallData;
 
     /**
      * Install data.
      */
-    private AutomatedInstallData installData;
+    private final AutomatedInstallData installData;
 
     /**
      * The path resolver.
      */
-    private PathResolver pathResolver;
+    private final PathResolver pathResolver;
 
     /**
      * The jar to write to.
@@ -52,7 +52,7 @@ public class UninstallDataWriter
     /**
      * The rules engine.
      */
-    private RulesEngine rules;
+    private final RulesEngine rules;
 
     /**
      * The logger.
@@ -196,9 +196,6 @@ public class UninstallDataWriter
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("com/izforge/izpack/img/"));
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/picocontainer/"));
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/apache/commons/io/"));
-
-        // indirectly required by Librarian, which pulls in IoHelper. TODO
-        uninstallerMerge.addAll(pathResolver.getMergeableFromPath("org/apache/tools/zip/"));
 
         //required by console uninstaller
         uninstallerMerge.addAll(pathResolver.getMergeableFromPath("jline/"));
@@ -376,10 +373,8 @@ public class UninstallDataWriter
 
     /**
      * Writes native libraries.
-     *
-     * @throws IOException for any I/O error
      */
-    private void writeNativeLibraries() throws IOException
+    private void writeNativeLibraries()
     {
         for (String path : uninstallData.getNativeLibraries())
         {
@@ -401,7 +396,7 @@ public class UninstallDataWriter
         {
             for (String key : additionalData.keySet())
             {
-                Object content = additionalData.get(key);
+                Serializable content = (Serializable)additionalData.get(key);
                 writeContent(key, content);
             }
         }
@@ -432,9 +427,8 @@ public class UninstallDataWriter
      * Writes the resources referenced by {@link CustomData#contents}.
      *
      * @param customData the custom data to write
-     * @throws IOException for any I/O error
      */
-    private void writeCustomDataResources(List<CustomData> customData) throws IOException
+    private void writeCustomDataResources(List<CustomData> customData)
     {
         for (CustomData data : customData)
         {
@@ -452,9 +446,8 @@ public class UninstallDataWriter
      * Writes a resource to the jar, if it is not already present.
      *
      * @param path the resource path
-     * @throws IOException for any I/O error
      */
-    private void writeResource(String path) throws IOException
+    private void writeResource(String path)
     {
         for (Mergeable mergeable : pathResolver.getMergeableFromPath(path))
         {
@@ -469,7 +462,7 @@ public class UninstallDataWriter
      * @param content the content to write. May be an object or a <tt>ByteArrayOutputStream</tt>. No idea why for the latter. TODO
      * @throws IOException for any I/O error
      */
-    private void writeContent(String path, Object content) throws IOException
+    private void writeContent(String path, Serializable content) throws IOException
     {
         jar.putNextEntry(new JarEntry(path));
         if (content instanceof ByteArrayOutputStream)

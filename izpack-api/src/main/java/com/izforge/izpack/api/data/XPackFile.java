@@ -22,12 +22,11 @@
 package com.izforge.izpack.api.data;
 
 
+import com.izforge.izpack.api.data.binding.OsModel;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-
-import com.izforge.izpack.api.data.binding.OsModel;
 
 /**
  * A {@link PackFile} that includes the file position in the installation media.
@@ -51,13 +50,13 @@ public class XPackFile extends PackFile implements Comparable<XPackFile>
      * @param target   the path to install the file to
      * @param osList   OS constraints
      * @param override what to do when the file already exists
-     * @throws FileNotFoundException if the specified file does not exist.
+     * @throws IOException if the specified file does not exist.
      */
     public XPackFile(File baseDir, File src, String target, List<OsModel> osList, OverrideType override,
                      String overrideRenameTo, Blockable blockable)
             throws IOException
     {
-        super(baseDir, src, target, osList, override, overrideRenameTo, blockable);
+        super(baseDir, src, target, osList, override, overrideRenameTo, blockable, null);
         this.position = 0;
     }
 
@@ -65,12 +64,12 @@ public class XPackFile extends PackFile implements Comparable<XPackFile>
      * Constructs an <tt>XPackFile</tt> from an {@link PackFile}.
      *
      * @param file the pack file
-     * @throws FileNotFoundException
+     * @throws IOException if an I/O error occurred
      */
-    public XPackFile(PackFile file) throws FileNotFoundException
+    public XPackFile(PackFile file) throws IOException
     {
-        super(new File(file.sourcePath), file.relativePath, file.getTargetPath(), file.osConstraints(),
-              file.override(), file.overrideRenameTo(), file.blockable(), file.getAdditionals());
+        super(new File(file.sourcePath), file.getRelativeSourcePath(), file.getTargetPath(), file.osConstraints(),
+              file.override(), file.overrideRenameTo(), file.blockable(), file.getAdditionals(), null);
         this.position = 0;
         this.setCondition(file.getCondition());
     }

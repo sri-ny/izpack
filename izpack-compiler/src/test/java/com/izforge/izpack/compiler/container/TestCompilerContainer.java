@@ -47,7 +47,7 @@ import com.izforge.izpack.util.FileUtil;
 public class TestCompilerContainer extends CompilerContainer
 {
 
-    public static final String APPNAME = "Test Installation";
+    private static final String APPNAME = "Test Installation";
 
     /**
      * The test class.
@@ -129,7 +129,7 @@ public class TestCompilerContainer extends CompilerContainer
         File out = new File(baseDir, "out" + Math.random() + ".jar");
         out.deleteOnExit();
         CompilerData data = new CompilerData(installerFile.getAbsolutePath(), baseDir.getAbsolutePath(),
-                                             out.getAbsolutePath(), false, true);
+                                             out.getAbsolutePath(), false);
         addComponent(CompilerData.class, data);
         addComponent(File.class, out);
 

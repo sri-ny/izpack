@@ -66,7 +66,6 @@ public class FileUtil
      * @param fileName A file to read from.
      * @return List of individual line of the specified file. List may be empty but not
      *         null.
-     * @throws IOException
      */
     public static List<String> getFileContent(String fileName)
             throws IOException
@@ -74,29 +73,22 @@ public class FileUtil
         List<String> result = new ArrayList<String>();
 
         File aFile = new File(fileName);
-
         if (!aFile.isFile())
         {
-            //throw new IOException( fileName + " is not a regular File" );
             return result; // None
         }
 
-        BufferedReader reader = null;
-
+        BufferedReader reader;
         try
         {
             reader = new BufferedReader(new FileReader(aFile));
         }
         catch (FileNotFoundException e)
         {
-            // TODO handle Exception
-            e.printStackTrace();
-
             return result;
         }
 
-        String aLine = null;
-
+        String aLine;
         while ((aLine = reader.readLine()) != null)
         {
             result.add(aLine + "\n");
@@ -108,70 +100,11 @@ public class FileUtil
     }
 
     /**
-     * Searches case sensitively, and returns true if the given SearchString occurs in the
-     * first File with the given Filename.
-     *
-     * @param aFileName     A files name
-     * @param aSearchString the string search for
-     * @return true if found in the file otherwise false
-     */
-    public static boolean fileContains(String aFileName, String aSearchString)
-    {
-        return (fileContains(aFileName, aSearchString, false));
-    }
-
-    /**
-     * Tests if the given File contains the given Search String
-     *
-     * @param aFileName             A files name
-     * @param aSearchString         the String to search for
-     * @param caseInSensitiveSearch If false the Search is casesensitive
-     * @return true if found in the file otherwise false
-     */
-    public static boolean fileContains(String aFileName, String aSearchString,
-                                       boolean caseInSensitiveSearch)
-    {
-        boolean result = false;
-
-        String searchString = caseInSensitiveSearch
-                ? aSearchString.toLowerCase() : aSearchString;
-
-        List<String> fileContent = new ArrayList<String>();
-
-        try
-        {
-            fileContent = getFileContent(aFileName);
-        }
-        catch (IOException e)
-        {
-            // TODO handle Exception
-            e.printStackTrace();
-        }
-
-        for (String currentline : fileContent)
-        {
-            if (caseInSensitiveSearch)
-            {
-                currentline = currentline.toLowerCase();
-            }
-
-            if (currentline.contains(searchString))
-            {
-                result = true;
-
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Gets file date and time.
      *
      * @param url The URL of the file for which date and time will be returned.
      * @return Returns long value which is the date and time of the file. If any error
-     *         occures returns -1 (=no file date and time available).
+     *         occurs returns -1 (=no file date and time available).
      */
     public static long getFileDateTime(URL url)
     {
@@ -203,12 +136,7 @@ public class FileUtil
         }
     }
 
-    public static String[] getFileNames(String dirPath) throws Exception
-    {
-        return getFileNames(dirPath, null);
-    }
-
-    public static String[] getFileNames(String dirPath, FilenameFilter fileNameFilter) throws Exception
+    public static String[] getFileNames(String dirPath, FilenameFilter fileNameFilter)
     {
         String fileNames[] = null;
         File dir = new File(dirPath);
@@ -255,13 +183,17 @@ public class FileUtil
      * Gets a relative file from a filename against a base directory.
      * Enclosed '.' and '..' characters are resolved for all parameters.
      *
-     * @param filename The filename to build a relative file from
+     * @param file The filename to build a relative file from
      * @param basedir  The base directory for a relative filename
      * @return The relative file name, or null, if one input parameter was null
      * @throws IOException if the file paths cannot be canonicalized
      */
     public static String getRelativeFileName(File file, File basedir) throws IOException
     {
+        if (!basedir.isDirectory())
+        {
+            throw new IOException("Base path " + basedir + " is expected to be a directory");
+        }
         String canonicalFilePath = file.getCanonicalPath();
         String canonicalBaseDirPath = basedir.getCanonicalPath();
         if (canonicalFilePath.startsWith(canonicalBaseDirPath))

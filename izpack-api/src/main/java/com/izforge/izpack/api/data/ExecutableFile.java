@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package com.izforge.izpack.data;
+package com.izforge.izpack.api.data;
 
 
 import com.izforge.izpack.api.data.binding.OsModel;
@@ -37,8 +37,7 @@ import java.util.List;
 
 public class ExecutableFile implements Serializable
 {
-
-    static final long serialVersionUID = 4175489415984990405L;
+    private static final long serialVersionUID = 4175489415984990405L;
 
     /**
      * when to execute this file
@@ -162,7 +161,7 @@ public class ExecutableFile implements Serializable
     @Override
     public String toString()
     {
-        StringBuffer retval = new StringBuffer();
+        StringBuilder retval = new StringBuilder();
         retval.append("path = ").append(path);
         retval.append("\n");
         retval.append("mainClass = ").append(mainClass);

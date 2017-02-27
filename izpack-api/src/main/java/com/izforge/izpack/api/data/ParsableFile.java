@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package com.izforge.izpack.data;
+package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -35,8 +35,7 @@ import com.izforge.izpack.api.substitutor.SubstitutionType;
  */
 public class ParsableFile implements Serializable
 {
-
-    static final long serialVersionUID = -7761309341843715721L;
+    private static final long serialVersionUID = -7761309341843715721L;
 
     /**
      * The file path.
@@ -154,7 +153,7 @@ public class ParsableFile implements Serializable
     @Override
     public String toString()
     {
-        StringBuffer retval = new StringBuffer();
+        StringBuilder retval = new StringBuilder();
         retval.append("path = ").append(path);
         retval.append("\n");
         retval.append("type = ").append(type);

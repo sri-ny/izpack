@@ -8,6 +8,7 @@ import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.util.*;
+import org.apache.commons.io.IOUtils;
 import org.picocontainer.injectors.Provider;
 
 import java.io.File;
@@ -88,21 +89,28 @@ public abstract class AbstractInstallDataProvider implements Provider
         // We read the packs data
         InputStream in = resources.getInputStream("packs.info");
         ObjectInputStream objIn = new ObjectInputStream(in);
-        int size = objIn.readInt();
+        List<PackInfo> packs;
+        try
+        {
+            packs = (List<PackInfo>) objIn.readObject();
+        }
+        finally
+        {
+            IOUtils.closeQuietly(objIn);
+        }
+
         List<Pack> availablePacks = new ArrayList<Pack>();
         List<Pack> allPacks = new ArrayList<Pack>();
 
-        for (int i = 0; i < size; i++)
+        for (PackInfo packInfo : packs)
         {
-            Pack pack = (Pack) objIn.readObject();
+            Pack pack = packInfo.getPack();
             allPacks.add(pack);
             if (matcher.matchesCurrentPlatform(pack.getOsConstraints()))
             {
                 availablePacks.add(pack);
             }
         }
-        objIn.close();
-
         setStandardVariables(installData, dir);
 
         // We load the user variables
@@ -162,7 +170,6 @@ public abstract class AbstractInstallDataProvider implements Provider
         }
 
         installData.setVariable("APPLICATIONS_DEFAULT_ROOT", dir);
-        dir += File.separator;
         installData.setVariable(ScriptParserConstant.JAVA_HOME, System.getProperty("java.home"));
         installData.setVariable(ScriptParserConstant.CLASS_PATH, System.getProperty("java.class.path"));
         installData.setVariable(ScriptParserConstant.USER_HOME, System.getProperty("user.home"));
@@ -192,7 +199,7 @@ public abstract class AbstractInstallDataProvider implements Provider
     }
 
 
-    protected String getDir(Resources resources)
+    private String getDir(Resources resources)
     {
         // We determine the operating system and the initial installation path
         String dir;
@@ -363,7 +370,6 @@ public abstract class AbstractInstallDataProvider implements Provider
      */
     @SuppressWarnings("unchecked")
     protected void loadInstallerRequirements(AutomatedInstallData installData, Resources resources)
-            throws IOException, ClassNotFoundException
     {
         List<InstallerRequirement> requirements =
                 (List<InstallerRequirement>) resources.getObject("installerrequirements");
@@ -378,7 +384,6 @@ public abstract class AbstractInstallDataProvider implements Provider
      * @throws IOException for any I/O error
      */
     protected void loadDefaultLocale(AutomatedInstallData installData, Locales locales)
-            throws IOException
     {
         Locale locale = locales.getLocale();
         if (locale != null)

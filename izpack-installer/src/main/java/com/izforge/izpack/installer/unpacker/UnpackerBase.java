@@ -38,9 +38,6 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.handler.ProgressHandler;
 import com.izforge.izpack.core.handler.PromptUIHandler;
 import com.izforge.izpack.core.resource.ResourceManager;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.ParsableFile;
-import com.izforge.izpack.data.UpdateCheck;
 import com.izforge.izpack.installer.bootstrap.Installer;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
@@ -86,6 +83,8 @@ public abstract class UnpackerBase implements IUnpacker
      * The installation data.
      */
     private final InstallData installData;
+
+    private List<Pack> selectedPacks;
 
     /**
      * The uninstallation data.
@@ -292,14 +291,21 @@ public abstract class UnpackerBase implements IUnpacker
         logIntro();
 
         state = State.UNPACKING;
+        ObjectInputStream objIn = null;
         try
         {
             FileQueue queue = queueFactory.isSupported() ? queueFactory.create() : null;
 
-            List<Pack> packs = installData.getSelectedPacks();
-            preUnpack(packs);
-            unpack(packs, queue);
-            postUnpack(packs, queue);
+            InputStream in = resources.getInputStream("packs.info");
+            objIn = new ObjectInputStream(in);
+            List<PackInfo> packsInfo = (List<PackInfo>) objIn.readObject();
+            objIn.close();
+
+            selectedPacks = installData.getSelectedPacks();
+
+            preUnpack(selectedPacks);
+            unpack(packsInfo, queue);
+            postUnpack(selectedPacks, queue);
         }
         catch (Exception exception)
         {
@@ -359,6 +365,7 @@ public abstract class UnpackerBase implements IUnpacker
         {
             cleanup();
             logEpilog();
+            IOUtils.closeQuietly(objIn);
         }
     }
 
@@ -463,21 +470,22 @@ public abstract class UnpackerBase implements IUnpacker
      * @throws ResourceInterruptedException if unpacking is cancelled
      * @throws InstallerException              for any error
      */
-    protected void unpack(List<Pack> packs, FileQueue queue) throws InstallerException
+    protected void unpack(List<PackInfo> packs, FileQueue queue) throws InstallerException
     {
         int count = packs.size();
         for (int i = 0; i < count; i++)
         {
-            Pack pack = packs.get(i);
+            PackInfo packInfo = packs.get(i);
+            Pack pack = packInfo.getPack();
+
             if (shouldUnpack(pack))
             {
-            	
             	List<ParsableFile> parsables = new ArrayList<ParsableFile>();
             	List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
             	List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
             	
                 listeners.beforePack(pack, i, listener);
-                unpack(pack, i, queue, parsables, executables, updateChecks);
+                unpack(packInfo, i, queue, parsables, executables, updateChecks);
                 checkInterrupt();
 
                 logger.fine("Found " + parsables.size() + " parsable files");
@@ -500,47 +508,44 @@ public abstract class UnpackerBase implements IUnpacker
     /**
      * Unpacks a pack.
      *
-     * @param pack         the pack to unpack
+     * @param packInfo     the pack info of the current pack
      * @param packNo       the pack number
      * @param queue        the file queue, or {@code null} if queuing is not supported
-     * @param parsables    used to collect parsable files in the pack
-     * @param executables  used to collect executable files files in the pack
-     * @param updateChecks used to collect update checks in the pack
      * @throws IzPackException for any error
      */
-    protected void unpack(Pack pack, int packNo, FileQueue queue, List<ParsableFile> parsables,
+    protected void unpack(PackInfo packInfo, int packNo, FileQueue queue, List<ParsableFile> parsables,
                           List<ExecutableFile> executables, List<UpdateCheck> updateChecks)
     {
         InputStream in = null;
         ObjectInputStream packInputStream = null;
+        Pack pack = packInfo.getPack();
+        PackFile[] packFiles = packInfo.getPackFiles().toArray(new PackFile[]{});
         try
         {
+            int len = packFiles.length;
             in = resources.getPackStream(pack.getName());
             packInputStream = new ObjectInputStream(in);
 
-            int fileCount = packInputStream.readInt();
-
             String stepName = getStepName(pack);
-            listener.nextStep(stepName, packNo + 1, fileCount);
+            listener.nextStep(stepName, packNo + 1, len);
 
-            for (int i = 0; i < fileCount; ++i)
+            for (int i = 0; i < len; i++)
             {
-                // read the header
-                PackFile file = (PackFile) packInputStream.readObject();
-                if (shouldUnpack(file))
+                PackFile packFile = packFiles[i];
+                if (shouldUnpack(packFile))
                 {
                     // unpack the file
-                    unpack(file, packInputStream, i, pack, queue);
+                    unpack(packFile, packInputStream, i+1, pack, queue);
                 }
                 else
                 {
                     // condition is not fulfilled, so skip it
-                    skip(file, pack, packInputStream);
+                    skip(packFile, pack, packInputStream);
                 }
             }
-            readParsableFiles(packInputStream, parsables);
-            readExecutableFiles(packInputStream, executables);
-            readUpdateChecks(packInputStream, updateChecks);
+            readParsableFiles(packInfo, parsables);
+            readExecutableFiles(packInfo, executables);
+            readUpdateChecks(packInfo, updateChecks);
         }
         catch (IzPackException exception)
         {
@@ -580,71 +585,73 @@ public abstract class UnpackerBase implements IUnpacker
     /**
      * Unpacks a pack file.
      *
-     * @param file            the pack file
-     * @param packInputStream the pack file input stream
-     * @param fileNo          the pack file number
-     * @param pack            the pack that the pack file comes from
-     * @param queue           the file queue, or {@code null} if queuing is not supported
+     * @param packFile         the pack file
+     * @param packInputStream  the pack file input stream
+     * @param fileNo           the pack file number
+     * @param pack             the pack that the pack file comes from
+     * @param queue            the file queue, or {@code null} if queuing is not supported
      * @throws IOException     for any I/O error
      * @throws IzPackException for any other error
      */
-    protected void unpack(PackFile file, ObjectInputStream packInputStream, int fileNo, Pack pack, FileQueue queue)
+    protected void unpack(PackFile packFile, ObjectInputStream packInputStream, int fileNo, Pack pack, FileQueue queue)
             throws IOException
     {
+        String targetPath = packFile.getTargetPath();
+
         if (logger.isLoggable(Level.FINE))
         {
-            logger.fine("Unpack " + file.getTargetPath());
+            logger.fine("Unpack " + targetPath);
         }
 
         // translate & build the path
-        String path = IoHelper.translatePath(file.getTargetPath(), variables);
+        String path = IoHelper.translatePath(targetPath, variables);
         File target = new File(path);
         File dir = target;
-        if (!file.isDirectory())
+        if (!packFile.isDirectory())
         {
             dir = target.getParentFile();
         }
 
-        createDirectory(dir, file, pack);
+        createDirectory(dir, packFile, pack);
 
         // Add path to the log
         getUninstallData().addFile(path, pack.isUninstall());
 
-        if (file.isDirectory())
+        if (packFile.isDirectory())
         {
             return;
         }
 
-        listeners.beforeFile(target, file, pack);
+        listeners.beforeFile(target, packFile, pack);
 
         listener.progress(fileNo, path);
 
         // if this file exists and should not be overwritten, check what to do
-        if (target.exists() && (file.override() != OverrideType.OVERRIDE_TRUE) && !isOverwriteFile(file, target))
+        if (target.exists() && (packFile.override() != OverrideType.OVERRIDE_TRUE) && !isOverwriteFile(packFile, target))
         {
-            if (!file.isBackReference() && !pack.isLoose())
+            if (!packFile.isBackReference() && !pack.isLoose())
             {
-                if (file.isPack200Jar())
+                if (packFile.isPack200Jar())
                 {
                     skip(packInputStream, Integer.SIZE / 8);
                 }
                 else
                 {
-                    skip(packInputStream, file.length());
+                    skip(packInputStream, packFile.size());
                 }
             }
         }
         else
         {
-            handleOverrideRename(file, target);
-            extract(file, target, packInputStream, pack, queue);
+            handleOverrideRename(packFile, target);
+            extract(packFile, target, packInputStream, pack, queue);
         }
     }
 
     /**
      * Extracts a pack file.
      *
-     * @param file            the pack file
+     * @param packFile        the pack file
      * @param target          the file to write to
      * @param packInputStream the pack file input stream
      * @param pack            the pack that the pack file comes from
@@ -653,7 +660,7 @@ public abstract class UnpackerBase implements IUnpacker
      * @throws ResourceInterruptedException if installation is cancelled
      * @throws IzPackException              for any IzPack error
      */
-    protected void extract(PackFile file, File target, ObjectInputStream packInputStream, Pack pack, FileQueue queue)
+    protected void extract(PackFile packFile, File target, ObjectInputStream packInputStream, Pack pack, FileQueue queue)
             throws IOException
     {
         ObjectInputStream packStream = packInputStream;
@@ -662,23 +669,23 @@ public abstract class UnpackerBase implements IUnpacker
         {
             FileUnpacker unpacker;
 
-            if (!pack.isLoose() && file.isBackReference())
+            if (!pack.isLoose() && packFile.isBackReference())
             {
-                in = resources.getPackStream(file.previousPackId);
+                in = resources.getPackStream(packFile.previousPackId);
                 packStream = new ObjectInputStream(in);
                 // must wrap for blockdata use by ObjectStream (otherwise strange result)
                 // skip on underlying stream (for some reason not possible on ObjectStream)
-                skip(in, file.offsetInPreviousPack - 4);
+                skip(in, packFile.offsetInPreviousPack - 4);
                 // but the stream header is now already read (== 4 bytes)
             }
 
-            unpacker = createFileUnpacker(file, pack, queue, cancellable);
-            unpacker.unpack(file, packStream, target);
+            unpacker = createFileUnpacker(packFile, pack, queue, cancellable);
+            unpacker.unpack(packFile, packStream, target);
             checkInterrupt();
 
             if (!unpacker.isQueued())
             {
-                listeners.afterFile(target, file, pack);
+                listeners.afterFile(target, packFile, pack);
             }
         }
         finally
@@ -708,7 +715,7 @@ public abstract class UnpackerBase implements IUnpacker
 
         if (!pack.isLoose() && !file.isBackReference())
         {
-            skip(packInputStream, file.length());
+            skip(packInputStream, file.size());
         }
     }
 
@@ -726,6 +733,7 @@ public abstract class UnpackerBase implements IUnpacker
     protected FileUnpacker createFileUnpacker(PackFile file, Pack pack, FileQueue queue, Cancellable cancellable)
             throws IOException, InstallerException
     {
+        PackCompression compressionFormat = getInstallData().getInfo().getCompressionFormat();
         FileUnpacker unpacker;
         if (pack.isLoose())
         {
@@ -733,7 +741,11 @@ public abstract class UnpackerBase implements IUnpacker
         }
         else if (file.isPack200Jar())
         {
-            unpacker = new Pack200FileUnpacker(cancellable, resources, getPack200Unpacker(), queue);
+            unpacker = new Pack200FileUnpacker(cancellable, resources, queue);
+        }
+        else if (compressionFormat != PackCompression.DEFAULT)
+        {
+            unpacker = new CompressedFileUnpacker(cancellable, queue, compressionFormat);
         }
         else
         {
@@ -848,12 +860,7 @@ public abstract class UnpackerBase implements IUnpacker
      */
     protected boolean shouldUnpack(Pack pack)
     {
-        boolean result = true;
-        if (pack.hasCondition())
-        {
-            result = rules.isConditionTrue(pack.getCondition());
-        }
-        return result;
+        return selectedPacks.contains(pack) && (!pack.hasCondition() || rules.isConditionTrue(pack.getCondition()));
     }
 
     /**
@@ -1171,7 +1178,7 @@ public abstract class UnpackerBase implements IUnpacker
         logger.fine("Writing installation information");
         String installDir = installData.getInstallPath();
 
-        List<Pack> installedPacks = new ArrayList<Pack>(installData.getSelectedPacks());
+        List<Pack> installedPacks = new ArrayList<Pack>(selectedPacks);
 
         File installationInfo = new File(installDir + File.separator + InstallData.INSTALLATION_INFORMATION);
         if (!installationInfo.exists())
@@ -1380,99 +1387,69 @@ public abstract class UnpackerBase implements IUnpacker
 
 
     /**
-     * Reads {@link ParsableFile parseable files} from the supplied stream.
+     * Initializes {@link ParsableFile parseable files} according to the current environment.
      *
-     * @param stream    the stream to read from
+     * @param packInfo  the pack info fpor the current pack
      * @param parsables used to collect the read objects
-     * @throws IOException            for any I/O error
-     * @throws ClassNotFoundException if the class of a serialised object cannot be found
      */
-    protected void readParsableFiles(ObjectInputStream stream, List<ParsableFile> parsables)
-            throws IOException, ClassNotFoundException
+    protected void readParsableFiles(PackInfo packInfo, List<ParsableFile> parsables)
     {
-        int count = stream.readInt();
-        for (int i = 0; i < count; ++i)
+        for (ParsableFile parsableFile : packInfo.getParsables())
         {
-            ParsableFile file = (ParsableFile) stream.readObject();
-            logger.fine("Unpacked parsable: " + file.toString());
-            if (!file.hasCondition() || isConditionTrue(file.getCondition()))
+            logger.fine("Unpacked parsable: " + parsableFile.toString());
+            if (!parsableFile.hasCondition() || isConditionTrue(parsableFile.getCondition()))
             {
-                String path = IoHelper.translatePath(file.getPath(), variables);
-                file.setPath(path);
-                parsables.add(file);
+                String path = IoHelper.translatePath(parsableFile.getPath(), variables);
+                parsableFile.setPath(path);
+                parsables.add(parsableFile);
             }
         }
     }
 
     /**
-     * Reads {@link ExecutableFile executable files} from the supplied stream.
+     * Initializes {@link ExecutableFile executable files} according to the current environment.
      *
-     * @param stream      the stream to read from
+     * @param packInfo  the pack info fpor the current pack
      * @param executables used to collect the read objects
-     * @throws IOException            for any I/O error
-     * @throws ClassNotFoundException if the class of a serialised object cannot be found
      */
-    protected void readExecutableFiles(ObjectInputStream stream, List<ExecutableFile> executables)
-            throws IOException, ClassNotFoundException
+    protected void readExecutableFiles(PackInfo packInfo, List<ExecutableFile> executables)
     {
-        // Load information about executable files
-        int count = stream.readInt();
-        for (int i = 0; i < count; ++i)
+        for (ExecutableFile executableFile : packInfo.getExecutables())
         {
-            ExecutableFile file = (ExecutableFile) stream.readObject();
-            logger.fine("Unpacked executable: " + file.toString());
-            if (!file.hasCondition() || isConditionTrue(file.getCondition()))
+            logger.fine("Unpacked executable: " + executableFile.toString());
+            if (!executableFile.hasCondition() || isConditionTrue(executableFile.getCondition()))
             {
-                file.path = IoHelper.translatePath(file.path, variables);
-                if (null != file.argList && !file.argList.isEmpty())
+                executableFile.path = IoHelper.translatePath(executableFile.path, variables);
+                if (null != executableFile.argList && !executableFile.argList.isEmpty())
                 {
-                    for (int j = 0; j < file.argList.size(); j++)
+                    for (int j = 0; j < executableFile.argList.size(); j++)
                     {
-                        String arg = file.argList.get(j);
+                        String arg = executableFile.argList.get(j);
                         arg = IoHelper.translatePath(arg, variables);
-                        file.argList.set(j, arg);
+                        executableFile.argList.set(j, arg);
                     }
                 }
-                executables.add(file);
-                if (file.executionStage == ExecutableFile.UNINSTALL)
+                executables.add(executableFile);
+                if (executableFile.executionStage == ExecutableFile.UNINSTALL)
                 {
-                    uninstallData.addExecutable(file);
+                    uninstallData.addExecutable(executableFile);
                 }
             }
         }
     }
 
     /**
-     * Reads {@link UpdateCheck update checks} from the supplied stream.
+     * Initializes {@link UpdateCheck update checks} according to the current environment.
      *
-     * @param stream       the stream to read from
+     * @param packInfo  the pack info fpor the current pack
      * @param updateChecks used to collect the read objects
-     * @throws IOException            for any I/O error
-     * @throws ClassNotFoundException if the class of a serialised object cannot be found
      */
-    protected void readUpdateChecks(ObjectInputStream stream, List<UpdateCheck> updateChecks)
-            throws IOException, ClassNotFoundException
+    protected void readUpdateChecks(PackInfo packInfo, List<UpdateCheck> updateChecks)
     {
-        int count = stream.readInt();
-        for (int i = 0; i < count; ++i)
+        for (UpdateCheck updateCheck : packInfo.getUpdateChecks())
         {
-            UpdateCheck check = (UpdateCheck) stream.readObject();
-            updateChecks.add(check);
+            updateChecks.add(updateCheck);
         }
-    }
-
-    /**
-     * Returns the pack200 unpacker, creating it if required.
-     *
-     * @return the pack200 unpacker
-     */
-    private Pack200.Unpacker getPack200Unpacker()
-    {
-        if (unpacker == null)
-        {
-            unpacker = Pack200.newUnpacker();
-        }
-        return unpacker;
     }
 
     private void resetLogging()

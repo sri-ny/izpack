@@ -56,7 +56,9 @@ import com.izforge.izpack.core.variable.*;
 import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
-import com.izforge.izpack.data.*;
+import com.izforge.izpack.data.CustomData;
+import com.izforge.izpack.data.DefaultConfigurationHandlerAdapter;
+import com.izforge.izpack.data.PanelAction;
 import com.izforge.izpack.event.AntAction;
 import com.izforge.izpack.event.AntActionInstallerListener;
 import com.izforge.izpack.event.ConfigurationInstallerListener;
@@ -93,6 +95,7 @@ import java.io.*;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.jar.Pack200;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -312,7 +315,7 @@ public class CompilerConfig extends Thread
         propertyManager.setProperty("basedir", base.toString());
 
         // We get the XML data tree
-        IXMLParser parser = compilerData.isValidating() ? new InstallationXmlParser() : new XMLParser(false);
+        IXMLParser parser = new InstallationXmlParser();
         IXMLElement data = resourceFinder.getXMLTree(parser);
 
         // construct compiler listeners to receive all further compiler events
@@ -973,9 +976,6 @@ public class CompilerConfig extends Thread
     {
         for (IXMLElement updateNode : packElement.getChildrenNamed("updatecheck"))
         {
-
-            String casesensitive = updateNode.getAttribute("casesensitive");
-
             // get includes and excludes
             ArrayList<String> includesList = new ArrayList<String>();
             ArrayList<String> excludesList = new ArrayList<String>();
@@ -991,7 +991,7 @@ public class CompilerConfig extends Thread
                 excludesList.add(xmlCompilerHelper.requireAttribute(ixmlElement, "name"));
             }
 
-            pack.addUpdateCheck(new UpdateCheck(includesList, excludesList, casesensitive));
+            pack.addUpdateCheck(new UpdateCheck(includesList, excludesList));
         }
     }
 
@@ -1029,7 +1029,7 @@ public class CompilerConfig extends Thread
                         logAddingFile(file.toString(), target);
                         pack.addFile(baseDir, file, target, fs.getOsList(),
                                      fs.getOverride(), fs.getOverrideRenameTo(),
-                                     fs.getBlockable(), fs.getAdditionals(), fs.getCondition());
+                                     fs.getBlockable(), fs.getAdditionals(), fs.getCondition(), fs.getPack200Properties());
                     }
                 }
             }
@@ -1103,7 +1103,7 @@ public class CompilerConfig extends Thread
             {
                 logAddingFile(file.toString(), target);
                 pack.addFile(baseDir, file, target, osList, override, overrideRenameTo, blockable,
-                             additionals, conditionId);
+                             additionals, conditionId, readPack200Properties(singleFileNode));
             }
             catch (IOException x)
             {
@@ -1170,6 +1170,8 @@ public class CompilerConfig extends Thread
                     fs.setFollowSymlinks(Boolean.parseBoolean(boolval));
                 }
 
+                Map<String, String> pack200Properties = readPack200Properties(fileNode);
+
                 LinkedList<String> srcfiles = new LinkedList<String>();
                 Collections.addAll(srcfiles, fs.getDirectoryScanner().getIncludedDirectories());
                 Collections.addAll(srcfiles, fs.getDirectoryScanner().getIncludedFiles());
@@ -1183,7 +1185,8 @@ public class CompilerConfig extends Thread
                             logger.info("Adding content from archive: " + abssrcfile);
                             addArchiveContent(fileNode, baseDir, abssrcfile, fs.getTargetDir(),
                                               fs.getOsList(), fs.getOverride(), fs.getOverrideRenameTo(),
-                                              fs.getBlockable(), pack, fs.getAdditionals(), fs.getCondition());
+                                              fs.getBlockable(), pack, fs.getAdditionals(), fs.getCondition(),
+                                              pack200Properties);
                         }
                         else
                         {
@@ -1191,7 +1194,7 @@ public class CompilerConfig extends Thread
                             logAddingFile(abssrcfile.toString(), target);
                             pack.addFile(baseDir, abssrcfile, target, fs.getOsList(),
                                          fs.getOverride(), fs.getOverrideRenameTo(), fs.getBlockable(),
-                                         fs.getAdditionals(), fs.getCondition());
+                                         fs.getAdditionals(), fs.getCondition(), pack200Properties);
                         }
                     }
                 }
@@ -1199,6 +1202,49 @@ public class CompilerConfig extends Thread
             catch (Exception e)
             {
                 throw new CompilerException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private Map<String, String> readPack200Properties(IXMLElement element)
+    {
+        IXMLElement pack200Element = element.getFirstChildNamed("pack200");
+        Map<String, String> pack200Properties = null;
+        if (pack200Element != null)
+        {
+            pack200Properties = new HashMap<String, String>();
+            addNotNullAttribute(pack200Properties, Pack200.Packer.EFFORT, pack200Element, "effort");
+            addNotNullAttribute(pack200Properties, Pack200.Packer.SEGMENT_LIMIT, pack200Element, "segment-limit");
+            addNotNullAttribute(pack200Properties, Pack200.Packer.KEEP_FILE_ORDER, pack200Element, "keep-file-order");
+            addNotNullAttribute(pack200Properties, Pack200.Packer.DEFLATE_HINT, pack200Element, "deflate-hint");
+            addNotNullAttribute(pack200Properties, Pack200.Packer.MODIFICATION_TIME, pack200Element, "modification-time");
+            addNotNullAttributeIfTrue(pack200Properties, Pack200.Packer.CODE_ATTRIBUTE_PFX + "LineNumberTable",
+                    Pack200.Packer.STRIP, pack200Element, "strip-line-numbers");
+            addNotNullAttributeIfTrue(pack200Properties, Pack200.Packer.CODE_ATTRIBUTE_PFX + "LocalVariableTable",
+                    Pack200.Packer.STRIP, pack200Element, "strip-local-variables");
+            addNotNullAttributeIfTrue(pack200Properties, Pack200.Packer.CODE_ATTRIBUTE_PFX + "SourceFile",
+                    Pack200.Packer.STRIP, pack200Element, "strip-source-files");
+        }
+        return pack200Properties;
+    }
+
+    private void addNotNullAttribute(Map<String, String> map, String key, IXMLElement element, String attrName)
+    {
+        String attr = element.getAttribute(attrName);
+        if (attr != null)
+        {
+            map.put(key, attr);
+        }
+    }
+
+    private void addNotNullAttributeIfTrue(Map<String, String> map, String key, String value, IXMLElement element, String attrName)
+    {
+        String attr = element.getAttribute(attrName);
+        if (attr != null)
+        {
+            if (Boolean.parseBoolean(attr))
+            {
+                map.put(key, value);
             }
         }
     }
@@ -1541,7 +1587,7 @@ public class CompilerConfig extends Thread
     private void addArchiveContent(IXMLElement fileNode, File baseDir, File archive, String targetDir,
                                    List<OsModel> osList, OverrideType override, String overrideRenameTo,
                                    Blockable blockable, PackInfo pack, Map<String, ?> additionals,
-                                   String condition) throws Exception
+                                   String condition, Map<String, String> pack200Properties) throws Exception
     {
         String archiveName = archive.getName();
 
@@ -1588,7 +1634,7 @@ public class CompilerConfig extends Thread
                     {
                         String target = targetDir + "/" + dName;
                         logAddingFile(dName + " (" + archiveName + ")", target);
-                        pack.addFile(baseDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+                        pack.addFile(baseDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition, null);
                     }
                 }
                 else
@@ -1605,7 +1651,7 @@ public class CompilerConfig extends Thread
                         {
                             String target = targetDir + "/" + entryName;
                             logAddingFile(entryName + " (" + archiveName + ")", target);
-                            pack.addFile(baseDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+                            pack.addFile(baseDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
                         }
                     }
                     finally
@@ -1648,7 +1694,7 @@ public class CompilerConfig extends Thread
             String uncompressedArchiveName = FilenameUtils.getBaseName(archiveName);
             String target = targetDir + "/" + uncompressedArchiveName;
             logAddingFile(uncompressedArchiveName + " (" + archiveName + ")", target);
-            pack.addFile(baseDir, temp, target, osList, override, overrideRenameTo, blockable, additionals, condition);
+            pack.addFile(baseDir, temp, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
         }
         finally
         {
@@ -2078,42 +2124,39 @@ public class CompilerConfig extends Thread
             IXMLElement userInputSpec = null, antActionSpec = null;
 
             // Just validate to avoid XML parser errors during installation later
-            if (compilerData.isValidating())
+            if (id.startsWith(Resources.CUSTOM_TRANSLATIONS_RESOURCE_NAME)
+                    || id.startsWith(UserInputPanelSpec.LANG_FILE_NAME)
+                    || id.startsWith(Resources.PACK_TRANSLATIONS_RESOURCE_NAME))
             {
-                if (id.startsWith(Resources.CUSTOM_TRANSLATIONS_RESOURCE_NAME)
-                        || id.startsWith(UserInputPanelSpec.LANG_FILE_NAME)
-                        || id.startsWith(Resources.PACK_TRANSLATIONS_RESOURCE_NAME))
-                {
-                    new LangPackXmlParser().parse(url);
-                }
-                else if (id.endsWith(ShortcutConstants.SPEC_FILE_NAME))
-                {
-                    new ShortcutSpecXmlParser().parse(url);
-                }
-                else if (id.equals(Resources.CUSTOM_ICONS_RESOURCE_NAME))
-                {
-                    new IconsSpecXmlParser().parse(url);
-                }
-                else if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
-                {
-                    userInputSpec = new UserInputSpecXmlParser().parse(url);
-                }
-                else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
-                {
-                    antActionSpec = new AntActionSpecXmlParser().parse(url);
-                }
-                else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
-                {
-                    new ConfigurationActionSpecXmlParser().parse(url);
-                }
-                else if (id.equals(RegistryInstallerListener.SPEC_FILE_NAME))
-                {
-                    new RegistrySpecXmlParser().parse(url);
-                }
-                else if (id.equals(ProcessPanelWorker.SPEC_RESOURCE_NAME))
-                {
-                    new ProcessingSpecXmlParser().parse(url);
-                }
+                new LangPackXmlParser().parse(url);
+            }
+            else if (id.endsWith(ShortcutConstants.SPEC_FILE_NAME))
+            {
+                new ShortcutSpecXmlParser().parse(url);
+            }
+            else if (id.equals(Resources.CUSTOM_ICONS_RESOURCE_NAME))
+            {
+                new IconsSpecXmlParser().parse(url);
+            }
+            else if (id.startsWith(UserInputPanelSpec.SPEC_FILE_NAME))
+            {
+                userInputSpec = new UserInputSpecXmlParser().parse(url);
+            }
+            else if (id.equals(AntActionInstallerListener.SPEC_FILE_NAME))
+            {
+                antActionSpec = new AntActionSpecXmlParser().parse(url);
+            }
+            else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
+            {
+                new ConfigurationActionSpecXmlParser().parse(url);
+            }
+            else if (id.equals(RegistryInstallerListener.SPEC_FILE_NAME))
+            {
+                new RegistrySpecXmlParser().parse(url);
+            }
+            else if (id.equals(ProcessPanelWorker.SPEC_RESOURCE_NAME))
+            {
+                new ProcessingSpecXmlParser().parse(url);
             }
 
             // remembering references to all added packsLang.xml files
@@ -2379,10 +2422,25 @@ public class CompilerConfig extends Thread
             }
         }
 
-        // Pack200 support
-        IXMLElement pack200 = root.getFirstChildNamed("pack200");
-        info.setPack200Compression(pack200 != null);
-        
+        String compressionName = compilerData.getComprFormat();
+        if (compressionName == null)
+        {
+            IXMLElement compressionElement = root.getFirstChildNamed("compressionformat");
+            if (compressionElement != null)
+            {
+                compressionName = xmlCompilerHelper.requireContent(compressionElement);
+            }
+        }
+        PackCompression compression = (compressionName != null) ?
+                PackCompression.byName(compressionName) :
+                PackCompression.DEFAULT;
+        if (compression == null)
+        {
+            throw new CompilerException("Unknown compression format: " + compressionName);
+        }
+        info.setCompressionFormat(compression);
+        logger.info("Pack compression method: " + compression.toName());
+
         // Add the path for the summary log file if specified
         IXMLElement slfPath = root.getFirstChildNamed("summarylogfilepath");
         if (slfPath != null)
@@ -2460,7 +2518,7 @@ public class CompilerConfig extends Thread
                 info.addTempDir(new TempDir(variableName, prefix, suffix));
             }
         }
-        
+
         packager.setInfo(info);
         notifyCompilerListener("addInfoStrings", CompilerListener.END, data);
     }
@@ -3636,6 +3694,8 @@ public class CompilerConfig extends Thread
         {
             fs.setFollowSymlinks(Boolean.parseBoolean(boolval));
         }
+
+        fs.setPack200Properties(readPack200Properties(fileSetNode));
 
         readAndAddIncludes(fileSetNode, fs);
         readAndAddExcludes(fileSetNode, fs);

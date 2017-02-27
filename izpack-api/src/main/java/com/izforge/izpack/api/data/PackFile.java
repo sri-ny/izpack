@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Encloses information about a packed file. This class abstracts the way file data is stored to
@@ -40,18 +41,22 @@ import java.util.Map;
  */
 public class PackFile implements Serializable
 {
+    private static final long serialVersionUID = -834377078706854909L;
 
-    static final long serialVersionUID = -834377078706854909L;
+    @SuppressWarnings("unused")
+    private static AtomicInteger nextInstanceId = new AtomicInteger(0);
+    private final int instanceId;
 
     /**
      * Only available when compiling. Makes no sense when installing, use relativePath instead.
      */
+    @SuppressWarnings("TransientFieldNotInitialized")
     public transient String sourcePath = null;//should not be used anymore - may deprecate it.
     /**
      * The Path of the file relative to the given (compiletime's) basedirectory.
      * Can be resolved while installing with either current working directory or directory of "installer.jar".
      */
-    protected String relativePath = null;
+    private String relativePath = null;
 
     /**
      * The full path name of the target file
@@ -74,9 +79,10 @@ public class PackFile implements Serializable
     private long length = 0;
 
     /**
-     * The size of the file used to calculate the pack size
+     * The size of the file used to calculate the pack size.
+     * This is usually the compressed size if the file is packed with a compression algorithm.
      */
-    private transient long size = 0;
+    private long size = 0;
 
     /**
      * The last-modification time of the file.
@@ -120,6 +126,11 @@ public class PackFile implements Serializable
     private boolean pack200Jar = false;
 
     /**
+     * Specific Pack200 packer settings
+     */
+    private Map<String,String> pack200Properties;
+
+    /**
      * condition for this packfile
      */
     private String condition = null;
@@ -134,10 +145,12 @@ public class PackFile implements Serializable
      * @param override what to do when the file already exists
      * @throws FileNotFoundException if the specified file does not exist.
      */
-    public PackFile(File baseDir, File src, String target, List<OsModel> osList, OverrideType override, String overrideRenameTo, Blockable blockable)
+    public PackFile(File baseDir, File src, String target, List<OsModel> osList, OverrideType override,
+                    String overrideRenameTo, Blockable blockable, Map<String, String> pack200Properties)
     throws IOException
     {
-        this(src, FileUtil.getRelativeFileName(src, baseDir), target, osList, override, overrideRenameTo, blockable, null);
+        this(src, FileUtil.getRelativeFileName(src, baseDir), target, osList, override, overrideRenameTo, blockable,
+                null, pack200Properties);
     }
 
     /**
@@ -151,9 +164,11 @@ public class PackFile implements Serializable
      * @param additionals        additional attributes
      * @throws FileNotFoundException if the specified file does not exist.
      */
-    public PackFile(File src, String relativeSourcePath, String target, List<OsModel> osList, OverrideType override, String overrideRenameTo, Blockable blockable, Map additionals)
+    public PackFile(File src, String relativeSourcePath, String target, List<OsModel> osList, OverrideType override,
+                    String overrideRenameTo, Blockable blockable, Map additionals, Map<String, String> pack200Properties)
             throws FileNotFoundException
     {
+        instanceId = nextInstanceId.getAndIncrement();
         if (!src.exists()) // allows cleaner client co
         {
             throw new FileNotFoundException("No such file: " + src);
@@ -170,9 +185,9 @@ public class PackFile implements Serializable
 
         this.packedFile = src;
         this.sourcePath = src.getPath().replace(File.separatorChar, '/');
-        this.relativePath = (relativeSourcePath != null) ? relativeSourcePath.replace(File.separatorChar, '/') : relativeSourcePath;
+        this.relativePath = (relativeSourcePath != null) ? relativeSourcePath.replace(File.separatorChar, '/') : null;
 
-        this.targetPath = (target != null) ? target.replace(File.separatorChar, '/') : target;
+        this.targetPath = target.replace(File.separatorChar, '/');
         this.osConstraints = osList;
         this.override = override;
         this.overrideRenameTo = overrideRenameTo;
@@ -183,6 +198,11 @@ public class PackFile implements Serializable
         this.mtime = src.lastModified();
         this.isDirectory = src.isDirectory();
         this.additionals = additionals;
+        if (pack200Properties != null)
+        {
+            this.pack200Jar = true;
+            this.pack200Properties = pack200Properties;
+        }
 
         // File.length is undefined for directories - we don't add any data, so don't skip
         // any please!
@@ -203,10 +223,21 @@ public class PackFile implements Serializable
      * @param additionals additional attributes
      * @throws FileNotFoundException if the specified file does not exist.
      */
-    public PackFile(File baseDir, File src, String target, List<OsModel> osList, OverrideType override, String overrideRenameTo, Blockable blockable, Map additionals)
+    public PackFile(File baseDir, File src, String target, List<OsModel> osList, OverrideType override,
+                    String overrideRenameTo, Blockable blockable, Map additionals, Map<String, String> pack200Properties)
     throws IOException
     {
-        this(src, FileUtil.getRelativeFileName(src, baseDir), target, osList, override, overrideRenameTo, blockable, additionals);
+        this(src, FileUtil.getRelativeFileName(src, baseDir), target, osList, override, overrideRenameTo, blockable,
+                additionals, pack200Properties);
+    }
+
+    /**
+     * Get the unique ID compiled into this object
+     * @return the unique ID
+     */
+    public int getId()
+    {
+        return instanceId;
     }
 
     public void setPreviousPackFileRef(String previousPackId, Long offsetInPreviousPack)
@@ -248,6 +279,15 @@ public class PackFile implements Serializable
     }
 
     /**
+     * Override the acutal packed file size (after compressing)
+     * @param size the size in bytes
+     */
+    public void setSize(long size)
+    {
+        this.size = size;
+    }
+
+    /**
      * The last-modification time of the file.
      */
     public final long lastModified()
@@ -268,7 +308,7 @@ public class PackFile implements Serializable
      * and the file does already exist. This is similar like the Ant globmapper target expression
      * when mapping from "*".
      *
-     * @return
+     * @return mapper pattern
      */
     public final String overrideRenameTo()
     {
@@ -348,9 +388,9 @@ public class PackFile implements Serializable
         return pack200Jar;
     }
 
-    public void setPack200Jar(boolean pack200Jar)
+    public Map<String,String> getPack200Properties()
     {
-        this.pack200Jar = pack200Jar;
+        return pack200Properties;
     }
 
     public void setLoosePackInfo(boolean loose)

@@ -19,11 +19,13 @@
 
 package com.izforge.izpack.merge.jar;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.exception.MergeException;
+import com.izforge.izpack.merge.AbstractMerge;
+import com.izforge.izpack.util.FileUtil;
+import com.izforge.izpack.util.IoHelper;
+
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -34,14 +36,6 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tools.zip.ZipOutputStream;
-
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.exception.MergeException;
-import com.izforge.izpack.merge.AbstractMerge;
-import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.IoHelper;
-
 /**
  * Jar files merger.
  *
@@ -49,10 +43,10 @@ import com.izforge.izpack.util.IoHelper;
  */
 public class JarMerge extends AbstractMerge
 {
-    private String jarPath;
+    private final String jarPath;
 
-    private String regexp;
-    private String destination;
+    private final String regexp;
+    private final String destination;
 
 
     /**
@@ -158,7 +152,7 @@ public class JarMerge extends AbstractMerge
         }
     }
 
-    public ArrayList<String> getFileNameInJar() throws IOException
+    private ArrayList<String> getFileNameInJar() throws IOException
     {
         JarFile jarFile = new JarFile(jarPath);
         ArrayList<String> arrayList = new ArrayList<String>();
@@ -175,11 +169,6 @@ public class JarMerge extends AbstractMerge
     public void merge(java.util.zip.ZipOutputStream outputStream)
     {
         mergeImpl(outputStream);
-    }
-
-    public void merge(ZipOutputStream outJar)
-    {
-        mergeImpl(outJar);
     }
 
     private void mergeImpl(OutputStream outputStream)
@@ -224,16 +213,8 @@ public class JarMerge extends AbstractMerge
                     }
 
                     InputStream inputStream = jarFile.getInputStream(jarEntry);
-                    if (outputStream instanceof ZipOutputStream)
-                    {
-                        IoHelper.copyStreamToJar(inputStream, (ZipOutputStream) outputStream, dest.toString().replaceAll("//", "/"),
-                                jarEntry.getTime());
-                    }
-                    else if (outputStream instanceof java.util.zip.ZipOutputStream)
-                    {
-                        IoHelper.copyStreamToJar(inputStream, (java.util.zip.ZipOutputStream) outputStream, dest.toString().replaceAll("//", "/"),
-                                jarEntry.getTime());
-                    }
+                    IoHelper.copyStreamToJar(inputStream, (java.util.zip.ZipOutputStream) outputStream, dest.toString().replaceAll("//", "/"),
+                            jarEntry.getTime());
                 }
             }
         }
@@ -248,10 +229,7 @@ public class JarMerge extends AbstractMerge
                 {
                     jarFile.close();
                 }
-                catch (IOException e)
-                {
-                    // Ignore
-                }
+                catch (IOException ignored) {}
             }
         }
     }
@@ -300,7 +278,7 @@ public class JarMerge extends AbstractMerge
      */
     private boolean isSignature(String name)
     {
-        return name.matches("/META-INF/.*\\.(SF|DSA|RSA)") || name.matches("/META-INF/SIG-.*");
+        return name.matches("/?META-INF/.*\\.(SF|DSA|RSA)") || name.matches("/?META-INF/SIG-.*");
     }
 
     /**

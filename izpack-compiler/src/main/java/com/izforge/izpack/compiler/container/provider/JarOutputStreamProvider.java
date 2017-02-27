@@ -19,46 +19,53 @@
 
 package com.izforge.izpack.compiler.container.provider;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.zip.Deflater;
-
+import com.izforge.izpack.compiler.data.CompilerData;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.picocontainer.injectors.Provider;
 
-import com.izforge.izpack.compiler.data.CompilerData;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.jar.JarOutputStream;
+import java.util.zip.Deflater;
 
 /**
- * OutputStream Provider.
+ * Provides the Jar output stream  for the final installer jar
  *
  * @author Anthonin Bonnefoy
  */
 public class JarOutputStreamProvider implements Provider
 {
 
-    public JarOutputStream provide(CompilerData compilerData) throws IOException
+    public JarOutputStream provide(CompilerData compilerData)
     {
-        JarOutputStream jarOutputStream;
         File file = new File(compilerData.getOutput());
-        if (file.exists())
+        JarOutputStream jarOutputStream = null;
+        FileOutputStream fileOutputStream = null;
+        FileUtils.deleteQuietly(file);
+        try
         {
-            file.delete();
+            if (compilerData.isMkdirs())
+            {
+                FileUtils.forceMkdirParent(file);
+            }
+            fileOutputStream = new FileOutputStream(file);
+            jarOutputStream = new JarOutputStream(fileOutputStream);
+            int level = compilerData.getComprLevel();
+            if (level >= 0 && level < 10)
+            {
+                jarOutputStream.setLevel(level);
+            } else
+            {
+                jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
+            }
         }
-        if (compilerData.isMkdirs())
+        catch (IOException e)
         {
-            file.getParentFile().mkdirs();
+            IOUtils.closeQuietly(fileOutputStream);
         }
-        jarOutputStream = new JarOutputStream(file);
-        int level = compilerData.getComprLevel();
-        if (level >= 0 && level < 10)
-        {
-            jarOutputStream.setLevel(level);
-        }
-        else
-        {
-            jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
-        }
-        jarOutputStream.setPreventClose(true); // Needed at using FilterOutputStreams which calls close
+
         return jarOutputStream;
     }
 }

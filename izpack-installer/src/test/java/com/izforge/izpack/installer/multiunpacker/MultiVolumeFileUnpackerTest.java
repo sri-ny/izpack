@@ -171,7 +171,6 @@ public class MultiVolumeFileUnpackerTest extends AbstractFileUnpackerTest
         // XPackFile required for the Archivefileposition attribute.
         XPackFile result = new XPackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null,
                                          blockable);
-        result.setArchiveFilePosition(0);
         return result;
     }
 }

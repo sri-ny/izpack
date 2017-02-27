@@ -20,16 +20,15 @@ public class IzpackAntRunnable implements Runnable
     private final String input;
     private final Properties properties;
     private final Boolean inheritAll;
-    private Hashtable<String, String> projectProps;
-    private Handler logHandler;
+    private final Hashtable<String, String> projectProps;
+    private final Handler logHandler;
 
     public IzpackAntRunnable(String compression, String kind, String input, String configText, String basedir,
-                             String output, boolean mkdirs, boolean validating, int compressionLevel, Properties properties,
+                             String output, boolean mkdirs, int compressionLevel, Properties properties,
                              Boolean inheritAll, Hashtable<String, String> antProjectProperties, String izPackDir,
                              Handler logHandler)
     {
-        this.compilerData = new CompilerData(compression, kind, input, configText, basedir, output, mkdirs, validating,
-                                             compressionLevel);
+        this.compilerData = new CompilerData(compression, kind, input, configText, basedir, output, mkdirs, compressionLevel);
         this.input = input;
         this.properties = properties;
         this.inheritAll = inheritAll;
@@ -92,7 +91,7 @@ public class IzpackAntRunnable implements Runnable
         * which can't handle mixed path strings like "c:\test\../lib/mylib.jar".
         * The bug is in org.codehaus.classworlds.UrlUtils.normalizeUrlPath().
         */
-        StringBuffer fixpath = new StringBuffer(path);
+        StringBuilder fixpath = new StringBuilder(path);
         for (int q = 0; q < fixpath.length(); q++)
         {
             if (fixpath.charAt(q) == '\\')

@@ -19,19 +19,16 @@
 
 package com.izforge.izpack.compiler.packager.impl;
 
-import java.util.Properties;
-
-import org.mockito.Mockito;
-
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
-import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
+import org.mockito.Mockito;
+
+import java.util.Properties;
+import java.util.jar.JarOutputStream;
 
 /**
  * Tests the {@link Packager}.
@@ -50,15 +47,12 @@ public class PackagerTest extends AbstractPackagerTest
     protected PackagerBase createPackager(JarOutputStream jar, MergeManager mergeManager)
     {
         Properties properties = new Properties();
-        PackagerListener listener = null;
-        PackCompressor compressor = Mockito.mock(PackCompressor.class);
         CompilerPathResolver pathResolver = Mockito.mock(CompilerPathResolver.class);
         MergeableResolver resolver = Mockito.mock(MergeableResolver.class);
-        CompilerData data = new CompilerData("", "", "", true, false);
+        CompilerData data = new CompilerData("", "", "", true);
         RulesEngine rulesEngine = Mockito.mock(RulesEngine.class);
-        Packager packager = new Packager(properties, listener, jar, compressor, jar, mergeManager,
-                                         pathResolver, resolver, data,
-                                         rulesEngine);
+        Packager packager = new Packager(properties, null, jar, mergeManager,
+                                         pathResolver, resolver, data, rulesEngine);
         packager.setInfo(new Info());
         return packager;
     }

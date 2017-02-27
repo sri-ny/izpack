@@ -97,12 +97,14 @@ public abstract class AbstractFileUnpackerTest
         File target = getTargetFile(baseDir);
 
         FileQueue queue = new FileQueueFactory(Platforms.WINDOWS, librarian).create();
-        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
 
         PackFile file = createPackFile(baseDir, source, target, Blockable.BLOCKABLE_NONE);
         assertFalse(target.exists());
 
         ObjectInputStream packStream = createPackStream(source);
+
+        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
+
         unpacker.unpack(file, packStream, target);
         assertTrue(queue.isEmpty());
 
@@ -183,7 +185,7 @@ public abstract class AbstractFileUnpackerTest
      */
     protected PackFile createPackFile(File baseDir, File source, File target, Blockable blockable) throws IOException
     {
-        return new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null, blockable);
+        return new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null, blockable, null);
     }
 
     /**
@@ -239,9 +241,9 @@ public abstract class AbstractFileUnpackerTest
         File target = getTargetFile(baseDir);
 
         FileQueue queue = new FileQueueFactory(Platforms.WINDOWS, librarian).create();
-        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
         PackFile file = createPackFile(baseDir, source, target, blockable);
 
+        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
         unpacker.unpack(file, createPackStream(source), target);
         assertNotNull(queue);
         assertEquals(1, queue.getOperations().size());

@@ -31,12 +31,13 @@ import com.izforge.izpack.util.file.types.FileSet;
 public class TargetFileSet extends FileSet
 {
     private String targetDir;
-    List<OsModel> osList;
-    OverrideType override;
-    String overrideRenameTo;
-    Blockable blockable;
-    Map<String, ?> additionals;
-    String condition;
+    private List<OsModel> osList;
+    private OverrideType override;
+    private String overrideRenameTo;
+    private Blockable blockable;
+    private Map<String, ?> additionals;
+    private String condition;
+    private Map<String, String> pack200Properties;
 
     public String getTargetDir()
     {
@@ -106,5 +107,15 @@ public class TargetFileSet extends FileSet
     public void setCondition(String condition)
     {
         this.condition = condition;
+    }
+
+    public void setPack200Properties(Map<String, String> pack200Properties)
+    {
+        this.pack200Properties = pack200Properties;
+    }
+
+    public Map<String, String> getPack200Properties()
+    {
+        return pack200Properties;
     }
 }

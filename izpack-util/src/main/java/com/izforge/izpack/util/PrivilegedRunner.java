@@ -24,16 +24,14 @@ package com.izforge.izpack.util;
 import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.rules.RulesEngine;
 
-import static com.izforge.izpack.util.Platform.Name.MAC_OSX;
-import static com.izforge.izpack.util.Platform.Name.UNIX;
-import static com.izforge.izpack.util.Platform.Name.WINDOWS;
-
 import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.izforge.izpack.util.Platform.Name.*;
 
 /**
  * This class is responsible for allowing the installer to re-launch itself with administrator permissions.
