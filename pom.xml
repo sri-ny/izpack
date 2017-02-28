@@ -96,9 +96,15 @@
         <version>1.8.10</version>
       </dependency>
 	  <dependency>
-		<groupId>org.icepdf.os</groupId>
-		  <artifactId>icepdf-viewer</artifactId>
-		  <version>6.0.1</version>
+        <groupId>org.icepdf.os</groupId>
+        <artifactId>icepdf-viewer</artifactId>
+        <version>6.2.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.media</groupId>
+            <artifactId>jai_core</artifactId>
+          </exclusion>
+        </exclusions>
 	  </dependency>
 	  <!-- PDF Panel -->
       
@@ -941,11 +947,4 @@
     <url>http://izpack.atlassian.net</url>
   </issueManagement>
   
-  	<repositories>
-		<repository>
-			<id>ice-maven-release</id>
-			<name>Ice Maven Release Repository</name>
-			<url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
-		</repository>
-	</repositories>
 </project>
