@@ -989,8 +989,23 @@
         <xs:attribute type="xs:integer" name="effort" use="optional"/>
         <xs:attribute type="xs:integer" name="segment-limit" use="optional"/>
         <xs:attribute type="xs:boolean" name="keep-file-order" use="optional"/>
-        <xs:attribute type="xs:boolean" name="deflate-hint" use="optional"/>
-        <xs:attribute type="xs:boolean" name="modification-time" use="optional"/>
+        <xs:attribute name="deflate-hint" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="true"/>
+                    <xs:enumeration value="false"/>
+                    <xs:enumeration value="keep"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="modification-time" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="latest"/>
+                    <xs:enumeration value="keep"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
         <xs:attribute type="xs:boolean" name="strip-line-numbers" use="optional"/>
         <xs:attribute type="xs:boolean" name="strip-local-variables" use="optional"/>
         <xs:attribute type="xs:boolean" name="strip-source-files" use="optional"/>
