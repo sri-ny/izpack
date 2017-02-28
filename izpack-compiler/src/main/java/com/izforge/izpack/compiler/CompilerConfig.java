@@ -2425,7 +2425,7 @@ public class CompilerConfig extends Thread
         String compressionName = compilerData.getComprFormat();
         if (compressionName == null)
         {
-            IXMLElement compressionElement = root.getFirstChildNamed("compressionformat");
+            IXMLElement compressionElement = root.getFirstChildNamed("pack-compression-format");
             if (compressionElement != null)
             {
                 compressionName = xmlCompilerHelper.requireContent(compressionElement);
