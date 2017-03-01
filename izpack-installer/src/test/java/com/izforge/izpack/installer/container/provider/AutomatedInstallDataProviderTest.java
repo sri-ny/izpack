@@ -27,6 +27,7 @@ import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.resource.DefaultLocales;
 import com.izforge.izpack.core.resource.ResourceManager;
+import com.izforge.izpack.api.data.PackInfo;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
@@ -35,10 +36,7 @@ import org.mockito.Mockito;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -197,9 +195,10 @@ public class AutomatedInstallDataProviderTest
      */
     private InputStream createPacksInfo() throws IOException
     {
+        List<PackInfo> packsInfo = new ArrayList<PackInfo>();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ObjectOutputStream objStream = new ObjectOutputStream(stream);
-        objStream.writeInt(0);
+        objStream.writeObject(packsInfo);
         objStream.close();
         return new ByteArrayInputStream(stream.toByteArray());
     }

@@ -19,16 +19,15 @@
 
 package com.izforge.izpack.compiler.compressor;
 
-import java.io.IOException;
-
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.tools.zip.ZipEntry;
-import org.junit.Test;
-
+import com.izforge.izpack.api.data.PackCompression;
 import com.izforge.izpack.compiler.container.provider.JarOutputStreamProvider;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.packager.impl.AbstractPackagerTest;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
 /**
  * Test compressor stream
@@ -39,20 +38,18 @@ public class CompressorTest
 {
 
     @Test
-    public void testBzip2Compression() throws IOException, CompressorException
+    public void testBzip2Compression() throws IOException//, CompressorException
     {
         String baseDir = AbstractPackagerTest.getBaseDir().getPath();
         CompilerData data = new CompilerData(
                 "",
                 baseDir,
                 baseDir + "/target/output.jar",
-                false, false);
-        data.setComprFormat("bzip2");
-        data.setComprLevel(5);
+                false);
+        data.setComprFormat(PackCompression.BZIP2.toName());
         JarOutputStreamProvider jarOutputStreamProvider = new JarOutputStreamProvider();
         JarOutputStream jarOutputStream = jarOutputStreamProvider.provide(data);
         ZipEntry zipEntry = new ZipEntry("test");
-        zipEntry.setMethod(java.util.zip.ZipEntry.STORED);
         zipEntry.setComment("bzip2");
         jarOutputStream.putNextEntry(zipEntry);
     }

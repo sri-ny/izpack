@@ -21,18 +21,6 @@
 
 package com.izforge.izpack.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
 import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
@@ -42,8 +30,18 @@ import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.InstallFile;
 import com.izforge.izpack.test.RunOn;
 import com.izforge.izpack.test.junit.PicoRunner;
-import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.Platform.Name;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -138,7 +136,7 @@ public class ExecutableFileTest extends AbstractDestroyerTest
     {
         checkExists(name);
         File file = new File(temporaryFolder.getRoot(), name);
-        List<String> fileContent = FileUtil.getFileContent(file.getPath());
+        List<String> fileContent = FileUtils.readLines(file, Charset.defaultCharset());
         assertEquals(1, fileContent.size());
         assertEquals(content, StringUtils.trim(fileContent.get(0)));
         return file;

@@ -1,25 +1,28 @@
 package org.izpack.mojo;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import com.izforge.izpack.compiler.data.PropertyManager;
+import com.izforge.izpack.matcher.ZipMatcher;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.project.ProjectBuildingResult;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystemSession;
+import org.hamcrest.collection.IsCollectionContaining;
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsNull;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.project.DefaultProjectBuilderConfiguration;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectBuilder;
-import org.apache.maven.project.ProjectBuilderConfiguration;
-import org.hamcrest.collection.IsCollectionContaining;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNull;
-import org.junit.Test;
-
-import com.izforge.izpack.compiler.data.PropertyManager;
-import com.izforge.izpack.matcher.ZipMatcher;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Test of new IzPack mojo
@@ -27,6 +30,13 @@ import com.izforge.izpack.matcher.ZipMatcher;
  * @author Anthonin Bonnefoy
  */
 public class IzPackNewMojoTest extends AbstractMojoTestCase {
+
+    /**
+     * The Maven Project.
+     */
+    @Component
+    protected MavenProject project;
+
 
     @Test
     public void testExecute() throws Exception {
@@ -86,7 +96,7 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
         Properties userProps = new Properties();
         userProps.setProperty("property1", "value1");       // simulates "-Dproperty1=value1" on mvn commandline
 
-        MavenSession session = new MavenSession(null,       // PlexusContainer container
+        MavenSession session = new MavenSession(getContainer(),       // PlexusContainer container
                                                 null,       // Settings settings
                                                 null,       // ArtifactRepository localRepository
                                                 null,       // EventDispatcher eventDispatcher
@@ -94,15 +104,20 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
                                                 null,       // List goals
                                                 null,       // String executionRootDir
                                                 null,       // Properties executionProperties
-                                                userProps,  // Properties userProperties
+                                                 userProps,  // Properties userProperties
                                                 null        // Date startTime
                                                );
         setVariableValueToObject(mojo, "session", session);
 
-        ProjectBuilderConfiguration builderConfig = new DefaultProjectBuilderConfiguration();
-        builderConfig.setUserProperties(userProps);
-        MavenProjectBuilder builder = (MavenProjectBuilder) lookup(MavenProjectBuilder.ROLE);
-        MavenProject project = builder.build(testPom, builderConfig);
+        MavenExecutionRequest mavenRequest = session.getRequest();
+        ProjectBuildingRequest projectBuildingRequest = mavenRequest.getProjectBuildingRequest();
+        RepositorySystemSession repositorySystemSession = new DefaultRepositorySystemSession();
+        projectBuildingRequest.setRepositorySession( repositorySystemSession );
+        projectBuildingRequest.setUserProperties(userProps);
+        ProjectBuilder projectBuilder = lookup(ProjectBuilder.class);
+        ProjectBuildingResult result = projectBuilder.build(testPom, projectBuildingRequest);
+        project = result.getProject();
+
         setVariableValueToObject(mojo, "project", project);
 
         // Execute the mojo.
@@ -126,10 +141,10 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
     private void initIzpackMojo( IzPackNewMojo mojo ) throws IllegalAccessException {
         File installFile = new File( "target/test-classes/helloAndFinish.xml" );
         setVariableValueToObject( mojo, "comprFormat", "default" );
-        setVariableValueToObject( mojo, "installFile", installFile.getAbsolutePath() );
+        setVariableValueToObject( mojo, "installFile", installFile );
         setVariableValueToObject( mojo, "kind", "standard" );
-        setVariableValueToObject( mojo, "baseDir", new File( "target/test-classes/" ).getAbsolutePath() );
-        setVariableValueToObject( mojo, "output", "target/sample/izpackResult.jar" );
+        setVariableValueToObject( mojo, "baseDir", new File( "target/test-classes/" ) );
+        setVariableValueToObject( mojo, "output", new File("target/sample/izpackResult.jar") );
         setVariableValueToObject( mojo, "comprLevel", -1 );
         setVariableValueToObject( mojo, "mkdirs", true ); // autoboxing
     }
@@ -137,9 +152,9 @@ public class IzPackNewMojoTest extends AbstractMojoTestCase {
     private void initIzpack5Mojo( IzPackNewMojo mojo ) throws IllegalAccessException {
         File installFile = new File( "target/test-classes/helloAndFinish.xml" );
         setVariableValueToObject( mojo, "comprFormat", "default" );
-        setVariableValueToObject( mojo, "installFile", installFile.getAbsolutePath() );
+        setVariableValueToObject( mojo, "installFile", installFile );
         setVariableValueToObject( mojo, "kind", "standard" );
-        setVariableValueToObject( mojo, "baseDir", new File( "target/test-classes/" ).getAbsolutePath() );
+        setVariableValueToObject( mojo, "baseDir", new File( "target/test-classes/" ) );
         setVariableValueToObject( mojo, "outputDirectory", new File( "target/sample" ).getAbsoluteFile() );
         setVariableValueToObject( mojo, "finalName", "izpackResult" );
         setVariableValueToObject( mojo, "comprLevel", -1 );

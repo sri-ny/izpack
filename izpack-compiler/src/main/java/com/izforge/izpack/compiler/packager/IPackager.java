@@ -23,7 +23,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.PackInfo;
+import com.izforge.izpack.api.data.PackInfo;
 
 import java.net.URL;
 import java.util.List;
@@ -45,29 +45,28 @@ public interface IPackager
      * ".pack#" (where '#' is the pack number) ".jar" suffix: e.g. "foo.pack1.jar". If any file
      * exists, it is overwritten.
      */
-    public abstract void createInstaller() throws Exception;
+    void createInstaller() throws Exception;
 
     /**
      * Sets the informations related to this installation.
      *
      * @param info The info section.
-     * @throws Exception Description of the Exception
      */
-    public abstract void setInfo(Info info);
+    void setInfo(Info info);
 
     /**
      * Sets the GUI preferences.
      *
      * @param prefs The new gUIPrefs value
      */
-    public abstract void setGUIPrefs(GUIPrefs prefs);
+    void setGUIPrefs(GUIPrefs prefs);
 
     /**
      * Sets the console preferences.
      *
      * @param prefs The new console preferences
      */
-    public abstract void setConsolePrefs(ConsolePrefs prefs);
+    void setConsolePrefs(ConsolePrefs prefs);
 
     /**
      * Allows access to add, remove and update the variables for the project, which are maintained
@@ -75,7 +74,7 @@ public interface IPackager
      *
      * @return map of variable names to values
      */
-    public abstract Properties getVariables();
+    Properties getVariables();
 
     /**
      * Add a custom data like custom actions, where order is important. Only one copy of the class
@@ -84,19 +83,19 @@ public interface IPackager
      * @param ca  custom action object
      * @param url the URL to include once
      */
-    public abstract void addCustomJar(CustomData ca, URL url);
+    void addCustomJar(CustomData ca, URL url);
 
     /**
      * Adds a pack, order is mostly irrelevant.
      *
      * @param pack contains all the files and items that go with a pack
      */
-    public abstract void addPack(PackInfo pack);
+    void addPack(PackInfo pack);
 
     /**
      * Gets the packages list
      */
-    public abstract List<PackInfo> getPacksList();
+    List<PackInfo> getPacksList();
 
     /**
      * Adds a language pack.
@@ -105,7 +104,7 @@ public interface IPackager
      * @param xmlURL  The location of the xml local info
      * @param flagURL The location of the flag image resource
      */
-    public abstract void addLangPack(String iso3, URL xmlURL, URL flagURL);
+    void addLangPack(String iso3, URL xmlURL, URL flagURL);
 
     /**
      * Adds a resource.
@@ -113,16 +112,15 @@ public interface IPackager
      * @param resId The resource Id.
      * @param url   The location of the data
      */
-    public abstract void addResource(String resId, URL url);
+    void addResource(String resId, URL url);
 
     /**
      * Adds a native library.
      *
      * @param name The native library name.
      * @param url  The url to get the data from.
-     * @throws Exception Description of the Exception
      */
-    public abstract void addNativeLibrary(String name, URL url);
+    void addNativeLibrary(String name, URL url);
 
     /**
      * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
@@ -131,42 +129,42 @@ public interface IPackager
      * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
      *               nested within another.
      */
-    public abstract void addJarContent(URL jarURL);
+    void addJarContent(URL jarURL);
 
     /**
      * Marks a native library to be added to the uninstaller.
      *
      * @param data the describing custom action data object
      */
-    public abstract void addNativeUninstallerLibrary(CustomData data);
+    void addNativeUninstallerLibrary(CustomData data);
 
-    public abstract void addInstallerRequirements(List<InstallerRequirement> conditions);
+    void addInstallerRequirements(List<InstallerRequirement> conditions);
 
     /**
      * Adds configuration information to the packager.
      *
      * @param data - the xml-element packaging from the install.xml
      */
-    public abstract void addConfigurationInformation(IXMLElement data);
+    void addConfigurationInformation(IXMLElement data);
 
     /**
      * @return the rules
      */
-    public abstract Map<String, Condition> getRules();
+    Map<String, Condition> getRules();
 
     /**
      * Returns a map of dynamically refreshed variables
      *
      * @return the map
      */
-    public abstract Map<String, List<DynamicVariable>> getDynamicVariables();
+    Map<String, List<DynamicVariable>> getDynamicVariables();
 
     /**
      * Returns a list of dynamically checked conditions
      *
      * @return the list
      */
-    public abstract List<DynamicInstallerRequirementValidator> getDynamicInstallerRequirements();
+    List<DynamicInstallerRequirementValidator> getDynamicInstallerRequirements();
 
     /**
      * Add a panel, where order is important. Only one copy of the class files needed are inserted in
@@ -179,5 +177,5 @@ public interface IPackager
      * 
      * @return the panels
      */
-    public List<Panel> getPanelList();
+    List<Panel> getPanelList();
 }

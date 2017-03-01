@@ -23,28 +23,34 @@ package com.izforge.izpack.compiler.packager.impl;
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.data.PackCompression;
 import com.izforge.izpack.api.data.PackFile;
+import com.izforge.izpack.api.data.PackInfo;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
-import com.izforge.izpack.core.io.ByteCountingOutputStream;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.PackInfo;
-import com.izforge.izpack.data.ParsableFile;
-import com.izforge.izpack.data.UpdateCheck;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStream;
+import org.apache.commons.compress.compressors.deflate.DeflateParameters;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.CloseShieldOutputStream;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.LZMAOutputStream;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
+import java.util.logging.Logger;
 import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
 
 /**
  * The packager class. The packager is used by the compiler to put files into an
@@ -55,6 +61,7 @@ import java.util.zip.Deflater;
  */
 public class Packager extends PackagerBase
 {
+    private static final Logger logger = Logger.getLogger(Packager.class.getName());
 
     private final CompilerData compilerData;
 
@@ -64,46 +71,48 @@ public class Packager extends PackagerBase
      * @param properties        the properties
      * @param listener          the packager listener
      * @param jarOutputStream   the installer jar output stream
-     * @param compressor        the pack compressor
-     * @param outputStream      decoration of the installer jar stream. May be
-     *                          compressed or not depending on the compiler data.
      * @param mergeManager      the merge manager
      * @param pathResolver      the path resolver
      * @param mergeableResolver the mergeable resolver
      * @param compilerData      the compiler data
      */
     public Packager(Properties properties, PackagerListener listener, JarOutputStream jarOutputStream,
-                    PackCompressor compressor, OutputStream outputStream, MergeManager mergeManager,
-                    CompilerPathResolver pathResolver, MergeableResolver mergeableResolver, CompilerData compilerData,
-                    RulesEngine rulesEngine)
+                    MergeManager mergeManager, CompilerPathResolver pathResolver, MergeableResolver mergeableResolver,
+                    CompilerData compilerData, RulesEngine rulesEngine)
     {
-        super(properties, listener, jarOutputStream, mergeManager, pathResolver, mergeableResolver, compressor,
+        super(properties, listener, jarOutputStream, mergeManager, pathResolver, mergeableResolver,
                 compilerData, rulesEngine);
         this.compilerData = compilerData;
     }
 
     private JarOutputStream getJarOutputStream(File jarFile) throws IOException
     {
-        JarOutputStream jarOutputStream;
-        if (jarFile.exists())
-        {
-            jarFile.delete();
-        }
+        JarOutputStream jarOutputStream = null;
+        FileOutputStream fileOutputStream = null;
+        FileUtils.deleteQuietly(jarFile);
         if (compilerData.isMkdirs())
         {
-            jarFile.getParentFile().mkdirs();
+            FileUtils.forceMkdirParent(jarFile);
         }
-        jarOutputStream = new JarOutputStream(jarFile);
-        int level = compilerData.getComprLevel();
-        if (level >= 0 && level < 10)
+        try
         {
-            jarOutputStream.setLevel(level);
-        } else
-        {
-            jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
+            fileOutputStream = new FileOutputStream(jarFile);
+            jarOutputStream = new JarOutputStream(fileOutputStream);
+            int level = compilerData.getComprLevel();
+            if (level >= 0 && level < 10)
+            {
+                jarOutputStream.setLevel(level);
+            } else
+            {
+                jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
+            }
         }
-        jarOutputStream.setPreventClose(true); // Needed at using
-        // FilterOutputStreams which calls close
+        finally
+        {
+            IOUtils.closeQuietly(jarOutputStream);
+            IOUtils.closeQuietly(fileOutputStream);
+        }
+
         return jarOutputStream;
     }
 
@@ -122,16 +131,10 @@ public class Packager extends PackagerBase
         // Map to remember pack number and bytes offsets of back references
         Map<File, Object[]> storedFiles = new HashMap<File, Object[]>();
 
-        // Pack200 files map
-        Map<Integer, File> pack200Map = new HashMap<Integer, File>();
-        int pack200Counter = 0;
+        List<PackFile> pack200Files = new ArrayList<PackFile>();
 
         // Force UTF-8 encoding in order to have proper ZipEntry names.
         JarOutputStream installerJar = getInstallerJar();
-        installerJar.setEncoding("utf-8");
-
-        // First write the serialized files and file metadata data for each pack
-        // while counting bytes.
 
         int packNumber = 0;
         IXMLElement root = new XMLElementImpl("packs");
@@ -143,40 +146,31 @@ public class Packager extends PackagerBase
 
             sendMsg("Writing Pack " + packNumber + ": " + pack.getName(), PackagerListener.MSG_VERBOSE);
 
-            org.apache.tools.zip.ZipEntry entry = null;
+            ZipEntry entry;
             JarOutputStream packJar = installerJar;
             if (packSeparateJars())
             {
                 // TODO REFACTOR : Use a mergeManager for each packages that will be added to the main merger
                 String jarFile = getInfo().getInstallerBase() + ".pack-" + pack.getName() + ".jar";
                 packJar = getJarOutputStream(new File(jarFile));
-                entry = new org.apache.tools.zip.ZipEntry("packs/pack-" + pack.getName());
+                entry = new ZipEntry("packs/pack-" + pack.getName());
             } else
             {
-                entry = new org.apache.tools.zip.ZipEntry(RESOURCES_PATH + "packs/pack-" + pack.getName());
+                entry = new ZipEntry(RESOURCES_PATH + "packs/pack-" + pack.getName());
             }
 
             packJar.putNextEntry(entry);
             packJar.flush(); // flush before we start counting
 
-            ByteCountingOutputStream dos = new ByteCountingOutputStream(packJar);
+            CountingOutputStream dos = new CountingOutputStream(packJar);
             ObjectOutputStream objOut = new ObjectOutputStream(dos);
-
-            // We write the actual pack files
-            objOut.writeInt(packInfo.getPackFiles().size());
 
             for (PackFile packFile : packInfo.getPackFiles())
             {
                 boolean addFile = !pack.isLoose();
-                boolean pack200 = false;
                 File file = packInfo.getFile(packFile);
 
-                if (file.getName().toLowerCase().endsWith(".jar") && getInfo().isPack200Compression()
-                        && isNotSignedJar(file))
-                {
-                    packFile.setPack200Jar(true);
-                    pack200 = true;
-                }
+                boolean pack200 = packFile.isPack200Jar();
 
                 // use a back reference if file was in previous pack, and in
                 // same jar
@@ -186,8 +180,6 @@ public class Packager extends PackagerBase
                     packFile.setPreviousPackFileRef((String) info[0], (Long) info[1]);
                     addFile = false;
                 }
-
-                objOut.writeObject(packFile); // base info
 
                 if (addFile && !packFile.isDirectory())
                 {
@@ -201,32 +193,76 @@ public class Packager extends PackagerBase
 						 * Pack200 archives must be stored in separated streams,
 						 * as the Pack200 unpacker reads the entire stream...
 						 *
-						 * See
-						 * http://java.sun.com/javase/6/docs/api/java/util/jar
-						 * /Pack200.Unpacker.html
+						 * See http://java.sun.com/javase/6/docs/api/java/util/jar/Pack200.Unpacker.html
 						 */
-                        pack200Map.put(pack200Counter, file);
-                        objOut.writeInt(pack200Counter);
-                        pack200Counter = pack200Counter + 1;
-                    } else
+                        pack200Files.add(packFile);
+                    }
+                    else
                     {
-                        FileInputStream inStream = new FileInputStream(file);
-                        long bytesWritten = IOUtils.copy(inStream, objOut);
-                        inStream.close();
-                        if (bytesWritten != packFile.length())
+                        PackCompression comprFormat = getInfo().getCompressionFormat();
+                        OutputStream finalStream;
+                        CountingOutputStream proxyOutputStream =  new CountingOutputStream(new CloseShieldOutputStream(objOut));
+                        if (comprFormat != PackCompression.DEFAULT)
                         {
-                            throw new IOException("File size mismatch when reading " + file);
+                            switch (comprFormat)
+                            {
+                                case LZMA:
+                                    // LZMA as output stream supported from commons-compress 1.13 (requires JDK 1.7)
+                                    // for now create it from the Tukaani Project (tukaani.org)
+                                    finalStream = new LZMAOutputStream(proxyOutputStream, new LZMA2Options(), -1);
+                                    break;
+                                case DEFLATE:
+                                    DeflateParameters deflateParameters = new DeflateParameters();
+                                    deflateParameters.setCompressionLevel(Deflater.BEST_COMPRESSION);
+                                    new DeflateCompressorOutputStream(proxyOutputStream, deflateParameters);
+                                default:
+                                    try
+                                    {
+                                        finalStream = new CompressorStreamFactory().createCompressorOutputStream(
+                                                comprFormat.toName(),
+                                                proxyOutputStream);
+                                    }
+                                    catch (CompressorException e)
+                                    {
+                                        throw new IOException(e);
+                                    }
+                            }
+
+                            try
+                            {
+                                long bytesWritten = FileUtils.copyFile(file, finalStream);
+                                proxyOutputStream.flush();
+                                finalStream.close();
+                                if (bytesWritten != packFile.length())
+                                {
+                                    throw new IOException("File size mismatch when reading " + file);
+                                }
+                                packFile.setSize(proxyOutputStream.getByteCount());
+                                logger.fine("File " + packFile.getTargetPath() + " compressed from "
+                                            + packFile.length() + " to " + packFile.size());
+                            }
+                            finally
+                            {
+                                IOUtils.closeQuietly(finalStream);
+                                IOUtils.closeQuietly(proxyOutputStream);
+                            }
+                        }
+                        else
+                        {
+                            long bytesWritten = FileUtils.copyFile(file, objOut);
+                            if (bytesWritten != packFile.length())
+                            {
+                                throw new IOException("File size mismatch when reading " + file);
+                            }
                         }
                     }
 
+                    // see IZPACK-799
                     storedFiles.put(file, new Object[]{pack.getName(), pos}); // TODO
-                    // -
-                    // see
-                    // IZPACK-799
                 }
 
                 // even if not written, it counts towards pack size
-                pack.addFileSize(packFile.size());
+                pack.addFileSize(packFile.length());
             }
 
             if (pack.getFileSize() > pack.getSize())
@@ -234,41 +270,14 @@ public class Packager extends PackagerBase
                 pack.setSize(pack.getFileSize());
             }
 
-            // Write out information about parsable files
-            objOut.writeInt(packInfo.getParsables().size());
-
-            for (ParsableFile parsableFile : packInfo.getParsables())
-            {
-                objOut.writeObject(parsableFile);
-            }
-
-            // Write out information about executable files
-            objOut.writeInt(packInfo.getExecutables().size());
-            for (ExecutableFile executableFile : packInfo.getExecutables())
-            {
-                objOut.writeObject(executableFile);
-            }
-
-            // Write out information about updatecheck files
-            objOut.writeInt(packInfo.getUpdateChecks().size());
-            for (UpdateCheck updateCheck : packInfo.getUpdateChecks())
-            {
-                objOut.writeObject(updateCheck);
-            }
-
             // Cleanup
             objOut.flush();
-            if (!getCompressor().useStandardCompression())
-            {
-                packJar.close();
-            }
-
             packJar.closeEntry();
 
             // close pack specific jar if required
             if (packSeparateJars())
             {
-                packJar.closeAlways();
+                packJar.close();
             }
 
             IXMLElement child = new XMLElementImpl("pack", root);
@@ -285,81 +294,41 @@ public class Packager extends PackagerBase
         }
 
         // Now that we know sizes, write pack metadata to primary jar.
-        installerJar.putNextEntry(new org.apache.tools.zip.ZipEntry(RESOURCES_PATH + "packs.info"));
+        installerJar.putNextEntry(new ZipEntry(PACKSINFO_RESOURCE_PATH));
         ObjectOutputStream out = new ObjectOutputStream(installerJar);
-        out.writeInt(packs.size());
-
-        for (PackInfo packInfo : packs)
-        {
-            out.writeObject(packInfo.getPack());
-        }
+        out.writeObject(packs);
         out.flush();
         installerJar.closeEntry();
 
-        // Pack200 files
-        Pack200.Packer packer = createAgressivePack200Packer();
-        for (Integer key : pack200Map.keySet())
+        for (PackFile pack200PackFile : pack200Files)
         {
-            File file = pack200Map.get(key);
-            installerJar.putNextEntry(new org.apache.tools.zip.ZipEntry(RESOURCES_PATH + "packs/pack200-" + key));
-            JarFile jar = new JarFile(file);
-            packer.pack(jar, installerJar);
-            jar.close();
-            installerJar.closeEntry();
+            Pack200.Packer packer = createPack200Packer(pack200PackFile);
+            installerJar.putNextEntry(new ZipEntry(RESOURCES_PATH + "packs/pack200-" + pack200PackFile.getId()));
+            JarFile jar = new JarFile(pack200PackFile.getFile());
+            try
+            {
+                packer.pack(jar, installerJar);
+            }
+            finally
+            {
+                jar.close();
+                installerJar.closeEntry();
+            }
         }
     }
 
-    private Pack200.Packer createAgressivePack200Packer()
+    private Pack200.Packer createPack200Packer(PackFile packFile)
     {
         Pack200.Packer packer = Pack200.newPacker();
-        Map<String, String> packerProperties = packer.properties();
-        packerProperties.put(Pack200.Packer.EFFORT, "9");
-        packerProperties.put(Pack200.Packer.SEGMENT_LIMIT, "-1");
-        packerProperties.put(Pack200.Packer.KEEP_FILE_ORDER, Pack200.Packer.FALSE);
-        packerProperties.put(Pack200.Packer.DEFLATE_HINT, Pack200.Packer.FALSE);
-        packerProperties.put(Pack200.Packer.MODIFICATION_TIME, Pack200.Packer.LATEST);
-        packerProperties.put(Pack200.Packer.CODE_ATTRIBUTE_PFX + "LineNumberTable", Pack200.Packer.STRIP);
-        packerProperties.put(Pack200.Packer.CODE_ATTRIBUTE_PFX + "LocalVariableTable", Pack200.Packer.STRIP);
-        packerProperties.put(Pack200.Packer.CODE_ATTRIBUTE_PFX + "SourceFile", Pack200.Packer.STRIP);
+        Map<String, String> defaultPackerProperties = packer.properties();
+        Map<String,String> localPackerProperties = packFile.getPack200Properties();
+        if (localPackerProperties != null)
+        {
+            defaultPackerProperties.putAll(localPackerProperties);
+        }
         return packer;
     }
 
-    private boolean isNotSignedJar(File file) throws IOException
-    {
-        JarFile jar = new JarFile(file);
-        Enumeration<JarEntry> entries = jar.entries();
-        while (entries.hasMoreElements())
-        {
-            JarEntry entry = entries.nextElement();
-            if (entry.getName().startsWith("META-INF") && entry.getName().endsWith(".SF"))
-            {
-                jar.close();
-                return false;
-            }
-        }
-        jar.close();
-        return true;
-    }
-
-    /**
-     * *************************************************************************
-     * ******************* Stream utilites for creation of the installer.
-     * *******
-     * *******************************************************************
-     * ******************
-     */
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * com.izforge.izpack.compiler.packager.IPackager#addConfigurationInformation
-	 * (com.izforge.izpack.api.adaptator.IXMLElement)
-	 */
     @Override
-    public void addConfigurationInformation(IXMLElement data)
-    {
-        // TODO Auto-generated method stub
-
-    }
+    public void addConfigurationInformation(IXMLElement data) {}
 }

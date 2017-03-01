@@ -26,6 +26,7 @@ import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.util.os.FileQueue;
 import com.izforge.izpack.util.os.FileQueueMove;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -115,16 +116,17 @@ public abstract class FileUnpacker
      * @param file   the pack file
      * @param in     the pack file stream
      * @param target the file to write to
+     * @return the number of bytes actually copied
      * @throws InterruptedIOException if the copy operation is cancelled
      * @throws IOException            for any I/O error
      */
-    protected void copy(PackFile file, InputStream in, File target) throws IOException
+    protected long copy(PackFile file, InputStream in, File target) throws IOException
     {
         OutputStream out = getTarget(file, target);
+        byte[] buffer = new byte[5120];
+        long bytesCopied = 0;
         try
         {
-            byte[] buffer = new byte[5120];
-            long bytesCopied = 0;
             while (bytesCopied < file.length())
             {
                 if (cancellable.isCancelled())
@@ -140,6 +142,8 @@ public abstract class FileUnpacker
             IOUtils.closeQuietly(out);
         }
         postCopy(file);
+
+        return bytesCopied;
     }
 
     /**
@@ -166,7 +170,7 @@ public abstract class FileUnpacker
      * @param in          the stream to read from
      * @param out         the stream to write to
      * @param bytesCopied the current no. of bytes copied
-     * @return the bytes copied
+     * @return the number of bytes actually copied
      * @throws IOException for any I/O error
      */
     protected long copy(PackFile file, byte[] buffer, InputStream in, OutputStream out, long bytesCopied)
@@ -206,7 +210,7 @@ public abstract class FileUnpacker
      * @param file   the pack file meta-data
      * @param target the requested target
      * @return a stream to the actual target
-     * @throws IOException
+     * @throws IOException an I/O error occurred
      */
     protected OutputStream getTarget(PackFile file, File target) throws IOException
     {
@@ -217,11 +221,11 @@ public abstract class FileUnpacker
             // If target file might be blocked the output file must first refer to a temporary file, because
             // Windows Setup API doesn't work on streams but only on physical files
             tmpTarget = File.createTempFile("__FQ__", null, target.getParentFile());
-            result = new FileOutputStream(tmpTarget);
+            result = FileUtils.openOutputStream(tmpTarget);
         }
         else
         {
-            result = new FileOutputStream(target);
+            result = FileUtils.openOutputStream(target);
         }
         return result;
     }

@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.handler.AbstractUIHandler;
-import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.api.data.ExecutableFile;
 
 /**
  * Executes a bunch of files. This class is intended to do a system dependent installation
@@ -149,7 +149,7 @@ public class FileExecutor
      * @param forceToGetStdOut if true returns stdout
      * @return the result of the command stdout or stderr if exec returns !=0
      */
-    public static String getExecOutput(String[] aCommandLine, String dir, boolean forceToGetStdOut)
+    private static String getExecOutput(String[] aCommandLine, String dir, boolean forceToGetStdOut)
     {
         FileExecutor fileExecutor = new FileExecutor();
 
@@ -222,13 +222,13 @@ public class FileExecutor
         try
         {
             // Resolve ".." and "." in paths which otherwise couldn't be found
-            if (params[0].matches("^.*[\\\\/]+[\\.]+[\\\\/]+.*$"))
+            if (params[0].matches("^.*[\\\\/]+\\.+[\\\\/]+.*$"))
             {
                 params[0] = new File(params[0]).getCanonicalPath();
             }
             if (dir != null)
             {
-                if (dir.matches("^.*[\\\\/]+[\\.]+[\\\\/]+.*$"))
+                if (dir.matches("^.*[\\\\/]+\\.+[\\\\/]+.*$"))
                 {
                     dir = new File(dir).getCanonicalPath();
                 }
@@ -343,8 +343,7 @@ public class FileExecutor
             }
 
             // execute command in POSTINSTALL stage
-            if ((exitStatus == 0)
-                    && ((currentStage == ExecutableFile.POSTINSTALL && efile.executionStage == ExecutableFile.POSTINSTALL) || (currentStage == ExecutableFile.UNINSTALL && efile.executionStage == ExecutableFile.UNINSTALL)))
+            if (currentStage == ExecutableFile.POSTINSTALL && efile.executionStage == ExecutableFile.POSTINSTALL || currentStage == ExecutableFile.UNINSTALL && efile.executionStage == ExecutableFile.UNINSTALL)
             {
                 List<String> paramList = new ArrayList<String>();
                 if (ExecutableFile.BIN == efile.type)
@@ -367,7 +366,6 @@ public class FileExecutor
                     }
                     catch (Exception e)
                     {
-                        exitStatus = -1;
                         logger.log(Level.WARNING, e.getMessage(), e);
                     }
                     paramList.add(efile.mainClass);
@@ -443,11 +441,10 @@ public class FileExecutor
      * containing jar files. ';' and ':' are valid delimiters allowed
      * in targetFile attribute.
      *
-     * @param targetFile
+     * @param targetFile the file path
      * @return valid Java classpath
-     * @throws Exception
      */
-    private String buildClassPath(String targetFile) throws Exception
+    private String buildClassPath(String targetFile)
     {
         StringBuilder classPath = new StringBuilder();
         List<String> jars = new ArrayList<String>();
@@ -501,5 +498,5 @@ public class FileExecutor
     /**
      * The files to execute.
      */
-    private Collection<ExecutableFile> files;
+    private final Collection<ExecutableFile> files;
 }

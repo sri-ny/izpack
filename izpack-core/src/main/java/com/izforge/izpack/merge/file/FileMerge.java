@@ -19,23 +19,18 @@
 
 package com.izforge.izpack.merge.file;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.tools.zip.ZipOutputStream;
-
 import com.izforge.izpack.api.exception.MergeException;
 import com.izforge.izpack.merge.AbstractMerge;
 import com.izforge.izpack.merge.resolve.ResolveUtils;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.IoHelper;
+
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipOutputStream;
 
 /**
  * File merge. Can be a single file or a directory.
@@ -45,9 +40,9 @@ import com.izforge.izpack.util.IoHelper;
 public class FileMerge extends AbstractMerge
 {
 
-    private File sourceToCopy;
+    private final File sourceToCopy;
 
-    private String destination;
+    private final String destination;
 
     public FileMerge(URL url, Map<OutputStream, List<String>> mergeContent)
     {
@@ -83,18 +78,21 @@ public class FileMerge extends AbstractMerge
      */
     private File findRecursivelyForFile(FileFilter fileFilter, File currentFile)
     {
-        if (currentFile.isDirectory())
+        if (currentFile != null && currentFile.isDirectory())
         {
-            for (File files : currentFile.listFiles(fileFilter))
+            File[] files = currentFile.listFiles(fileFilter);
+            if (files != null)
             {
-                File file = findRecursivelyForFile(fileFilter, files);
-                if (file != null)
+                for (File file : files)
                 {
-                    return file;
+                    File f = findRecursivelyForFile(fileFilter, file);
+                    if (f != null)
+                    {
+                        return f;
+                    }
                 }
             }
-        }
-        else
+        } else
         {
             return currentFile;
         }
@@ -106,44 +104,31 @@ public class FileMerge extends AbstractMerge
      *
      * @param fileFilter  Filter accepting directory and file matching a classname pattern
      * @param currentFile Current directory
-     * @return the first found file or null
      */
     private void findRecursivelyForFiles(FileFilter fileFilter, File currentFile, List<File> result)
     {
-        if (currentFile.isDirectory())
+        if (currentFile != null)
         {
-            for (File files : currentFile.listFiles(fileFilter))
+            if (currentFile.isDirectory())
+            {
+                File[] files = currentFile.listFiles(fileFilter);
+                if (files != null)
+                {
+                    for (File file : files)
+                    {
+                        result.add(currentFile);
+                        findRecursivelyForFiles(fileFilter, file, result);
+                    }
+                }
+            } else
             {
                 result.add(currentFile);
-                findRecursivelyForFiles(fileFilter, files, result);
             }
-        }
-        else
-        {
-            result.add(currentFile);
         }
     }
 
     public void merge(ZipOutputStream outputStream)
     {
-        List<String> mergeList = getMergeList(outputStream);
-        try
-        {
-            if (mergeList.contains(sourceToCopy.getAbsolutePath()))
-            {
-                return;
-            }
-            mergeList.add(sourceToCopy.getAbsolutePath());
-            copyFileToJar(sourceToCopy, outputStream);
-        }
-        catch (IOException e)
-        {
-            throw new MergeException(e);
-        }
-    }
-
-    public void merge(java.util.zip.ZipOutputStream outputStream)
-    {
         try
         {
             copyFileToJar(sourceToCopy, outputStream);
@@ -154,13 +139,17 @@ public class FileMerge extends AbstractMerge
         }
     }
 
-    private void copyFileToJar(File fileToCopy, java.util.zip.ZipOutputStream outputStream) throws IOException
+    private void copyFileToJar(File fileToCopy, ZipOutputStream outputStream) throws IOException
     {
         if (fileToCopy.isDirectory())
         {
-            for (File file : fileToCopy.listFiles())
+            File[] files = fileToCopy.listFiles();
+            if (files != null)
             {
-                copyFileToJar(file, outputStream);
+                for (File file : files)
+                {
+                    copyFileToJar(file, outputStream);
+                }
             }
         }
         else
@@ -173,34 +162,6 @@ public class FileMerge extends AbstractMerge
             }
             mergeList.add(entryName);
             FileInputStream inputStream = new FileInputStream(fileToCopy);
-            IoHelper.copyStreamToJar(inputStream, outputStream, entryName, fileToCopy.lastModified());
-            inputStream.close();
-        }
-    }
-
-    private void copyFileToJar(File fileToCopy, ZipOutputStream outputStream) throws IOException
-    {
-        FileInputStream inputStream = null;
-        if (fileToCopy.isDirectory())
-        {
-            for (File file : fileToCopy.listFiles())
-            {
-                copyFileToJar(file, outputStream);
-            }
-        } else
-        {
-            inputStream = new FileInputStream(fileToCopy);
-        }
-
-        String entryName = resolveName(fileToCopy, this.destination);
-        List<String> mergeList = getMergeList(outputStream);
-        if (mergeList.contains(entryName))
-        {
-            return;
-        }
-        mergeList.add(entryName);        
-        if(inputStream != null)
-        {
             IoHelper.copyStreamToJar(inputStream, outputStream, entryName, fileToCopy.lastModified());
             inputStream.close();
         }
@@ -227,15 +188,7 @@ public class FileMerge extends AbstractMerge
 
     private boolean isFile(String destination)
     {
-        if (destination.length() == 0)
-        {
-            return false;
-        }
-        if (!destination.contains("/"))
-        {
-            return true;
-        }
-        return !destination.endsWith("/");
+        return destination.length() != 0 && (!destination.contains("/") || !destination.endsWith("/"));
     }
 
     @Override

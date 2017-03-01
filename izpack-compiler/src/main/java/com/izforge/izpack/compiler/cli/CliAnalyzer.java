@@ -19,18 +19,13 @@
 
 package com.izforge.izpack.compiler.cli;
 
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
+import com.izforge.izpack.api.data.PackCompression;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.exception.HelpRequestedException;
 import com.izforge.izpack.compiler.exception.NoArgumentException;
+import org.apache.commons.cli.*;
+
+import java.util.List;
 
 
 /**
@@ -45,7 +40,6 @@ public class CliAnalyzer {
     private static final String ARG_OUTPUT = "o";
     private static final String ARG_COMPRESSION_FORMAT = "c";
     private static final String ARG_COMPRESSION_LEVEL = "l";
-    private static final String ARG_SCHEMA_VALIDATION = "v";
 
 
     /**
@@ -67,8 +61,6 @@ public class CliAnalyzer {
                 "default is the internal deflate compression\n");
         options.addOption(ARG_COMPRESSION_LEVEL, true, "compression-level : indicates the level for the used compression format"
                 + " if supported. Only integer are valid\n");
-        options.addOption(ARG_SCHEMA_VALIDATION, true, "schema-validation : indicates whether XML descriptors should " +
-                "be validated during compilation (true|false; default is true)\n");
         return options;
     }
 
@@ -145,6 +137,7 @@ public class CliAnalyzer {
         String installFile;
         String baseDir = ".";
         String output = "install.jar";
+        String compression = PackCompression.DEFAULT.toName();
 
         if (commandLine.hasOption("?")) {
             printHelp();
@@ -158,12 +151,10 @@ public class CliAnalyzer {
         if (commandLine.hasOption(ARG_OUTPUT)) {
             output = commandLine.getOptionValue(ARG_OUTPUT).trim();
         }
-        CompilerData compilerData = new CompilerData(installFile, baseDir, output, false, true);
-
-
         if (commandLine.hasOption(ARG_COMPRESSION_FORMAT)) {
-            compilerData.setComprFormat(commandLine.getOptionValue(ARG_COMPRESSION_FORMAT).trim());
+            compression = commandLine.getOptionValue(ARG_COMPRESSION_FORMAT).trim();
         }
+        CompilerData compilerData = new CompilerData(compression, installFile, baseDir, output, false);
         if (commandLine.hasOption(ARG_COMPRESSION_LEVEL)) {
             compilerData.setComprLevel(Integer.parseInt(commandLine.getOptionValue(ARG_COMPRESSION_LEVEL).trim()));
         }
@@ -172,9 +163,6 @@ public class CliAnalyzer {
         }
         if (commandLine.hasOption(ARG_KIND)) {
             compilerData.setKind(commandLine.getOptionValue(ARG_KIND).trim());
-        }
-        if (commandLine.hasOption(ARG_SCHEMA_VALIDATION)) {
-            compilerData.setValidating(Boolean.parseBoolean(commandLine.getOptionValue(ARG_SCHEMA_VALIDATION).trim()));
         }
 
         return compilerData;

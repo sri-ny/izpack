@@ -29,14 +29,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Contains some informations for an installer, as defined in the <info> section of the XML files.
+ * Contains some information for an installer, as defined in the <info> section of the XML files.
  *
  * @author Julien Ponge
  */
 public class Info implements Serializable
 {
 
-    static final long serialVersionUID = 13288410782044775L;
+    private static final long serialVersionUID = 13288410782044775L;
 
     /**
      * Force ignoring pending file operations
@@ -71,7 +71,7 @@ public class Info implements Serializable
     /**
      * The application authors
      */
-    private ArrayList<Author> authors = new ArrayList<Author>();
+    private final ArrayList<Author> authors = new ArrayList<Author>();
 
     /**
      * The application URL
@@ -121,12 +121,6 @@ public class Info implements Serializable
      */
     private String summaryLogFilePath = "$INSTALL_PATH/Uninstaller/InstallSummary.htm";
 
-    /**
-     * The full qualified name of the class which should be
-     * used for decoding the packs.
-     */
-    private String packDecoderClassName = null;
-
     private String unpackerClassName = null;
 
     private boolean writeInstallationInformation = true;
@@ -135,7 +129,7 @@ public class Info implements Serializable
 
     private boolean isSingleInstance = true;
 
-    private boolean pack200Compression;
+    private String compressionFormat = PackCompression.DEFAULT.toName();
 
     private boolean requirePrivilegedExecution = false;
 
@@ -429,14 +423,14 @@ public class Info implements Serializable
         this.jdkRequired = jdkRequired;
     }
 
-    public void setPack200Compression(boolean pack200Support)
+    public PackCompression getCompressionFormat()
     {
-        this.pack200Compression = pack200Support;
+        return PackCompression.byName(compressionFormat);
     }
 
-    public boolean isPack200Compression()
+    public void setCompressionFormat(PackCompression compression)
     {
-        return pack200Compression;
+        this.compressionFormat = compression.toName();
     }
 
     /**
@@ -447,17 +441,17 @@ public class Info implements Serializable
     public static class Author implements Serializable
     {
 
-        static final long serialVersionUID = -3090178155004960243L;
+        private static final long serialVersionUID = -3090178155004960243L;
 
         /**
          * The author name
          */
-        private String name;
+        private final String name;
 
         /**
          * The author email
          */
-        private String email;
+        private final String email;
 
         /**
          * Gets the author name.
@@ -521,9 +515,9 @@ public class Info implements Serializable
         /**
          * Create a new TempDir with the specified name prefix and suffix
          *
-         * @param variableName
-         * @param prefix
-         * @param suffix
+         * @param variableName the variable to hold the resulting path
+         * @param prefix the path name prefix
+         * @param suffix the path name suffix
          */
         public TempDir(String variableName, String prefix, String suffix)
         {
@@ -597,29 +591,6 @@ public class Info implements Serializable
     {
         this.summaryLogFilePath = summaryLogFilePath;
     }
-
-    /**
-     * Returns the full qualified class name of the class which
-     * should be used for decoding the packs.
-     *
-     * @return Returns the packDecoderClassName.
-     */
-    public String getPackDecoderClassName()
-    {
-        return packDecoderClassName;
-    }
-
-    /**
-     * Sets the full qualified class name of the class which
-     * should be used for decoding the packs.
-     *
-     * @param packDecoderClassName The packDecoderClassName to set.
-     */
-    public void setPackDecoderClassName(String packDecoderClassName)
-    {
-        this.packDecoderClassName = packDecoderClassName;
-    }
-
 
     public String getUnpackerClassName()
     {

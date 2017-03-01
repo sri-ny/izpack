@@ -26,30 +26,24 @@ import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.data.XPackFile;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
 import com.izforge.izpack.core.io.FileSpanningOutputStream;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.PackInfo;
-import com.izforge.izpack.data.ParsableFile;
-import com.izforge.izpack.data.UpdateCheck;
+import com.izforge.izpack.api.data.PackInfo;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.zip.ZipEntry;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
 
 
 /**
@@ -114,15 +108,13 @@ public class MultiVolumePackager extends PackagerBase
      * @param mergeManager      the merge manager
      * @param pathResolver      the path resolver
      * @param mergeableResolver the mergeable resolver
-     * @param compressor        the pack compressor
      * @param compilerData      the compiler data
      */
     public MultiVolumePackager(Properties properties, PackagerListener listener, JarOutputStream installerJar,
                                MergeManager mergeManager, CompilerPathResolver pathResolver,
-                               MergeableResolver mergeableResolver, PackCompressor compressor,
-                               CompilerData compilerData, RulesEngine rulesEngine)
+                               MergeableResolver mergeableResolver, CompilerData compilerData, RulesEngine rulesEngine)
     {
-        super(properties, listener, installerJar, mergeManager, pathResolver, mergeableResolver, compressor,
+        super(properties, listener, installerJar, mergeManager, pathResolver, mergeableResolver,
               compilerData, rulesEngine);
     }
 
@@ -209,14 +201,9 @@ public class MultiVolumePackager extends PackagerBase
         installerJar.closeEntry();
 
         // Now that we know sizes, write pack metadata to primary jar.
-        installerJar.putNextEntry(new ZipEntry(RESOURCES_PATH + "packs.info"));
+        installerJar.putNextEntry(new ZipEntry(PACKSINFO_RESOURCE_PATH));
         out = new ObjectOutputStream(installerJar);
-        out.writeInt(count);
-
-        for (PackInfo pack : packs)
-        {
-            out.writeObject(pack.getPack());
-        }
+        out.writeObject(packs);
         out.flush();
         installerJar.closeEntry();
     }
@@ -236,6 +223,7 @@ public class MultiVolumePackager extends PackagerBase
         {
             throw new IOException("Cannot determine parent directory of " + volume);
         }
+
         for (PackInfo packInfo : packs)
         {
             writePack(packInfo, volumes, targetDir);
@@ -272,27 +260,6 @@ public class MultiVolumePackager extends PackagerBase
 
         writePackFiles(packInfo, volumes, pack, packStream, targetDir);
 
-        // Write out information about parsable files
-        packStream.writeInt(packInfo.getParsables().size());
-        for (ParsableFile file : packInfo.getParsables())
-        {
-            packStream.writeObject(file);
-        }
-
-        // Write out information about executable files
-        packStream.writeInt(packInfo.getExecutables().size());
-        for (ExecutableFile file : packInfo.getExecutables())
-        {
-            packStream.writeObject(file);
-        }
-
-        // Write out information about update check files
-        packStream.writeInt(packInfo.getUpdateChecks().size());
-        for (UpdateCheck check : packInfo.getUpdateChecks())
-        {
-            packStream.writeObject(check);
-        }
-
         // Cleanup
         packStream.flush();
     }
@@ -312,9 +279,8 @@ public class MultiVolumePackager extends PackagerBase
     private void writePackFiles(PackInfo packInfo, FileSpanningOutputStream volumes, Pack pack,
                                 ObjectOutputStream packStream, File targetDir) throws IOException
     {
-        // write the file meta-data
         Set<PackFile> files = packInfo.getPackFiles();
-        packStream.writeInt(files.size());
+        Map<PackFile, File> xFiles = new LinkedHashMap<PackFile, File>();
 
         for (PackFile packfile : files)
         {
@@ -335,12 +301,16 @@ public class MultiVolumePackager extends PackagerBase
                 }
             }
 
-            // write pack file meta-data
-            packStream.writeObject(pf);
-            packStream.flush(); // make sure it is written
+            xFiles.put(pf, file);
+
             // even if not written, it counts towards pack size
             pack.addFileSize(pf.length());
         }
+
+        // Replace the PackFile objects by the corresponding XPackFile objects to be written to the packs.info resource
+        Map<PackFile, File> packFilesMap = packInfo.getPackFilesMap();
+        packFilesMap.clear();
+        packFilesMap.putAll(xFiles);
 
         if (pack.getFileSize() > pack.getSize())
         {
@@ -364,26 +334,32 @@ public class MultiVolumePackager extends PackagerBase
         // write the file to the volumes
         int volumeCount = volumes.getVolumes();
 
-        FileInputStream in = new FileInputStream(file);
-        long bytesWritten = IOUtils.copy(in, volumes);
-        long afterPosition = volumes.getFilePointer();
-        logger.fine("File (" + packFile.sourcePath + ") " + beforePosition + " <-> " + afterPosition);
-
-        if (volumes.getFilePointer() != (beforePosition + bytesWritten))
+        FileInputStream in = FileUtils.openInputStream(file);
+        try
         {
-            logger.fine("file: " + file.getName());
-            logger.fine("(Filepos/BytesWritten/ExpectedNewFilePos/NewFilePointer) ("
-                                + beforePosition + "/" + bytesWritten + "/" + (beforePosition + bytesWritten)
-                                + "/" + volumes.getFilePointer() + ")");
-            logger.fine("Volumes (before/after) (" + volumeCount + "/" + volumes.getVolumes() + ")");
-            throw new IOException("Error new file pointer is illegal");
-        }
+            long bytesWritten = IOUtils.copyLarge(in, volumes);
+            long afterPosition = volumes.getFilePointer();
+            logger.fine("File (" + packFile.sourcePath + ") " + beforePosition + " <-> " + afterPosition);
 
-        if (bytesWritten != packFile.length())
-        {
-            throw new IOException("File size mismatch when reading " + file);
+            if (volumes.getFilePointer() != (beforePosition + bytesWritten))
+            {
+                logger.fine("file: " + file.getName());
+                logger.fine("(Filepos/BytesWritten/ExpectedNewFilePos/NewFilePointer) ("
+                        + beforePosition + "/" + bytesWritten + "/" + (beforePosition + bytesWritten)
+                        + "/" + volumes.getFilePointer() + ")");
+                logger.fine("Volumes (before/after) (" + volumeCount + "/" + volumes.getVolumes() + ")");
+                throw new IOException("Error new file pointer is illegal");
+            }
+
+            if (bytesWritten != packFile.length())
+            {
+                throw new IOException("File size mismatch when reading " + file);
+            }
         }
-        in.close();
+        finally
+        {
+            IOUtils.closeQuietly(in);
+        }
     }
 
 }

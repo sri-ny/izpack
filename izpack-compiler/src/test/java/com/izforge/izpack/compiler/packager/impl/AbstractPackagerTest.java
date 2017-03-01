@@ -20,36 +20,31 @@
  */
 package com.izforge.izpack.compiler.packager.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-
+import com.izforge.izpack.api.data.Blockable;
+import com.izforge.izpack.api.data.OverrideType;
+import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.data.PackInfo;
+import com.izforge.izpack.merge.MergeManager;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.Pack;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
-import com.izforge.izpack.data.PackInfo;
-import com.izforge.izpack.merge.MergeManager;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Enter description.
@@ -150,7 +145,6 @@ public abstract class AbstractPackagerTest
         File jar = File.createTempFile("installer", ".jar");
 
         JarOutputStream output = new JarOutputStream(new FileOutputStream(jar));
-        output.setPreventClose(true);
         PackagerBase packager = createPackager(output, mergeManager);
 
         PackInfo packInfo = new PackInfo("Core", "Core", null, true, false, null, true, size);
@@ -158,7 +152,7 @@ public abstract class AbstractPackagerTest
         for (File file : files)
         {
             packInfo.addFile(file.getParentFile(), file, "$INSTALL_PATH/" + file.getName(), null,
-                             OverrideType.OVERRIDE_TRUE, null, Blockable.BLOCKABLE_NONE, null, null);
+                             OverrideType.OVERRIDE_TRUE, null, Blockable.BLOCKABLE_NONE, null, null, null);
             fileSize += file.length();
         }
         packager.addPack(packInfo);
@@ -167,14 +161,14 @@ public abstract class AbstractPackagerTest
         InputStream jarEntry = getJarEntry("resources/packs.info", jar);
 
         ObjectInputStream packStream = new ObjectInputStream(jarEntry);
-        int packs = packStream.readInt();
-        assertEquals(1, packs);
-        Pack pack = (Pack) packStream.readObject();
+        List<PackInfo> packsInfo = (List<PackInfo>) packStream.readObject();
+        assertEquals(1, packsInfo.size());
+        Pack pack = packsInfo.get(0).getPack();
         assertEquals(expectedSize, pack.getSize());
         assertEquals(expectedFileSize, fileSize);
 
-        jarEntry.close();
-        packStream.close();
+        IOUtils.closeQuietly(jarEntry);
+        IOUtils.closeQuietly(packStream);
         assertTrue(jar.delete());
     }
 
@@ -222,10 +216,19 @@ public abstract class AbstractPackagerTest
         File path = null;
         try
         {
-            path = new File(AbstractPackagerTest.class.getClassLoader().getResource("").toURI());
-            // path: <root>/target/test-classes
-            path = path.getParentFile(); // <root>/target/
-            path = path.getParentFile(); // <root>
+            URL url = AbstractPackagerTest.class.getClassLoader().getResource("");
+            if (url != null)
+            {
+                URI uri = url.toURI();
+                path = new File(uri);
+                // path: <root>/target/test-classes
+                path = path.getParentFile(); // <root>/target/
+                path = path.getParentFile(); // <root>
+            }
+            else
+            {
+                Assert.fail("Resource not found");
+            }
         }
         catch (URISyntaxException e)
         {

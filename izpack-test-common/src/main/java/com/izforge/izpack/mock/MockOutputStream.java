@@ -1,12 +1,13 @@
 package com.izforge.izpack.mock;
 
-import org.apache.tools.zip.ZipEntry;
-import org.apache.tools.zip.ZipOutputStream;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Mock for outputStream
@@ -16,7 +17,7 @@ import java.util.List;
 public class MockOutputStream extends ZipOutputStream
 {
 
-    private List<String> listEntryName = new ArrayList<String>();
+    private final List<String> listEntryName = new ArrayList<String>();
 
     public List<String> getListEntryName()
     {
@@ -31,7 +32,7 @@ public class MockOutputStream extends ZipOutputStream
 
     public MockOutputStream() throws IOException
     {
-        super(File.createTempFile("test", "test"));
+        super(FileUtils.openOutputStream(File.createTempFile("test", "test")));
     }
 
     @Override
