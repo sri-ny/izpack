@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Selamat Datang"/>
     <str id="CompilePanel.headline" txt="Kompilasi Kode Sumber Java"/>
     <str id="ConditionalUserInputPanel.headline" txt="Data Pengguna"/>
-    <str id="ExtendedInstallPanel.headline" txt="Pemasangan dan Konfigurasi"/>
     <str id="FinishPanel.headline" txt="Pemasangan Telah Selesai"/>
     <str id="HelloPanel.headline" txt="Selamat Datang"/>
     <str id="HTMLInfoPanel.headline" txt="Informasi"/>

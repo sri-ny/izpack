@@ -568,7 +568,7 @@
                 </xs:complexType>
             </xs:element>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="fileset" type="fileSetTypeDisk"/>
+                <xs:element name="fileset" type="fileSetTypePlain"/>
                 <xs:element name="file" type="fileType"/>
                 <xs:element name="singlefile" type="singleFileType"/>
                 <xs:element name="parsable" type="parsableType"/>
@@ -765,7 +765,7 @@
         </xs:choice>
     </xs:complexType>
 
-    <xs:complexType name="fileSetTypeDisk">
+    <xs:complexType name="fileSetTypeBase" abstract="true">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="include" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="exclude" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
@@ -789,10 +789,8 @@
             <xs:element name="size" type="sizeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="type" type="typeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
-        <xs:attribute name="dir" type="xs:string" use="required"/>
         <xs:attribute name="includes" type="xs:string" use="optional"/>
         <xs:attribute name="excludes" type="xs:string" use="optional"/>
-        <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="update"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
@@ -803,6 +801,22 @@
         <xs:attribute name="followsymlinks" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
+    <xs:complexType name="fileSetTypePlain" >
+        <xs:complexContent>
+            <xs:extension base="fileSetTypeBase">
+                <xs:attribute name="dir" type="xs:string" use="required"/>
+                <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="fileSetTypeArchive" >
+        <xs:complexContent>
+            <xs:extension base="fileSetTypeBase">
+                <xs:attribute name="dir" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="fileSetTypePack">
         <xs:choice maxOccurs="unbounded">
@@ -819,6 +833,7 @@
             <xs:element name="condition" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="additionaldata" type="additionalDataType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="os" type="types:osType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="archivefileset" type="fileSetTypeArchive"/>
         </xs:choice>
         <xs:attribute name="src" type="xs:string" use="required"/>
         <xs:attribute name="targetdir" type="xs:string" use="required"/>

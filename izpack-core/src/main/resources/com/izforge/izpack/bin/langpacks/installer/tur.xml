@@ -19,7 +19,6 @@
     <str id="CheckedHelloPanel.headline" txt="Hoşgeldiniz"/>
     <str id="CompilePanel.headline" txt="Java Kaynak Kodlarını Derle"/>
     <str id="ConditionalUserInputPanel.headline" txt="Kullanıcı Bilgileri"/>
-    <str id="ExtendedInstallPanel.headline" txt="Kurulum ve Yapılandırma"/>
     <str id="FinishPanel.headline" txt="Kurulum Tamamlandı"/>
     <str id="HelloPanel.headline" txt="Hoşgeldiniz"/>
     <str id="HTMLInfoPanel.headline" txt="Bilgiler"/>

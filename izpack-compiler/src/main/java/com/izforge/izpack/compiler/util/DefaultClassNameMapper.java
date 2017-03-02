@@ -20,24 +20,12 @@
  */
 package com.izforge.izpack.compiler.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.izforge.izpack.event.AntActionInstallerListener;
-import com.izforge.izpack.event.AntActionUninstallerListener;
-import com.izforge.izpack.event.BSFInstallerListener;
-import com.izforge.izpack.event.BSFUninstallerListener;
-import com.izforge.izpack.event.ConfigurationInstallerListener;
-import com.izforge.izpack.event.ProgressBarInstallerListener;
-import com.izforge.izpack.event.RegistryInstallerListener;
-import com.izforge.izpack.event.RegistryUninstallerListener;
-import com.izforge.izpack.event.SummaryLoggerInstallerListener;
+import com.izforge.izpack.event.*;
 import com.izforge.izpack.installer.web.DownloadPanel;
 import com.izforge.izpack.panels.checkedhello.CheckedHelloPanel;
 import com.izforge.izpack.panels.compile.CompilePanel;
 import com.izforge.izpack.panels.datacheck.DataCheckPanel;
 import com.izforge.izpack.panels.defaulttarget.DefaultTargetPanel;
-import com.izforge.izpack.panels.extendedinstall.ExtendedInstallPanel;
 import com.izforge.izpack.panels.finish.FinishPanel;
 import com.izforge.izpack.panels.hello.HelloPanel;
 import com.izforge.izpack.panels.htmlhello.HTMLHelloPanel;
@@ -65,14 +53,12 @@ import com.izforge.izpack.panels.userinput.processor.PasswordEncryptionProcessor
 import com.izforge.izpack.panels.userinput.processor.PortProcessor;
 import com.izforge.izpack.panels.userinput.processor.UnixGroupProcessor;
 import com.izforge.izpack.panels.userinput.processor.UnixUserProcessor;
-import com.izforge.izpack.panels.userinput.validator.HostAddressValidator;
-import com.izforge.izpack.panels.userinput.validator.IsPortValidator;
-import com.izforge.izpack.panels.userinput.validator.NotEmptyValidator;
-import com.izforge.izpack.panels.userinput.validator.PasswordEqualityValidator;
-import com.izforge.izpack.panels.userinput.validator.PortValidator;
-import com.izforge.izpack.panels.userinput.validator.RegularExpressionValidator;
+import com.izforge.izpack.panels.userinput.validator.*;
 import com.izforge.izpack.panels.userpath.UserPathPanel;
 import com.izforge.izpack.panels.xinfo.XInfoPanel;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Maps unqualified IzPack class names to their fully qualified names.
@@ -104,7 +90,7 @@ public class DefaultClassNameMapper implements ClassNameMapper
 
         // add mappings for IzPanels
         addMapping(CheckedHelloPanel.class, CompilePanel.class, DataCheckPanel.class,
-                   DefaultTargetPanel.class, DownloadPanel.class, ExtendedInstallPanel.class, FinishPanel.class,
+                   DefaultTargetPanel.class, DownloadPanel.class, FinishPanel.class,
                    HTMLHelloPanel.class, HTMLInfoPanel.class, HTMLLicencePanel.class, HelloPanel.class,
                    ImgPacksPanel.class, InfoPanel.class, InstallationGroupPanel.class, InstallationTypePanel.class,
                    InstallPanel.class, JDKPathPanel.class, LicencePanel.class, PacksPanel.class,PDFLicencePanel.class, ProcessPanel.class,
