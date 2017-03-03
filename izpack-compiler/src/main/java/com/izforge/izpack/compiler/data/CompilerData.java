@@ -20,7 +20,6 @@
 package com.izforge.izpack.compiler.data;
 
 import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.PackCompression;
 
 import java.io.File;
 import java.util.ResourceBundle;
@@ -131,7 +130,7 @@ public class CompilerData
 
     public CompilerData(String installFile, String basedir, String output, boolean mkdirs)
     {
-        this(PackCompression.DEFAULT.toName(), installFile, basedir, output, mkdirs);
+        this(null, installFile, basedir, output, mkdirs);
     }
 
     public CompilerData(String packCompression, String kind, String installFile, String installText, String basedir,

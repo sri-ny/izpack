@@ -35,10 +35,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.*;
-import java.util.zip.ZipEntry;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link Pack200FileUnpacker} class.
@@ -68,6 +66,52 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
         assertArrayEquals(sourceBytes, targetBytes);
     }
 
+    @Override
+    protected InputStream createPackStream(File source) throws IOException
+    {
+        File tmpfile = null;
+        JarFile jar = null;
+
+        try
+        {
+            tmpfile = File.createTempFile("izpack-compress", ".pack200", FileUtils.getTempDirectory());
+            CountingOutputStream proxyOutputStream = new CountingOutputStream(FileUtils.openOutputStream(tmpfile));
+            OutputStream bufferedStream = IOUtils.buffer(proxyOutputStream);
+
+            Pack200.Packer packer = createPack200Packer(this.packFile);
+            jar = new JarFile(this.packFile.getFile());
+            packer.pack(jar, bufferedStream);
+
+            bufferedStream.flush();
+            this.packFile.setSize(proxyOutputStream.getByteCount());
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            IOUtils.copy(FileUtils.openInputStream(tmpfile), out);
+            out.close();
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+        finally
+        {
+            if (jar != null)
+            {
+                jar.close();
+            }
+            FileUtils.deleteQuietly(tmpfile);
+        }
+    }
+
+    private Pack200.Packer createPack200Packer(PackFile packFile)
+    {
+        Pack200.Packer packer = Pack200.newPacker();
+        Map<String, String> defaultPackerProperties = packer.properties();
+        Map<String,String> localPackerProperties = packFile.getPack200Properties();
+        if (localPackerProperties != null)
+        {
+            defaultPackerProperties.putAll(localPackerProperties);
+        }
+        return packer;
+    }
+
     /**
      * Helper to create an unpacker.
      *
@@ -78,47 +122,7 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
     @Override
     protected FileUnpacker createUnpacker(File sourceDir, FileQueue queue) throws IOException
     {
-        final String resourceName = "packs/pack200-" + this.packFile.getId();
-        final Map<String, String> packerProperties = this.packFile.getPack200Properties();
-
-        Pack200.Packer packer = Pack200.newPacker();
-        if (!packerProperties.isEmpty())
-        {
-            packer.properties().putAll(packerProperties);
-        }
-        JarOutputStream installerJar = null;
-        CountingOutputStream countingInstallerJarStream = null;
-        JarFile jar = null;
-        try
-        {
-            installerJar = new JarOutputStream(
-                    FileUtils.openOutputStream(new File(sourceDir, "installer.jar")));
-            installerJar.putNextEntry(new ZipEntry(resourceName));
-            jar = new JarFile(this.sourceFile);
-            countingInstallerJarStream = new CountingOutputStream(installerJar);
-            packer.pack(jar, countingInstallerJarStream);
-            this.packFile.setSize(countingInstallerJarStream.getByteCount());
-        }
-        finally
-        {
-            if (jar != null)
-            {
-                jar.close();
-            }
-            if (installerJar != null)
-            {
-                installerJar.closeEntry();
-            }
-            IOUtils.closeQuietly(countingInstallerJarStream);
-            IOUtils.closeQuietly(installerJar);
-        }
-
         PackResources resources = Mockito.mock(PackResources.class);
-        JarInputStream stream = new JarInputStream(new FileInputStream(new File(sourceDir, "installer.jar")));
-        JarEntry entry;
-        while ((entry = stream.getNextJarEntry()) != null && !entry.getName().endsWith(resourceName));
-        when(resources.getInputStream(resourceName)).thenReturn(stream);
-
         return new Pack200FileUnpacker(getCancellable(), resources, queue);
     }
 
@@ -198,6 +202,8 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
     {
         PackFile packFile = new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE,
                         null, blockable, new HashMap<String, String>());
+        packFile.setStreamResourceName("packs/pack200-" + packFile.getId());
+        packFile.setStreamOffset(0);
         return (this.packFile = packFile);
     }
 }

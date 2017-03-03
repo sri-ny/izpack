@@ -26,7 +26,9 @@ import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.util.os.FileQueue;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
@@ -67,31 +69,22 @@ class Pack200FileUnpacker extends FileUnpacker
      * @throws InstallerException for any installer exception
      */
     @Override
-    public void unpack(PackFile packFile, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile packFile, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
-        InputStream in = null;
-        OutputStream out = null;
+        InputStream in = IOUtils.buffer(packInputStream);
         JarOutputStream jarOut = null;
 
         try
         {
-            final String resourceName = "packs/pack200-" + packFile.getId();
-            in = resources.getInputStream(resourceName);
-            if (in == null)
-            {
-                throw new InstallerException("Installer resource not found: " + resourceName);
-            }
-            out = getTarget(packFile, target);
-            jarOut = new JarOutputStream(out);
+            jarOut = new JarOutputStream(getTarget(packFile, target));
             Pack200.Unpacker unpacker = createPack200Unpacker(packFile);
             unpacker.unpack(in, jarOut);
         }
         finally
         {
-            IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(jarOut);
+            IOUtils.closeQuietly(in);
         }
 
         postCopy(packFile);

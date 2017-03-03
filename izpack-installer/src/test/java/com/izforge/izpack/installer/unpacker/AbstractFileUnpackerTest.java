@@ -101,9 +101,8 @@ public abstract class AbstractFileUnpackerTest
         PackFile file = createPackFile(baseDir, source, target, Blockable.BLOCKABLE_NONE);
         assertFalse(target.exists());
 
-        ObjectInputStream packStream = createPackStream(source);
-
         FileUnpacker unpacker = createUnpacker(sourceDir, queue);
+        InputStream packStream = createPackStream(source);
 
         unpacker.unpack(file, packStream, target);
         assertTrue(queue.isEmpty());
@@ -158,9 +157,9 @@ public abstract class AbstractFileUnpackerTest
      * @return a new stream
      * @throws IOException for any I/O error
      */
-    protected ObjectInputStream createPackStream(File source) throws IOException
+    protected InputStream createPackStream(File source) throws IOException
     {
-        return Mockito.mock(ObjectInputStream.class);
+        return Mockito.mock(InputStream.class);
     }
 
     /**

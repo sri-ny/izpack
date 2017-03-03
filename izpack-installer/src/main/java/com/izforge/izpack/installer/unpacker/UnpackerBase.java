@@ -50,14 +50,11 @@ import com.izforge.izpack.util.os.FileQueue;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.jar.Pack200;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,6 +75,11 @@ public abstract class UnpackerBase implements IUnpacker
      * The logger.
      */
     private static Logger logger = Logger.getLogger(UnpackerBase.class.getName());
+
+    /**
+     * Path to resources in jar
+     */
+    public static final String RESOURCES_PATH = "resources/";
 
     /**
      * The installation data.
@@ -136,17 +138,7 @@ public abstract class UnpackerBase implements IUnpacker
      */
     private ProgressListener listener;
 
-    /**
-     * The absolute path of the source installation jar.
-     */
-    private File absoluteInstallSource;
-
-    /**
-     * The Pack200 unpacker.
-     */
-    private Pack200.Unpacker unpacker;
-
-    /**
+   /**
      * The prompt.
      */
     private final Prompt prompt;
@@ -266,7 +258,7 @@ public abstract class UnpackerBase implements IUnpacker
             is = url.openStream();
             Manifest manifest = new Manifest(is);
             Attributes attr = manifest.getMainAttributes();
-            logger.info(messages.get("installer.version", new Object[]{ attr.getValue("Created-By") }));
+            logger.info(messages.get("installer.version", attr.getValue("Created-By")));
         } catch (IOException e) {
             logger.log(Level.WARNING, "IzPack version not found in manifest", e);
         }
@@ -275,7 +267,7 @@ public abstract class UnpackerBase implements IUnpacker
             IOUtils.closeQuietly(is);
         }
 
-        logger.info(messages.get("installer.platform", new Object[]{ matcher.getCurrentPlatform() }));
+        logger.info(messages.get("installer.platform", matcher.getCurrentPlatform()));
     }
 
     private void logEpilog()
@@ -450,7 +442,7 @@ public abstract class UnpackerBase implements IUnpacker
     /**
      * Invoked prior to unpacking.
      * <p/>
-     * This notifies the {@link #getProgressListener listener}, and any registered {@link InstallerListener listeners}.
+     * This notifies the {@link ProgressListener}, and any registered {@link InstallerListener listeners}.
      *
      * @param packs the packs to unpack
      * @throws InstallerException for any error
@@ -517,17 +509,16 @@ public abstract class UnpackerBase implements IUnpacker
                           List<ExecutableFile> executables, List<UpdateCheck> updateChecks)
     {
         InputStream in = null;
-        ObjectInputStream packInputStream = null;
         Pack pack = packInfo.getPack();
         PackFile[] packFiles = packInfo.getPackFiles().toArray(new PackFile[]{});
         try
         {
             int len = packFiles.length;
-            in = resources.getPackStream(pack.getName());
-            packInputStream = new ObjectInputStream(in);
 
             String stepName = getStepName(pack);
             listener.nextStep(stepName, packNo + 1, len);
+
+            in = resources.getPackStream(pack.getName());
 
             for (int i = 0; i < len; i++)
             {
@@ -535,12 +526,11 @@ public abstract class UnpackerBase implements IUnpacker
                 if (shouldUnpack(packFile))
                 {
                     // unpack the file
-                    unpack(packFile, packInputStream, i+1, pack, queue);
-                }
-                else
+                    unpack(packFile, in, i + 1, pack, queue);
+                } else
                 {
-                    // condition is not fulfilled, so skip it
-                    skip(packFile, pack, packInputStream);
+                    // condition is not fulfilled, so skip it in main stream
+                    skip(packFile, pack, in);
                 }
             }
             readParsableFiles(packInfo, parsables);
@@ -557,7 +547,6 @@ public abstract class UnpackerBase implements IUnpacker
         }
         finally
         {
-            IOUtils.closeQuietly(packInputStream);
             IOUtils.closeQuietly(in);
         }
     }
@@ -593,7 +582,7 @@ public abstract class UnpackerBase implements IUnpacker
      * @throws IOException     for any I/O error
      * @throws IzPackException for any other error
      */
-    protected void unpack(PackFile packFile, ObjectInputStream packInputStream, int fileNo, Pack pack, FileQueue queue)
+    protected void unpack(PackFile packFile, InputStream packInputStream, int fileNo, Pack pack, FileQueue queue)
             throws IOException
     {
         String targetPath = packFile.getTargetPath();
@@ -629,16 +618,9 @@ public abstract class UnpackerBase implements IUnpacker
         // if this file exists and should not be overwritten, check what to do
         if (target.exists() && (packFile.override() != OverrideType.OVERRIDE_TRUE) && !isOverwriteFile(packFile, target))
         {
-            if (!packFile.isBackReference() && !pack.isLoose())
+            if (!packFile.isBackReference() && !pack.isLoose() && !packFile.isPack200Jar())
             {
-                if (packFile.isPack200Jar())
-                {
-                    skip(packInputStream, Integer.SIZE / 8);
-                }
-                else
-                {
-                    skip(packInputStream, packFile.size());
-                }
+                skip(packInputStream, packFile.size());
             }
         }
         else
@@ -660,26 +642,35 @@ public abstract class UnpackerBase implements IUnpacker
      * @throws ResourceInterruptedException if installation is cancelled
      * @throws IzPackException              for any IzPack error
      */
-    protected void extract(PackFile packFile, File target, ObjectInputStream packInputStream, Pack pack, FileQueue queue)
+    protected void extract(PackFile packFile, File target, InputStream packInputStream, Pack pack, FileQueue queue)
             throws IOException
     {
-        ObjectInputStream packStream = packInputStream;
-        InputStream in = null;
+        InputStream packStream = null;
         try
         {
             FileUnpacker unpacker;
 
             if (!pack.isLoose() && packFile.isBackReference())
             {
-                in = resources.getPackStream(packFile.previousPackId);
-                packStream = new ObjectInputStream(in);
-                // must wrap for blockdata use by ObjectStream (otherwise strange result)
-                // skip on underlying stream (for some reason not possible on ObjectStream)
-                skip(in, packFile.offsetInPreviousPack - 4);
-                // but the stream header is now already read (== 4 bytes)
+                PackFile linkedPackFile = packFile.getLinkedPackFile();
+                packStream = resources.getInputStream(ResourceManager.RESOURCE_BASEPATH_DEFAULT + linkedPackFile.getStreamResourceName());
+                if (!packFile.isPack200Jar())
+                {
+                    // Offset is always 0 for Pack200 resources, because each file has its own stream resource
+                    skip(packStream, linkedPackFile.getStreamOffset());
+                }
+            }
+            else if (packFile.isPack200Jar())
+            {
+                packStream = resources.getInputStream(ResourceManager.RESOURCE_BASEPATH_DEFAULT + packFile.getStreamResourceName());
+            }
+            else
+            {
+                packStream = new NoCloseInputStream(packInputStream);
             }
 
             unpacker = createFileUnpacker(packFile, pack, queue, cancellable);
+            logger.fine("Extracting file " + packFile.getTargetPath() + " (packed size: " + packFile.size() + " using " + unpacker.getClass().getName() + ")");
             unpacker.unpack(packFile, packStream, target);
             checkInterrupt();
 
@@ -690,8 +681,7 @@ public abstract class UnpackerBase implements IUnpacker
         }
         finally
         {
-            IOUtils.closeQuietly(in);
-            if (packStream != packInputStream)
+            if (!(packStream instanceof NoCloseInputStream))
             {
                 IOUtils.closeQuietly(packStream);
             }
@@ -706,14 +696,14 @@ public abstract class UnpackerBase implements IUnpacker
      * @param packInputStream the pack stream
      * @throws IOException if the file cannot be skipped
      */
-    protected void skip(PackFile file, Pack pack, ObjectInputStream packInputStream) throws IOException
+    protected void skip(PackFile file, Pack pack, InputStream packInputStream) throws IOException
     {
         if (logger.isLoggable(Level.FINE))
         {
             logger.fine("Skip " + file.getTargetPath());
         }
 
-        if (!pack.isLoose() && !file.isBackReference())
+        if (!pack.isLoose() && !file.isBackReference() && !file.isPack200Jar())
         {
             skip(packInputStream, file.size());
         }
@@ -727,17 +717,16 @@ public abstract class UnpackerBase implements IUnpacker
      * @param queue       the file queue. May be {@code null}
      * @param cancellable determines if the unpacker should be cancelled
      * @return the unpacker
-     * @throws IOException        for any I/O error
      * @throws InstallerException for any installer error
      */
     protected FileUnpacker createFileUnpacker(PackFile file, Pack pack, FileQueue queue, Cancellable cancellable)
-            throws IOException, InstallerException
+            throws InstallerException
     {
         PackCompression compressionFormat = getInstallData().getInfo().getCompressionFormat();
         FileUnpacker unpacker;
         if (pack.isLoose())
         {
-            unpacker = new LooseFileUnpacker(getAbsoluteInstallSource(), cancellable, queue, prompt);
+            unpacker = new LooseFileUnpacker(cancellable, queue, prompt);
         }
         else if (file.isPack200Jar())
         {
@@ -830,16 +819,6 @@ public abstract class UnpackerBase implements IUnpacker
     protected VariableSubstitutor getVariableSubstitutor()
     {
         return variableSubstitutor;
-    }
-
-    /**
-     * Returns the progress listener.
-     *
-     * @return the progress listener
-     */
-    protected ProgressListener getProgressListener()
-    {
-        return listener;
     }
 
     /**
@@ -1236,32 +1215,6 @@ public abstract class UnpackerBase implements IUnpacker
         IOUtils.closeQuietly(fout);
 
         uninstallData.addFile(installationInfo.getAbsolutePath(), true);
-    }
-
-    protected File getAbsoluteInstallSource() throws InstallerException
-    {
-        if (absoluteInstallSource == null)
-        {
-            URI uri;
-            try
-            {
-                uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            }
-            catch (URISyntaxException exception)
-            {
-                throw new InstallerException(exception);
-            }
-            if (!"file".equals(uri.getScheme()))
-            {
-                throw new InstallerException("Unexpected scheme in JAR file URI: " + uri);
-            }
-            absoluteInstallSource = new File(uri.getSchemeSpecificPart()).getAbsoluteFile();
-            if (absoluteInstallSource.getName().endsWith(".jar"))
-            {
-                absoluteInstallSource = absoluteInstallSource.getParentFile();
-            }
-        }
-        return absoluteInstallSource;
     }
 
     /**

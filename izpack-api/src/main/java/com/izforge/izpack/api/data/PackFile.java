@@ -116,9 +116,10 @@ public class PackFile implements Serializable
      */
     private Map additionals = null;
 
-    public String previousPackId = null;
+    private String streamResourceName;
+    private long streamOffset = -1;
 
-    public long offsetInPreviousPack = -1;
+    private PackFile linkedPackFile;
 
     /**
      * True if the file is a Jar and pack200 compression us activated.
@@ -240,10 +241,34 @@ public class PackFile implements Serializable
         return instanceId;
     }
 
-    public void setPreviousPackFileRef(String previousPackId, Long offsetInPreviousPack)
+    public PackFile getLinkedPackFile()
     {
-        this.previousPackId = previousPackId;
-        this.offsetInPreviousPack = offsetInPreviousPack;
+        return linkedPackFile;
+    }
+
+    public void setLinkedPackFile(PackFile linkedPackFile)
+    {
+        this.linkedPackFile = linkedPackFile;
+    }
+
+    public String getStreamResourceName()
+    {
+        return streamResourceName;
+    }
+
+    public void setStreamResourceName(String streamResourceName)
+    {
+        this.streamResourceName = streamResourceName;
+    }
+
+    public long getStreamOffset()
+    {
+        return streamOffset;
+    }
+
+    public void setStreamOffset(long offset)
+    {
+        this.streamOffset = offset;
     }
 
     /**
@@ -330,7 +355,7 @@ public class PackFile implements Serializable
 
     public final boolean isBackReference()
     {
-        return (previousPackId != null);
+        return (linkedPackFile != null);
     }
 
     /**
