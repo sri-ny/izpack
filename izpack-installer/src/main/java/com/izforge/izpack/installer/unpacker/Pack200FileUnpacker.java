@@ -41,10 +41,6 @@ import java.util.jar.Pack200;
  */
 class Pack200FileUnpacker extends FileUnpacker
 {
-    /**
-     * The resources.
-     */
-    private final PackResources resources;
 
     /**
      * Constructs a <tt>Pack200FileUnpacker</tt>.
@@ -56,7 +52,6 @@ class Pack200FileUnpacker extends FileUnpacker
     public Pack200FileUnpacker(Cancellable cancellable, PackResources resources, FileQueue queue)
     {
         super(cancellable, queue);
-        this.resources = resources;
     }
 
     /**
