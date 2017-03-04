@@ -26,14 +26,16 @@ import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.util.os.FileQueue;
 import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStream;
 import org.apache.commons.compress.compressors.deflate.DeflateParameters;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.Deflater;
 
 
@@ -42,7 +44,7 @@ import java.util.zip.Deflater;
  */
 public class CompressedFileUnpacker extends FileUnpacker
 {
-    private PackCompression compressionFormat;
+    private final PackCompression compressionFormat;
 
     /**
      * Constructs a <tt>CompressedFileUnpacker</tt>.
@@ -66,28 +68,44 @@ public class CompressedFileUnpacker extends FileUnpacker
      * @throws InstallerException for any installer exception
      */
     @Override
-    public void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile file, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
-        CompressorInputStream finalStream;
+        File tmpfile = File.createTempFile("izpack-uncompress", null, FileUtils.getTempDirectory());
+        OutputStream fo = null;
+        InputStream finalStream = null;
+
         try
         {
+            fo = IOUtils.buffer(FileUtils.openOutputStream(tmpfile));
+            IOUtils.copyLarge(packInputStream, fo, 0, file.size());
+            fo.flush();
+            fo.close();
+
+            InputStream in = IOUtils.buffer(FileUtils.openInputStream(tmpfile));
+
             if (compressionFormat == PackCompression.DEFLATE)
             {
                 DeflateParameters deflateParameters = new DeflateParameters();
                 deflateParameters.setCompressionLevel(Deflater.BEST_COMPRESSION);
-                finalStream = new DeflateCompressorInputStream(packInputStream, deflateParameters);
+                finalStream = new DeflateCompressorInputStream(in, deflateParameters);
             }
             else
             {
-                finalStream = new CompressorStreamFactory().createCompressorInputStream(compressionFormat.toName(), packInputStream);
+                finalStream = new CompressorStreamFactory().createCompressorInputStream(compressionFormat.toName(), in);
             }
+
+            copy(file, finalStream, target);
         }
         catch (CompressorException e)
         {
             throw new IOException(e);
         }
-
-        copy(file, finalStream, target);
+        finally
+        {
+            IOUtils.closeQuietly(fo);
+            IOUtils.closeQuietly(finalStream);
+            FileUtils.deleteQuietly(tmpfile);
+        }
     }
 }

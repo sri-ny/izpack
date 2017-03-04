@@ -102,7 +102,7 @@ public class MultiVolumeFileUnpackerTest extends AbstractFileUnpackerTest
         PackFile file = createPackFile(baseDir, source, target, Blockable.BLOCKABLE_NONE);
         assertFalse(target.exists());
 
-        ObjectInputStream packStream = createPackStream(source);
+        InputStream packStream = createPackStream(source);
         unpacker.unpack(file, packStream, target);
         assertTrue(queue.isEmpty());  // file should not have been queued
 

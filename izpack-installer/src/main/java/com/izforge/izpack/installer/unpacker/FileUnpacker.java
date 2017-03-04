@@ -61,7 +61,7 @@ public abstract class FileUnpacker
     /**
      * The file queue.
      */
-    private FileQueue queue;
+    private final FileQueue queue;
 
     /**
      * Determines if the file was queued.
@@ -95,7 +95,7 @@ public abstract class FileUnpacker
      * @throws IOException        for any I/O error
      * @throws InstallerException for any installer exception
      */
-    public abstract void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public abstract void unpack(PackFile file, InputStream packInputStream, File target)
             throws IOException, InstallerException;
 
     /**
@@ -123,6 +123,7 @@ public abstract class FileUnpacker
     protected long copy(PackFile file, InputStream in, File target) throws IOException
     {
         OutputStream out = getTarget(file, target);
+
         byte[] buffer = new byte[5120];
         long bytesCopied = 0;
         try
@@ -141,6 +142,7 @@ public abstract class FileUnpacker
         {
             IOUtils.closeQuietly(out);
         }
+
         postCopy(file);
 
         return bytesCopied;
@@ -150,9 +152,8 @@ public abstract class FileUnpacker
      * Invoked after copying is complete to set the last modified timestamp, and queue blockable files.
      *
      * @param file the pack file meta-data
-     * @throws IOException for any I/O error
      */
-    protected void postCopy(PackFile file) throws IOException
+    protected void postCopy(PackFile file)
     {
         setLastModified(file);
 
@@ -263,10 +264,8 @@ public abstract class FileUnpacker
 
     /**
      * Queues the target file.
-     *
-     * @throws IOException
      */
-    private void queue() throws IOException
+    private void queue()
     {
         FileQueueMove move = new FileQueueMove(tmpTarget, target);
         move.setForceInUse(true);

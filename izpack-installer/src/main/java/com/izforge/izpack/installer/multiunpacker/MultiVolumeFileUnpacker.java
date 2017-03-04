@@ -31,8 +31,8 @@ import com.izforge.izpack.util.os.FileQueue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.ObjectInputStream;
 import java.util.logging.Logger;
 
 
@@ -77,7 +77,7 @@ public class MultiVolumeFileUnpacker extends FileUnpacker
      * @throws InstallerException     for any installer exception
      */
     @Override
-    public void unpack(PackFile packFile, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile packFile, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
         // read in the position of this file

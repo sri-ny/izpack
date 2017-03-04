@@ -2423,23 +2423,21 @@ public class CompilerConfig extends Thread
         }
 
         String compressionName = compilerData.getComprFormat();
-        if (compressionName == null)
+        IXMLElement compressionElement = root.getFirstChildNamed("pack-compression-format");
+        if (compressionElement != null)
         {
-            IXMLElement compressionElement = root.getFirstChildNamed("pack-compression-format");
-            if (compressionElement != null)
+            compressionName = xmlCompilerHelper.requireContent(compressionElement);
+        }
+        if (compressionName != null)
+        {
+            PackCompression compression = PackCompression.byName(compressionName);
+            if (compression == null)
             {
-                compressionName = xmlCompilerHelper.requireContent(compressionElement);
+                throw new CompilerException("Unknown compression format: " + compressionName);
             }
+            info.setCompressionFormat(compression);
+            logger.info("Pack compression method: " + compression.toName());
         }
-        PackCompression compression = (compressionName != null) ?
-                PackCompression.byName(compressionName) :
-                PackCompression.DEFAULT;
-        if (compression == null)
-        {
-            throw new CompilerException("Unknown compression format: " + compressionName);
-        }
-        info.setCompressionFormat(compression);
-        logger.info("Pack compression method: " + compression.toName());
 
         // Add the path for the summary log file if specified
         IXMLElement slfPath = root.getFirstChildNamed("summarylogfilepath");

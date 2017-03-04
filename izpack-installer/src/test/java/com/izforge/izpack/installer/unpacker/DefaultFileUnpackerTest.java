@@ -44,13 +44,12 @@ public class DefaultFileUnpackerTest extends AbstractFileUnpackerTest
      * @throws IOException for any I/O error
      */
     @Override
-    protected ObjectInputStream createPackStream(File source) throws IOException
+    protected InputStream createPackStream(File source) throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream objectOut = new ObjectOutputStream(out);
-        IOUtils.copy(new FileInputStream(source), objectOut);
-        objectOut.close();
-        return new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+        IOUtils.copy(new FileInputStream(source), out);
+        out.close();
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     /**
@@ -60,6 +59,7 @@ public class DefaultFileUnpackerTest extends AbstractFileUnpackerTest
      * @param queue     the file queue. May be {@code null}
      * @return a new unpacker
      */
+    @Override
     protected FileUnpacker createUnpacker(File sourceDir, FileQueue queue)
     {
         return new DefaultFileUnpacker(getCancellable(), queue);
