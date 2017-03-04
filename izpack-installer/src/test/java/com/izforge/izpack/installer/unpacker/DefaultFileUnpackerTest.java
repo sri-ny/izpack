@@ -44,12 +44,12 @@ public class DefaultFileUnpackerTest extends AbstractFileUnpackerTest
      * @throws IOException for any I/O error
      */
     @Override
-    protected ObjectInputStream createPackStream(File source) throws IOException
+    protected InputStream createPackStream(File source) throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         IOUtils.copy(new FileInputStream(source), out);
         out.close();
-        return new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     /**
