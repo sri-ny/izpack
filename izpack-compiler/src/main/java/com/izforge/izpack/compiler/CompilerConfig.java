@@ -96,10 +96,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 import java.util.jar.Pack200;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -1860,6 +1857,22 @@ public class CompilerConfig extends Thread
             return;
         }
 
+        Properties logConfig = null;
+        final String globalLevel = loggingElement.getAttribute("level", "INFO");
+        if (globalLevel != null)
+        {
+            logConfig = new Properties();
+            //logConfig.setProperty(".level", globalLevel);
+            logConfig.setProperty(ConsoleHandler.class.getName() + ".level", globalLevel);
+            if (Level.parse(globalLevel).intValue() > Level.INFO.intValue())
+            {
+                logConfig.setProperty("java.awt.level", globalLevel);
+                logConfig.setProperty("javax.swing.level", globalLevel);
+                logConfig.setProperty("sun.awt.level", globalLevel);
+                logConfig.setProperty("sun.awt.X11.level", globalLevel);
+            }
+        }
+
         List<IXMLElement> configFiles = loggingElement.getChildrenNamed("configuration-file");
         if (configFiles != null)
         {
@@ -1878,21 +1891,20 @@ public class CompilerConfig extends Thread
             {
                 assertionHelper.parseError(loggingElement, "Logging configuration by external file and log file specification cannot be mixed");
             }
-            Properties logConfig = null;
             for (IXMLElement configFileElement : logFiles)
             {
                 final String cname = FileHandler.class.getName();
                 if (logConfig == null)
                 {
                     logConfig = new Properties();
-                    logConfig.setProperty("handlers", cname);
                 }
+                logConfig.setProperty("handlers", cname);
                 final String pattern = configFileElement.getAttribute("pattern");
                 if (pattern != null)
                 {
                     logConfig.setProperty(cname + ".pattern", pattern);
                 }
-                final String level = configFileElement.getAttribute("level");
+                final String level = configFileElement.getAttribute("level", "INFO");
                 if (level != null)
                 {
                     logConfig.setProperty(cname + ".level", level);

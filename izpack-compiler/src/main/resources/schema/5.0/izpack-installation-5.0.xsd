@@ -295,7 +295,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
-                    <xs:attribute name="level" type="types:loggingLevelType" use="optional">
+                    <xs:attribute name="level" type="types:loggingLevelType" use="optional" default="INFO">
                         <xs:annotation>
                             <xs:documentation>
                                 Specifies the logging level.
@@ -355,7 +355,7 @@
                     <xs:attribute name="mkdirs" type="xs:boolean" use="optional" default="false">
                         <xs:annotation>
                             <xs:documentation>
-                                Specifies whether the IzPack should recursively create the parent directory of the file
+                                Specifies whether IzPack should recursively create the parent directory of the file
                                 resulting from the 'pattern' attribute before invoking FileHandler.
                             </xs:documentation>
                         </xs:annotation>
@@ -363,6 +363,14 @@
                 </xs:complexType>
             </xs:element>
         </xs:choice>
+        <xs:attribute name="level" type="types:loggingLevelType" use="optional" default="INFO">
+            <xs:annotation>
+                <xs:documentation>
+                    Specifies the global (console) logging level.
+                    See http://docs.oracle.com/javase/6/docs/api/java/util/logging/FileHandler.html for details.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
 

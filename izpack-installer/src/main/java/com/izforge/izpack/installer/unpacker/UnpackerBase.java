@@ -55,7 +55,6 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1407,19 +1406,13 @@ public abstract class UnpackerBase implements IUnpacker
 
     private void resetLogging()
     {
-        if (!LogUtils.isSamePreviousHandlerType(FileHandler.class))
+        try
         {
-            // IzPack maintains just one log file, don't override the existing handler type of it.
-            // Special use case: Command line argument -logfile "wins" over the <log-file> tag.
-            // Assumption at the moment for optimization: Just FileHandler is used for configurations from install.xml.
-            try
-            {
-                LogUtils.loadConfiguration(ResourceManager.getInstallLoggingConfigurationResourceName(), variables, true);
-            }
-            catch (IOException e)
-            {
-                throw new IzPackException(e, Type.WARNING);
-            }
+            LogUtils.loadConfiguration(ResourceManager.getInstallLoggingConfigurationResourceName(), variables);
+        }
+        catch (IOException e)
+        {
+            throw new IzPackException(e, Type.WARNING);
         }
 
         logger = Logger.getLogger(UnpackerBase.class.getName());

@@ -270,6 +270,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
+            <xs:enumeration value="OFF"/>
             <xs:enumeration value="SEVERE"/>
             <xs:enumeration value="WARNING"/>
             <xs:enumeration value="INFO"/>
@@ -277,6 +278,7 @@
             <xs:enumeration value="FINE"/>
             <xs:enumeration value="FINER"/>
             <xs:enumeration value="FINEST"/>
+            <xs:enumeration value="ALL"/>
         </xs:restriction>
     </xs:simpleType>
 
