@@ -42,6 +42,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,7 +74,6 @@ public class Installer
     {
         try
         {
-            initializeLogging();
             Installer installer = new Installer();
             installer.start(args);
         }
@@ -82,11 +82,6 @@ public class Installer
             e.printStackTrace();
         }
 
-    }
-
-    private static void initializeLogging() throws IOException
-    {
-        initializeLogging(null);
     }
 
     private static void initializeLogging(String logFileName) throws IOException
@@ -98,6 +93,8 @@ public class Installer
             props.setProperty("handlers", cname);
             props.setProperty(cname + ".pattern", FilenameUtils.normalize(logFileName));
             props.setProperty(cname + ".formatter", FileFormatter.class.getName());
+            props.setProperty(ConsoleHandler.class.getName() + ".level", "OFF");
+            props.setProperty(".level", "OFF");
             LogUtils.loadConfiguration(props);
         }
         else
@@ -225,10 +222,7 @@ public class Installer
                 }
             }
 
-            if (logFileName != null)
-            {
-                initializeLogging(logFileName);
-            }
+            initializeLogging(logFileName);
 
             logger.info("Command line arguments: " + StringTool.stringArrayToSpaceSeparatedString(args));
 
