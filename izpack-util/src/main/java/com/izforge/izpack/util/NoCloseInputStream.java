@@ -11,7 +11,6 @@ public class NoCloseInputStream extends FilterInputStream
     @Override
     public void close() throws IOException
     {
-        throw new IOException("Closing this input stream unexpectedly");
     }
 
     public void doClose() throws IOException {

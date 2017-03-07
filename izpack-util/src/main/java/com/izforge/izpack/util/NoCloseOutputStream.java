@@ -13,7 +13,6 @@ public class NoCloseOutputStream extends FilterOutputStream
     @Override
     public void close() throws IOException
     {
-        throw new IOException("Closing this output stream unexpectedly");
     }
 
     public void doClose() throws IOException {

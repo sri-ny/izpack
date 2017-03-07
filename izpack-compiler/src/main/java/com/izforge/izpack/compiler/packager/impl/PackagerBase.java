@@ -347,9 +347,17 @@ public abstract class PackagerBase implements IPackager
     public void createInstaller() throws Exception
     {
         info.setInstallerBase(compilerData.getOutput().replaceAll(".jar", ""));
+        JarOutputStream jarOutputStream = getInstallerJar();
         sendStart();
-        writeInstaller();
-        getInstallerJar().close();
+        try
+        {
+            writeInstaller();
+        }
+        finally
+        {
+            jarOutputStream.flush();
+            jarOutputStream.close();
+        }
         sendStop();
     }
 

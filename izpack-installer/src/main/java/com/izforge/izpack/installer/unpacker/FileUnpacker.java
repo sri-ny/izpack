@@ -123,12 +123,13 @@ public abstract class FileUnpacker
     protected long copy(PackFile file, InputStream in, File target) throws IOException
     {
         OutputStream out = getTarget(file, target);
-
         byte[] buffer = new byte[5120];
         long bytesCopied = 0;
+        long bytesToCopy = (file.isBackReference() ? file.getLinkedPackFile().size() : file.size());
+        logger.fine("|- Copying to file system (size: " + bytesToCopy + " bytes)");
         try
         {
-            while (bytesCopied < file.length())
+            while (bytesCopied < bytesToCopy)
             {
                 if (cancellable.isCancelled())
                 {

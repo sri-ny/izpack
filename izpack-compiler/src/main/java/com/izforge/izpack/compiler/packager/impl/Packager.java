@@ -181,6 +181,7 @@ public class Packager extends PackagerBase
                     if (linkedPackFile != null && !packSeparateJars())
                     {
                         // Save backreference link
+                        logger.fine("File " + packFile.getTargetPath() + " is a backreference, linked to " + linkedPackFile.getTargetPath());
                         packFile.setLinkedPackFile(linkedPackFile);
                         addFile = false;
                     }
@@ -251,7 +252,7 @@ public class Packager extends PackagerBase
 
                                     FileUtils.copyFile(tmpfile, packOutputStream);
 
-                                    logger.fine("File " + packFile.getTargetPath() + " compressed as "
+                                    logger.fine("File " + packFile.getTargetPath() + " added compressed as "
                                             + comprFormat.toName()
                                             + " (" + packFile.length() + " -> " + packFile.size() + " bytes)");
                                 }
@@ -267,6 +268,7 @@ public class Packager extends PackagerBase
                                 {
                                     throw new IOException("File size mismatch when reading " + file);
                                 }
+                                logger.fine("File " + packFile.getTargetPath() + " added uncompressed (" + bytesWritten + " bytes)");
                             }
                         }
 
@@ -284,10 +286,13 @@ public class Packager extends PackagerBase
 
                 // Cleanup
                 packOutputStream.flush();
+                packOutputStream.close();
                 packJar.closeEntry();
             }
             finally
             {
+                IOUtils.closeQuietly(packOutputStream);
+                packJar.flush();
                 // close pack specific jar if required
                 if (packSeparateJars())
                 {
@@ -337,7 +342,7 @@ public class Packager extends PackagerBase
 
                 FileUtils.copyFile(tmpfile, installerJar);
 
-                logger.fine("File " + pack200PackFile.getTargetPath() + " compressed as Pack 200 ("
+                logger.fine("File " + pack200PackFile.getTargetPath() + " added compressed as Pack 200 ("
                         + pack200PackFile.length() + " -> " + pack200PackFile.size() + " bytes)");
             }
             finally
