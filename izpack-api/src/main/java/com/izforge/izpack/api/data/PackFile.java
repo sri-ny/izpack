@@ -194,10 +194,13 @@ public class PackFile implements Serializable
         this.overrideRenameTo = overrideRenameTo;
         this.blockable = blockable;
 
-        this.length = src.length();
-        this.size = this.length;
         this.mtime = src.lastModified();
         this.isDirectory = src.isDirectory();
+        if (!this.isDirectory())
+        {
+            this.length = src.length();
+            this.size = this.length;
+        }
         this.additionals = additionals;
         if (pack200Properties != null)
         {
