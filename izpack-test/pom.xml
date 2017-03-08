@@ -3,7 +3,7 @@
     <parent>
         <artifactId>izpack</artifactId>
         <groupId>org.codehaus.izpack</groupId>
-        <version>5.0.11-SNAPSHOT</version>
+        <version>5.1.0-RC3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,16 +11,6 @@
     <name>IzPack test module</name>
 
     <dependencies>
-
-        <!-- still required by IzpackGenerationTest? -->
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>izpack-dist</artifactId>
-            <classifier>sources</classifier>
-            <scope>test</scope>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -30,10 +20,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>izpack-panel</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>jakarta-regexp</groupId>
-            <artifactId>jakarta-regexp</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>izpack-installer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>izpack-uninstaller</artifactId>
         </dependency>
 
         <!-- test -->
@@ -44,16 +37,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>izpack-compiler</artifactId>
-            <classifier>tests</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>izpack-installer</artifactId>
-            <classifier>tests</classifier>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>izpack-uninstaller</artifactId>
             <classifier>tests</classifier>
         </dependency>
         <dependency>

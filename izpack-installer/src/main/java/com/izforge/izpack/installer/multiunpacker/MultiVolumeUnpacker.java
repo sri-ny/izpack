@@ -26,6 +26,7 @@ import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.event.InstallerListener;
+import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.handler.Prompt;
@@ -64,7 +65,7 @@ public class MultiVolumeUnpacker extends UnpackerBase
     /**
      * The volume locator.
      */
-    private VolumeLocator locator;
+    private final VolumeLocator locator;
 
     /**
      * The pack data volumes stream.
@@ -109,7 +110,7 @@ public class MultiVolumeUnpacker extends UnpackerBase
     /**
      * Invoked prior to unpacking.
      * <p/>
-     * This notifies the {@link #getProgressListener listener}, and any registered {@link InstallerListener listeners}.
+     * This notifies the {@link ProgressListener}, and any registered {@link InstallerListener listeners}.
      *
      * @param packs the packs to unpack
      * @throws IzPackException for any error
@@ -163,17 +164,16 @@ public class MultiVolumeUnpacker extends UnpackerBase
      * @param queue       the file queue. May be {@code null}
      * @param cancellable determines if the unpacker should be cancelled
      * @return the unpacker
-     * @throws IOException        for any I/O error
      * @throws InstallerException for any installer error
      */
     @Override
     protected FileUnpacker createFileUnpacker(PackFile file, Pack pack, FileQueue queue, Cancellable cancellable)
-            throws IOException, InstallerException
+            throws InstallerException
     {
         FileUnpacker unpacker;
         if (pack.isLoose())
         {
-            unpacker = new LooseFileUnpacker(getLoosePackFileDir(file), cancellable, queue, getPrompt());
+            unpacker = new LooseFileUnpacker(cancellable, queue, getPrompt());
         }
         else
         {
@@ -182,56 +182,23 @@ public class MultiVolumeUnpacker extends UnpackerBase
         return unpacker;
     }
 
-    /**
-     * Skips a pack file.
-     *
-     * @param file            the pack file
-     * @param pack            the pack
-     * @param packInputStream the pack stream
-     * @throws IOException if the file cannot be skipped
-     */
     @Override
-    protected void skip(PackFile file, Pack pack, ObjectInputStream packInputStream) throws IOException
+    protected void skip(PackFile file, Pack pack, InputStream packInputStream) throws IOException
     {
         // this operation is a no-op for MultiVolumeUnpacker as the file is not in the pack stream
     }
 
-    /**
-     * Invoked after unpacking has completed, in order to clean up.
-     */
+    @Override
+    protected void skip(InputStream stream, long bytes) throws IOException
+    {
+        // this operation is a no-op for MultiVolumeUnpacker as the file is not in the pack stream
+    }
+
     @Override
     protected void cleanup()
     {
         super.cleanup();
         IOUtils.closeQuietly(volumes);
-    }
-
-    /**
-     * Tries to determine the source directory of a loose pack file.
-     *
-     * @param file the pack file
-     * @return the source directory
-     * @throws IOException        for any I/O error
-     * @throws InstallerException for any installer error
-     */
-    private File getLoosePackFileDir(PackFile file) throws IOException, InstallerException
-    {
-        File result = getAbsoluteInstallSource();
-        File loose = new File(result, file.getRelativeSourcePath());
-        if (!loose.exists())
-        {
-            File volume = volumes.getVolume();
-            File dir = volume.getParentFile();
-            if (dir != null)
-            {
-                loose = new File(dir, file.getRelativeSourcePath());
-                if (loose.exists())
-                {
-                    result = dir;
-                }
-            }
-        }
-        return result;
     }
 
     /**

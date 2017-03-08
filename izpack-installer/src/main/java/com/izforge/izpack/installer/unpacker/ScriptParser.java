@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
-import com.izforge.izpack.data.ParsableFile;
+import com.izforge.izpack.api.data.ParsableFile;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
 /**

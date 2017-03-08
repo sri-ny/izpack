@@ -340,7 +340,6 @@ public class RulesEngineImpl implements RulesEngine
             cond.setInstallData(this.installData);
         }
         boolean value = cond.isTrue();
-        logger.fine("Condition " + cond.getId() + ": " + Boolean.toString(value));
         return value;
     }
 

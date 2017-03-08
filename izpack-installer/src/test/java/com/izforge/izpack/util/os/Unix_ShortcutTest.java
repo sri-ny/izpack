@@ -434,7 +434,7 @@ public class Unix_ShortcutTest
       // TryExec is not used -- "causes too many problems"
       assertEquals(NOT_FOUND, getValue(result, "TryExec"));
 
-      String exec = "'" + targetPath + "'" + " " + arguments;
+      String exec = targetPath + " " + arguments;
       // since targetPath contains no spaces, it will not be quoted
       assertEquals(exec, getValue(result, "Exec"));
 

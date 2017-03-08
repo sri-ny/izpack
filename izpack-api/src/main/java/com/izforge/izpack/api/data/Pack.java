@@ -19,11 +19,11 @@
 
 package com.izforge.izpack.api.data;
 
+import com.izforge.izpack.api.data.binding.OsModel;
+
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
-
-import com.izforge.izpack.api.data.binding.OsModel;
 
 /**
  * Represents a Pack.
@@ -38,7 +38,7 @@ public class Pack implements Serializable
     /**
      * The pack name. This uniquely identifies the pack.
      */
-    private String name;
+    private final String name;
 
     /**
      * The language pack identifier, used for localising the package display. May be {@code null}.
@@ -54,7 +54,7 @@ public class Pack implements Serializable
      * If {@code true}, all files of the pack will be deleted during uninstallation. If {@code false} they are only
      * removed if uninstaller force delete option is activated.
      */
-    private boolean uninstall;
+    private final boolean uninstall;
 
     /**
      * An association of this pack to zero or more installation groups. An
@@ -62,7 +62,7 @@ public class Pack implements Serializable
      * different pack collections to be selected, for example: minimal,
      * default, all.
      */
-    private Set<String> installGroups = new HashSet<String>();
+    private final Set<String> installGroups = new HashSet<String>();
 
     /**
      * All packs in the same excludeGroup are mutually exclusive. The excludeGroup
@@ -81,7 +81,7 @@ public class Pack implements Serializable
     /**
      * The pack description. May be {@code null}
      */
-    private String description;
+    private final String description;
 
     /**
      * The target operating system of this pack. If {@code null}, indicates the pack applies to all OSes.
@@ -106,17 +106,17 @@ public class Pack implements Serializable
     /**
      * Mapping from packs to be selected/deselected and any conditions.
      */
-    private Map<String, String> onSelectPacks;
+    private final Map<String, String> onSelectPacks;
 
     /**
      * Mapping from packs to be selected/deselected and any conditions.
      */
-    private Map<String, String> onDeselectPacks;
+    private final Map<String, String> onDeselectPacks;
 
     /**
      * True if the pack is required.
      */
-    private boolean required;
+    private final boolean required;
 
     /**
      * The size of the pack. This may include reserved space, independent of the size of the files.
@@ -141,7 +141,7 @@ public class Pack implements Serializable
     /**
      * Children pack names.
      */
-    private List<String> children = new ArrayList<String>();
+    private final List<String> children = new ArrayList<String>();
 
     /**
      * The pack's image resource identifier. May be {@code null}
@@ -151,7 +151,7 @@ public class Pack implements Serializable
     /**
      * The validators.
      */
-    private List<String> validators = new ArrayList<String>();
+    private final List<String> validators = new ArrayList<String>();
 
     /**
      * If {@code true}, denotes that the pack should not be displayed.
@@ -659,7 +659,7 @@ public class Pack implements Serializable
     }
 
     /**
-     * To a String (usefull for JLists).
+     * To a String (useful for JLists).
      *
      * @return the string representation of the pack
      */
@@ -736,8 +736,15 @@ public class Pack implements Serializable
             this.onDeselectPacks.put(name, condition);
         }
     }
+
     public Map<String, String> getOnDeselect()
     {
         return this.onDeselectPacks;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return super.equals(obj) || obj instanceof Pack && name.equals(((Pack) obj).getName());
     }
 }

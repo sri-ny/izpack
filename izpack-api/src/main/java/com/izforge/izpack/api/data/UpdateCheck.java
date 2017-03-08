@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package com.izforge.izpack.data;
+package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,8 +31,7 @@ import java.util.ArrayList;
  */
 public class UpdateCheck implements Serializable
 {
-
-    static final long serialVersionUID = -3721254065037691999L;
+    private static final long serialVersionUID = -3721254065037691999L;
 
     /**
      * ant-fileset-like list of include patterns, based on INSTALL_PATH if relative
@@ -45,41 +44,15 @@ public class UpdateCheck implements Serializable
     public ArrayList<String> excludesList = null;
 
     /**
-     * Whether pattern matching is performed case-sensitive
-     */
-    boolean caseSensitive = true;
-
-    /**
-     * Constructs a new uninitialized instance.
-     */
-    public UpdateCheck()
-    {
-    }
-
-    /**
      * Constructs and initializes a new instance.
      *
-     * @param includes The patterns to include in the check.
-     * @param excludes The patterns to exclude from the check.
+     * @param includes      The patterns to include in the check.
+     * @param excludes      The patterns to exclude from the check.
      */
     public UpdateCheck(ArrayList<String> includes, ArrayList<String> excludes)
     {
         this.includesList = includes;
         this.excludesList = excludes;
-    }
-
-    /**
-     * Constructs and initializes a new instance.
-     *
-     * @param includes      The patterns to include in the check.
-     * @param excludes      The patterns to exclude from the check.
-     * @param casesensitive If "yes", matches are performed case sensitive.
-     */
-    public UpdateCheck(ArrayList<String> includes, ArrayList<String> excludes, String casesensitive)
-    {
-        this.includesList = includes;
-        this.excludesList = excludes;
-        this.caseSensitive = ((casesensitive != null) && "yes".equalsIgnoreCase(casesensitive));
     }
 
 }

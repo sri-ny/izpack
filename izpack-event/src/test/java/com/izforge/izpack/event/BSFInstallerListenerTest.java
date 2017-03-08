@@ -22,32 +22,7 @@
 package com.izforge.izpack.event;
 
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
-import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.Pack;
-import com.izforge.izpack.api.data.PackFile;
-import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.event.ProgressNotifiers;
 import com.izforge.izpack.api.resource.Resources;
@@ -57,6 +32,24 @@ import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.ProgressNotifiersImpl;
 import com.izforge.izpack.util.Platforms;
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
+import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link BSFInstallerListener} class.
@@ -173,7 +166,7 @@ public class BSFInstallerListenerTest
         assertTrue(dir.mkdir());
         assertFileNotExists(installDir, "beforedir" + suffix);
         PackFile dirPackFile = new PackFile(installDir, dir, dir.getName(), null, OverrideType.OVERRIDE_TRUE, null,
-                                            Blockable.BLOCKABLE_NONE);
+                                            Blockable.BLOCKABLE_NONE, null);
         listener.beforeDir(dir, dirPackFile, pack);
         assertFileExists(installDir, "beforedir" + suffix);
 
@@ -187,7 +180,7 @@ public class BSFInstallerListenerTest
         FileUtils.touch(file);
         assertFileNotExists(installDir, "beforefile" + suffix);
         PackFile packFile = new PackFile(installDir, file, file.getName(), null, OverrideType.OVERRIDE_TRUE, null,
-                                         Blockable.BLOCKABLE_NONE);
+                                         Blockable.BLOCKABLE_NONE, null);
         listener.beforeFile(file, packFile, pack);
         assertFileExists(installDir, "beforefile" + suffix);
 

@@ -44,11 +44,7 @@ public class WebAccessor
 
     private Exception exception = null;
 
-    private Object soloCancelOption = null;
-
     private Component parent = null;
-
-    private JDialog dialog = null;
 
     private boolean tryProxy = false;
 
@@ -73,17 +69,6 @@ public class WebAccessor
     private int contentLength = -1;
 
     /**
-     * Not yet Implemented: placeholder for headless installs.
-     *
-     * @throws UnsupportedOperationException
-     */
-    public WebAccessor()
-    {
-        // the class should probably be rearranged to do this.
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Create a WebAccessor that prompts for proxies and passwords using a JDialog.
      *
      * @param parent determines the frame in which the dialog is displayed; if the parentComponent
@@ -97,7 +82,6 @@ public class WebAccessor
         {
             parent.getLocale();
         }
-        soloCancelOption = UIManager.get("OptionPane.cancelButtonText", locale);// TODO:
         // i18n?
         Authenticator.setDefault(new MyDialogAuthenticator());
     }
@@ -246,18 +230,6 @@ public class WebAccessor
                     exception = x;
 
                 }
-                finally
-                {
-                    // if dialog is in use, allow it to become visible /before/
-                    // closing
-                    // it, else on /fast/ connectinos, it may open later and
-                    // hang!
-                    if (dialog != null)
-                    {
-                        Thread.yield();
-                        dialog.setVisible(false);
-                    }
-                }
             }
         };
         openerThread.start();
@@ -356,7 +328,7 @@ public class WebAccessor
         return url;
     }
 
-    public void setUrl(String url)
+    private void setUrl(String url)
     {
         this.url = url;
     }

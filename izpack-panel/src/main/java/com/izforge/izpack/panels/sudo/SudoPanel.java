@@ -21,31 +21,12 @@
 
 package com.izforge.izpack.panels.sudo;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
+import com.izforge.izpack.api.data.ExecutableFile;
 import com.izforge.izpack.api.data.Panel;
+import com.izforge.izpack.api.data.ParsableFile;
 import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.ParsableFile;
 import com.izforge.izpack.gui.LabelFactory;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
@@ -53,6 +34,15 @@ import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.ScriptParser;
 import com.izforge.izpack.util.FileExecutor;
 import com.izforge.izpack.util.PlatformModelMatcher;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The packs selection panel class.
@@ -68,7 +58,7 @@ public class SudoPanel extends IzPanel implements ActionListener
      */
     private static final long serialVersionUID = 3689628116465561651L;
 
-    private JTextField passwordField;
+    private final JTextField passwordField;
 
     private boolean isValid = false;
 
@@ -80,7 +70,7 @@ public class SudoPanel extends IzPanel implements ActionListener
     /**
      * The platform-model matcher.
      */
-    private PlatformModelMatcher matcher;
+    private final PlatformModelMatcher matcher;
 
     /**
      * The constructor.
@@ -177,9 +167,6 @@ public class SudoPanel extends IzPanel implements ActionListener
             fos.close();
 
             // execute
-            Properties vars = new Properties();
-            vars.put("password", pass);
-
             List<OsModel> oses = new ArrayList<OsModel>();
             oses.add(new OsModel("unix", null, null, null, null));
 

@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package com.izforge.izpack.data;
+package com.izforge.izpack.api.data;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.Pack;
-import com.izforge.izpack.api.data.PackColor;
-import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.data.binding.OsModel;
 
 /**
@@ -46,7 +41,6 @@ import com.izforge.izpack.api.data.binding.OsModel;
  */
 public class PackInfo implements Serializable
 {
-
     /**
      *
      */
@@ -55,41 +49,42 @@ public class PackInfo implements Serializable
     /**
      * The pack object serialized in the installer.
      */
-    private Pack pack;
+    private final Pack pack;
 
     /**
      * The color of the node. This is used for the dependency graph algorithms
      */
-    public PackColor colour;
+    @SuppressWarnings("TransientFieldNotInitialized")
+    public transient PackColor colour;
 
     /**
      * Files of the Pack.
      */
-    private Map<PackFile, File> files = new LinkedHashMap<PackFile, File>();
+    private final Map<PackFile, File> files = new LinkedHashMap<PackFile, File>();
 
     /**
      * Parsables files in this Pack.
      */
-    private List<ParsableFile> parsables = new ArrayList<ParsableFile>();
+    private final List<ParsableFile> parsables = new ArrayList<ParsableFile>();
 
     /**
      * Executable files in this Pack.
      */
-    private List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
+    private final List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
 
     /**
      * Update check specifications in this Pack.
      */
-    private List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
+    private final List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
 
     /**
      * Constructor with required info.
      *
      * @param name         name of the pack
      * @param id           id of the pack e.g. to resolve I18N
-     * @param description  descripton in English
+     * @param description  description in English
      * @param required     pack is required or not
-     * @param loose        files of pack should be stored separatly or not
+     * @param loose        files of pack should be stored separately or not
      * @param excludegroup name of the exclude group
      * @param uninstall    pack must be uninstalled
      * @param size         the size of the pack, in bytes
@@ -98,30 +93,9 @@ public class PackInfo implements Serializable
                     boolean uninstall, long size)
     {
         boolean ispreselected = (excludegroup == null);
-        pack = new Pack(name, id, description, null, null, required, ispreselected, loose, excludegroup, uninstall,
-                        size);
+        pack = new Pack(name, id, description, null, null, required, ispreselected,
+                loose, excludegroup, uninstall, size);
         colour = PackColor.WHITE;
-    }
-
-    /**
-     * ********************************************************************************************
-     * Attributes of the Pack
-     * ********************************************************************************************
-     */
-
-    public void setDependencies(List<String> dependencies)
-    {
-        pack.setDependencies(dependencies);
-    }
-
-    /**
-     * Set the name of the group which contains the packs which exludes mutual.
-     *
-     * @param group name of the mutal exclude group
-     */
-    public void setExcludeGroup(String group)
-    {
-        pack.setExcludeGroup(group);
     }
 
     public void setOsConstraints(List<OsModel> osConstraints)
@@ -134,30 +108,10 @@ public class PackInfo implements Serializable
     {
         return pack.getOsConstraints();
     }
-    
-    public List<OsModel> getOsConstraints()
-    {
-        return pack.getOsConstraints();
-    }
 
     public void setPreselected(boolean preselected)
     {
         pack.setPreselected(preselected);
-    }
-
-    public boolean isPreselected()
-    {
-        return pack.isPreselected();
-    }
-
-    /**
-     * Get the pack group.
-     *
-     * @return Get the pack group, null if there is no group.
-     */
-    public String getGroup()
-    {
-        return pack.getGroup();
     }
 
     /**
@@ -180,35 +134,9 @@ public class PackInfo implements Serializable
         pack.getInstallGroups().add(group);
     }
 
-    /**
-     * See if the pack is associated with the given install group.
-     *
-     * @param group the install group name to check
-     * @return true if the given group is associated with the pack.
-     */
-    public boolean hasInstallGroup(String group)
-    {
-        return pack.getInstallGroups().contains(group);
-    }
-
-    /**
-     * Get the install group names.
-     *
-     * @return Set<String> for the install groups
-     */
-    public Set<String> getInstallGroups()
-    {
-        return pack.getInstallGroups();
-    }
-
     public Pack getPack()
     {
         return pack;
-    }
-
-    public boolean isHidden()
-    {
-        return pack.isHidden();
     }
 
 
@@ -217,10 +145,6 @@ public class PackInfo implements Serializable
         pack.setHidden(hidden);
     }
 
-    /***********************************************************************************************
-     * Public methods to add data to the Installer being packed
-     **********************************************************************************************/
-
     /**
      * Add a file or directory to be installed.
      *
@@ -228,11 +152,12 @@ public class PackInfo implements Serializable
      * @param targetfile path file will be installed to.
      * @param osList     the target operation system(s) of this pack.
      * @param override   what to do if the file already exists when installing
-     * @param condition
+     * @param condition  the condition to decide whether the file should be extracted
      * @throws FileNotFoundException if the file specified does not exist.
      */
     public void addFile(File baseDir, File file, String targetfile, List<OsModel> osList, OverrideType override,
-                        String overrideRenameTo, Blockable blockable, Map additionals, String condition)
+                        String overrideRenameTo, Blockable blockable, Map additionals, String condition,
+                        Map<String, String> pack200Properties)
             throws IOException
     {
         if (!file.exists())
@@ -241,7 +166,7 @@ public class PackInfo implements Serializable
         }
 
         PackFile packFile = new PackFile(baseDir, file, targetfile, osList, override, overrideRenameTo, blockable,
-                                         additionals);
+                                         additionals, pack200Properties);
         packFile.setLoosePackInfo(pack.isLoose());
         packFile.setCondition(condition);
         files.put(packFile, file);
@@ -253,6 +178,15 @@ public class PackInfo implements Serializable
     public Set<PackFile> getPackFiles()
     {
         return files.keySet();
+    }
+
+    /**
+     * Provides the complete ordered map of PackFile -> File objects for being able to override entries.
+     * @return the PackFile map
+     */
+    public Map<PackFile, File> getPackFilesMap()
+    {
+        return files;
     }
 
     /**
@@ -327,11 +261,6 @@ public class PackInfo implements Serializable
         return pack.getDependencies();
     }
 
-    public String getParent()
-    {
-        return pack.getParent();
-    }
-
     public void setParent(String p)
     {
         pack.setParent(p);
@@ -345,15 +274,6 @@ public class PackInfo implements Serializable
     public void setPackImgId(String packImgId)
     {
         pack.setImageId(packImgId);
-    }
-
-
-    /**
-     * @return the condition
-     */
-    public String getCondition()
-    {
-        return this.pack.getCondition();
     }
 
 

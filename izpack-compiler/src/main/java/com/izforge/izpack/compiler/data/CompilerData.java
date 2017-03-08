@@ -19,20 +19,16 @@
 
 package com.izforge.izpack.compiler.data;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.util.FileUtil;
+
+import java.io.File;
+import java.util.ResourceBundle;
 
 /**
  * Data for compiler
  */
 public class CompilerData
 {
-
     /**
      * The IzPack home directory.
      */
@@ -53,7 +49,7 @@ public class CompilerData
     public final static String WEB = "web";
 
 
-    private String comprFormat = "default";
+    private String packCompression = null;
 
     /**
      * The installer kind.
@@ -73,7 +69,7 @@ public class CompilerData
     /**
      * The base directory.
      */
-    protected String basedir;
+    private String basedir;
 
     /**
      * The output jar filename.
@@ -86,20 +82,14 @@ public class CompilerData
     private boolean mkdirs = false;
 
     /**
-     * Specifies that the compiler will validate each descriptor using W3C XML Schema as they are parsed.
-     * By default the value of this is set to false.
-     */
-    private boolean validating = false;
-
-    /**
-     * Compression level
+     * PackCompression level
      */
     private int comprLevel = -1;
 
     /**
      * External Information
      */
-    Info externalInfo = new Info();
+    private Info externalInfo = new Info();
 
     /**
      * The IzPack version.
@@ -128,30 +118,34 @@ public class CompilerData
         }
     }
 
-    public CompilerData(String installFile, String basedir, String output, boolean mkdirs, boolean validating)
+    public CompilerData(String packCompression, String installFile, String basedir, String output, boolean mkdirs)
     {
         this();
+        this.packCompression = packCompression;
         this.installFile = installFile;
         this.basedir = basedir;
         this.output = output;
         this.mkdirs = mkdirs;
-        this.validating = validating;
     }
 
-    public CompilerData(String comprFormat, String kind, String installFile, String installText, String basedir,
-                        String output, boolean mkdirs, boolean validating, int comprLevel)
+    public CompilerData(String installFile, String basedir, String output, boolean mkdirs)
     {
-        this(installFile, basedir, output, mkdirs, validating);
-        this.comprFormat = comprFormat;
+        this(null, installFile, basedir, output, mkdirs);
+    }
+
+    public CompilerData(String packCompression, String kind, String installFile, String installText, String basedir,
+                        String output, boolean mkdirs, int comprLevel)
+    {
+        this(packCompression, installFile, basedir, output, mkdirs);
         this.kind = kind;
         this.installText = installText;
         this.comprLevel = comprLevel;
     }
 
-    public CompilerData(String comprFormat, String kind, String installFile, String installText, String basedir,
-                        String output, boolean mkdirs, boolean validating, int comprLevel, Info externalInfo)
+    public CompilerData(String packCompression, String kind, String installFile, String installText, String basedir,
+                        String output, boolean mkdirs, int comprLevel, Info externalInfo)
     {
-        this(comprFormat, kind, installFile, installText, basedir, output, mkdirs, validating, comprLevel);
+        this(packCompression, kind, installFile, installText, basedir, output, mkdirs, comprLevel);
         this.externalInfo = externalInfo;
     }
 
@@ -215,38 +209,14 @@ public class CompilerData
         this.mkdirs = mkdirs;
     }
 
-    /**
-     * Indicates whether the compiler will validate each descriptor using W3C XML Schema as it is
-     * parsed.
-     *
-     * @return {@code true} if the compiler will validate each descriptor as it is parsed;
-     * {@code false} otherwise.
-     */
-    public boolean isValidating()
-    {
-        return validating;
-    }
-
-    /**
-     * Specifies that the compiler will validate each descriptor using W3C XML Schema as it is
-     * parsed. By default the value of this is set to false.
-     *
-     * @param validating {@code true} if the compiler will validate each descriptor as it is parsed;
-     * {@code false} otherwise.
-     */
-    public void setValidating(boolean validating)
-    {
-        this.validating = validating;
-    }
-
     public String getComprFormat()
     {
-        return comprFormat;
+        return packCompression;
     }
 
-    public void setComprFormat(String comprFormat)
+    public void setComprFormat(String packCompression)
     {
-        this.comprFormat = comprFormat;
+        this.packCompression = packCompression;
     }
 
     public int getComprLevel()
@@ -264,63 +234,4 @@ public class CompilerData
         return this.externalInfo;
     }
 
-    /**
-     * Try to resolve IzPack home from IZPACK_HOME value
-     */
-    public void resolveIzpackHome()
-    {
-        IZPACK_HOME = resolveIzPackHome(IZPACK_HOME);
-    }
-
-    private static String resolveIzPackHome(String home)
-    {
-        File test = new File(home, IZ_TEST_SUBDIR + File.separator + IZ_TEST_FILE);
-        if (test.exists())
-        {
-            return (home);
-        }
-        // Try to resolve the path using compiler.jar which also should be under
-        // IZPACK_HOME.
-        String self = CompilerData.class.getName();
-        self = self.replace('.', '/');
-        self = "/" + self + ".class";
-        URL url = Compiler.class.getResource(self);
-        String name = FileUtil.convertUrlToFilePath(url);
-        int start = name.indexOf(self);
-        name = name.substring(0, start);
-        if (name.endsWith("!"))
-        { // Where shut IZPACK_HOME at the standalone-compiler be??
-            // No idea.
-            if (name.endsWith("standalone-compiler.jar!")
-                    || name.endsWith("standalone-compiler-4.0.0.jar!")
-                    || name.matches("standalone-compiler-[\\d\\.]+.jar!"))
-            {
-                return (".");
-            }
-            name = name.substring(0, name.length() - 1);
-        }
-        File root;
-        if (URI.create(name).isAbsolute())
-        {
-            root = new File(URI.create(name));
-        }
-        else
-        {
-            root = new File(name);
-        }
-        while (true)
-        {
-            if (root == null)
-            {
-                throw new IllegalArgumentException(
-                        "No valid IzPack home directory found");
-            }
-            test = new File(root, IZ_TEST_SUBDIR + File.separator + IZ_TEST_FILE);
-            if (test.exists())
-            {
-                return (root.getAbsolutePath());
-            }
-            root = root.getParentFile();
-        }
-    }
 }

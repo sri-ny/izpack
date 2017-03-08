@@ -21,18 +21,17 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.util.os.FileQueue;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 
 /**
@@ -42,11 +41,6 @@ import com.izforge.izpack.util.os.FileQueue;
  */
 public class LooseFileUnpacker extends FileUnpacker
 {
-
-    /**
-     * The absolute source directory.
-     */
-    private final File sourceDir;
 
     /**
      * The prompt to warn of missing files.
@@ -61,15 +55,13 @@ public class LooseFileUnpacker extends FileUnpacker
     /**
      * Constructs a <tt>LooseFileUnpacker</tt>.
      *
-     * @param sourceDir   the absolute source directory
      * @param cancellable determines if unpacking should be cancelled
      * @param queue       the file queue. May be {@code null}
      * @param prompt      the prompt to warn of missing files
      */
-    public LooseFileUnpacker(File sourceDir, Cancellable cancellable, FileQueue queue, Prompt prompt)
+    public LooseFileUnpacker(Cancellable cancellable, FileQueue queue, Prompt prompt)
     {
         super(cancellable, queue);
-        this.sourceDir = sourceDir;
         this.prompt = prompt;
     }
 
@@ -83,7 +75,7 @@ public class LooseFileUnpacker extends FileUnpacker
      * @throws InstallerException for any installer exception
      */
     @Override
-    public void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile file, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
         // Old way of doing the job by using the (absolute) sourcepath.

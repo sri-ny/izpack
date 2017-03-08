@@ -102,7 +102,7 @@ public class MultiVolumeFileUnpackerTest extends AbstractFileUnpackerTest
         PackFile file = createPackFile(baseDir, source, target, Blockable.BLOCKABLE_NONE);
         assertFalse(target.exists());
 
-        ObjectInputStream packStream = createPackStream(source);
+        InputStream packStream = createPackStream(source);
         unpacker.unpack(file, packStream, target);
         assertTrue(queue.isEmpty());  // file should not have been queued
 
@@ -171,7 +171,6 @@ public class MultiVolumeFileUnpackerTest extends AbstractFileUnpackerTest
         // XPackFile required for the Archivefileposition attribute.
         XPackFile result = new XPackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null,
                                          blockable);
-        result.setArchiveFilePosition(0);
         return result;
     }
 }

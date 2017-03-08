@@ -26,7 +26,9 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.compiler.Compiler;
 import com.izforge.izpack.compiler.CompilerConfig;
 import com.izforge.izpack.compiler.cli.CliAnalyzer;
-import com.izforge.izpack.compiler.container.provider.*;
+import com.izforge.izpack.compiler.container.provider.CompilerDataProvider;
+import com.izforge.izpack.compiler.container.provider.JarOutputStreamProvider;
+import com.izforge.izpack.compiler.container.provider.XmlCompilerHelperProvider;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.helper.AssertionHelper;
 import com.izforge.izpack.compiler.helper.CompilerHelper;
@@ -113,8 +115,6 @@ public class CompilerContainer extends AbstractContainer
         new ResolverContainerFiller().fillContainer(this);
         container.addAdapter(new ProviderAdapter(new XmlCompilerHelperProvider()))
                 .addAdapter(new ProviderAdapter(new JarOutputStreamProvider()))
-                .addAdapter(new ProviderAdapter(new CompressedOutputStreamProvider()))
-                .addAdapter(new ProviderAdapter(new PackCompressorProvider()))
                 .addAdapter(new ProviderAdapter(new PlatformProvider()));
 
     }

@@ -39,7 +39,7 @@ import org.mockito.Mockito;
 
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Resources;
-import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.api.data.ExecutableFile;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
 

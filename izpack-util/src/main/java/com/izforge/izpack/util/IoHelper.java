@@ -19,16 +19,13 @@ package com.izforge.izpack.util;
 import com.izforge.izpack.api.data.Variables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.zip.ZipOutputStream;
 
 import java.io.File;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
 
 /**
  * I/O-related utility methods.
@@ -455,86 +452,11 @@ public class IoHelper
 
     }
 
-    /**
-     * Copies specified contents of one jar to another.
-     * <p/>
-     * <p/>
-     * TODO it would be useful to be able to keep signature information from signed jar files, can we combine manifests and still have their content signed?
-     */
-    public static void copyZip(ZipInputStream zin, org.apache.tools.zip.ZipOutputStream out,
-                               List<String> files, Map<FilterOutputStream, Set<String>> alreadyWrittenFiles)
-            throws IOException
-    {
-        ZipEntry zEntry;
-        if (!alreadyWrittenFiles.containsKey(out))
-        {
-            alreadyWrittenFiles.put(out, new HashSet<String>());
-        }
-        Set<String> currentSet = alreadyWrittenFiles.get(out);
-        while ((zEntry = zin.getNextEntry()) != null)
-        {
-            String currentName = zEntry.getName();
-            String testName = currentName.replace('/', '.');
-            testName = testName.replace('\\', '.');
-            if (files != null)
-            {
-                boolean founded = false;
-                for (String doInclude : files)
-                {   // Make "includes" self to support regex.
-                    if (testName.matches(doInclude))
-                    {
-                        founded = true;
-                        break;
-                    }
-                }
-                if (!founded)
-                {
-                    continue;
-                }
-            }
-            if (currentSet.contains(currentName))
-            {
-                continue;
-            }
-            try
-            {
-                // Get input file date and time.
-                long fileTime = zEntry.getTime();
-                copyStreamToJar(zin, out, currentName, fileTime);
-                zin.closeEntry();
-                currentSet.add(currentName);
-            }
-            catch (ZipException x)
-            {
-                // This avoids any problem that can occur with duplicate
-                // directories. for instance all META-INF data in jars
-                // unfortunately this do not work with the apache ZipOutputStream...
-            }
-        }
-    }
-
-    public static void copyStreamToJar(InputStream zin, ZipOutputStream out, String currentName, long fileTime)
-            throws IOException
-    {
-        // Create new entry for zip file.
-        org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(currentName);
-        // Make sure there is date and time set.
-        if (fileTime != -1)
-        {
-            newEntry.setTime(fileTime); // If found set it into output file.
-        }
-        out.putNextEntry(newEntry);
-        if (zin != null)
-        {
-            IOUtils.copy(zin, out);
-        }
-    }
-
     public static void copyStreamToJar(InputStream zin, java.util.zip.ZipOutputStream out, String currentName,
                                        long fileTime) throws IOException
     {
         // Create new entry for zip file.
-        org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(currentName);
+        ZipEntry newEntry = new ZipEntry(currentName);
         // Make sure there is date and time set.
         if (fileTime != -1)
         {

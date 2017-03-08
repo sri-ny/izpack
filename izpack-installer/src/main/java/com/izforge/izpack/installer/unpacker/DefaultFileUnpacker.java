@@ -21,13 +21,13 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.util.os.FileQueue;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
@@ -59,7 +59,7 @@ public class DefaultFileUnpacker extends FileUnpacker
      * @throws InstallerException for any installer exception
      */
     @Override
-    public void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile file, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
         copy(file, packInputStream, target);

@@ -18,6 +18,7 @@ package com.izforge.izpack.util;
 
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.substitutor.SubstitutionType;
+import com.izforge.izpack.core.resource.ResourceManager;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -25,14 +26,22 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.Properties;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 /**
  * Utility methods for logging
  */
 public class LogUtils
 {
+    private static final String LOGGING_BASE_CONFIGURATION = "/com/izforge/izpack/installer/logging/logging.base.properties";
     private static final String LOGGING_CONFIGURATION = "/com/izforge/izpack/installer/logging/logging.properties";
+
+    private static final String FILEHANDLER_CLASSNAME = FileHandler.class.getName();
+    private static final String CONSOLEHANDLER_CLASSNAME = ConsoleHandler.class.getName();
+
 
     private static final boolean OVERRIDE =
             System.getProperty("java.util.logging.config.class") == null
@@ -42,46 +51,23 @@ public class LogUtils
     {
         if (OVERRIDE)
         {
-            loadConfiguration(LOGGING_CONFIGURATION, null, false);
+            loadConfiguration(LOGGING_CONFIGURATION, null);
         }
     }
 
-    public static void loadConfiguration(final String resource, Variables variables, final boolean skipFallback) throws IOException
+    public static void loadConfiguration(final String resource, Variables variables) throws IOException
     {
         if (OVERRIDE)
         {
-            InputStream is = null;
+            InputStream resourceStream = null;
             try
             {
-                InputStream resourceStream = LogUtils.class.getResourceAsStream(resource);
-                if (resourceStream == null)
-                {
-                    if (skipFallback)
-                    {
-                        return;
-                    }
-                    resourceStream = LogUtils.class.getResourceAsStream(LOGGING_CONFIGURATION);
-                }
-
-                if (resourceStream != null)
-                {
-                    is = variables != null
-                            ? new VariableSubstitutorInputStream(
-                            resourceStream, null,
-                            variables, SubstitutionType.TYPE_JAVA_PROPERTIES, false)
-                            : resourceStream;
-                    final Properties props = new Properties();
-                    props.load(is);
-                    loadConfiguration(props);
-                }
-            }
-            catch (IOException e)
-            {
-                throw new IOException("Cannot apply log configuration from resource '" + resource + "': " + e.getMessage());
+                resourceStream = LogUtils.class.getResourceAsStream(resource);
+                loadLoggingResource(resourceStream, variables);
             }
             finally
             {
-                IOUtils.closeQuietly(is);
+                IOUtils.closeQuietly(resourceStream);
             }
         }
     }
@@ -90,12 +76,34 @@ public class LogUtils
     {
         if (OVERRIDE)
         {
+            LogManager manager = LogManager.getLogManager();
+
+            // Merge global logging properties
+            InputStream baseResourceStream = null;
+            try
+            {
+                baseResourceStream = LogUtils.class.getResourceAsStream(LOGGING_BASE_CONFIGURATION);
+                final Properties baseProps = new Properties();
+                baseProps.load(baseResourceStream);
+                mergeLoggingConfiguration(configuration, baseProps);
+            }
+            finally
+            {
+                IOUtils.closeQuietly(baseResourceStream);
+            }
+
             boolean mkdirs = false;
             String pattern = null;
-            final String cname = FileHandler.class.getName();
+            if (configuration.getProperty("handlers").contains(FILEHANDLER_CLASSNAME) && manager.getProperty("handlers").contains(FILEHANDLER_CLASSNAME))
+            {
+                // IzPack maintains just one log file, don't override the existing handler type of it.
+                // Special use case: Command line argument -logfile "wins" over the <log-file> tag.
+                // Assumption at the moment for optimization: Just FileHandler is used for configurations from install.xml.
+                return;
+            }
             for (String key : configuration.stringPropertyNames())
             {
-                if (key.equals(cname + ".pattern"))
+                if (key.equals(FILEHANDLER_CLASSNAME + ".pattern"))
                 {
                     // Workaround for not normalized file paths, for example ${INSTALL_PATH}/../install_log/name.log
                     // to get them working before creating ${INSTALL_PATH} in the
@@ -104,14 +112,11 @@ public class LogUtils
                     pattern = FilenameUtils.normalize(configuration.getProperty(key));
                     configuration.setProperty(key, pattern);
                 }
-                else
+                else if (key.equals(FILEHANDLER_CLASSNAME + ".mkdirs"))
                 {
                     // This key goes beyond the capabilities of java.util.logging.FileHandler
-                    if (key.equals(cname + ".mkdirs"))
-                    {
-                        mkdirs = Boolean.parseBoolean(configuration.getProperty(key));
-                        configuration.remove(key);
-                    }
+                    mkdirs = Boolean.parseBoolean(configuration.getProperty(key));
+                    configuration.remove(key);
                 }
             }
             if (mkdirs && pattern != null)
@@ -119,7 +124,66 @@ public class LogUtils
                 FileUtils.forceMkdirParent(new File(pattern));
             }
 
-            LogManager manager = LogManager.getLogManager();
+            // Merge user settings compiled in
+            final Properties userProps = new Properties();
+            InputStream userPropsStream = LogUtils.class.getResourceAsStream(ResourceManager.getInstallLoggingConfigurationResourceName());
+            try
+            {
+                if (userPropsStream != null)
+                {
+                    userProps.load(userPropsStream);
+                    for (String userPropName : userProps.stringPropertyNames())
+                    {
+                        if (userPropName.endsWith(".level") && !userPropName.startsWith(FILEHANDLER_CLASSNAME))
+                        {
+                            String level = userProps.getProperty(userPropName);
+                            if (level != null)
+                            {
+                                configuration.setProperty(userPropName, level);
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                IOUtils.closeQuietly(userPropsStream);
+            }
+
+            InputStream defaultResourceStream = null;
+            try
+            {
+                defaultResourceStream = LogUtils.class.getResourceAsStream(LOGGING_CONFIGURATION);
+                final Properties defaultProps = new Properties();
+                defaultProps.load(defaultResourceStream);
+                mergeLoggingConfiguration(configuration, defaultProps);
+            }
+            finally
+            {
+                IOUtils.closeQuietly(defaultResourceStream);
+            }
+
+            if (Debug.isDEBUG())
+            {
+                configuration.setProperty(FILEHANDLER_CLASSNAME + ".level", Level.FINE.toString());
+                configuration.setProperty(ConsoleHandler.class.getName() + ".level", Level.FINE.toString());
+            }
+
+            // Set general log level which acts as filter in front of all handlers
+            String fileLevelName = configuration.getProperty(FILEHANDLER_CLASSNAME + ".level");
+            Level fileLevel = Level.OFF;
+            if (fileLevelName != null)
+            {
+                fileLevel = Level.parse(fileLevelName);
+            }
+            String consoleLevelName = configuration.getProperty(CONSOLEHANDLER_CLASSNAME + ".level");
+            Level consoleLevel = Level.OFF;
+            if (consoleLevelName != null)
+            {
+                consoleLevel = Level.parse(consoleLevelName);
+            }
+            configuration.setProperty(".level", (fileLevel.intValue() < consoleLevel.intValue()) ? fileLevelName : consoleLevelName);
+
             final PipedOutputStream out = new PipedOutputStream();
             final PipedInputStream in = new PipedInputStream(out);
             try
@@ -151,44 +215,43 @@ public class LogUtils
             {
                 IOUtils.closeQuietly(in);
             }
-
-            setStandardLevel(Logger.getLogger(""));
-
-            // Default excludes
-            for (String prefix : new String[]{"sun.awt", "java.awt", "javax.swing"})
-            {
-                setStandardLevel(Logger.getLogger(prefix), Level.INFO);
-            }
         }
     }
 
-    public static boolean isSamePreviousHandlerType(final Class handlerType)
+    private static void loadLoggingResource(InputStream resourceStream, Variables variables) throws IOException
     {
-        LogManager manager = LogManager.getLogManager();
-
-        Handler[] rootHandlers = manager.getLogger("").getHandlers();
-        for (Handler prevHandler : rootHandlers)
+        if (resourceStream != null)
         {
-            //noinspection unchecked
-            if (handlerType.isAssignableFrom(prevHandler.getClass()))
+            InputStream is = variables != null
+                    ? new VariableSubstitutorInputStream(
+                    resourceStream, null,
+                    variables, SubstitutionType.TYPE_JAVA_PROPERTIES, false)
+                    : resourceStream;
+            final Properties props = new Properties();
+            props.load(is);
+
+            loadConfiguration(props);
+        }
+    }
+
+    private static void mergeLoggingConfiguration(Properties to, Properties from)
+    {
+        for (String fromName : from.stringPropertyNames())
+        {
+            String fromValue = from.getProperty(fromName);
+            if (fromName.matches("\\.?handlers") && to.containsKey(fromName))
             {
-                // IzPack maintains just one log file, don't override the existing handler type of it.
-                // Special use case: Command line argument -logfile "wins" over the <log-file> tag
-                return true;
+                String oldValue = to.getProperty(fromName);
+                if (!fromValue.equals(oldValue))
+                {
+                    to.setProperty(fromName, oldValue + ", " + fromValue);
+                }
+                continue;
+            }
+            if (!to.containsKey(fromName))
+            {
+                to.setProperty(fromName, fromValue);
             }
         }
-
-        return false;
-    }
-
-    private static void setStandardLevel(Logger logger)
-    {
-        setStandardLevel(logger, Debug.isDEBUG() ? Level.FINE : Level.INFO);
-    }
-
-    private static void setStandardLevel(Logger logger, Level defaultLevel)
-    {
-        Level prev = logger.getLevel();
-        logger.setLevel(prev != null && prev != Level.ALL && prev.intValue() < defaultLevel.intValue() ? prev : defaultLevel);
     }
 }

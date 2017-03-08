@@ -44,10 +44,11 @@ public class LooseFileUnpackerTest extends AbstractFileUnpackerTest
      * @param queue     the file queue. May be {@code null}
      * @return a new unpacker
      */
+    @Override
     protected FileUnpacker createUnpacker(File sourceDir, FileQueue queue)
     {
         Prompt prompt = Mockito.mock(Prompt.class);
-        return new LooseFileUnpacker(sourceDir, getCancellable(), queue, prompt);
+        return new LooseFileUnpacker(getCancellable(), queue, prompt);
     }
 
 }

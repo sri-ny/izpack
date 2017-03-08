@@ -250,7 +250,11 @@ public class Unix_Shortcut extends Shortcut
 
         result.append("Comment=").append(description).append(N);
         result.append("Comment[").append(userLanguage).append("]=").append(description).append(N);
-        result.append("Encoding=").append(encoding).append(N);
+        if (!encoding.isEmpty()) {
+            logger.warning(String.format("using deprecated Desktop Entry key "
+                    + "Encoding with value %s", encoding));
+            result.append("Encoding=").append(encoding).append(N);
+        }
 
         // this causes too many problems
         // result.append("TryExec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
@@ -258,10 +262,13 @@ public class Unix_Shortcut extends Shortcut
         if (!targetPath.isEmpty() || !arguments.isEmpty())
         {
             result.append("Exec=");
-            if (targetPath.contains(S))
-                result.append("'").append(targetPath).append("'");
-            else
-                result.append(targetPath);
+            result.append(targetPath);
+                //escaping needs to be handed more fine-grained (putting ''
+                //around everything after `Exec=` is not a solution because it
+                //causes invalid .desktop files (`desktop-file-validate` fails
+                //due to `error: value "'[...]'" for key "Exec" in group
+                //"Desktop Entry" contains a reserved character ''' outside of
+                //a quote`)
             if (!arguments.isEmpty())
                 result.append(S).append(arguments);
             result.append(N);

@@ -22,40 +22,36 @@
 
 package com.izforge.izpack.core.io;
 
+import org.apache.commons.io.output.CountingOutputStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Stream which countes the bytes written through it. Be sure to flush before checking size.
+ * Stream which counts the bytes written through it. Be sure to flush before checking size.
  */
 public class ByteCountingOutputStream extends OutputStream
 {
+    private CountingOutputStream os;
 
-    private long count;
-
-    private OutputStream os;
-
-    public ByteCountingOutputStream(OutputStream os)
+    ByteCountingOutputStream(OutputStream out)
     {
-        setOutputStream(os);
+        setOutputStream(out);
     }
 
     public void write(byte[] b, int off, int len) throws IOException
     {
         os.write(b, off, len);
-        count += len;
     }
 
     public void write(byte[] b) throws IOException
     {
         os.write(b);
-        count += b.length;
     }
 
     public void write(int b) throws IOException
     {
         os.write(b);
-        count++;
     }
 
     public void close() throws IOException
@@ -68,14 +64,13 @@ public class ByteCountingOutputStream extends OutputStream
         os.flush();
     }
 
-    public long getByteCount()
+    long getByteCount()
     {
-        return count;
+        return os.getByteCount();
     }
 
-    protected void setOutputStream(OutputStream stream)
+    void setOutputStream(OutputStream out)
     {
-        this.os = stream;
-        count = 0;
+        os = new CountingOutputStream(out);
     }
 }
