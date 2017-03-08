@@ -348,17 +348,17 @@ public abstract class PackagerBase implements IPackager
     {
         info.setInstallerBase(compilerData.getOutput().replaceAll(".jar", ""));
         JarOutputStream jarOutputStream = getInstallerJar();
-        sendStart();
         try
         {
+            sendStart();
             writeInstaller();
+            sendStop();
+            jarOutputStream.flush();
         }
         finally
         {
-            jarOutputStream.flush();
-            jarOutputStream.close();
+            IOUtils.closeQuietly(jarOutputStream);
         }
-        sendStop();
     }
 
     /**
@@ -464,7 +464,6 @@ public abstract class PackagerBase implements IPackager
         mergeManager.addResourceToMerge("com/izforge/izpack/merge/");
         mergeManager.addResourceToMerge("com/izforge/izpack/util/");
         mergeManager.addResourceToMerge("com/izforge/izpack/logging/");
-        mergeManager.addResourceToMerge("org/apache/regexp/");
         mergeManager.addResourceToMerge("com/coi/tools/");
         mergeManager.addResourceToMerge("org/apache/commons/io/");
         mergeManager.addResourceToMerge("jline/");
