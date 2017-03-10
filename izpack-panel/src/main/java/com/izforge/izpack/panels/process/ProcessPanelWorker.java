@@ -10,12 +10,12 @@ import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.Debug;
+import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -190,8 +190,8 @@ public class ProcessPanelWorker implements Runnable
                         return false;
                     }
                     String ef_working_dir = executeFileElement.getAttribute("workingDir");
-                    boolean allowContinueOnFail = Boolean
-                            .parseBoolean(executeFileElement.getAttribute("allowContinueOnFail", "true"));
+                    ErrorHandlingStrategy errorHandlingStrategy = ErrorHandlingStrategy.valueOf(
+                            executeFileElement.getAttribute("onError", "ask").toUpperCase());
 
                     List<String> args = new ArrayList<String>();
 
@@ -211,7 +211,7 @@ public class ProcessPanelWorker implements Runnable
                         envvars.add(env_val);
                     }
 
-                    ef_list.add(new ProcessPanelWorker.ExecutableFile(ef_name, args, envvars, ef_working_dir, allowContinueOnFail));
+                    ef_list.add(new ProcessPanelWorker.ExecutableFile(ef_name, args, envvars, ef_working_dir, errorHandlingStrategy));
                 }
 
                 for (IXMLElement executeClassElement : job_el.getChildrenNamed("executeclass"))
@@ -484,20 +484,20 @@ public class ProcessPanelWorker implements Runnable
 
         private String filename;
         private String workingDir;
-        private final boolean allowContinueOnFail;
+        private final ErrorHandlingStrategy errorHandlingStrategy;
         private List<String> arguments;
 
         private List<String> envvariables;
 
         protected AbstractUIProcessHandler handler;
 
-        public ExecutableFile(String fn, List<String> args, List<String> envvars, String workingDir, boolean allowContinueOnFail)
+        public ExecutableFile(String fn, List<String> args, List<String> envvars, String workingDir, ErrorHandlingStrategy errorHandlingStrategy)
         {
             this.filename = fn;
             this.arguments = args;
             this.envvariables = envvars;
             this.workingDir = workingDir;
-            this.allowContinueOnFail = allowContinueOnFail;
+            this.errorHandlingStrategy = errorHandlingStrategy;
         }
 
         @Override
@@ -570,7 +570,7 @@ public class ProcessPanelWorker implements Runnable
 
                     if (exitStatus != 0)
                     {
-                        if (this.allowContinueOnFail) {
+                        if (this.errorHandlingStrategy == ErrorHandlingStrategy.ASK) {
                             QuestionErrorDisplayer myErrorAlter = new QuestionErrorDisplayer(handler);
                             SwingUtilities.invokeAndWait(myErrorAlter);
                             return myErrorAlter.shouldContinue();
