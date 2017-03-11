@@ -170,15 +170,15 @@ public class LogUtils
             }
 
             // Set general log level which acts as filter in front of all handlers
-            String fileLevelName = configuration.getProperty(FILEHANDLER_CLASSNAME + ".level", Level.OFF.toString());
-            Level fileLevel = Level.OFF;
+            String fileLevelName = configuration.getProperty(FILEHANDLER_CLASSNAME + ".level", Level.ALL.toString());
+            Level fileLevel = Level.ALL;
             if (fileLevelName != null)
             {
                 fileLevel = Level.parse(fileLevelName);
             }
             
-            String consoleLevelName = configuration.getProperty(CONSOLEHANDLER_CLASSNAME + ".level", Level.OFF.toString());
-            Level consoleLevel = Level.OFF;
+            String consoleLevelName = configuration.getProperty(CONSOLEHANDLER_CLASSNAME + ".level", Level.INFO.toString());
+            Level consoleLevel = Level.INFO;
             if (consoleLevelName != null)
             {
                 consoleLevel = Level.parse(consoleLevelName);
