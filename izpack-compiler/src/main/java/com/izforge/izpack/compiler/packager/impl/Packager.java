@@ -242,7 +242,14 @@ public class Packager extends PackagerBase
                                     }
 
                                     long bytesWritten = FileUtils.copyFile(file, finalStream);
-                                    finalStream.flush();
+                                    try
+                                    {
+                                        finalStream.flush();
+                                    }
+                                    catch (IOException ignored)
+                                    {
+                                        // some compressor output streams don't explicitly support flushing
+                                    }
                                     finalStream.close();
                                     if (bytesWritten != packFile.length())
                                     {
