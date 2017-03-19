@@ -125,7 +125,7 @@ public abstract class FileUnpacker
         OutputStream out = getTarget(file, target);
         byte[] buffer = new byte[5120];
         long bytesCopied = 0;
-        long bytesToCopy = (file.isBackReference() ? file.getLinkedPackFile().size() : file.size());
+        long bytesToCopy = (file.isBackReference() ? file.getLinkedPackFile().length() : file.length());
         logger.fine("|- Copying to file system (size: " + bytesToCopy + " bytes)");
         try
         {
