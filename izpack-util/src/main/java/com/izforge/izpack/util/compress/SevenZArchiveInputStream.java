@@ -29,66 +29,149 @@ public class SevenZArchiveInputStream extends ArchiveInputStream
 {
     private final SevenZFile zFile;
 
-    public SevenZArchiveInputStream(File file) throws IOException
+    private SevenZArchiveEntry currentEntry;
+    private long currentBytesRead;
+
+
+    public SevenZArchiveInputStream(final File file) throws IOException
     {
         this.zFile = new SevenZFile(file);
     }
+
+    @SuppressWarnings("unused")
+    public SevenZArchiveInputStream(final File file, final byte[] password) throws IOException
+    {
+        this.zFile = new SevenZFile(file, password);
+    }
+
 
     @Override
     public ArchiveEntry getNextEntry() throws IOException
     {
         final SevenZArchiveEntry sevenZArchiveEntry = zFile.getNextEntry();
 
-        return new ArchiveEntry()
+        currentEntry = sevenZArchiveEntry;
+        currentBytesRead = 0;
+
+        if (sevenZArchiveEntry != null)
         {
-            @Override
-            public String getName()
+            return new ArchiveEntry()
             {
-                return sevenZArchiveEntry.getName();
-            }
+                @Override
+                public String getName()
+                {
+                    return sevenZArchiveEntry.getName();
+                }
 
-            @Override
-            public long getSize()
-            {
-                return sevenZArchiveEntry.getSize();
-            }
+                @Override
+                public long getSize()
+                {
+                    return sevenZArchiveEntry.getSize();
+                }
 
-            @Override
-            public boolean isDirectory()
-            {
-                return sevenZArchiveEntry.isDirectory();
-            }
+                @Override
+                public boolean isDirectory()
+                {
+                    return sevenZArchiveEntry.isDirectory();
+                }
 
-            @Override
-            public Date getLastModifiedDate()
-            {
-                return sevenZArchiveEntry.getLastModifiedDate();
-            }
-        };
+                @Override
+                public Date getLastModifiedDate()
+                {
+                    return sevenZArchiveEntry.getLastModifiedDate();
+                }
+            };
+        }
+
+        return null;
     }
 
     @Override
     public int read() throws IOException
     {
-        return zFile.read();
+        if (currentEntry != null && currentEntry.hasStream() && !currentEntry.isAntiItem())
+        {
+            int totalRead = zFile.read();
+            if (totalRead >= 0)
+            {
+                count(1);
+                currentBytesRead++;
+            }
+            return totalRead;
+        }
+
+        return -1;
     }
 
     @Override
     public int read(byte[] b) throws IOException
     {
-        return zFile.read(b);
+        if (currentEntry != null && currentEntry.hasStream() && !currentEntry.isAntiItem())
+        {
+            int totalRead = zFile.read(b);
+
+            if (totalRead >= 0)
+            {
+                count(totalRead);
+                currentBytesRead += totalRead;
+            }
+
+            return totalRead;
+        }
+
+        return -1;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException
     {
-        return zFile.read(b, off, len);
+        if (currentEntry != null && currentEntry.hasStream() && !currentEntry.isAntiItem())
+        {
+            int totalRead = zFile.read(b, off, len);
+
+            if (totalRead >= 0)
+            {
+                count(totalRead);
+                currentBytesRead += totalRead;
+            }
+
+            return totalRead;
+        }
+
+        return -1;
     }
 
     @Override
     public void close() throws IOException
     {
         zFile.close();
+    }
+
+    @Override
+    public int available() throws IOException {
+        if (currentEntry.isDirectory() || !currentEntry.hasStream() || currentEntry.isAntiItem()) {
+            return 0;
+        }
+        final long currentSize = currentEntry.getSize();
+        final long currentSizeDiff = currentSize - currentBytesRead;
+        if (currentSizeDiff > Integer.MAX_VALUE)
+        {
+            return Integer.MAX_VALUE;
+        }
+        return (int)currentSizeDiff;
+    }
+
+    @Override
+    public long skip(final long n) throws IOException {
+        if (n <= 0 || currentEntry.isDirectory() || !currentEntry.hasStream() || currentEntry.isAntiItem()) {
+            return 0;
+        }
+
+        final long available = currentEntry.getSize() - currentBytesRead;
+        final long skipped = this.skip(Math.min(n, available));
+        count(skipped);
+        currentBytesRead += skipped;
+        return skipped;
     }
 
     @Override
@@ -100,6 +183,12 @@ public class SevenZArchiveInputStream extends ArchiveInputStream
     @Override
     public boolean canReadEntryData(ArchiveEntry archiveEntry)
     {
-        return (archiveEntry instanceof SevenZArchiveEntry);
+        if (archiveEntry instanceof SevenZArchiveEntry)
+        {
+            SevenZArchiveEntry entry = (SevenZArchiveEntry) archiveEntry;
+            return entry.hasStream() && !entry.isAntiItem();
+        }
+
+        return false;
     }
 }

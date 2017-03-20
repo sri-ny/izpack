@@ -1624,7 +1624,7 @@ public class CompilerConfig extends Thread
                 String entryName = entry.getName();
                 if (entry.isDirectory())
                 {
-                    String dName = entryName.substring(0, entryName.length() - 1);
+                    String dName = FilenameUtils.normalizeNoEndSeparator(entryName);
                     File tempDir = new File(baseTempDir, dName);
                     FileUtils.forceMkdir(tempDir);
                     if (hasNoFileSet)
