@@ -2773,11 +2773,10 @@ public class CompilerConfig extends Thread
             value = var.getAttribute("regkey");
             if (value != null)
             {
-                String regroot = var.getAttribute("regroot");
                 String regvalue = var.getAttribute("regvalue");
                 if (dynamicVariable.getValue() == null)
                 {
-                    dynamicVariable.setValue(new RegistryValue(regroot, value, regvalue));
+                    dynamicVariable.setValue(new RegistryValue(value, regvalue));
                 }
                 else
                 {
