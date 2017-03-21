@@ -513,7 +513,8 @@ public abstract class UnpackerBase implements IUnpacker
             int len = packFiles.length;
 
             String stepName = getStepName(pack);
-            listener.nextStep(stepName, packNo + 1, len);
+            selectedPacks = installData.getSelectedPacks();
+            listener.nextStep(stepName, selectedPacks.indexOf(pack) + 1, len);
 
             in = resources.getPackStream(pack.getName());
 
