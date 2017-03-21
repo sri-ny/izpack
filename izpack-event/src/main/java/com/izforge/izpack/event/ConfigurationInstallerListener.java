@@ -1000,12 +1000,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                 value = getAttribute(var, "regkey");
                 if (value != null)
                 {
-                    String regroot = getAttribute(var, "regroot");
                     String regvalue = getAttribute(var, "regvalue");
                     if (dynamicVariable.getValue() == null)
                     {
                         dynamicVariable.setValue(
-                                new RegistryValue(regroot, value, regvalue));
+                                new RegistryValue(value, regvalue));
                     }
                     else
                     {

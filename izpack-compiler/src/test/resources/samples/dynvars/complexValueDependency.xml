@@ -23,7 +23,6 @@
         <variable name="section"  value="section" />
         <variable name="key"      value="key" />
 
-        <variable name="regroot"    value="regroot" />
         <variable name="regkey"     value="regkey" />
         <variable name="regvalue"   value="regvalue" />
 
@@ -45,7 +44,7 @@
         <variable name="zip_opt" type="options" zipfile="${file}" entry="${entry}" key="${key}" />
         <variable name="zip_xml" type="xml"     zipfile="${file}" entry="${entry}" key="${key}" />
 
-        <variable name="reg" regroot="${regroot}" regkey="${regkey}" regvalue="${regvalue}" />
+        <variable name="reg" regkey="${regkey}" regvalue="${regvalue}" />
 
         <variable name="exec" executable="${executable}" dir="${dir}" >
           <arg>${arg}</arg>
