@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.izforge.izpack.util.compress;
+package com.izforge.izpack.compiler.util.compress;
 
+import com.izforge.izpack.util.compress.SevenZArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.tika.Tika;

@@ -78,7 +78,7 @@ import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
-import com.izforge.izpack.util.compress.ArchiveStreamFactory;
+import com.izforge.izpack.compiler.util.compress.ArchiveStreamFactory;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.compress.archivers.ArchiveEntry;
