@@ -44,8 +44,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
-import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
@@ -69,56 +67,42 @@ import com.izforge.izpack.util.PlatformModelMatcher;
  */
 public class CompilePanel extends IzPanel implements ActionListener, CompileHandler
 {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 3258408430669674552L;
 
     /**
      * The combobox for compiler selection.
      */
-    protected JComboBox compilerComboBox;
+    private JComboBox compilerComboBox;
 
     /**
      * The combobox for compiler argument selection.
      */
-    protected JComboBox argumentsComboBox;
+    private JComboBox argumentsComboBox;
 
     /**
      * The start button.
      */
-    protected JButton startButton;
+    private JButton startButton;
 
     /**
      * The browse button.
      */
-    protected JButton browseButton;
-
-    /**
-     * The tip label.
-     */
-    protected JLabel tipLabel;
+    private JButton browseButton;
 
     /**
      * The operation label .
      */
-    protected JLabel opLabel;
+    private JLabel opLabel;
 
     /**
      * The pack progress bar.
      */
-    protected JProgressBar packProgressBar;
-
-    /**
-     * The operation label .
-     */
-    protected JLabel overallLabel;
+    private JProgressBar packProgressBar;
 
     /**
      * The overall progress bar.
      */
-    protected JProgressBar overallProgressBar;
+    private JProgressBar overallProgressBar;
 
     /**
      * True if the compilation has been done.
@@ -166,11 +150,13 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         JLabel argumentsLabel = new JLabel();
         this.argumentsComboBox = new JComboBox();
         this.startButton = ButtonFactory.createButton(getString("CompilePanel.start"), installData.buttonsHColor);
-        this.tipLabel = LabelFactory.create(getString("CompilePanel.tip"), parent.getIcons().get("tip"),
-                                            SwingConstants.TRAILING);
+
+        JLabel tipLabel = LabelFactory.create(getString("CompilePanel.tip"), parent.getIcons().get("tip"),
+                SwingConstants.TRAILING);
         this.opLabel = new JLabel();
         packProgressBar = new JProgressBar();
-        this.overallLabel = new JLabel();
+
+        JLabel overallLabel = new JLabel();
         this.overallProgressBar = new JProgressBar();
 
         setLayout(new GridBagLayout());
@@ -303,18 +289,14 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.gridy = row++;
+        gridBagConstraints.gridy = row;
         gridBagConstraints.fill = GridBagConstraints.NONE;
         // leave some space above the button
         gridBagConstraints.insets = new Insets(5, 0, 0, 0);
         subpanel.add(startButton, gridBagConstraints);
     }
 
-    /**
-     * Indicates wether the panel has been validated or not.
-     *
-     * @return The validation state.
-     */
+    @Override
     public boolean isValidated()
     {
         return validated;
@@ -323,6 +305,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
     /**
      * Action function, called when the start button is pressed.
      */
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         if (e.getSource() == this.startButton)
@@ -360,7 +343,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
     /**
      * Block the GUI - disalow input.
      */
-    protected void blockGUI()
+    private void blockGUI()
     {
         // disable all controls
         this.startButton.setEnabled(false);
@@ -376,7 +359,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
      *
      * @param allowconfig allow the user to enter new configuration
      */
-    protected void releaseGUI(boolean allowconfig)
+    private void releaseGUI(boolean allowconfig)
     {
         // disable all controls
         if (allowconfig)
@@ -390,12 +373,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         this.parent.releaseGUI();
     }
 
-    /**
-     * An error was encountered.
-     *
-     * @param error The error information.
-     * @see CompileHandler
-     */
+    @Override
     public void handleCompileError(CompileResult error)
     {
         String message = error.getMessage();
@@ -419,10 +397,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
 
     }
 
-    /* (non-Javadoc)
-     * @see com.izforge.izpack.api.handler.AbstractUIProgressHandler#startAction(java.lang.String, int)
-     */
-
+    @Override
     public void startAction(String name, int noOfJobs1)
     {
         this.noOfJobs = noOfJobs1;
@@ -430,9 +405,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         parent.lockPrevButton();
     }
 
-    /**
-     * The compiler stops.
-     */
+    @Override
     public void stopAction()
     {
         CompileResult result = this.worker.getResult();
@@ -469,12 +442,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
 
     }
 
-    /**
-     * Normal progress indicator.
-     *
-     * @param val The progression value.
-     * @param msg The progression message.
-     */
+    @Override
     public void progress(int val, String msg)
     {
         // Debug.trace ("progress: " + val + " " + msg);
@@ -482,13 +450,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         opLabel.setText(msg);
     }
 
-    /**
-     * Job changing.
-     *
-     * @param jobName The job name.
-     * @param max     The new maximum progress.
-     * @param jobNo   The job number.
-     */
+    @Override
     public void nextStep(String jobName, int max, int jobNo)
     {
         packProgressBar.setValue(0);
@@ -502,44 +464,25 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
                                              + Integer.toString(this.noOfJobs));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void setSubStepNo(int max)
     {
         packProgressBar.setMaximum(max);
     }
 
-    /**
-     * Invoked to notify progress.
-     * <p/>
-     * This increments the current step.
-     *
-     * @param message a message describing the step
-     */
     @Override
     public void progress(String message)
     {
         // no-op
     }
 
-    /**
-     * Invoked when an action restarts.
-     *
-     * @param name           the name of the action
-     * @param overallMessage a message describing the overall progress
-     * @param tip            a tip describing the current progress
-     * @param steps          the number of steps the action consists of
-     */
     @Override
     public void restartAction(String name, String overallMessage, String tip, int steps)
     {
         startAction(name, steps);
     }
 
-    /**
-     * Called when the panel becomes active.
-     */
+    @Override
     public void panelActivate()
     {
         compilerComboBox.removeAllItems();
@@ -560,20 +503,6 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         setPreferredSize(dim);
 
         parent.lockNextButton();
-    }
-
-    /**
-     * Create XML installDataGUI for automated installation.
-     */
-    public void makeXMLData(IXMLElement panelRoot)
-    {
-        // just save the compiler chosen and the arguments
-        IXMLElement compiler = new XMLElementImpl("compiler", panelRoot);
-        compiler.setContent(this.worker.getCompiler());
-        panelRoot.addChild(compiler);
-        IXMLElement args = new XMLElementImpl("arguments", panelRoot);
-        args.setContent(this.worker.getCompilerArguments());
-        panelRoot.addChild(args);
     }
 
     /**
@@ -729,7 +658,7 @@ public class CompilePanel extends IzPanel implements ActionListener, CompileHand
         /**
          * Close the panel.
          */
-        protected void closeDialog()
+        void closeDialog()
         {
             setVisible(false);
             dispose();
