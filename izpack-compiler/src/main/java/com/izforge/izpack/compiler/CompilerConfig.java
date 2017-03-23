@@ -1631,7 +1631,7 @@ public class CompilerConfig extends Thread
                     {
                         String target = targetDir + "/" + dName;
                         logAddingFile(dName + " (" + archiveName + ")", target);
-                        pack.addFile(baseDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition, null);
+                        pack.addFile(baseTempDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition, null);
                     }
                 }
                 else
@@ -1648,7 +1648,7 @@ public class CompilerConfig extends Thread
                         {
                             String target = targetDir + "/" + entryName;
                             logAddingFile(entryName + " (" + archiveName + ")", target);
-                            pack.addFile(baseDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
+                            pack.addFile(baseTempDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
                         }
                     }
                     finally
