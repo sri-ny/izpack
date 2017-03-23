@@ -21,28 +21,6 @@
 
 package com.izforge.izpack.integration;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-
-import org.hamcrest.core.IsNot;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Info;
@@ -55,6 +33,26 @@ import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.InstallFile;
 import com.izforge.izpack.test.junit.PicoRunner;
 import com.izforge.izpack.util.IoHelper;
+import org.hamcrest.core.IsNot;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipFile;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link UninstallDataWriter}.
@@ -157,7 +155,6 @@ public class UninstallDataWriterTest
      * Verifies that standard listeners are written.
      *
      * @throws IOException
-     * @throws ZipException
      */
     @Test
     @InstallFile("samples/event/event.xml")
@@ -184,8 +181,7 @@ public class UninstallDataWriterTest
 
         assertThat(uninstallJar,
                    ZipMatcher.isZipContainingFiles("com/izforge/izpack/test/listener/TestUninstallerListener.class",
-                                                   "com/izforge/izpack/api/event/UninstallerListener.class",
-                                                   "com/izforge/izpack/event/SimpleInstallerListener.class"));
+                                                   "com/izforge/izpack/api/event/UninstallerListener.class"));
     }
 
     /**

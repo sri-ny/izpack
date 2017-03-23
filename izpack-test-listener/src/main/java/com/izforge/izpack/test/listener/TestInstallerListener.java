@@ -1,17 +1,15 @@
 package com.izforge.izpack.test.listener;
 
-import java.io.File;
-import java.util.List;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
 import com.izforge.izpack.event.AbstractProgressInstallerListener;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * An {@link InstallerListener} that tracks invocations for testing purposes.
@@ -196,11 +194,10 @@ public class TestInstallerListener extends AbstractProgressInstallerListener
      * Invoked before a pack is installed.
      *
      * @param pack  the pack
-     * @param index the pack index within the list of packs to be installed
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int index)
+    public void beforePack(Pack pack)
     {
         ++beforePackCount;
         log("beforePack: pack=" + pack);
@@ -210,11 +207,10 @@ public class TestInstallerListener extends AbstractProgressInstallerListener
      * Invoked after a pack is installed.
      *
      * @param pack  the pack
-     * @param index the pack index within the list of packs to be installed
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int index)
+    public void afterPack(Pack pack)
     {
         ++afterPackCount;
         log("afterPack: pack=" + pack);
@@ -298,63 +294,6 @@ public class TestInstallerListener extends AbstractProgressInstallerListener
     }
 
     /**
-     * Called when the installer creates the listener instance, immediately after the install data is parsed.
-     *
-     * @param data object containing the current installation data
-     */
-    public void afterInstallerInitialization(AutomatedInstallData data)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked before packs are installed.
-     *
-     * @param data    the installation data
-     * @param packs   number of packs which are defined for this installation
-     * @param handler the UI progress handler
-     */
-    public void beforePacks(AutomatedInstallData data, Integer packs, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked after packs are installed.
-     *
-     * @param data    the install data
-     * @param handler the UI progress handler
-     */
-    public void afterPacks(AutomatedInstallData data, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked before a pack is installed.
-     *
-     * @param pack    the pack
-     * @param i       the pack number
-     * @param handler the UI progress handler
-     */
-    public void beforePack(Pack pack, Integer i, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked after a pack is installed.
-     *
-     * @param pack    current pack object
-     * @param i       current pack number
-     * @param handler the UI progress handler
-     */
-    public void afterPack(Pack pack, Integer i, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
      * Returns true if this listener would be informed at every file and directory installation,
      * else false.
      *
@@ -366,50 +305,6 @@ public class TestInstallerListener extends AbstractProgressInstallerListener
     }
 
     /**
-     * Invoked before a directory is created.
-     *
-     * @param dir      the directory
-     * @param packFile corresponding pack file
-     */
-    public void beforeDir(File dir, PackFile packFile)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked after a directory is created.
-     *
-     * @param dir      the directory
-     * @param packFile corresponding pack file
-     */
-    public void afterDir(File dir, PackFile packFile)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked before a file is installed.
-     *
-     * @param file     the file
-     * @param packFile corresponding pack file
-     */
-    public void beforeFile(File file, PackFile packFile)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
-     * Invoked after a file is installed.
-     *
-     * @param file     the file
-     * @param packFile corresponding pack file
-     */
-    public void afterFile(File file, PackFile packFile)
-    {
-        throw new IllegalStateException("Deprecated method shouldn't be invoked");
-    }
-
-    /**
      * Logs a message.
      *
      * @param message the message
@@ -418,5 +313,4 @@ public class TestInstallerListener extends AbstractProgressInstallerListener
     {
         System.out.println("TestInstallerListener: " + message);
     }
-
 }

@@ -223,11 +223,6 @@ public class ExecutableFileTest extends AbstractDestroyerTest
         }
 
         @Override
-        public void emitErrorAndBlockNext(String title, String message)
-        {
-        }
-
-        @Override
         public int askQuestion(String title, String question, int choices)
         {
             return 0;

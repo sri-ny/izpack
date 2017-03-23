@@ -185,11 +185,10 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * Invoked before a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int i) throws InstallerException
+    public void beforePack(Pack pack) throws InstallerException
     {
         performAllActions(pack.getName(), ActionBase.BEFOREPACK, null);
     }
@@ -198,11 +197,10 @@ public class AntActionInstallerListener extends AbstractProgressInstallerListene
      * Invoked after a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int i) throws InstallerException
+    public void afterPack(Pack pack) throws InstallerException
     {
         performAllActions(pack.getName(), ActionBase.AFTERPACK, null);
     }

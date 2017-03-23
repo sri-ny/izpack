@@ -26,8 +26,6 @@ import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Locales;
 
-import javax.swing.*;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
@@ -100,33 +98,6 @@ public class ResourceManager extends AbstractResources
     }
 
     /**
-     * If null was given the Default BasePath "/res/" is set If otherwise the Basepath is set to the
-     * given String. This is useful if someone needs direct access to Reosurces in the jar.
-     *
-     * @param aDefaultBasePath If null was given the DefaultBasepath is re/set "/res/"
-     * @deprecated no replacement
-     */
-    @Deprecated
-    public void setDefaultOrResourceBasePath(String aDefaultBasePath)
-    {
-        // For direct access of named resources the BasePath should be empty
-        if (null != aDefaultBasePath)
-        {
-            this.setResourceBasePath(aDefaultBasePath);
-        }
-        else
-        {
-            this.setResourceBasePath(RESOURCE_BASEPATH_DEFAULT);
-        }
-    }
-
-    @Deprecated
-    public boolean isResourceExist(String resource)
-    {
-        return this.getLanguageResourceString(resource) != null;
-    }
-
-    /**
      * Returns an InputStream contains the given Resource The Resource is loaded language dependen
      * by the informations from <code>this.locale</code> If there is no Resource for the current
      * language found, the default Resource is given.
@@ -156,102 +127,6 @@ public class ResourceManager extends AbstractResources
     }
 
     /**
-     * Get Input stream with a default value
-     *
-     * @param resource     Path of resource
-     * @param defaultValue Default value if stream is not found
-     * @return Stream found or default value
-     * @deprecated no replacement
-     */
-    @Deprecated
-    public InputStream getInputStream(String resource, InputStream defaultValue)
-    {
-        String resourcepath = this.getLanguageResourceString(resource);
-        if (resourcepath == null)
-        {
-            return defaultValue;
-        }
-        return getInputStream(resourcepath);
-    }
-
-    /**
-     * Returns a URL refers to the given Resource
-     *
-     * @param resource the resource to load
-     * @return A languagedependen URL spezifies the requested resource
-     * @throws ResourceNotFoundException thrown if there is no resource found
-     * @deprecated use {@link #getURL(String)}
-     */
-    @Deprecated
-    public URL getLocalizedURL(String resource)
-    {
-        return getResource(getLanguageResourceString(resource));
-    }
-
-    /**
-     * Returns a text resource from the jar file. The resource is loaded by
-     * ResourceManager#getResource and then converted into text.
-     *
-     * @param resource - a text resource to load
-     * @param encoding - the encoding, which should be used to read the resource
-     * @return a String contains the text of the resource
-     * @throws ResourceNotFoundException if the resource can not be
-     *                                   found
-     * @throws IOException               if the resource can not be loaded
-     * @deprecated use {@link com.izforge.izpack.api.resource.Resources#getString(String, String, String)}
-     */
-    @Deprecated
-    public String getTextResource(String resource, String encoding) throws IOException
-    {
-        return readString(resource, encoding);
-    }
-
-    /**
-     * Returns a text resource from the jar file. The resource is loaded by
-     * ResourceManager#getResource and then converted into text.
-     *
-     * @param resource - a text resource to load
-     * @return a String contains the text of the resource
-     * @throws ResourceNotFoundException if the resource can not be found
-     * @throws IOException               if the resource can not be loaded
-     * @deprecated use {@link com.izforge.izpack.api.resource.Resources#getString(String)}
-     */
-    @Deprecated
-    public String getTextResource(String resource) throws IOException
-    {
-        return this.getTextResource(resource, null);
-    }
-
-    /**
-     * Returns a laguage dependent ImageIcon for the given Resource
-     *
-     * @param resource resrouce of the Icon
-     * @param fallback fallback resources
-     * @return a ImageIcon loaded from the given Resource
-     * @throws ResourceNotFoundException thrown when the resource can not be found
-     * @deprecated use {@link #getImageIcon(String, String...)}
-     */
-    @Deprecated
-    public ImageIcon getImageIconResource(String resource, String... fallback)
-    {
-        return getImageIcon(resource, fallback);
-    }
-
-    /**
-     * Sets the locale for the resourcefiles. The locale is taken from
-     * InstallData#installData#getAttribute("langpack") If there is no language set, the default
-     * language is english.
-     *
-     * @param locale of the resourcefile
-     * @deprecated use {@link Locales#setLocale(String)}
-     */
-    @Deprecated
-    public void setLocale(String locale)
-    {
-        locales.setLocale(locale);
-    }
-
-    /**
      * Returns the locale's ISO3 language code.
      *
      * @return the current language code, or {@code null} if no locale is set
@@ -274,31 +149,6 @@ public class ResourceManager extends AbstractResources
     public void setResourceBasePath(String resourceBasePath)
     {
         this.resourceBasePath = resourceBasePath;
-    }
-
-    /**
-     * Get langpack of the given locale
-     *
-     * @param localeISO3 langpack to get
-     * @return InputStream on the xml
-     * @deprecated use {@link Locales#getMessages(String)}
-     */
-    @Deprecated
-    public InputStream getLangPack(String localeISO3)
-    {
-        return getInputStream("langpacks/" + localeISO3 + ".xml");
-    }
-
-    /**
-     * Get langpack of the locale present in installData
-     *
-     * @return InputStream on the xml
-     * @deprecated use {@link com.izforge.izpack.api.resource.Locales#getMessages()}
-     */
-    @Deprecated
-    public InputStream getLangPack()
-    {
-        return this.getLangPack(locales.getLocale().getISO3Language());
     }
 
     /**

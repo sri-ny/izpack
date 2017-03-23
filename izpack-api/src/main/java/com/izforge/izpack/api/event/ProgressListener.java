@@ -9,7 +9,6 @@ package com.izforge.izpack.api.event;
  */
 public interface ProgressListener
 {
-
     /**
      * Invoked when an action starts.
      *
@@ -67,5 +66,4 @@ public interface ProgressListener
      * @param steps          the number of steps the action consists of
      */
     void restartAction(String name, String overallMessage, String tip, int steps);
-
 }

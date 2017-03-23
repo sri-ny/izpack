@@ -23,7 +23,6 @@ package com.myCompany.tools.install.listener;
 
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.event.SimpleInstallerListener;
 import com.izforge.izpack.util.FileExecutor;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import java.io.IOException;
  *
  * @author Klaus Bartz
  */
-public class ChmodInstallerListener extends SimpleInstallerListener
+public class ChmodInstallerListener extends InstallerListener
 {
     /* (non-Javadoc)
     * @see com.izforge.izpack.installer.InstallerListener#isFileListener()

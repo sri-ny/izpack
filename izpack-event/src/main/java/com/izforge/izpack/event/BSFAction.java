@@ -21,18 +21,17 @@
 
 package com.izforge.izpack.event;
 
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.exception.IzPackException;
+import org.apache.bsf.BSFEngine;
+import org.apache.bsf.BSFException;
+import org.apache.bsf.BSFManager;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.bsf.BSFEngine;
-import org.apache.bsf.BSFException;
-import org.apache.bsf.BSFManager;
-
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.api.exception.IzPackException;
 
 /**
  * Action which executes a BSF-supported script, which can specify the
@@ -65,9 +64,9 @@ public class BSFAction extends ActionBase
 
     private transient BSFManager manager = null;
     private transient BSFEngine engine = null;
-    private static Map<String, MethodDescriptor> orderMethodMap = null;
+    private static final Map<String, MethodDescriptor> orderMethodMap;
 
-    private Properties variables = new Properties();
+    private final Properties variables = new Properties();
 
     /**
      * The logger.
@@ -76,8 +75,8 @@ public class BSFAction extends ActionBase
 
     private static class MethodDescriptor
     {
-        private String name;
-        private String argNames[];
+        private final String name;
+        private final String[] argNames;
 
         public MethodDescriptor(String name, String... argNames)
         {
@@ -87,13 +86,13 @@ public class BSFAction extends ActionBase
         }
     }
 
-    private static interface MethodExistenceChecker
+    private interface MethodExistenceChecker
     {
-        boolean isMethodDefined(String method, String scriptName, BSFEngine engine, BSFManager manager)
+        boolean isNotMethodDefined(String method, String scriptName, BSFEngine engine, BSFManager manager)
                 throws BSFException;
     }
 
-    private static Map<String, MethodExistenceChecker> langToMethodCheckerMap = new HashMap<String, MethodExistenceChecker>();
+    private static final Map<String, MethodExistenceChecker> langToMethodCheckerMap = new HashMap<String, MethodExistenceChecker>();
 
     static
     {
@@ -110,22 +109,21 @@ public class BSFAction extends ActionBase
         orderMethodMap.put(BSFAction.AFTERDIR, new MethodDescriptor("afterDir", "file", "pack"));
         orderMethodMap.put(BSFAction.BEFOREFILE, new MethodDescriptor("beforeFile", "file", "pack"));
         orderMethodMap.put(BSFAction.AFTERFILE, new MethodDescriptor("afterFile", "file", "pack"));
-        orderMethodMap.put(BEFOREPACKS, new MethodDescriptor("beforePacks", "packs", "npacks"));
-        // npacks required for backward compatibility with 4.x
+        orderMethodMap.put(BEFOREPACKS, new MethodDescriptor("beforePacks", "packs"));
         orderMethodMap.put(AFTERPACKS, new MethodDescriptor("afterPacks", "packs"));
-        orderMethodMap.put(BEFOREPACK, new MethodDescriptor("beforePack", "pack", "i"));
-        orderMethodMap.put(AFTERPACK, new MethodDescriptor("afterPack", "pack", "i"));
+        orderMethodMap.put(BEFOREPACK, new MethodDescriptor("beforePack", "pack"));
+        orderMethodMap.put(AFTERPACK, new MethodDescriptor("afterPack", "pack"));
 
         langToMethodCheckerMap.put("beanshell",
                                    new MethodExistenceChecker()
                                    {
-                                       public boolean isMethodDefined(String method, String scriptName,
-                                                                      BSFEngine engine, BSFManager manager)
+                                       public boolean isNotMethodDefined(String method, String scriptName,
+                                                                         BSFEngine engine, BSFManager manager)
                                                throws BSFException
                                        {
                                            String script = "this.namespace.getMethod(\"" + method + "\", new Class[0])";
                                            Object res = engine.eval(scriptName, 1, 1, script);
-                                           return res != null;
+                                           return res == null;
                                        }
                                    }
         );
@@ -210,7 +208,7 @@ public class BSFAction extends ActionBase
                 MethodExistenceChecker checker = langToMethodCheckerMap.get(language);
                 if (checker != null)
                 {
-                    if (!checker.isMethodDefined(desc.name, scriptName, engine, manager))
+                    if (checker.isNotMethodDefined(desc.name, scriptName, engine, manager))
                     {
                         return;
                     }
@@ -248,12 +246,11 @@ public class BSFAction extends ActionBase
                     }
                 }
                 manager.declareBean("installData", installData, InstallData.class);
-                manager.declareBean("idata", installData, InstallData.class); // for backward compatibility with 4.x
 
                 MethodExistenceChecker checker = langToMethodCheckerMap.get(language);
                 if (checker != null)
                 {
-                    if (!checker.isMethodDefined(desc.name, scriptName, engine, manager))
+                    if (checker.isNotMethodDefined(desc.name, scriptName, engine, manager))
                     {
                         return;
                     }

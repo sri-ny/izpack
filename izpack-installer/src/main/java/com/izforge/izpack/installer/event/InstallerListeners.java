@@ -33,9 +33,7 @@ import com.izforge.izpack.api.handler.AbstractPrompt;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
-import com.izforge.izpack.core.handler.ProgressHandler;
 import com.izforge.izpack.core.handler.PromptUIHandler;
-import com.izforge.izpack.event.SimpleInstallerListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,10 +89,6 @@ public class InstallerListeners
      */
     public void add(InstallerListener listener)
     {
-        if (listener instanceof SimpleInstallerListener)
-        {
-            ((SimpleInstallerListener) listener).setInstalldata(installData);
-        }
         listeners.add(listener);
     }
 
@@ -106,16 +100,6 @@ public class InstallerListeners
     public int size()
     {
         return listeners.size();
-    }
-
-    /**
-     * Determines if there are no registered listeners.
-     *
-     * @return <tt>true</tt> if there are no registered listeners
-     */
-    public boolean isEmpty()
-    {
-        return listeners.isEmpty();
     }
 
     /**
@@ -167,19 +151,14 @@ public class InstallerListeners
      * Invoked before packs are installed.
      *
      * @param packs    the packs to install
-     * @param listener the progress listener
      * @throws InstallerException if a listener throws an exception
      */
-    public void beforePacks(List<Pack> packs, ProgressListener listener) throws InstallerException
+    public void beforePacks(List<Pack> packs) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
             try
             {
-                if (l instanceof SimpleInstallerListener)
-                {
-                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
-                }
                 l.beforePacks(packs);
             }
                 catch (IzPackException ize)
@@ -194,20 +173,15 @@ public class InstallerListeners
      *
      * @param pack     the pack
      * @param i        the pack number
-     * @param listener the progress listener
      * @throws InstallerException if a listener throws an exception
      */
-    public void beforePack(Pack pack, int i, ProgressListener listener) throws InstallerException
+    public void beforePack(Pack pack, int i) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
             try
             {
-                if (l instanceof SimpleInstallerListener)
-                {
-                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
-                }
-                l.beforePack(pack, i);
+                l.beforePack(pack);
             }
                 catch (IzPackException ize)
             {
@@ -326,21 +300,15 @@ public class InstallerListeners
      * Invoked after a pack is installed.
      *
      * @param pack     current pack object
-     * @param i        current pack number
-     * @param listener the progress listener
      * @throws InstallerException if a listener throws an exception
      */
-    public void afterPack(Pack pack, int i, ProgressListener listener) throws InstallerException
+    public void afterPack(Pack pack) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
             try
             {
-                if (l instanceof SimpleInstallerListener)
-                {
-                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
-                }
-                l.afterPack(pack, i);
+                l.afterPack(pack);
             }
             catch (IzPackException ize)
             {
@@ -362,10 +330,6 @@ public class InstallerListeners
         {
             try
             {
-                if (l instanceof SimpleInstallerListener)
-                {
-                    ((SimpleInstallerListener) l).setHandler(new ProgressHandler(listener, prompt));
-                }
                 l.afterPacks(packs, listener);
             }
                 catch (IzPackException ize)

@@ -1,21 +1,11 @@
 package com.izforge.izpack.test.listener;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.List;
-
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.event.UninstallerListener;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
+
+import java.io.*;
+import java.util.List;
 
 /**
  * An {@link UninstallerListener} that tracks invocations for testing purposes.
@@ -39,7 +29,7 @@ public class TestUninstallerListener implements UninstallerListener
     /**
      * The state.
      */
-    private State state = new State();
+    private final State state = new State();
 
     /**
      * The listener state.
@@ -83,10 +73,7 @@ public class TestUninstallerListener implements UninstallerListener
         if (installPath != null)
         {
             logPath = getStatePath(installPath);
-            if (logPath != null)
-            {
-                log("Logging to: " + logPath);
-            }
+            log("Logging to: " + logPath);
         }
     }
 
@@ -196,50 +183,6 @@ public class TestUninstallerListener implements UninstallerListener
     {
         ++state.afterListDeleteCount;
         log("afterDelete: files=" + files.size());
-    }
-
-    /**
-     * Invoked before files are deleted.
-     *
-     * @param files   all files which should be deleted
-     * @param handler the UI progress handler
-     */
-    public void beforeDeletion(List<File> files, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method should not be invoked.");
-    }
-
-    /**
-     * Invoked after files are deleted.
-     *
-     * @param files   all files which where deleted
-     * @param handler the UI progress handler
-     */
-    public void afterDeletion(List<File> files, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method should not be invoked.");
-    }
-
-    /**
-     * Invoked before a file is deleted.
-     *
-     * @param file    file which should be deleted
-     * @param handler the UI progress handler
-     */
-    public void beforeDelete(File file, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method should not be invoked.");
-    }
-
-    /**
-     * Invoked after a file is deleted.
-     *
-     * @param file    file which was just deleted
-     * @param handler the UI progress handler
-     */
-    public void afterDelete(File file, AbstractUIProgressHandler handler)
-    {
-        throw new IllegalStateException("Deprecated method should not be invoked.");
     }
 
     /**

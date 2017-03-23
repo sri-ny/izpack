@@ -46,7 +46,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -123,7 +123,7 @@ public class AntActionInstallerListenerTest
     public void testAntTargets()
     {
         Pack pack = new Pack("Base", null, null, null, null, true, true, false, null, true, 0);
-        List<Pack> packs = Arrays.asList(pack);
+        List<Pack> packs = Collections.singletonList(pack);
 
         ProgressListener progressListener = Mockito.mock(ProgressListener.class);
 
@@ -142,13 +142,13 @@ public class AntActionInstallerListenerTest
         // Verify that when the beforePack method is invoked, the corresponding Ant target is called.
         // This touches a file "beforepack.txt"
         assertFileNotExists(installDir, "beforepack.txt");
-        listener.beforePack(pack, 0);
+        listener.beforePack(pack);
         assertFileExists(installDir, "beforepack.txt");
 
         // Verify that when the afterPack method is invoked, the corresponding Ant target is called.
         // This touches a file "afterpack.txt"
         assertFileNotExists(installDir, "afterpack.txt");
-        listener.afterPack(pack, 0);
+        listener.afterPack(pack);
         assertFileExists(installDir, "afterpack.txt");
 
         // Verify that when the afterPacks method is invoked, the corresponding Ant target is called.
