@@ -22,7 +22,7 @@
 package com.izforge.izpack.integration;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
+import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.compiler.container.TestGUIInstallationContainer;
 import com.izforge.izpack.installer.data.UninstallDataWriter;
 import com.izforge.izpack.installer.unpacker.Unpacker;
@@ -165,11 +165,11 @@ public class ExecutableFileTest extends AbstractDestroyerTest
     }
 
     /**
-     * No-op implementation of {@link AbstractUIProgressHandler}. Can't use Mockito to mock this for some reason -
+     * No-op implementation of {@link ProgressListener}. Can't use Mockito to mock this for some reason -
      * attempts to do so result in a ClassCastException - possibly because the same class has been mocked already,
      * but in an isolated class loader by the {@link ExecutableFileTest#runDestroyer(java.io.File)} method.
      */
-    private static class NoOpProgressHandler implements AbstractUIProgressHandler
+    private static class NoOpProgressHandler implements ProgressListener
     {
         @Override
         public void startAction(String name, int no_of_steps)
@@ -204,45 +204,6 @@ public class ExecutableFileTest extends AbstractDestroyerTest
         @Override
         public void restartAction(String name, String overallMessage, String tip, int steps)
         {
-        }
-
-        @Override
-        public void emitNotification(String message)
-        {
-        }
-
-        @Override
-        public boolean emitWarning(String title, String message)
-        {
-            return false;
-        }
-
-        @Override
-        public void emitError(String title, String message)
-        {
-        }
-
-        @Override
-        public void emitErrorAndBlockNext(String title, String message)
-        {
-        }
-
-        @Override
-        public int askQuestion(String title, String question, int choices)
-        {
-            return 0;
-        }
-
-        @Override
-        public int askQuestion(String title, String question, int choices, int default_choice)
-        {
-            return 0;
-        }
-
-        @Override
-        public int askWarningQuestion(String title, String question, int choices, int default_choice)
-        {
-            return 0;
         }
     }
 }

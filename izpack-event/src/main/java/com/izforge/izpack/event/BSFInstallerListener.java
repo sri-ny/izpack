@@ -181,8 +181,7 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
 
         for (Pack pack : packs)
         {
-            performAllActions(pack, ActionBase.BEFOREPACKS, null, packs, packs.size());
-            // NOTE: packs.size() is passed to BSF as "npacks" and is required for backward compatibility with 4.x
+            performAllActions(pack, ActionBase.BEFOREPACKS, null, packs);
         }
     }
 
@@ -190,26 +189,24 @@ public class BSFInstallerListener extends AbstractProgressInstallerListener
      * Invoked before a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int i)
+    public void beforePack(Pack pack)
     {
-        performAllActions(pack, ActionBase.BEFOREPACK, null, pack, i);
+        performAllActions(pack, ActionBase.BEFOREPACK, null, pack);
     }
 
     /**
      * Invoked after a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int i)
+    public void afterPack(Pack pack)
     {
-        performAllActions(pack, ActionBase.AFTERPACK, null, pack, i);
+        performAllActions(pack, ActionBase.AFTERPACK, null, pack);
     }
 
     /**

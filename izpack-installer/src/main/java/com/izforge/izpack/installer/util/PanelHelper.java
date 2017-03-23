@@ -50,10 +50,6 @@ public class PanelHelper
      * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
-     * <p/>
-     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
-     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
-     * removed.
      *
      * @param className the ConsolePanel class name
      * @return the corresponding IzPanel implementation, or {@code null} if none is found
@@ -73,10 +69,6 @@ public class PanelHelper
      * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
-     * <p/>
-     * For backwards-compatibility, the sufixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
-     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
-     * removed.
      *
      * @param className the ConsolePanel class name
      * @param loader    the class loader to use
@@ -106,10 +98,6 @@ public class PanelHelper
      * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
-     * <p/>
-     * For backwards-compatibility, the suffixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
-     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
-     * removed.
      *
      * @param className the IzPanel class name
      * @return the corresponding console implementation, or {@code null} if none is found
@@ -129,10 +117,6 @@ public class PanelHelper
      * where <em>{@code <prefix>}</em> is the IzPanel name, minus <em>Panel</em>.
      * <br/>
      * E.g for the panel {@code HelloPanel}, the console implementation must be named {@code HelloConsolePanel}.
-     * <p/>
-     * For backwards-compatibility, the suffixes <em>Console</em> and <em>ConsoleHelper</em> are also supported.
-     * Support for this will be removed when the {@link com.izforge.izpack.installer.console.PanelConsole} interface is
-     * removed.
      *
      * @param className the IzPanel class name
      * @param loader    the class loader to use

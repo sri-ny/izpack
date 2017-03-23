@@ -142,13 +142,6 @@ public class RulesEngineImpl implements RulesEngine
     }
 
     @Override
-    @Deprecated
-    public Condition instantiateCondition(IXMLElement condition)
-    {
-        return createCondition(condition);
-    }
-
-    @Override
     public Condition createCondition(IXMLElement condition, Class<Condition> conditionClass)
     {
         String id = condition.getAttribute("id");
@@ -194,7 +187,7 @@ public class RulesEngineImpl implements RulesEngine
     }
 
     @Override
-    public void resolveConditions() throws Exception
+    public void resolveConditions()
     {
         for (ConditionReference refCondition : refConditions)
         {
@@ -339,8 +332,7 @@ public class RulesEngineImpl implements RulesEngine
         {
             cond.setInstallData(this.installData);
         }
-        boolean value = cond.isTrue();
-        return value;
+        return cond.isTrue();
     }
 
     /**
@@ -584,7 +576,7 @@ public class RulesEngineImpl implements RulesEngine
      */
     private Condition parseComplexCondition(String expression)
     {
-        Condition result = null;
+        Condition result;
 
         if (expression.contains("||"))
         {
@@ -624,8 +616,7 @@ public class RulesEngineImpl implements RulesEngine
      */
     private Condition parseComplexOrCondition(String expression) {
         String[] parts = expression.split("\\|\\|", 2);
-        Condition result = evaluateComplexExpression("or", expression, parts);
-        return result;
+        return evaluateComplexExpression("or", expression, parts);
     }
 
     /**
@@ -637,8 +628,7 @@ public class RulesEngineImpl implements RulesEngine
     private Condition parseComplexXorCondition(String expression)
     {
         String[] parts = expression.split("\\^", 2);
-        Condition result = evaluateComplexExpression("xor",expression, parts);
-        return result;
+        return evaluateComplexExpression("xor",expression, parts);
     }
 
     /**
@@ -652,8 +642,7 @@ public class RulesEngineImpl implements RulesEngine
     private Condition parseComplexAndCondition(String expression)
     {
         String[] parts = expression.split("&&", 2);
-        Condition result = evaluateComplexExpression("and", expression, parts);
-        return result;
+        return evaluateComplexExpression("and", expression, parts);
     }
 
     /**
@@ -665,7 +654,7 @@ public class RulesEngineImpl implements RulesEngine
      */
     private Condition parseComplexNotCondition(String expression)
     {
-        Condition result = null;
+        Condition result;
         result = NotCondition.createFromCondition(
                 parseComplexCondition(expression.substring(1).trim()),
                 this);
@@ -746,6 +735,7 @@ public class RulesEngineImpl implements RulesEngine
             String operand2Id = expression.toString();
             Condition operand2 = getConditionByExpr(expression);
             if (operand2 != null){
+                assert result != null;
                 ((ConditionWithMultipleOperands) result).addOperands(operand1, operand2);
             } else {
                 // the second operand doesn't exist
@@ -785,6 +775,7 @@ public class RulesEngineImpl implements RulesEngine
             return null;
         }
 
+        assert result != null;
         ((ConditionWithMultipleOperands) result).addOperands(operand1, operand2);
 
         return result;
@@ -796,10 +787,10 @@ public class RulesEngineImpl implements RulesEngine
      * @return
      */
     private Condition instantiateConditionClass(String condType){
-        Condition result = null;
+        Condition result;
         String condClassName = getClassName(condType);
         try {
-            Class<Condition> conditionClass = (Class<Condition>)Class.forName(condClassName);
+            @SuppressWarnings("unchecked") Class<Condition> conditionClass = (Class<Condition>)Class.forName(condClassName);
             Constructor<Condition> constructor = conditionClass.getConstructor(RulesEngine.class);
             result = constructor.newInstance(this);
         } catch (ClassNotFoundException e) {

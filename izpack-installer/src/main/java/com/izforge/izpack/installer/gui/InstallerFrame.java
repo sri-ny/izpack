@@ -23,7 +23,6 @@
 package com.izforge.izpack.installer.gui;
 
 import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.event.ProgressListener;
@@ -88,7 +87,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * The installation data.
      */
-    private GUIInstallData installdata;
+    private final GUIInstallData installdata;
 
     /**
      * The icons database.
@@ -118,7 +117,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * Registered GUICreationListener.
      */
-    protected ArrayList<GUIListener> guiListener;
+    protected final ArrayList<GUIListener> guiListener;
 
     /**
      * Heading major text.
@@ -153,7 +152,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * conditions
      */
-    protected RulesEngine rules;
+    protected final RulesEngine rules;
 
     private Debugger debugger;
 
@@ -168,19 +167,19 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * The resources.
      */
-    private ResourceManager resourceManager;
+    private final ResourceManager resourceManager;
 
     /**
      * Manager for writing uninstall data
      */
-    private UninstallDataWriter uninstallDataWriter;
+    private final UninstallDataWriter uninstallDataWriter;
 
     /**
      * The variables.
      */
-    private Variables variables;
+    private final Variables variables;
 
-    private UninstallData uninstallData;
+    private final UninstallData uninstallData;
 
     /**
      * The unpacker.
@@ -200,7 +199,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
     /**
      * The supported locales that contains the localised messages.
      */
-    private Locales locales;
+    private final Locales locales;
 
     /**
      * Constructs an <tt>InstallerFrame</tt>.
@@ -918,8 +917,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
      */
     public Messages getMessages()
     {
-        Messages messages = locales.getMessages();
-        return messages;
+        return locales.getMessages();
     }
 
     public IconsDatabase getIcons()
@@ -1108,6 +1106,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             }
             if ("inHeading".equals(counterPos))
             {
+                assert leftHeadingPanel != null;
                 leftHeadingPanel.add(headingCounterComponent);
             }
             else if ("inNavigationPanel".equals(counterPos))
@@ -1278,16 +1277,8 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
      */
     public boolean isHeading(IzPanel caller)
     {
-        if (!installdata.guiPrefs.modifier.containsKey("useHeadingPanel")
-                || !(installdata.guiPrefs.modifier.get("useHeadingPanel")).equalsIgnoreCase("yes"))
-        {
-            return (false);
-        }
-        if (caller == null)
-        {
-            return (true);
-        }
-        return (caller.getI18nStringForClass("headline") != null);
+        return !(!installdata.guiPrefs.modifier.containsKey("useHeadingPanel")
+                || !(installdata.guiPrefs.modifier.get("useHeadingPanel")).equalsIgnoreCase("yes")) && (caller == null || (caller.getI18nStringForClass("headline") != null));
 
     }
 
@@ -1452,7 +1443,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
                 case Info.REBOOT_ACTION_NOTICE:
                     message = variables.replace(messages.get("installer.reboot.notice.message"));
                     title = variables.replace(messages.get("installer.reboot.notice.title"));
-                    JOptionPane.showConfirmDialog(this, message, title, JOptionPane.OK_OPTION);
+                    JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_OPTION);
                     break;
             }
             if (reboot)
