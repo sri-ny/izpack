@@ -22,6 +22,7 @@
 package com.izforge.izpack.event;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.Variables;
@@ -265,6 +266,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         housekeeper.registerForCleanup(this);
 
         InstallData installData = getInstallData();
+        Info installInfo = installData.getInfo();
         
         // Start logging
         IXMLElement uninstallerPack = null;
@@ -293,8 +295,9 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         {
             registry.setUninstallName(registry.getUninstallName() + " " + uninstallSuffix);
         }
-        // Generate uninstaller key automatically if not defined in spec only if the uninstaller path is set (this is not the case if write="false").
-        if (uninstallerPack == null && installData.getInfo() != null && installData.getInfo().getUninstallerPath() != null)
+        // Generate uninstaller key automatically if not defined in spec only if the uninstaller path is set
+        // (this is not the case if write="false").
+        if (uninstallerPack == null && installInfo != null && installInfo.getUninstallerPath() != null)
         {
             registerUninstallKey();
         }
