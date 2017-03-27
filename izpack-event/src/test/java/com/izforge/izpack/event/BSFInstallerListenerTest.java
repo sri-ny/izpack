@@ -42,7 +42,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -142,7 +142,7 @@ public class BSFInstallerListenerTest
     private void checkListener(Resources resources, String suffix) throws IOException
     {
         Pack pack = new Pack("Base", null, null, null, null, true, true, false, null, true, 0);
-        List<Pack> packs = Arrays.asList(pack);
+        List<Pack> packs = Collections.singletonList(pack);
 
         ProgressListener progressListener = Mockito.mock(ProgressListener.class);
 
@@ -158,7 +158,7 @@ public class BSFInstallerListenerTest
 
         // Verify that when the beforePack method is invoked, the corresponding BSF action is called.
         assertFileNotExists(installDir, "beforepack" + suffix);
-        listener.beforePack(pack, 0);
+        listener.beforePack(pack);
         assertFileExists(installDir, "beforepack" + suffix);
 
         // Verify that when the beforeDir method is invoked, the corresponding BSF action is called.
@@ -191,7 +191,7 @@ public class BSFInstallerListenerTest
 
         // Verify that when the afterPack method is invoked, the corresponding BSF action is called.
         assertFileNotExists(installDir, "afterpack" + suffix);
-        listener.afterPack(pack, 0);
+        listener.afterPack(pack);
         assertFileExists(installDir, "afterpack" + suffix);
 
         // Verify that when the afterPacks method is invoked, the corresponding BSF action is called.

@@ -78,12 +78,12 @@ import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
+import com.izforge.izpack.compiler.util.compress.ArchiveStreamFactory;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.FileUtils;
@@ -1609,7 +1609,7 @@ public class CompilerConfig extends Thread
         File baseTempDir = null;
         try
         {
-            archiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(uncompressedInputStream);
+            archiveInputStream = new ArchiveStreamFactory().createArchiveInputStream(archive, uncompressedInputStream);
 
             // file is an archive (incl. ZIP archive) - unpack recursively
             baseTempDir = com.izforge.izpack.util.file.FileUtils.createTempDirectory("izpack", TEMP_DIR);
@@ -1624,14 +1624,14 @@ public class CompilerConfig extends Thread
                 String entryName = entry.getName();
                 if (entry.isDirectory())
                 {
-                    String dName = entryName.substring(0, entryName.length() - 1);
+                    String dName = FilenameUtils.normalizeNoEndSeparator(entryName);
                     File tempDir = new File(baseTempDir, dName);
                     FileUtils.forceMkdir(tempDir);
                     if (hasNoFileSet)
                     {
                         String target = targetDir + "/" + dName;
                         logAddingFile(dName + " (" + archiveName + ")", target);
-                        pack.addFile(baseDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition, null);
+                        pack.addFile(baseTempDir, tempDir, target, osList, override, overrideRenameTo, blockable, additionals, condition, null);
                     }
                 }
                 else
@@ -1648,7 +1648,7 @@ public class CompilerConfig extends Thread
                         {
                             String target = targetDir + "/" + entryName;
                             logAddingFile(entryName + " (" + archiveName + ")", target);
-                            pack.addFile(baseDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
+                            pack.addFile(baseTempDir, tempFile, target, osList, override, overrideRenameTo, blockable, additionals, condition, pack200Properties);
                         }
                     }
                     finally
@@ -2773,11 +2773,10 @@ public class CompilerConfig extends Thread
             value = var.getAttribute("regkey");
             if (value != null)
             {
-                String regroot = var.getAttribute("regroot");
                 String regvalue = var.getAttribute("regvalue");
                 if (dynamicVariable.getValue() == null)
                 {
-                    dynamicVariable.setValue(new RegistryValue(regroot, value, regvalue));
+                    dynamicVariable.setValue(new RegistryValue(value, regvalue));
                 }
                 else
                 {

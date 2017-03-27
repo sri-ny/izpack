@@ -292,7 +292,7 @@ public abstract class UnpackerBase implements IUnpacker
 
             InputStream in = resources.getInputStream("packs.info");
             objIn = new ObjectInputStream(in);
-            List<PackInfo> packsInfo = (List<PackInfo>) objIn.readObject();
+            @SuppressWarnings("unchecked") List<PackInfo> packsInfo = (List<PackInfo>) objIn.readObject();
             objIn.close();
 
             selectedPacks = installData.getSelectedPacks();
@@ -448,7 +448,7 @@ public abstract class UnpackerBase implements IUnpacker
     {
         logger.fine("Unpacker starting");
         listener.startAction("Unpacking", packs.size());
-        listeners.beforePacks(packs, listener);
+        listeners.beforePacks(packs);
     }
 
     /**
@@ -473,7 +473,7 @@ public abstract class UnpackerBase implements IUnpacker
                 List<ExecutableFile> executables = new ArrayList<ExecutableFile>();
                 List<UpdateCheck> updateChecks = new ArrayList<UpdateCheck>();
 
-                listeners.beforePack(pack, i, listener);
+                listeners.beforePack(pack, i);
                 unpack(packInfo, i, queue, parsables, executables, updateChecks);
                 checkInterrupt();
 
@@ -489,7 +489,7 @@ public abstract class UnpackerBase implements IUnpacker
                 performUpdateChecks(updateChecks);
                 checkInterrupt();
 
-                listeners.afterPack(pack, i, listener);
+                listeners.afterPack(pack);
             }
         }
     }
@@ -513,7 +513,8 @@ public abstract class UnpackerBase implements IUnpacker
             int len = packFiles.length;
 
             String stepName = getStepName(pack);
-            listener.nextStep(stepName, packNo + 1, len);
+            selectedPacks = installData.getSelectedPacks();
+            listener.nextStep(stepName, selectedPacks.indexOf(pack) + 1, len);
 
             in = resources.getPackStream(pack.getName());
 
@@ -1191,10 +1192,7 @@ public abstract class UnpackerBase implements IUnpacker
                 IOUtils.closeQuietly(oin);
                 IOUtils.closeQuietly(fin);
             }
-            for (Pack pack : packs)
-            {
-                installedPacks.add(pack);
-            }
+            installedPacks.addAll(packs);
         }
 
         FileOutputStream fout = new FileOutputStream(installationInfo);
@@ -1386,10 +1384,7 @@ public abstract class UnpackerBase implements IUnpacker
      */
     protected void readUpdateChecks(PackInfo packInfo, List<UpdateCheck> updateChecks)
     {
-        for (UpdateCheck updateCheck : packInfo.getUpdateChecks())
-        {
-            updateChecks.add(updateCheck);
-        }
+        updateChecks.addAll(packInfo.getUpdateChecks());
     }
 
     private void resetLogging()

@@ -53,13 +53,6 @@ public class ProgressBarInstallerListener extends AbstractProgressInstallerListe
         super(installData, notifiers);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.izforge.izpack.compiler.InstallerListener#afterPacks(com.izforge.izpack.installer.AutomatedInstallData,
-     * com.izforge.izpack.api.handler.AbstractUIProgressHandler)
-     */
-
     /**
      * Invoked after packs are installed.
      *

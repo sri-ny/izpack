@@ -21,20 +21,6 @@
 
 package com.izforge.izpack.event;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.InstallData;
@@ -49,38 +35,28 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
-import com.izforge.izpack.core.variable.ConfigFileValue;
-import com.izforge.izpack.core.variable.EnvironmentValue;
-import com.izforge.izpack.core.variable.ExecValue;
-import com.izforge.izpack.core.variable.JarEntryConfigValue;
-import com.izforge.izpack.core.variable.PlainConfigFileValue;
-import com.izforge.izpack.core.variable.PlainValue;
-import com.izforge.izpack.core.variable.RegistryValue;
-import com.izforge.izpack.core.variable.ZipEntryConfigFileValue;
+import com.izforge.izpack.core.variable.*;
 import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.config.ConfigFileTask;
-import com.izforge.izpack.util.config.ConfigurableFileCopyTask;
-import com.izforge.izpack.util.config.ConfigurableTask;
-import com.izforge.izpack.util.config.IniFileCopyTask;
-import com.izforge.izpack.util.config.OptionFileCopyTask;
-import com.izforge.izpack.util.config.RegistryTask;
-import com.izforge.izpack.util.config.SingleConfigurableTask;
+import com.izforge.izpack.util.config.*;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.LookupType;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.Operation;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.Type;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Unit;
-import com.izforge.izpack.util.config.SingleIniFileTask;
-import com.izforge.izpack.util.config.SingleOptionFileTask;
-import com.izforge.izpack.util.config.SingleXmlFileMergeTask;
 import com.izforge.izpack.util.file.FileNameMapper;
 import com.izforge.izpack.util.file.GlobPatternMapper;
 import com.izforge.izpack.util.file.types.FileSet;
 import com.izforge.izpack.util.file.types.Mapper;
 import com.izforge.izpack.util.helper.SpecHelper;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ConfigurationInstallerListener extends AbstractProgressInstallerListener
@@ -239,11 +215,10 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
      * Invoked before a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int i)
+    public void beforePack(Pack pack)
     {
         performAllActions(pack.getName(), ActionBase.BEFOREPACK, null);
     }
@@ -253,11 +228,10 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
      * Invoked after a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int i)
+    public void afterPack(Pack pack)
     {
         performAllActions(pack.getName(), ActionBase.AFTERPACK, null);
     }
@@ -1000,12 +974,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                 value = getAttribute(var, "regkey");
                 if (value != null)
                 {
-                    String regroot = getAttribute(var, "regroot");
                     String regvalue = getAttribute(var, "regvalue");
                     if (dynamicVariable.getValue() == null)
                     {
                         dynamicVariable.setValue(
-                                new RegistryValue(regroot, value, regvalue));
+                                new RegistryValue(value, regvalue));
                     }
                     else
                     {

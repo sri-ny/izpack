@@ -35,6 +35,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Jar files merger.
@@ -166,7 +167,7 @@ public class JarMerge extends AbstractMerge
     }
 
 
-    public void merge(java.util.zip.ZipOutputStream outputStream)
+    public void merge(ZipOutputStream outputStream)
     {
         mergeImpl(outputStream);
     }

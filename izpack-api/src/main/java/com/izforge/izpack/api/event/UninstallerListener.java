@@ -22,11 +22,10 @@
 
 package com.izforge.izpack.api.event;
 
+import com.izforge.izpack.api.exception.IzPackException;
+
 import java.io.File;
 import java.util.List;
-
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
 
 /**
  * Implementations of this class are used to handle customizing uninstallation. The defined methods
@@ -37,22 +36,6 @@ import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
  */
 public interface UninstallerListener extends InstallationListener
 {
-
-    // ------------------------------------------------------------------------
-    // Constant Definitions
-    // ------------------------------------------------------------------------
-    @Deprecated
-    public static final int BEFORE_DELETION = 1;
-
-    @Deprecated
-    public static final int AFTER_DELETION = 2;
-
-    @Deprecated
-    public static final int BEFORE_DELETE = 3;
-
-    @Deprecated
-    public static final int AFTER_DELETE = 4;
-
     /**
      * Invoked before files are deleted.
      *
@@ -85,49 +68,4 @@ public interface UninstallerListener extends InstallationListener
      * @throws IzPackException for any error
      */
     void afterDelete(List<File> files, ProgressListener listener);
-
-    /**
-     * Invoked before files are deleted.
-     *
-     * @param files   all files which should be deleted
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     * @deprecated use {@link #beforeDelete(List)}
-     */
-    @Deprecated
-    void beforeDeletion(List<File> files, AbstractUIProgressHandler handler) throws Exception;
-
-    /**
-     * Invoked before a file is deleted.
-     *
-     * @param file    the file which will be deleted
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     * @deprecated use {@link #beforeDelete(File)}
-     */
-    @Deprecated
-    void beforeDelete(File file, AbstractUIProgressHandler handler) throws Exception;
-
-    /**
-     * Invoked after a file is deleted.
-     *
-     * @param file    the file which was deleted
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     * @deprecated use {@link #afterDelete(File)}
-     */
-    @Deprecated
-    void afterDelete(File file, AbstractUIProgressHandler handler) throws Exception;
-
-    /**
-     * Invoked after files are deleted.
-     *
-     * @param files   the files which where deleted
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     * @deprecated use {@link #afterDelete(List, ProgressListener)}
-     */
-    @Deprecated
-    void afterDeletion(List<File> files, AbstractUIProgressHandler handler) throws Exception;
-
 }

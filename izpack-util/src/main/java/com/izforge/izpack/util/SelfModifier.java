@@ -309,12 +309,6 @@ public class SelfModifier
         initMethod(method);
     }
 
-    @Deprecated
-    public SelfModifier(Method method, long maxmemory, long maxpermgensize) throws IOException
-    {
-        this(method);
-    }
-
     /**
      * Check the method for the required properties (public, static, params:(String[])).
      *

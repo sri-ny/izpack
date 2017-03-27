@@ -22,21 +22,13 @@
 package com.izforge.izpack.core.handler;
 
 
-import static com.izforge.izpack.api.handler.Prompt.Option;
-import static com.izforge.izpack.api.handler.Prompt.Option.CANCEL;
-import static com.izforge.izpack.api.handler.Prompt.Option.NO;
-import static com.izforge.izpack.api.handler.Prompt.Option.OK;
-import static com.izforge.izpack.api.handler.Prompt.Option.YES;
-import static com.izforge.izpack.api.handler.Prompt.Options.OK_CANCEL;
-import static com.izforge.izpack.api.handler.Prompt.Options.YES_NO;
-import static com.izforge.izpack.api.handler.Prompt.Options.YES_NO_CANCEL;
-import static com.izforge.izpack.api.handler.Prompt.Type.ERROR;
-import static com.izforge.izpack.api.handler.Prompt.Type.INFORMATION;
-import static com.izforge.izpack.api.handler.Prompt.Type.QUESTION;
-import static com.izforge.izpack.api.handler.Prompt.Type.WARNING;
-
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.api.handler.Prompt;
+
+import static com.izforge.izpack.api.handler.Prompt.Option;
+import static com.izforge.izpack.api.handler.Prompt.Option.*;
+import static com.izforge.izpack.api.handler.Prompt.Options.*;
+import static com.izforge.izpack.api.handler.Prompt.Type.*;
 
 
 /**
@@ -99,19 +91,6 @@ public class PromptUIHandler implements AbstractUIHandler
     public void emitError(String title, String message)
     {
         prompt.message(ERROR, title, message);
-    }
-
-    /**
-     * Notify the user of some error and block the next button.
-     *
-     * @param title   The message title (used for dialog name, might not be displayed)
-     * @param message The error message.
-     * @deprecated Inject the InstallerFrame to disable the next button
-     */
-    @Override
-    public void emitErrorAndBlockNext(String title, String message)
-    {
-        emitError(title, message);
     }
 
     /**

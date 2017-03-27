@@ -21,15 +21,14 @@
 
 package com.izforge.izpack.installer.gui;
 
-import java.awt.Component;
-import java.awt.Cursor;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.installer.panel.AbstractPanelView;
+
+import java.awt.*;
 
 /**
  * Implementation of {@link com.izforge.izpack.installer.panel.AbstractPanelView} for {@link IzPanel}s.
@@ -91,7 +90,7 @@ public class IzPanelView extends AbstractPanelView<IzPanel>
     @Override
     protected void initialise(IzPanel view, Panel panel, InstallData installData)
     {
-        setVisible(!view.isHidden());
+        setVisible(true);
         view.setHelpUrl(panel.getHelpUrl(installData.getLocaleISO3()));
     }
 

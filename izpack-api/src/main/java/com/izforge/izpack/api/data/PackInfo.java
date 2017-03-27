@@ -21,17 +21,13 @@
 
 package com.izforge.izpack.api.data;
 
+import com.izforge.izpack.api.data.binding.OsModel;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.izforge.izpack.api.data.binding.OsModel;
+import java.util.*;
 
 /**
  * Temporary holding place for Pack information as the Packager is built. The packager is used by
@@ -101,12 +97,6 @@ public class PackInfo implements Serializable
     public void setOsConstraints(List<OsModel> osConstraints)
     {
         pack.setOsConstraints(osConstraints);
-    }
-
-    @Deprecated
-    public List<OsModel> getOsConstraints(List<OsModel> osConstraints)
-    {
-        return pack.getOsConstraints();
     }
 
     public void setPreselected(boolean preselected)

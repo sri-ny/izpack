@@ -31,7 +31,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * This class contains data and 'perform' logic for ant action listeners.
@@ -41,8 +40,6 @@ import java.util.logging.Logger;
  */
 public class AntAction extends ActionBase
 {
-    private static final Logger logger = Logger.getLogger(AntAction.class.getName());
-
     private static final long serialVersionUID = 3258131345250005557L;
 
     public static final String CONDITIONID_ATTR = "condition";

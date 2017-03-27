@@ -30,7 +30,6 @@ package com.izforge.izpack.api.handler;
 
 public interface AbstractUIHandler
 {
-
     /**
      * Notify the user about something.
      * <p/>
@@ -39,7 +38,7 @@ public interface AbstractUIHandler
      *
      * @param message The notification.
      */
-    public void emitNotification(String message);
+    void emitNotification(String message);
 
     /**
      * Warn the user about something.
@@ -48,7 +47,7 @@ public interface AbstractUIHandler
      * @param message The warning message.
      * @return true if the user decided to continue
      */
-    public boolean emitWarning(String title, String message);
+    boolean emitWarning(String title, String message);
 
     /**
      * Notify the user of some error.
@@ -56,30 +55,18 @@ public interface AbstractUIHandler
      * @param title   The message title (used for dialog name, might not be displayed)
      * @param message The error message.
      */
-    public void emitError(String title, String message);
-
-    /**
-     * Notify the user of some error and block the next button.
-     *
-     * @param title   The message title (used for dialog name, might not be displayed)
-     * @param message The error message.
-     * @deprecated Inject the InstallerFrame to disable the next button
-     */
-    @Deprecated
-    public void emitErrorAndBlockNext(String title, String message);
+    void emitError(String title, String message);
 
     // constants for asking questions
     // must all be >= 0!
-    public static final int ANSWER_CANCEL = 45;
+    int ANSWER_CANCEL = 45;
 
-    public static final int ANSWER_YES = 47;
+    int ANSWER_YES = 47;
 
-    public static final int ANSWER_NO = 49;
+    int ANSWER_NO = 49;
 
     // values for choices to present to the user
-    public static final int CHOICES_YES_NO = 37;
-
-    public static final int CHOICES_YES_NO_CANCEL = 38;
+    int CHOICES_YES_NO = 37;
 
     /**
      * Ask the user a question.
@@ -89,7 +76,7 @@ public interface AbstractUIHandler
      * @param choices  The set of choices to present. Either CHOICES_YES_NO or CHOICES_YES_NO_CANCEL
      * @return The user's choice. (ANSWER_CANCEL, ANSWER_YES or ANSWER_NO)
      */
-    public int askQuestion(String title, String question, int choices);
+    int askQuestion(String title, String question, int choices);
 
     /**
      * Ask the user a question.
@@ -100,7 +87,7 @@ public interface AbstractUIHandler
      * @param default_choice The default choice. One of ANSWER_CANCEL, ANSWER_YES or ANSWER_NO.
      * @return The user's choice. (ANSWER_CANCEL, ANSWER_YES or ANSWER_NO)
      */
-    public int askQuestion(String title, String question, int choices, int default_choice);
+    int askQuestion(String title, String question, int choices, int default_choice);
 
     /**
      * Ask the use a question in the form of a warning.
@@ -111,5 +98,5 @@ public interface AbstractUIHandler
      * @param default_choice The default choice. One of ANSWER_CANCEL, ANSWER_YES or ANSWER_NO.
      * @return The user's choice. (ANSWER_CANCEL, ANSWER_YES or ANSWER_NO)
      */
-    public int askWarningQuestion(String title, String question, int choices, int default_choice);
+    int askWarningQuestion(String title, String question, int choices, int default_choice);
 }

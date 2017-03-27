@@ -22,16 +22,15 @@
 package com.izforge.izpack.core.handler;
 
 import com.izforge.izpack.api.event.ProgressListener;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
 import com.izforge.izpack.api.handler.Prompt;
 
 
 /**
- * Implements {@link AbstractUIProgressHandler} using an {@link ProgressListener} and {@link Prompt}.
+ * Implements an {@link ProgressListener} and {@link Prompt}.
  *
  * @author Tim Anderson
  */
-public class ProgressHandler extends PromptUIHandler implements AbstractUIProgressHandler
+public class ProgressHandler extends PromptUIHandler implements ProgressListener
 {
 
     /**

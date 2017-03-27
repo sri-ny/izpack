@@ -59,7 +59,7 @@ public class AutomatedInstallData implements InstallData
     /**
      * The platform being installed to.
      */
-    private Platform platform;
+    private final Platform platform;
 
     /**
      * The complete list of packs.
@@ -333,11 +333,6 @@ public class AutomatedInstallData implements InstallData
     public String getLocaleISO2()
     {
         return getVariable(ScriptParserConstant.ISO2_LANG);
-    }
-
-    @Deprecated
-    public void setLocaleISO3(String localeISO3)
-    {
     }
 
     @Override
