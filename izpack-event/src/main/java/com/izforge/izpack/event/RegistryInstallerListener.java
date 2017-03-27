@@ -264,6 +264,8 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         // Register for cleanup
         housekeeper.registerForCleanup(this);
 
+        InstallData installData = getInstallData();
+        
         // Start logging
         IXMLElement uninstallerPack = null;
         // No interrupt desired after writing registry entries.
@@ -286,13 +288,13 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
 
             }
         }
-        String uninstallSuffix = getInstallData().getVariable("UninstallKeySuffix");
+        String uninstallSuffix = installData.getVariable("UninstallKeySuffix");
         if (uninstallSuffix != null)
         {
             registry.setUninstallName(registry.getUninstallName() + " " + uninstallSuffix);
         }
-        // Generate uninstaller key automatically if not defined in spec.
-        if (uninstallerPack == null)
+        // Generate uninstaller key automatically if not defined in spec only if the uninstaller path is set (this is not the case if write="false").
+        if (uninstallerPack == null && installData.getInfo() != null && installData.getInfo().getUninstallerPath() != null)
         {
             registerUninstallKey();
         }
