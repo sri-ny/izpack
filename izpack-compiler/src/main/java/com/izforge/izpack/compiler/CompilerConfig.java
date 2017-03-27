@@ -93,13 +93,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 import java.util.jar.Pack200;
 import java.util.logging.*;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -755,7 +752,7 @@ public class CompilerConfig extends Thread
 
         // the actual adding is delegated to addPacksSingle to enable recursive
         // parsing of refpack package definitions
-        addPacksSingle(data, Paths.get(compilerData.getBasedir()));
+        addPacksSingle(data, new File(compilerData.getBasedir()));
 
         compiler.checkDependencies();
         compiler.checkExcludes();
@@ -769,10 +766,10 @@ public class CompilerConfig extends Thread
      * Helper method to recursively add more packs from refpack XML packs definitions
      *
      * @param data The XML data
-     * @param basePath
+     * @param baseDir the base directory of the pack
      * @throws CompilerException an error occured during compiling
      */
-    private void addPacksSingle(IXMLElement data, Path basePath) throws CompilerException
+    private void addPacksSingle(IXMLElement data, File baseDir) throws CompilerException
     {
         notifyCompilerListener("addPacksSingle", CompilerListener.BEGIN, data);
         // Initialisation
@@ -786,8 +783,6 @@ public class CompilerConfig extends Thread
         {
             assertionHelper.parseError(root, "<packs> requires a <pack>, <refpack> or <refpackset>");
         }
-
-        File baseDir = basePath.toFile();
 
         for (IXMLElement packElement : packElements)
         {
@@ -915,8 +910,8 @@ public class CompilerConfig extends Thread
             // parsing ref-pack-set file
             IXMLElement refXMLData = this.readRefPackData(refFileName, isselfcontained);
 
-            final Path refFilePath = Paths.get(refFileName).getParent();
-            final Path packDir = basePath.resolve(refFilePath);
+            final String refFilePath = new File(refFileName).getParent();
+            final File packDir = new File(baseDir, refFilePath);
 
             logger.info("Reading refpack from " + refFileName + " in dir " + packDir);
             // Recursively call myself to add all packs and refpacks from the reference XML
@@ -932,7 +927,7 @@ public class CompilerConfig extends Thread
             File dir = new File(dir_attr);
             if (!dir.isAbsolute())
             {
-                dir = basePath.resolve(dir_attr).toFile();
+                dir = new File(baseDir, dir_attr);
             }
             if (!dir.isDirectory()) // also tests '.exists()'
             {
@@ -964,7 +959,7 @@ public class CompilerConfig extends Thread
                     IXMLElement refXMLData = this.readRefPackData(refFileName, false);
 
                     // Recursively call myself to add all packs and refpacks from the reference XML
-                    addPacksSingle(refXMLData, basePath);
+                    addPacksSingle(refXMLData, baseDir);
                 }
             }
             catch (Exception e)
