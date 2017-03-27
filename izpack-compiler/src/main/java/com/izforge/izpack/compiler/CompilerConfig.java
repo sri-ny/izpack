@@ -752,7 +752,7 @@ public class CompilerConfig extends Thread
 
         // the actual adding is delegated to addPacksSingle to enable recursive
         // parsing of refpack package definitions
-        addPacksSingle(data);
+        addPacksSingle(data, new File(compilerData.getBasedir()));
 
         compiler.checkDependencies();
         compiler.checkExcludes();
@@ -766,9 +766,10 @@ public class CompilerConfig extends Thread
      * Helper method to recursively add more packs from refpack XML packs definitions
      *
      * @param data The XML data
+     * @param baseDir the base directory of the pack
      * @throws CompilerException an error occured during compiling
      */
-    private void addPacksSingle(IXMLElement data) throws CompilerException
+    private void addPacksSingle(IXMLElement data, File baseDir) throws CompilerException
     {
         notifyCompilerListener("addPacksSingle", CompilerListener.BEGIN, data);
         // Initialisation
@@ -782,8 +783,6 @@ public class CompilerConfig extends Thread
         {
             assertionHelper.parseError(root, "<packs> requires a <pack>, <refpack> or <refpackset>");
         }
-
-        File baseDir = new File(compilerData.getBasedir());
 
         for (IXMLElement packElement : packElements)
         {
@@ -911,9 +910,12 @@ public class CompilerConfig extends Thread
             // parsing ref-pack-set file
             IXMLElement refXMLData = this.readRefPackData(refFileName, isselfcontained);
 
-            logger.info("Reading refpack from " + refFileName);
+            final String refFilePath = new File(refFileName).getParent();
+            final File packDir = new File(baseDir, refFilePath);
+
+            logger.info("Reading refpack from " + refFileName + " in dir " + packDir);
             // Recursively call myself to add all packs and refpacks from the reference XML
-            addPacksSingle(refXMLData);
+            addPacksSingle(refXMLData, packDir);
         }
 
         for (IXMLElement refPackSet : refPackSets)
@@ -925,7 +927,7 @@ public class CompilerConfig extends Thread
             File dir = new File(dir_attr);
             if (!dir.isAbsolute())
             {
-                dir = new File(compilerData.getBasedir(), dir_attr);
+                dir = new File(baseDir, dir_attr);
             }
             if (!dir.isDirectory()) // also tests '.exists()'
             {
@@ -957,7 +959,7 @@ public class CompilerConfig extends Thread
                     IXMLElement refXMLData = this.readRefPackData(refFileName, false);
 
                     // Recursively call myself to add all packs and refpacks from the reference XML
-                    addPacksSingle(refXMLData);
+                    addPacksSingle(refXMLData, baseDir);
                 }
             }
             catch (Exception e)
@@ -996,7 +998,7 @@ public class CompilerConfig extends Thread
     {
         try
         {
-            for (TargetFileSet fs : readFileSets(packElement))
+            for (TargetFileSet fs : readFileSets(packElement, baseDir))
             {
                 processFileSetChildren(fs, baseDir, pack);
             }
@@ -1079,7 +1081,7 @@ public class CompilerConfig extends Thread
             File file = new File(src);
             if (!file.isAbsolute())
             {
-                file = new File(compilerData.getBasedir(), src);
+                file = new File(baseDir, src);
             }
 
             // if the path does not exist, maybe it contains variables
@@ -1120,7 +1122,7 @@ public class CompilerConfig extends Thread
             try
             {
                 File relsrcfile = new File(src);
-                File abssrcfile = FileUtil.getAbsoluteFile(src, compilerData.getBasedir());
+                File abssrcfile = FileUtil.getAbsoluteFile(src, baseDir.getAbsolutePath());
                 // if the path does not exist, maybe it contains variables
                 if (!abssrcfile.exists())
                 {
@@ -3598,14 +3600,14 @@ public class CompilerConfig extends Thread
         }
     }
 
-    private List<TargetFileSet> readFileSets(IXMLElement parent) throws CompilerException
+    private List<TargetFileSet> readFileSets(IXMLElement parent, File baseDir) throws CompilerException
     {
         List<TargetFileSet> fslist = new ArrayList<TargetFileSet>();
         for (IXMLElement fileSetNode : parent.getChildrenNamed("fileset"))
         {
             try
             {
-                fslist.add(readFileSet(fileSetNode));
+                fslist.add(readFileSet(fileSetNode, baseDir));
             }
             catch (Exception e)
             {
@@ -3615,13 +3617,12 @@ public class CompilerConfig extends Thread
         return fslist;
     }
 
-    private TargetFileSet readFileSet(IXMLElement fileSetNode) throws CompilerException
+    private TargetFileSet readFileSet(IXMLElement fileSetNode, File baseDir) throws CompilerException
     {
         String dir_attr = xmlCompilerHelper.requireAttribute(fileSetNode, "dir");
-        File baseDir = null;
         if (dir_attr != null)
         {
-            baseDir = FileUtil.getAbsoluteFile(dir_attr, compilerData.getBasedir());
+            baseDir = FileUtil.getAbsoluteFile(dir_attr, baseDir.getAbsolutePath());
             // if the path does not exist, maybe it contains variables
             if (!baseDir.exists()) {
                 baseDir = new File(variableSubstitutor.substitute(baseDir.getAbsolutePath()));
