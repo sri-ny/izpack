@@ -88,30 +88,22 @@ public class Packager extends PackagerBase
 
     private JarOutputStream getJarOutputStream(File jarFile) throws IOException
     {
-        JarOutputStream jarOutputStream = null;
-        FileOutputStream fileOutputStream = null;
         FileUtils.deleteQuietly(jarFile);
         if (compilerData.isMkdirs())
         {
             FileUtils.forceMkdirParent(jarFile);
         }
-        try
+
+        FileOutputStream fileOutputStream = new FileOutputStream(jarFile);
+        JarOutputStream jarOutputStream = new JarOutputStream(fileOutputStream);
+
+        int level = compilerData.getComprLevel();
+        if (level >= 0 && level < 10)
         {
-            fileOutputStream = new FileOutputStream(jarFile);
-            jarOutputStream = new JarOutputStream(fileOutputStream);
-            int level = compilerData.getComprLevel();
-            if (level >= 0 && level < 10)
-            {
-                jarOutputStream.setLevel(level);
-            } else
-            {
-                jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
-            }
-        }
-        finally
+            jarOutputStream.setLevel(level);
+        } else
         {
-            IOUtils.closeQuietly(jarOutputStream);
-            IOUtils.closeQuietly(fileOutputStream);
+            jarOutputStream.setLevel(Deflater.BEST_COMPRESSION);
         }
 
         return jarOutputStream;
