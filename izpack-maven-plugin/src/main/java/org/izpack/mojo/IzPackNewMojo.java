@@ -26,6 +26,7 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
@@ -210,7 +211,9 @@ public class IzPackNewMojo extends AbstractMojo
         {
             if (enableOverrideArtifact)
             {
-                project.getArtifact().setFile(jarFile);
+                Artifact artifact = project.getArtifact();
+                artifact.setArtifactId(finalName);
+                artifact.setFile(jarFile);
             }
         }
     }
