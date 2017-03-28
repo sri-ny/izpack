@@ -1,6 +1,8 @@
 package com.izforge.izpack.installer.container.provider;
 
 import com.izforge.izpack.api.data.GUIPrefs;
+import com.izforge.izpack.api.data.GUIPrefs.LookAndFeel;
+import com.izforge.izpack.api.data.LookAndFeels;
 import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.core.data.DefaultVariables;
@@ -12,11 +14,14 @@ import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.OsVersion;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
-import java.awt.*;
+import java.awt.Color;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -116,10 +121,11 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         {
             syskey = "mac";
         }
-        String lookAndFeelName = null;
+
+        LookAndFeel lookAndFeel = null;
         if (installData.guiPrefs.lookAndFeelMapping.containsKey(syskey))
         {
-            lookAndFeelName = installData.guiPrefs.lookAndFeelMapping.get(syskey);
+            lookAndFeel = installData.guiPrefs.lookAndFeelMapping.get(syskey);
         }
 
         // Let's use the system LAF
@@ -155,7 +161,7 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
             }
         }
 
-        if (lookAndFeelName == null)
+        if (lookAndFeel == null)
         {
             if (!"mac".equals(syskey))
             {
@@ -170,7 +176,7 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         }
 
         // Kunststoff (http://www.incors.org/)
-        if ("kunststoff".equals(lookAndFeelName))
+        if (lookAndFeel.is(LookAndFeels.KUNSTSTOFF))
         {
             ButtonFactory.useHighlightButtons();
             // Reset the use button icons state because useHighlightButtons
@@ -178,7 +184,7 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
             ButtonFactory.useButtonIcons(useButtonIcons);
             installData.buttonsHColor = new Color(255, 255, 255);
             @SuppressWarnings("unchecked")
-			Class<LookAndFeel> lafClass = (Class<LookAndFeel>) Class.forName(
+			Class<javax.swing.LookAndFeel> lafClass = (Class<javax.swing.LookAndFeel>) Class.forName(
                     "com.incors.plaf.kunststoff.KunststoffLookAndFeel");
             @SuppressWarnings("unchecked")
 			Class<MetalTheme> mtheme = (Class<MetalTheme>) Class.forName("javax.swing.plaf.metal.MetalTheme");
@@ -188,7 +194,7 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
             Method setCurrentThemeMethod = lafClass.getMethod("setCurrentTheme", params);
 
             // We invoke and place Kunststoff as our L&F
-            LookAndFeel kunststoff = lafClass.newInstance();
+            javax.swing.LookAndFeel kunststoff = lafClass.newInstance();
             MetalTheme ktheme = theme.newInstance();
             Object[] kparams = {ktheme};
             UIManager.setLookAndFeel(kunststoff);
@@ -197,14 +203,14 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         }
 
         // Metouia (http://mlf.sourceforge.net/)
-        if ("metouia".equals(lookAndFeelName))
+        if (lookAndFeel.is(LookAndFeels.METOUIA))
         {
             UIManager.setLookAndFeel("net.sourceforge.mlf.metouia.MetouiaLookAndFeel");
             return;
         }
 
         // Nimbus
-        if ("nimbus".equals(lookAndFeelName))
+        if (lookAndFeel.is(LookAndFeels.NIMBUS))
         {
             // Nimbus was included in JDK 6u10 but the packaging changed in JDK 7. Iterate to locate it
             // See http://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/nimbus.html for more details
@@ -220,18 +226,13 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         }
 
         // JGoodies Looks (http://looks.dev.java.net/)
-        if ("looks".equals(lookAndFeelName))
+        if (lookAndFeel.is(LookAndFeels.LOOKS))
         {
             String variant = looksVariants.get("plasticXP");
-
-            Map<String, String> params = installData.guiPrefs.lookAndFeelParams.get(lookAndFeelName);
-            if (params.containsKey("variant"))
+            String variantName = lookAndFeel.getVariantName();
+            if (looksVariants.containsKey(variantName))
             {
-                String param = params.get("variant");
-                if (looksVariants.containsKey(param))
-                {
-                    variant = looksVariants.get(param);
-                }
+                variant = looksVariants.get(variantName);
             }
 
             UIManager.setLookAndFeel(variant);
@@ -239,26 +240,19 @@ public class GUIInstallDataProvider extends AbstractInstallDataProvider
         }
 
         // Substance (http://substance.dev.java.net/)
-        if ("substance".equals(lookAndFeelName))
+        if (lookAndFeel.is(LookAndFeels.SUBSTANCE))
         {
             final String variant;
-            Map<String, String> params = installData.guiPrefs.lookAndFeelParams.get(lookAndFeelName);
-            if (params.containsKey("variant"))
+            final String variantName = lookAndFeel.getVariantName();
+            if (substanceVariants.containsKey(variantName))
             {
-                String param = params.get("variant");
-                if (substanceVariants.containsKey(param))
-                {
-                    variant = substanceVariants.get(param);
-                }
-                else
-                {
-                    variant = substanceVariants.get("default");
-                }
+                variant = substanceVariants.get(variantName);
             }
             else
             {
                 variant = substanceVariants.get("default");
             }
+
             logger.info("Using laf " + variant);
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
