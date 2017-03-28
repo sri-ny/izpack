@@ -22,6 +22,7 @@ import com.izforge.izpack.api.adaptator.IXMLWriter;
 import com.izforge.izpack.api.adaptator.impl.XMLParser;
 import com.izforge.izpack.api.adaptator.impl.XMLWriter;
 import com.izforge.izpack.api.data.*;
+import com.izforge.izpack.api.data.GUIPrefs.LookAndFeel;
 import com.izforge.izpack.api.data.Info.TempDir;
 import com.izforge.izpack.api.data.binding.Help;
 import com.izforge.izpack.api.data.binding.OsModel;
@@ -487,20 +488,20 @@ public class CompilerConfig extends Thread
                 String lafName = xmlCompilerHelper.requireAttribute(lafNode, "name");
                 xmlCompilerHelper.requireChildNamed(lafNode, "os");
 
-                for (IXMLElement osNode : lafNode.getChildrenNamed("os"))
-                {
-                    String osName = xmlCompilerHelper.requireAttribute(osNode, "family");
-                    prefs.lookAndFeelMapping.put(osName, lafName);
-                }
+                LookAndFeel lookAndFeel = new LookAndFeel(lafName);
 
-                Map<String, String> params = new TreeMap<String, String>();
                 for (IXMLElement parameterNode : lafNode.getChildrenNamed("param"))
                 {
                     String name = xmlCompilerHelper.requireAttribute(parameterNode, "name");
                     String value = xmlCompilerHelper.requireAttribute(parameterNode, "value");
-                    params.put(name, value);
+                    lookAndFeel.setParameter(name, value);
                 }
-                prefs.lookAndFeelParams.put(lafName, params);
+
+                for (IXMLElement osNode : lafNode.getChildrenNamed("os"))
+                {
+                    String osName = xmlCompilerHelper.requireAttribute(osNode, "family");
+                    prefs.lookAndFeelMapping.put(osName, lookAndFeel);
+                }
             }
             // Load modifier
             for (IXMLElement ixmlElement : guiPrefsElement.getChildrenNamed("modifier"))
@@ -510,9 +511,9 @@ public class CompilerConfig extends Thread
                 prefs.modifier.put(key, value);
 
             }
-            for (String s : prefs.lookAndFeelMapping.keySet())
+            for (LookAndFeel lookAndFeel : prefs.lookAndFeelMapping.values())
             {
-                String lafName = prefs.lookAndFeelMapping.get(s);
+                String lafName = lookAndFeel.getName();
                 LookAndFeels feels = LookAndFeels.lookup(lafName);
                 if (feels != null)
                 {
