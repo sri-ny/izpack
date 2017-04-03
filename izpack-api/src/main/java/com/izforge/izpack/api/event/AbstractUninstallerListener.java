@@ -53,10 +53,11 @@ public abstract class AbstractUninstallerListener implements UninstallerListener
      * Invoked before files are deleted.
      *
      * @param files all files which should be deleted
+     * @param listener the progress listener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforeDelete(List<File> files)
+    public void beforeDelete(List<File> files, ProgressListener listener)
     {
     }
 

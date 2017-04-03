@@ -44,7 +44,7 @@ public class TestUninstallerListener implements UninstallerListener
         public int initialiseCount;
 
         /**
-         * Tracks the no. of invocations of {@link UninstallerListener#beforeDelete(List)}.
+         * Tracks the no. of invocations of {@link UninstallerListener#beforeDelete(List, ProgressListener)}.
          */
         public int beforeListDeleteCount;
 
@@ -139,7 +139,7 @@ public class TestUninstallerListener implements UninstallerListener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforeDelete(List<File> files)
+    public void beforeDelete(List<File> files, ProgressListener listener)
     {
         ++state.beforeListDeleteCount;
         log("beforeDelete: files=" + files.size());

@@ -107,7 +107,7 @@ public class UninstallerListeners
         {
             try
             {
-                l.beforeDelete(files);
+                l.beforeDelete(files, listener);
             }
             catch (IzPackException exception)
             {
