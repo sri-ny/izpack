@@ -40,6 +40,14 @@ public interface UninstallerListener extends InstallationListener
      * Invoked before files are deleted.
      *
      * @param files all files which should be deleted
+     * @throws IzPackException for any error
+     */
+    void beforeDelete(List<File> files);
+
+    /**
+     * Invoked before files are deleted.
+     *
+     * @param files all files which should be deleted
      * @param listener the progress listener
      * @throws IzPackException for any error
      */

@@ -1,5 +1,6 @@
 package com.izforge.izpack.test.listener;
 
+import com.izforge.izpack.api.event.AbstractUninstallerListener;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.event.UninstallerListener;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -18,7 +19,7 @@ import java.util.List;
  *
  * @author Tim Anderson
  */
-public class TestUninstallerListener implements UninstallerListener
+public class TestUninstallerListener extends AbstractUninstallerListener
 {
 
     /**
@@ -139,7 +140,7 @@ public class TestUninstallerListener implements UninstallerListener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforeDelete(List<File> files, ProgressListener listener)
+    public void beforeDelete(List<File> files)
     {
         ++state.beforeListDeleteCount;
         log("beforeDelete: files=" + files.size());
