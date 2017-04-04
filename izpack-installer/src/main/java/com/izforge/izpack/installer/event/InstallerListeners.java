@@ -151,15 +151,16 @@ public class InstallerListeners
      * Invoked before packs are installed.
      *
      * @param packs    the packs to install
+     * @param listener the progress listener
      * @throws InstallerException if a listener throws an exception
      */
-    public void beforePacks(List<Pack> packs) throws InstallerException
+    public void beforePacks(List<Pack> packs, ProgressListener listener) throws InstallerException
     {
         for (InstallerListener l : listeners)
         {
             try
             {
-                l.beforePacks(packs);
+                l.beforePacks(packs, listener);
             }
                 catch (IzPackException ize)
             {
