@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.resource.Resources;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -77,6 +79,9 @@ public class TestLanguageContainer extends AbstractContainer
                 return getClass().getResourceAsStream("/com/izforge/izpack/bin/langpacks/installer/fra.xml");
             }
         });
+
+        when(resourceManager.getInputStream(Resources.CUSTOM_ICONS_RESOURCE_NAME))
+                .thenThrow(new IzPackException("Not available"));
 
         DefaultLocales locales = new DefaultLocales(resourceManager);
         container.addComponent(Variables.class, DefaultVariables.class)
