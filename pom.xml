@@ -67,6 +67,7 @@
     <module>izpack-ant</module>
     <module>izpack-test-common</module>
     <module>izpack-test-listener</module>
+    <module>reports</module>
   </modules>
 
   <dependencyManagement>
@@ -299,6 +300,12 @@
         <artifactId>izpack-maven-plugin</artifactId>
         <groupId>${project.groupId}</groupId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>reports</artifactId>
+        <groupId>${project.groupId}</groupId>
+        <version>${project.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <!-- Inner dependencies to test jar -->
@@ -593,6 +600,11 @@
         </plugin>
         <!-- Testing -->
         <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.7.9</version>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.19.1</version>
@@ -680,6 +692,51 @@
   </build>
 
   <profiles>
+
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <!-- Disabled by default, enable with mvn test -Pcoverage -->
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>prepare-integration</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report-integration</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-integration</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 
     <profile>
       <id>buildhive</id>
