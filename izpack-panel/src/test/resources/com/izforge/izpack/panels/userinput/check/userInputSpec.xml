@@ -18,7 +18,7 @@
   ~ limitations under the License.
   -->
 
-<izpack:userInput version="5.0"
+<izpack:userinput version="5.0"
                   xmlns:izpack="http://izpack.org/schema/userinput"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://izpack.org/schema/userinput http://izpack.org/schema/5.0/izpack-userinput-5.0.xsd">
@@ -38,10 +38,10 @@
         <field type="staticText" txt="Check boxes initialised via set and true and false attributes"/>
 
         <field type="check" variable="check3">
-            <spec txt="Check 3: " set="check3set" true="check3set" false="check3unset"/>
+            <spec txt="Check 3: " set="true" true="check3set" false="check3unset"/>
         </field>
         <field type="check" variable="check4">
-            <spec txt="Check 4: " set="check4unset" true="check4set" false="check4unset"/>
+            <spec txt="Check 4: " set="false" true="check4set" false="check4unset"/>
         </field>
 
         <field type="divider"/>
@@ -63,4 +63,4 @@
             <spec txt="Check 6 text:" size="20"/>
         </field>
     </panel>
-</izpack:userInput>
+</izpack:userinput>
