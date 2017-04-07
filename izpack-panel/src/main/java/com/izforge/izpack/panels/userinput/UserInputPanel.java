@@ -394,11 +394,11 @@ public class UserInputPanel extends IzPanel
                 {
                     component.setEnabled(enabled);
                     panel.add(component.getComponent(), component.getConstraints());
-                    String var = view.getVariable();
-                    if (var != null)
-                    {
-                        affectedVariables.add(var);
-                    }
+                }
+                String var = view.getVariable();
+                if (var != null)
+                {
+                    affectedVariables.add(var);
                 }
             }
         }
@@ -470,6 +470,41 @@ public class UserInputPanel extends IzPanel
             buildUI();
             revalidate();
             repaint();
+            if (getMetadata().isVisited())
+            {
+                Set<String> blockedNames = getMetadata().getAffectedVariableNames();
+                Set<String> originalBlockedNames = installData.getVariables().getBlockedVariableNames(getMetadata());
+                Set<String> addedBlockedNames = new HashSet<String>();
+                Set<String> removedBlockedNames = new HashSet<String>();
+                if (blockedNames != null)
+                {
+                    for (String blockedName : blockedNames)
+                    {
+                        if (!installData.getVariables().isBlockedVariableName(blockedName))
+                        {
+                            addedBlockedNames.add(blockedName);
+                        }
+                    }
+                }
+                if (originalBlockedNames != null)
+                {
+                    for (String blockedName : originalBlockedNames)
+                    {
+                        if (!blockedNames.contains(blockedName))
+                        {
+                            removedBlockedNames.add(blockedName);
+                        }
+                    }
+                }
+                if (!addedBlockedNames.isEmpty())
+                {
+                    installData.getVariables().registerBlockedVariableNames(addedBlockedNames, getMetadata());
+                }
+                if (!removedBlockedNames.isEmpty())
+                {
+                    installData.getVariables().unregisterBlockedVariableNames(removedBlockedNames, getMetadata());
+                }
+            }
             this.eventsActivated = true;
         }
     }
