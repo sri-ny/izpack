@@ -388,7 +388,7 @@
     <!-- Used by "combo", "radio" and "search" fields                                                           -->
     <!--                                                                                                        -->
     <xs:complexType name="choiceSpecType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="os" type="types:osType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
@@ -396,7 +396,8 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+            <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
         <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
         <xs:attribute name="conditionid" type="xs:string" use="optional"/>
         <xs:attribute name="processor" type="xs:string" use="optional"/>
@@ -450,10 +451,27 @@
     </xs:complexType>
 
     <xs:complexType name="processorFieldColSpecType">
+        <xs:sequence>
+            <xs:element name="configuration" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- <xs:element name="param" type="nameValueType" minOccurs="0" maxOccurs="unbounded"/> -->
+                        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
         <xs:attribute name="class" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     The class implementing the field processor.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="backupVariable" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Optional variable name holding the original value before processing.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

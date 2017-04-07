@@ -18,10 +18,9 @@ package com.izforge.izpack.api.data;
 
 import com.izforge.izpack.api.rules.RulesEngine;
 
-import java.io.Serializable;
 import java.util.Set;
 
-public interface Configurable extends Serializable
+public interface Configurable
 {
     /**
      * Add an optional configuration option to the implementing instance

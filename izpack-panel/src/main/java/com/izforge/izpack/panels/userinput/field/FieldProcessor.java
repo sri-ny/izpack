@@ -21,13 +21,20 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
+import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.ConfigurationOption;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
+import com.izforge.izpack.panels.userinput.processor.Processor;
+import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.panels.userinput.processor.Processor;
-import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 
 
 /**
@@ -35,7 +42,7 @@ import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClien
  *
  * @author Tim Anderson
  */
-public class FieldProcessor
+public class FieldProcessor extends DefaultConfigurationHandler
 {
 
     /**
@@ -44,9 +51,20 @@ public class FieldProcessor
     private final Config config;
 
     /**
+
      * The processor class name.
      */
     private final String className;
+
+    /**
+     * The name of the variable holding the original value before processing (optional)
+     */
+    private final String originalValueVariable;
+
+    /**
+     * The original value before processing (optional)
+     */
+    private String originalValue;
 
     /**
      * The cached processor instance.
@@ -68,6 +86,8 @@ public class FieldProcessor
     public FieldProcessor(IXMLElement processor, Config config)
     {
         className = config.getAttribute(processor, "class");
+        originalValueVariable = config.getAttribute(processor, "backupVariable");
+        addConfigurationOptions(processor);
         this.config = config;
     }
 
@@ -78,7 +98,7 @@ public class FieldProcessor
      * @return the result of the processing
      * @throws IzPackException if processing fails
      */
-    public String process(String[] values)
+    public String process(String... values)
     {
         String result;
         try
@@ -87,7 +107,20 @@ public class FieldProcessor
             {
                 processor = config.getFactory().create(className, Processor.class);
             }
-            result = processor.process(new ValuesProcessingClient(values));
+
+            Set<String> configParams = getNames();
+            Map<String, String> configMap = null;
+            if (configParams != null)
+            {
+                configMap = new HashMap<String, String>();
+                for (String param : configParams)
+                {
+                    configMap.put(param, getConfigurationOptionValue(param, null));
+                }
+            }
+            ProcessingClient client = new ValuesProcessingClient(values, configMap);
+            originalValue = client.getText();
+            result = processor.process(client);
         }
         catch (Throwable exception)
         {
@@ -103,4 +136,43 @@ public class FieldProcessor
         return result;
     }
 
+    public String getBackupVariable()
+    {
+        return originalValueVariable;
+    }
+
+    public String getOriginalValue()
+    {
+        return originalValue;
+    }
+
+    private void addConfigurationOptions(IXMLElement processor)
+    {
+        IXMLElement configurationElement = processor.getFirstChildNamed("configuration");
+        if (configurationElement != null)
+        {
+            logger.fine("Found configuration section for '" + processor.getName() + "' element");
+            List<IXMLElement> params = configurationElement.getChildren();
+            for (IXMLElement param : params)
+            {
+                String elementName = param.getName();
+                String name;
+                final String value;
+                if (elementName.equals("param"))
+                {
+                    // Format: <param name="option_1" value="value_1" />
+                    name = param.getAttribute("name");
+                    value = param.getAttribute("value");
+                } else
+                {
+                    // Format: <option_1>value_1</option_1>
+                    name = param.getName();
+                    value = param.getContent();
+                }
+                final ConfigurationOption option = new ConfigurationOption(value);
+                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                addConfigurationOption(name, option);
+            }
+        }
+    }
 }

@@ -26,8 +26,6 @@ import java.util.Set;
 
 public abstract class DefaultConfigurationHandler implements Configurable
 {
-    private static final long serialVersionUID = -671908088764713053L;
-
     /**
      * Contains configuration values for a panel.
      */
@@ -57,7 +55,7 @@ public abstract class DefaultConfigurationHandler implements Configurable
     @Override
     public String getConfigurationOptionValue(String name, RulesEngine rules, String defaultValue)
     {
-        String result = null;
+        String result;
         ConfigurationOption option = getConfigurationOption(name);
         if (option != null)
         {

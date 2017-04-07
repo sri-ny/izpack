@@ -57,6 +57,17 @@ public class ValuesProcessingClient implements ProcessingClient
     /**
      * Constructs a {@code ValuesProcessingClient}.
      *
+     * @param values     the values to process
+     * @param parameters the parameters to pass to the processor
+     */
+    public ValuesProcessingClient(String[] values, Map<String, String> parameters)
+    {
+        this(null, values, parameters);
+    }
+
+    /**
+     * Constructs a {@code ValuesProcessingClient}.
+     *
      * @param values the values to process
      */
     public ValuesProcessingClient(MessageFormat format, String[] values)
@@ -131,7 +142,7 @@ public class ValuesProcessingClient implements ProcessingClient
     {
         if (format != null)
         {
-            return format.format((Object[])values);
+            return format.format(values);
         }
         else
         {
