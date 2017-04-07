@@ -20,6 +20,7 @@
 package com.izforge.izpack.api.data;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -51,15 +52,42 @@ public class GUIPrefs implements Serializable
     /**
      * Specifies the OS Look and Feels mappings.
      */
-    public Map<String, String> lookAndFeelMapping = new TreeMap<String, String>();
-
-    /**
-     * Specifies the OS Look and Feels optionnal parameters.
-     */
-    public Map<String, Map<String, String>> lookAndFeelParams = new TreeMap<String, Map<String, String>>();
+    public Map<String, LookAndFeel> lookAndFeelMapping = new TreeMap<String, LookAndFeel>();
 
     /**
      * Specifies the modifier.
      */
     public Map<String, String> modifier = new TreeMap<String, String>();
+
+    public static class LookAndFeel implements Serializable
+    {
+        private final String name;
+        private final HashMap<String, String> parameters;
+
+        public LookAndFeel(final String name)
+        {
+            this.name = name;
+            this.parameters = new HashMap<String, String>();
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public String getVariantName()
+        {
+            return parameters.get("variant");
+        }
+
+        public void setParameter(final String name, final String value)
+        {
+            parameters.put(name, value);
+        }
+
+        public boolean is(final LookAndFeels laf)
+        {
+            return laf.name().equals(name);
+        }
+    }
 }
