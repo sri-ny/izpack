@@ -254,16 +254,43 @@ public class GUIPrompt extends AbstractPrompt
     }
 
     /**
-     * Display details about throwable in a simple modal dialog.
-     * @param throwable
+     * Display details about throwable in a custom modal dialog, ensuring that it
+     * is displayed from the event dispatch thread.
+     *
+     * @param type the message type
      * @param title the title of the dialog box.
+     * @param message the message which is to be displayed.
      * @param submissionURL if not null, allow the user to report the exception to that URL
-     * @param component the "owner" of the dialog, and may be null for non-graphical applications.
+     * @param throwable a throwable
      */
     public void showMessageDialog(final int type, final String title, final String message,
-            final String submissionURL,
-            final Throwable throwable)
+                                  final String submissionURL, final Throwable throwable)
     {
+        if (SwingUtilities.isEventDispatchThread())
+        {
+            showMessageDialog0(type, title, message, submissionURL, throwable);
+        }
+        else
+        {
+            try
+            {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        showMessageDialog0(type, title, message, submissionURL, throwable);
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    private void showMessageDialog0(final int type, final String title, final String message,
+                                  final String submissionURL, final Throwable throwable) {
+
         final List<Object> buttons = new ArrayList<Object>();
         String throwMessage = null;
         final JButton detailsButton = new JButton(UIManager.getString(SHOW_DETAILS_BUTTON));;
@@ -282,6 +309,7 @@ public class GUIPrompt extends AbstractPrompt
         final int basicMessageWidth = (int)font.getStringBounds(basicMessage, frc).getWidth();
         final JPanel topPanel = new JPanel();
         final JLabel messageLabel = new JLabel();
+        messageLabel.setName("OptionPane.label"); // required for gui tests
         messageLabel.setText(basicMessage);
         if (basicMessageWidth > 700)
         {
@@ -297,10 +325,12 @@ public class GUIPrompt extends AbstractPrompt
 
         final JPanel centerPanel = new JPanel();
         centerPanel.setSize(new Dimension(420, 300));
+
         final JEditorPane exceptionPane = new JEditorPane();
         exceptionPane.setEditable(false);
         exceptionPane.setContentType("text/html");
         exceptionPane.setText(getHTMLDetails(throwable));
+
         final JScrollPane exceptionScrollPane = new JScrollPane(exceptionPane);
         exceptionScrollPane.setPreferredSize(new Dimension(470, 300));
         centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
