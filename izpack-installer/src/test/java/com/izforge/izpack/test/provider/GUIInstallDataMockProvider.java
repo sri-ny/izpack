@@ -45,6 +45,7 @@ public class GUIInstallDataMockProvider extends AbstractInstallDataMockProvider
     {
         GUIInstallData result = createInstallData(variables);
         populate(result, locales);
+        result.configureGuiButtons();
         return result;
     }
 

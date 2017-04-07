@@ -133,7 +133,7 @@ public class BSFUninstallerListenerTest
         // hack to pass additional parameters to script. TODO
 
         assertFileNotExists(installDir, "beforedeletion" + suffix);
-        listener.beforeDelete(files);
+        listener.beforeDelete(files, Mockito.mock(ProgressListener.class));
         assertFileExists(installDir, "beforedeletion" + suffix);
 
         assertFileNotExists(installDir, "beforedelete" + suffix);

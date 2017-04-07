@@ -374,9 +374,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         // move to the next panel and verify the variables have updated
         checkNavigateNext(frame);
 
-        assertNull(installData.getVariable("check1"));
-        assertNull(installData.getVariable("check2"));
-
+        assertEquals("true", installData.getVariable("check1"));
+        assertEquals("false", installData.getVariable("check2"));
         assertEquals("check3set", installData.getVariable("check3"));
         assertEquals("check4unset", installData.getVariable("check4"));
         assertEquals("check5set", installData.getVariable("check5"));

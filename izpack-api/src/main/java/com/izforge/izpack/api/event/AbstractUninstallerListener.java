@@ -61,6 +61,23 @@ public abstract class AbstractUninstallerListener implements UninstallerListener
     }
 
     /**
+     * Invoked before files are deleted.
+     * <p>
+     *     The default implementation calls {@link #beforeDelete(List)} for
+     *     backwards compatibility.
+     * </p>
+     *
+     * @param files all files which should be deleted
+     * @param listener the progress listener
+     * @throws IzPackException for any error
+     */
+    @Override
+    public void beforeDelete(List<File> files, ProgressListener listener)
+    {
+        beforeDelete(files);
+    }
+
+    /**
      * Invoked before a file is deleted.
      *
      * @param file the file which will be deleted
