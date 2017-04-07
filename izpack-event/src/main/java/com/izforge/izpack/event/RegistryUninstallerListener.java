@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.util.List;
 
 import com.izforge.izpack.api.event.AbstractUninstallerListener;
+import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.exception.NativeLibException;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
@@ -111,10 +112,11 @@ public class RegistryUninstallerListener extends AbstractUninstallerListener
      * Invoked before files are deleted.
      *
      * @param files all files which should be deleted
+     * @param listener the progress listener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforeDelete(List<File> files)
+    public void beforeDelete(List<File> files, ProgressListener listener)
     {
         if (actions == null || actions.isEmpty())
         {

@@ -57,6 +57,23 @@ public abstract class AbstractInstallerListener implements InstallerListener
     }
 
     /**
+     * Invoked before packs are installed.
+     * <p>
+     *     The default implementation calls {@link #beforePacks(List)} for
+     *     backwards compatibility.
+     * </p>
+     *
+     * @param packs the packs to be installed
+     * @param listener the progress listener
+     * @throws IzPackException for any error
+     */
+    @Override
+    public void beforePacks(List<Pack> packs, ProgressListener listener)
+    {
+        beforePacks(packs);
+    }
+
+    /**
      * Invoked before a pack is installed.
      *
      * @param pack  the pack

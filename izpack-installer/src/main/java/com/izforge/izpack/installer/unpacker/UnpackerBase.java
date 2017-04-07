@@ -448,7 +448,7 @@ public abstract class UnpackerBase implements IUnpacker
     {
         logger.fine("Unpacker starting");
         listener.startAction("Unpacking", packs.size());
-        listeners.beforePacks(packs);
+        listeners.beforePacks(packs, listener);
     }
 
     /**

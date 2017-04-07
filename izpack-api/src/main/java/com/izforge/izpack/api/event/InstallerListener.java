@@ -49,6 +49,15 @@ public interface InstallerListener extends InstallationListener
     void beforePacks(List<Pack> packs);
 
     /**
+     * Invoked before packs are installed.
+     *
+     * @param packs the packs to be installed
+     * @param listener the progress listener
+     * @throws IzPackException for any error
+     */
+    void beforePacks(List<Pack> packs, ProgressListener listener);
+
+    /**
      * Invoked before a pack is installed.
      *
      * @param pack  the pack
