@@ -135,7 +135,7 @@
                         <xs:element name="pwd" type="passwordSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="choice" type="choiceSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="col" type="columnFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
-                        <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="1"/>
                         <xs:element name="run" type="buttonFieldSpecRunType" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:choice>
                     <xs:attribute name="id" type="xs:string" use="optional">
