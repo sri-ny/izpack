@@ -123,7 +123,7 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture rule4 = frame.textBox("rule1.4");
         assertEquals("1", rule4.text());
 
-        assertNull(installData.getVariable("rule1"));
+        assertEquals("192.168.0.1", installData.getVariable("rule1"));
 
         rule1.setText("127");
         rule2.setText("0");
