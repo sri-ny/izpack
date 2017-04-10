@@ -16,16 +16,24 @@
 
 package com.izforge.izpack.api.handler;
 
-import com.izforge.izpack.api.data.ConfigurationOption;
+import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Configurable;
+import com.izforge.izpack.api.data.ConfigurationOption;
 import com.izforge.izpack.api.rules.RulesEngine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public abstract class DefaultConfigurationHandler implements Configurable
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(DefaultConfigurationHandler.class.getName());
+
     /**
      * Contains configuration values for a panel.
      */
@@ -69,6 +77,12 @@ public abstract class DefaultConfigurationHandler implements Configurable
     }
 
     @Override
+    public String getConfigurationOptionValue(String name)
+    {
+        return getConfigurationOptionValue(name, null);
+    }
+
+    @Override
     public String getConfigurationOptionValue(String name, RulesEngine rules)
     {
         return getConfigurationOptionValue(name, rules, null);
@@ -78,5 +92,52 @@ public abstract class DefaultConfigurationHandler implements Configurable
     public Set<String> getNames()
     {
         return configuration != null ? configuration.keySet() : null;
+    }
+
+    /**
+     * Returns the validation parameters.
+     */
+    public void readParameters(IXMLElement element)
+    {
+        IXMLElement configurationElement = element.getFirstChildNamed("configuration");
+        if (configurationElement != null)
+        {
+            logger.fine("Found configuration section for '" + element.getName() + "' element");
+            List<IXMLElement> params = configurationElement.getChildren();
+            for (IXMLElement param : params)
+            {
+                String elementName = param.getName();
+                String name;
+                final String value;
+                if (elementName.equals("param"))
+                {
+                    // Format: <param name="option_1" value="value_1" />
+                    name = param.getAttribute("name");
+                    value = param.getAttribute("value");
+                } else
+                {
+                    // Format: <option_1>value_1</option_1>
+                    name = param.getName();
+                    value = param.getContent();
+                }
+                final ConfigurationOption option = new ConfigurationOption(value);
+                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                addConfigurationOption(name, option);
+            }
+            // Deprecated: compatibility
+            List<IXMLElement> otherParams = element.getChildrenNamed("param");
+            if (!params.isEmpty())
+            {
+                logger.fine("Found deprecated nested <param> definition(s) for '" + element.getName() + "' element, please migrate them to the new <configuration> format");
+                for (IXMLElement parameter : otherParams)
+                {
+                    String name = parameter.getAttribute("name");
+                    String value = parameter.getAttribute("value");
+                    final ConfigurationOption option = new ConfigurationOption(value);
+                    logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                    addConfigurationOption(name, option);
+                }
+            }
+        }
     }
 }

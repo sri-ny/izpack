@@ -19,11 +19,10 @@
 
 package com.izforge.izpack.panels.userinput.validator;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.izforge.izpack.panels.userinput.gui.password.PasswordGroup;
 import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+
+import java.util.regex.Pattern;
 
 /**
  * A validator to enforce non-empty fields.
@@ -36,7 +35,7 @@ import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
 public class RegularExpressionValidator implements Validator
 {
 
-    public static final String STR_PATTERN_DEFAULT = "[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9._-]+([.][a-zA-Z0-9_-]+)*[.][a-zA-Z0-9._-]{2,4}";
+    private static final String STR_PATTERN_DEFAULT = "[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9._-]+([.][a-zA-Z0-9_-]+)*[.][a-zA-Z0-9._-]{2,4}";
 
     public static final String PATTERN_PARAM = "pattern";
 
@@ -45,12 +44,8 @@ public class RegularExpressionValidator implements Validator
 
         String patternString;
 
-        if (client.hasParams())
-        {
-            Map<String, String> paramMap = client.getValidatorParams();
-            patternString = paramMap.get(PATTERN_PARAM);
-        }
-        else
+        patternString = client.getConfigurationOptionValue(PATTERN_PARAM, null);
+        if (patternString == null)
         {
             patternString = STR_PATTERN_DEFAULT;
         }
@@ -60,7 +55,7 @@ public class RegularExpressionValidator implements Validator
 
     private String getString(ProcessingClient client)
     {
-        String returnValue = "";
+        String returnValue;
         if (client instanceof PasswordGroup)
         {
             int numFields = client.getNumFields();

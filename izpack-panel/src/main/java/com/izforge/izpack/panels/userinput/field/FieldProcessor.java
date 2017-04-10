@@ -23,15 +23,11 @@ package com.izforge.izpack.panels.userinput.field;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.ConfigurationOption;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
 import com.izforge.izpack.panels.userinput.processor.Processor;
-import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
 import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,8 +38,9 @@ import java.util.logging.Logger;
  *
  * @author Tim Anderson
  */
-public class FieldProcessor extends DefaultConfigurationHandler
+public class FieldProcessor
 {
+    private final IXMLElement processorElement;
 
     /**
      * The configuration.
@@ -71,6 +68,8 @@ public class FieldProcessor extends DefaultConfigurationHandler
      */
     private Processor processor;
 
+    private InstallData installData;
+
     /**
      * The logger.
      */
@@ -80,15 +79,20 @@ public class FieldProcessor extends DefaultConfigurationHandler
     /**
      * Constructs a {@code FieldProcessor}.
      *
-     * @param processor the processor element
+     * @param processorElement the processor element
      * @param config    the configuration
      */
-    public FieldProcessor(IXMLElement processor, Config config)
+    public FieldProcessor(IXMLElement processorElement, Config config)
     {
-        className = config.getAttribute(processor, "class");
-        originalValueVariable = config.getAttribute(processor, "backupVariable");
-        addConfigurationOptions(processor);
+        className = config.getAttribute(processorElement, "class");
+        originalValueVariable = config.getAttribute(processorElement, "backupVariable");
+        this.processorElement = processorElement;
         this.config = config;
+    }
+
+    public void setInstallData(InstallData installData)
+    {
+        this.installData = installData;
     }
 
     /**
@@ -108,17 +112,30 @@ public class FieldProcessor extends DefaultConfigurationHandler
                 processor = config.getFactory().create(className, Processor.class);
             }
 
-            Set<String> configParams = getNames();
-            Map<String, String> configMap = null;
-            if (configParams != null)
+            ValuesProcessingClient client = new ValuesProcessingClient(values);
+            client.readParameters(processorElement);
+
+            // Copy optional processor configuration parameters
+            Set<String> names = client.getNames();
+            if (names != null)
             {
-                configMap = new HashMap<String, String>();
-                for (String param : configParams)
+                for (String key : names)
                 {
-                    configMap.put(param, getConfigurationOptionValue(param, null));
+                    ConfigurationOption option = client.getConfigurationOption(key);
+                    if (installData != null)
+                    {
+                        // Resolve variables in processor configuration parameters
+                        String value = option.getValue(installData.getRules());
+                        String newValue = installData.getVariables().replace(value);
+                        if (value != null && !value.equals(newValue))
+                        {
+                            option = new ConfigurationOption(newValue);
+                        }
+                    }
+                    client.addConfigurationOption(key, option);
                 }
             }
-            ProcessingClient client = new ValuesProcessingClient(values, configMap);
+
             originalValue = client.getText();
             result = processor.process(client);
         }
@@ -144,35 +161,5 @@ public class FieldProcessor extends DefaultConfigurationHandler
     public String getOriginalValue()
     {
         return originalValue;
-    }
-
-    private void addConfigurationOptions(IXMLElement processor)
-    {
-        IXMLElement configurationElement = processor.getFirstChildNamed("configuration");
-        if (configurationElement != null)
-        {
-            logger.fine("Found configuration section for '" + processor.getName() + "' element");
-            List<IXMLElement> params = configurationElement.getChildren();
-            for (IXMLElement param : params)
-            {
-                String elementName = param.getName();
-                String name;
-                final String value;
-                if (elementName.equals("param"))
-                {
-                    // Format: <param name="option_1" value="value_1" />
-                    name = param.getAttribute("name");
-                    value = param.getAttribute("value");
-                } else
-                {
-                    // Format: <option_1>value_1</option_1>
-                    name = param.getName();
-                    value = param.getContent();
-                }
-                final ConfigurationOption option = new ConfigurationOption(value);
-                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
-                addConfigurationOption(name, option);
-            }
-        }
     }
 }

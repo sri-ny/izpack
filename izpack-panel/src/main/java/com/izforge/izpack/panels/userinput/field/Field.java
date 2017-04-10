@@ -492,6 +492,7 @@ public abstract class Field
         {
             for (FieldValidator validator : validators)
             {
+                validator.setInstallData(installData);
                 if (!validator.validate(values))
                 {
                     return ValidationStatus.failed(validator.getMessage());
@@ -517,6 +518,7 @@ public abstract class Field
         String result = null;
         if (processor != null)
         {
+            processor.setInstallData(installData);
             result = processor.process(values);
             String backupVariable = processor.getBackupVariable();
             if (backupVariable != null)

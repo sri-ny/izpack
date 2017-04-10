@@ -135,7 +135,7 @@
                         <xs:element name="pwd" type="passwordSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="choice" type="choiceSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="col" type="columnFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
-                        <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="1"/>
+                        <xs:element name="processor" type="fieldProcessorType" minOccurs="0" maxOccurs="1"/>
                         <xs:element name="run" type="buttonFieldSpecRunType" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:choice>
                     <xs:attribute name="id" type="xs:string" use="optional">
@@ -396,7 +396,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="processor" type="fieldProcessorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
         <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
         <xs:attribute name="conditionid" type="xs:string" use="optional"/>
@@ -450,31 +450,25 @@
         </xs:choice>
     </xs:complexType>
 
-    <xs:complexType name="processorFieldColSpecType">
-        <xs:sequence>
-            <xs:element name="configuration" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <!-- <xs:element name="param" type="nameValueType" minOccurs="0" maxOccurs="unbounded"/> -->
-                        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute name="class" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    The class implementing the field processor.
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="backupVariable" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    Optional variable name holding the original value before processing.
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+    <xs:complexType name="fieldProcessorType" >
+        <xs:complexContent>
+            <xs:extension base="types:configurationSectionType">
+                <xs:attribute name="class" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The class implementing the field processor.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="backupVariable" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Optional variable name holding the original value before processing.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="buttonFieldSpecRunType">
@@ -512,24 +506,20 @@
     </xs:complexType>
 
     <xs:complexType name="fieldValidatorType">
-        <xs:sequence minOccurs="0">
-            <xs:element maxOccurs="unbounded" name="param">
-                <xs:complexType>
-                    <xs:attribute name="name" type="xs:string" use="required"/>
-                    <xs:attribute name="value" type="xs:string" use="required"/>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute name="class" type="xs:string" use="required"/>
-        <xs:attribute name="txt" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    The default text to display on a validation error when no translation can be found for
-                    the "id".
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="id" type="xs:string" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="types:configurationSectionType">
+                <xs:attribute name="id" type="xs:string" use="optional"/>
+                <xs:attribute name="txt" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The default text to display on a validation error when no translation can be found for
+                            the "id".
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="class" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <!--                                                                                                        -->

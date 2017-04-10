@@ -21,8 +21,9 @@
 
 package com.izforge.izpack.panels.userinput.processorclient;
 
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
+
 import java.text.MessageFormat;
-import java.util.Map;
 
 
 /**
@@ -30,7 +31,7 @@ import java.util.Map;
  *
  * @author Tim Anderson
  */
-public class ValuesProcessingClient implements ProcessingClient
+public class ValuesProcessingClient extends DefaultConfigurationHandler implements ProcessingClient
 {
     /**
      * The values.
@@ -38,11 +39,6 @@ public class ValuesProcessingClient implements ProcessingClient
     private final String[] values;
 
     private final MessageFormat format;
-
-    /**
-     * The parameters. May be {@code null}.
-     */
-    private Map<String, String> parameters;
 
     /**
      * Constructs a {@code ValuesProcessingClient}.
@@ -57,35 +53,13 @@ public class ValuesProcessingClient implements ProcessingClient
     /**
      * Constructs a {@code ValuesProcessingClient}.
      *
+     * @param format     the formatter
      * @param values     the values to process
-     * @param parameters the parameters to pass to the processor
-     */
-    public ValuesProcessingClient(String[] values, Map<String, String> parameters)
-    {
-        this(null, values, parameters);
-    }
-
-    /**
-     * Constructs a {@code ValuesProcessingClient}.
-     *
-     * @param values the values to process
      */
     public ValuesProcessingClient(MessageFormat format, String[] values)
     {
-        this(format, values, null);
-    }
-
-    /**
-     * Constructs a {@code ValuesProcessingClient}.
-     *
-     * @param values     the values to process
-     * @param parameters the parameters to pass to the processor
-     */
-    public ValuesProcessingClient(MessageFormat format, String[] values, Map<String, String> parameters)
-    {
         this.format = format;
         this.values = values;
-        this.parameters = parameters;
     }
 
     /**
@@ -93,19 +67,10 @@ public class ValuesProcessingClient implements ProcessingClient
      *
      * @return the values
      */
+    @Override
     public String[] getValues()
     {
         return values;
-    }
-
-    /**
-     * Sets the parameters.
-     *
-     * @param parameters the parameters. May be {@code null}
-     */
-    public void setParameters(Map<String, String> parameters)
-    {
-        this.parameters = parameters;
     }
 
     /**
@@ -153,27 +118,5 @@ public class ValuesProcessingClient implements ProcessingClient
             }
             return result.toString();
         }
-    }
-
-    /**
-     * Determines if this has any parameters to pass.
-     *
-     * @return {@code true} if this has any parameters to pass
-     */
-    @Override
-    public boolean hasParams()
-    {
-        return parameters != null;
-    }
-
-    /**
-     * Returns the validator parameters, if any.
-     *
-     * @return a map containing the parameters. May be {@code null}
-     */
-    @Override
-    public Map<String, String> getValidatorParams()
-    {
-        return parameters;
     }
 }

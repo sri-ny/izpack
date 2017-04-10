@@ -30,6 +30,15 @@ public interface Configurable
      */
     void addConfigurationOption(String name, ConfigurationOption option);
 
+
+    /**
+     * Get an optional configuration value to the implementing instance from the implementing instance
+     *
+     * @param name Configuration option name
+     * @return the effective value or {@code null}
+     */
+    String getConfigurationOptionValue(String name);
+
     /**
      * Get an optional configuration value to the implementing instance from the implementing instance
      *

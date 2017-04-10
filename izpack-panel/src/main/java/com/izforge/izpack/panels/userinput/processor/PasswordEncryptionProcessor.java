@@ -21,19 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.processor;
 
-import java.security.SecureRandom;
-import java.util.Collections;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+import com.izforge.izpack.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
-
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
-import com.izforge.izpack.util.Base64;
+import java.security.SecureRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Jeff Gordon
@@ -55,9 +52,9 @@ public class PasswordEncryptionProcessor implements Processor
     public String process(ProcessingClient client)
     {
         String result;
-        Map<String, String> params = getParams(client);
-        String key = params.get("encryptionKey");
-        String algorithm = params.get("algorithm");
+
+        String key = client.getConfigurationOptionValue("encryptionKey", null);
+        String algorithm = client.getConfigurationOptionValue("algorithm", null);
         if (key != null && algorithm != null)
         {
             initialize(key, algorithm);
@@ -68,23 +65,6 @@ public class PasswordEncryptionProcessor implements Processor
             throw new IzPackException("PasswordEncryptionProcessor requires encryptionKey and algorithm parameters");
         }
         return result;
-    }
-
-    private Map<String, String> getParams(ProcessingClient client)
-    {
-        Map<String, String> params = Collections.emptyMap();
-        try
-        {
-            if (client.hasParams())
-            {
-                params = client.getValidatorParams();
-            }
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.WARNING, "Getting validator parameters failed: " + e, e);
-        }
-        return params;
     }
 
     private void initialize(String key, String algorithm)
