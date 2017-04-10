@@ -470,10 +470,11 @@ public class UserInputPanel extends IzPanel
             buildUI();
             revalidate();
             repaint();
-            if (getMetadata().isVisited())
+            Panel metadata = getMetadata();
+            if (metadata.isVisited())
             {
-                Set<String> blockedNames = getMetadata().getAffectedVariableNames();
-                Set<String> originalBlockedNames = installData.getVariables().getBlockedVariableNames(getMetadata());
+                Set<String> blockedNames = metadata.getAffectedVariableNames();
+                Set<String> originalBlockedNames = installData.getVariables().getBlockedVariableNames(metadata);
                 Set<String> addedBlockedNames = new HashSet<String>();
                 Set<String> removedBlockedNames = new HashSet<String>();
                 if (blockedNames != null)
@@ -498,11 +499,11 @@ public class UserInputPanel extends IzPanel
                 }
                 if (!addedBlockedNames.isEmpty())
                 {
-                    installData.getVariables().registerBlockedVariableNames(addedBlockedNames, getMetadata());
+                    installData.getVariables().registerBlockedVariableNames(addedBlockedNames, metadata);
                 }
                 if (!removedBlockedNames.isEmpty())
                 {
-                    installData.getVariables().unregisterBlockedVariableNames(removedBlockedNames, getMetadata());
+                    installData.getVariables().unregisterBlockedVariableNames(removedBlockedNames, metadata);
                 }
             }
             this.eventsActivated = true;
