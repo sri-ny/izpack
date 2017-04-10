@@ -472,4 +472,21 @@ public class DefaultVariables implements Variables
         Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
         return (blockerStack != null && !blockerStack.isEmpty());
     }
+
+    @Override
+    public Set<String> getBlockedVariableNames(Object blocker)
+    {
+        Set<String> blockedVariableNames = new HashSet<String>();
+        for (String key : blockedVariableNameStacks.keySet())
+        {
+            Deque<Object> blockerStack = blockedVariableNameStacks.get(key);
+            if (blockerStack != null && !blockerStack.isEmpty())
+            {
+                if (blockerStack.contains(blocker)) {
+                    blockedVariableNames.add(key);
+                }
+            }
+        }
+        return blockedVariableNames;
+    }
 }
