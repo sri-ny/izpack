@@ -21,13 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.izforge.izpack.api.data.Configurable;
+import com.izforge.izpack.api.data.ConfigurationOption;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.factory.ObjectFactory;
 import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 import com.izforge.izpack.panels.userinput.validator.Validator;
+
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -49,11 +52,6 @@ public class FieldValidator
     private final String message;
 
     /**
-     * Validator parameters.
-     */
-    private Map<String, String> parameters;
-
-    /**
      * The factory to create the validator.
      */
     private final ObjectFactory factory;
@@ -62,6 +60,10 @@ public class FieldValidator
      * The validator.
      */
     private Validator validator;
+
+    private Configurable configurable;
+
+    private InstallData installData;
 
     /**
      * The logger.
@@ -77,22 +79,38 @@ public class FieldValidator
      */
     public FieldValidator(Class<? extends Validator> type, String message, ObjectFactory factory)
     {
-        this(type.getName(), null, message, factory);
+        this.className = type.getName();
+        this.message = message;
+        this.factory = factory;
     }
 
     /**
      * Constructs a {@code FieldValidator}.
      *
      * @param className  the validator class name
-     * @param parameters the validation parameters. May be {@code null}
+     * @param configurable the validation parameters. May be {@code null}
      * @param message    the validation error message. May be {@code null}
      * @param factory    the factory for creating the validator
      */
-    public FieldValidator(String className, Map<String, String> parameters, String message, ObjectFactory factory)
+    public FieldValidator(String className, Configurable configurable, String message, ObjectFactory factory)
     {
         this.className = className;
-        this.parameters = parameters;
+        this.configurable = configurable;
         this.message = message;
+        this.factory = factory;
+    }
+
+    /**
+     * Constructs a {@code FieldValidator}.
+     *
+     * @param validatorReader    the validator XML reader
+     * @param factory    the factory for creating the validator
+     */
+    public FieldValidator(FieldValidatorReader validatorReader, ObjectFactory factory)
+    {
+        this.configurable = validatorReader;
+        this.className = validatorReader.getClassName();
+        this.message = validatorReader.getMessage();
         this.factory = factory;
     }
 
@@ -117,6 +135,11 @@ public class FieldValidator
         return validate(new ValuesProcessingClient(values));
     }
 
+    public void setInstallData(InstallData installData)
+    {
+        this.installData = installData;
+    }
+
     /**
      * Validates field values.
      *
@@ -132,7 +155,31 @@ public class FieldValidator
             {
                 validator = factory.create(className, Validator.class);
             }
-            values.setParameters(parameters);
+
+            // Copy optional validator configuration parameters
+            if (configurable != null)
+            {
+                Set<String> names = configurable.getNames();
+                if (names != null)
+                {
+                    for (String key : names)
+                    {
+                        ConfigurationOption option = configurable.getConfigurationOption(key);
+                        if (installData != null)
+                        {
+                            // Resolve variables in validator configuration parameters
+                            String value = option.getValue(installData.getRules());
+                            String newValue = installData.getVariables().replace(value);
+                            if (value != null && !value.equals(newValue))
+                            {
+                                option = new ConfigurationOption(newValue);
+                            }
+                        }
+                        values.addConfigurationOption(key, option);
+                    }
+                }
+            }
+
             result = validator.validate(values);
             if (logger.isLoggable(Level.FINE))
             {

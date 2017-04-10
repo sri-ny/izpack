@@ -16,9 +16,9 @@
 
 package com.izforge.izpack.api.data;
 
-import java.io.Serializable;
-
 import com.izforge.izpack.api.rules.RulesEngine;
+
+import java.io.Serializable;
 
 public class ConfigurationOption implements Serializable
 {
@@ -57,7 +57,7 @@ public class ConfigurationOption implements Serializable
     public String getValue(RulesEngine rules)
     {
         final String result;
-        if (rules == null | conditionId == null || rules.isConditionTrue(conditionId))
+        if (value != null && (rules == null || conditionId == null || rules.isConditionTrue(conditionId)))
         {
             result = value;
         }

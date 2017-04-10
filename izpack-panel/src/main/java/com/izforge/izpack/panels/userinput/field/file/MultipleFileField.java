@@ -126,17 +126,6 @@ public class MultipleFileField extends AbstractFileField
     }
 
     /**
-     * Returns all variables that this field updates.
-     *
-     * @return all variables that this field updates
-     */
-    @Override
-    public List<String> getVariables()
-    {
-        return variables;
-    }
-
-    /**
      * Returns the number of visible rows.
      *
      * @return the number of visible rows, or {@code -1} if none is specified

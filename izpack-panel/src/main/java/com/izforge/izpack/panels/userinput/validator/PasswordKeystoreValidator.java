@@ -22,14 +22,12 @@
 
 package com.izforge.izpack.panels.userinput.validator;
 
+import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+
 import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 
 /**
@@ -41,19 +39,12 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
  * @author Elmar Grom
  * @author Jeff Gordon
  */
-public class PasswordKeystoreValidator extends AbstractValidator
+public class PasswordKeystoreValidator implements Validator
 {
-    private VariableSubstitutor variableSubstitutor;
-
     /**
      * The logger.
      */
     private static final Logger logger = Logger.getLogger(PasswordKeystoreValidator.class.getName());
-
-    public PasswordKeystoreValidator(VariableSubstitutor variableSubstitutor)
-    {
-        this.variableSubstitutor = variableSubstitutor;
-    }
 
     /**
      * Validates the ability to open a keystore based on the password and
@@ -67,12 +58,11 @@ public class PasswordKeystoreValidator extends AbstractValidator
      * requires the keystore password (if different from the key password) be set
      * in the keystorePassword parameter.
      *
-     * @param values     the values to validate
-     * @param parameters the validator parameters
+     * @param client the processing client
      * @return {@code true} if the validation passes, otherwise {@code false}
      */
     @Override
-    public boolean validate(String[] values, Map<String, String> parameters)
+    public boolean validate(ProcessingClient client)
     {
         boolean returnValue = false;
         String keystorePassword;
@@ -81,11 +71,11 @@ public class PasswordKeystoreValidator extends AbstractValidator
         String skipValidation;
         String alias;
         String aliasPassword;
-        Map<String, String> params = getParams(parameters);
+        String[] values = client.getValues();
         try
         {
             // Don't try and open the keystore if skipValidation is true
-            skipValidation = params.get("skipValidation");
+            skipValidation = client.getConfigurationOptionValue("skipValidation");
             logger.fine("skipValidation = " + skipValidation);
             if (skipValidation != null && skipValidation.equalsIgnoreCase("true"))
             {
@@ -93,7 +83,7 @@ public class PasswordKeystoreValidator extends AbstractValidator
                 return true;
             }
             // See if keystore password is passed in or is passed through the validator
-            keystorePassword = params.get("keystorePassword");
+            keystorePassword = client.getConfigurationOptionValue("keystorePassword");
             if (keystorePassword == null)
             {
                 keystorePassword = getPassword(values);
@@ -105,7 +95,7 @@ public class PasswordKeystoreValidator extends AbstractValidator
                 logger.fine("keystorePassword parameter empty, using validator password for keystore");
             }
             // See if alias (key) password is passed in or is passed through the validator
-            aliasPassword = params.get("aliasPassword");
+            aliasPassword = client.getConfigurationOptionValue("aliasPassword");
             if (aliasPassword == null)
             {
                 aliasPassword = getPassword(values);
@@ -117,7 +107,7 @@ public class PasswordKeystoreValidator extends AbstractValidator
                 logger.fine("aliasPassword parameter empty, using validator password for key");
             }
             // Get keystore type from parameters or use default
-            keystoreType = params.get("keystoreType");
+            keystoreType = client.getConfigurationOptionValue("keystoreType");
             if (keystoreType == null)
             {
                 keystoreType = "JKS";
@@ -130,17 +120,18 @@ public class PasswordKeystoreValidator extends AbstractValidator
                 logger.fine("keystoreType parameter empty, using default of JKS");
             }
             // Get keystore location from params
-            keystoreFile = params.get("keystoreFile");
+            keystoreFile = client.getConfigurationOptionValue("keystoreFile");
             if (keystoreFile != null)
             {
                 logger.fine("Attempting to open keystore: " + keystoreFile);
+                assert keystorePassword != null;
                 KeyStore keyStore = getKeyStore(keystoreFile, keystoreType, keystorePassword.toCharArray());
                 if (keyStore != null)
                 {
                     returnValue = true;
                     logger.fine("keystore password validated");
                     // check alias if provided
-                    alias = params.get("keystoreAlias");
+                    alias = client.getConfigurationOptionValue("keystoreAlias");
                     if (alias != null)
                     {
                         returnValue = keyStore.containsAlias(alias);
@@ -149,6 +140,7 @@ public class PasswordKeystoreValidator extends AbstractValidator
                             logger.fine("keystore alias '" + alias + "' found, trying to retrieve");
                             try
                             {
+                                assert aliasPassword != null;
                                 keyStore.getKey(alias, aliasPassword.toCharArray());
                                 logger.fine("keystore alias '" + alias + "' validated");
                             }
@@ -176,18 +168,6 @@ public class PasswordKeystoreValidator extends AbstractValidator
         }
 
         return returnValue;
-    }
-
-    private Map<String, String> getParams(Map<String, String> parameters)
-    {
-        Map<String, String> result = new HashMap<String, String>();
-        for (String key : parameters.keySet())
-        {
-            // Feed parameter values through vs
-            String value = variableSubstitutor.substitute(parameters.get(key));
-            result.put(key, value);
-        }
-        return result;
     }
 
     private String getPassword(String[] values)

@@ -21,12 +21,8 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
 
 
 /**
@@ -34,7 +30,7 @@ import com.izforge.izpack.api.adaptator.IXMLElement;
  *
  * @author Tim Anderson
  */
-public class FieldValidatorReader
+class FieldValidatorReader extends DefaultConfigurationHandler
 {
 
     /**
@@ -56,6 +52,7 @@ public class FieldValidatorReader
      */
     public FieldValidatorReader(IXMLElement validator, Config config)
     {
+        readParameters(validator);
         this.validator = validator;
         this.config = config;
     }
@@ -78,29 +75,5 @@ public class FieldValidatorReader
     public String getMessage()
     {
         return config.getText(validator);
-
-    }
-
-    /**
-     * Returns the validation parameters.
-     *
-     * @return the validation parameters, in the order they were defined
-     */
-    public Map<String, String> getParameters()
-    {
-        Map<String, String> result = Collections.emptyMap();
-        List<IXMLElement> params = validator.getChildrenNamed("param");
-        if (!params.isEmpty())
-        {
-            result = new LinkedHashMap<String, String>();
-
-            for (IXMLElement parameter : params)
-            {
-                String name = config.getAttribute(parameter, "name");
-                String value = parameter.getAttribute("value");
-                result.put(name, value);
-            }
-        }
-        return result;
     }
 }

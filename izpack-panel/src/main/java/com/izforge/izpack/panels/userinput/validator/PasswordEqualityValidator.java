@@ -21,7 +21,9 @@
 
 package com.izforge.izpack.panels.userinput.validator;
 
-import java.util.Map;
+import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
  * @author Elmar Grom
  * @author Jeff Gordon
  */
-public class PasswordEqualityValidator extends AbstractValidator
+public class PasswordEqualityValidator implements Validator
 {
 
     /**
@@ -45,18 +47,19 @@ public class PasswordEqualityValidator extends AbstractValidator
     /**
      * Validates values.
      *
-     * @param values     the values to validate
-     * @param parameters the validator parameters
+     * @param client the processing client
      * @return {@code true} if the validation passes, otherwise {@code false}
      */
     @Override
-    public boolean validate(String[] values, Map<String, String> parameters)
+    public boolean validate(ProcessingClient client)
     {
-        if (!parameters.isEmpty())
+        Set<String> names = client.getNames();
+        if (names != null && !names.isEmpty())
         {
             logger.warning(getClass().getName() + " does not accept parameters");
         }
         boolean result = true;
+        String[] values = client.getValues();
         if (values.length > 1)
         {
             String expected = values[0];
