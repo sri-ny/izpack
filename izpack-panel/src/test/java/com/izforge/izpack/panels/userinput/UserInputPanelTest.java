@@ -162,10 +162,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture text3 = frame.textBox("text3");
         assertEquals("text3 default value", text3.text());
 
-        assertNull(installData.getVariable("text1"));
-        assertNull(installData.getVariable("text2"));
-        assertNull(installData.getVariable("text3"));
-
+        assertEquals("", installData.getVariable("text1"));
+        
         text1.setText("text1 value");
 
         // attempt to navigate to the next panel
