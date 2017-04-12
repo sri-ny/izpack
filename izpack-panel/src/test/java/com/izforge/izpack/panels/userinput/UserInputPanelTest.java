@@ -123,7 +123,7 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture rule4 = frame.textBox("rule1.4");
         assertEquals("1", rule4.text());
 
-        assertNull(installData.getVariable("rule1"));
+        assertEquals("192.168.0.1", installData.getVariable("rule1"));
 
         rule1.setText("127");
         rule2.setText("0");
@@ -162,10 +162,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture text3 = frame.textBox("text3");
         assertEquals("text3 default value", text3.text());
 
-        assertNull(installData.getVariable("text1"));
-        assertNull(installData.getVariable("text2"));
-        assertNull(installData.getVariable("text3"));
-
+        assertEquals("", installData.getVariable("text1"));
+        
         text1.setText("text1 value");
 
         // attempt to navigate to the next panel
@@ -547,23 +545,16 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture address = fixture.textBox();
         assertEquals("localhost", address.text());
 
-        // address variable won't be defined until the field is set
-        assertNull(installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("dynamicMasterAddress"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
         address.setText("myhost");
-        assertNull(installData.getVariable("address"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
-
-        // verify that "address" is updated when the panel is validated, but "dynamicMasterAddress" isn't
         assertTrue(getPanels().getView().panelValidated());
-        assertEquals("myhost", installData.getVariable("address"));
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
+
         checkNavigateNext(fixture);
 
-
-        // navigation triggers a variable refresh. Make sure dynamicMasterAddress has updated
+        assertEquals("myhost", installData.getVariable("address"));
         assertEquals("myhost", installData.getVariable("dynamicMasterAddress"));
     }
 
