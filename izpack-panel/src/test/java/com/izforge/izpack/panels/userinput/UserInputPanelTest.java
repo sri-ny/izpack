@@ -19,8 +19,11 @@
 
 package com.izforge.izpack.panels.userinput;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -40,6 +43,7 @@ import org.fest.swing.fixture.JFileChooserFixture;
 import org.fest.swing.fixture.JRadioButtonFixture;
 import org.fest.swing.fixture.JTextComponentFixture;
 import org.fest.swing.timing.Timeout;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -174,46 +178,137 @@ public class UserInputPanelTest extends AbstractPanelTest
         assertEquals("text3 default value", installData.getVariable("text3"));
     }
 
-    /**
-     * Tests combo fields.
-     *
-     * @throws Exception for any error
+    /*
+     * Initial selection should be determined by attribute 'set'.
      */
     @Test
-    public void testComboField() throws Exception
+    public void comboWithSetShouldSelectInitialValue() throws Exception
     {
-        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/combo/userInputSpec.xml
-        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/");
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
 
-        InstallData installData = getInstallData();
-
-        installData.setVariable("combo2", "value3"); // should select the 3rd value
-        installData.setVariable("combo4", "value4"); // should select the 4rd value
-
-        // show the panel
-        FrameFixture frame = showUserInputPanel("comboinput");
-
-        // for combo1, the initial selection is determined by the 'set' attribute
-        checkCombo("combo1", "value2", frame);
-
-        // for combo2, the initial selection is determined by the "combo2" variable
-        checkCombo("combo2", "value3", frame);
-
-        // for combo3, there is no initial selection, so default to first value
-        checkCombo("combo3", "value1", frame);
-
-        // for combo4,  the initial selection is determined by the "combo4" variable and override the set attribute
-        checkCombo("combo4", "value4", frame);
-
-        frame.comboBox("combo1").component().setSelectedIndex(0);
-        frame.comboBox("combo3").component().setSelectedIndex(1);
-        frame.comboBox("combo4").clearSelection();
+        FrameFixture frame = showUserInputPanel("with-set");
+        checkCombo("combo", "value2", frame);
         checkNavigateNext(frame);
 
-        assertEquals("value1", installData.getVariable("combo1"));
-        assertEquals("value3", installData.getVariable("combo2"));
-        assertEquals("value2", installData.getVariable("combo3"));
-        assertNull(installData.getVariable("combo4"));
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
+    }
+
+    /*
+     * Initial selection should be updated if selection changes.
+     */
+    @Test
+    public void comboWithSetShouldUpdateVariableWhenSelectionChanges() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+        frame.comboBox("combo").selectItem(0);
+
+        checkNavigateNext(frame);
+
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
+    }
+
+    /*
+     * Initial selection should be updated if variable contains selected value.
+     */
+    @Test
+    public void comboWithSetShouldDetermineSelectionFromVariableValue() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+
+        checkCombo("combo", "value3", frame);
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value3"));
+    }
+
+    /*
+     * If combo selection is cleared, variable should be set to null.
+     */
+    @Test
+    public void comboWithSetShouldResetVariableToNullIfSelectionIsCleared() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+        frame.comboBox("combo").clearSelection();
+
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), nullValue());
+    }
+
+    /*
+     * Variable value should be evaluated to determine selected index.
+     */
+    @Test
+    public void comboShouldDetermineSelectionFromVariableValue() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value2");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+
+        checkCombo("combo", "value2", frame);
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
+    }
+
+    /*
+     * If combo selection is cleared, variable should be set to null.
+     */
+    @Test
+    public void comboShouldResetVariableToNullIfSelectionIsCleared() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+        frame.comboBox("combo").clearSelection();
+
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), nullValue());
+    }
+
+    /*
+     * If there is neither a variable value nor a set attribute, default to first item.
+     */
+    @Test
+    public void comboShouldDefaultToFirstItemAsFallback() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+
+        checkCombo("combo", "value1", frame);
+        checkNavigateNext(frame);
+
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
     }
 
     /**
