@@ -20,7 +20,6 @@
 package com.izforge.izpack.panels.userinput;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -274,10 +273,10 @@ public class UserInputPanelTest extends AbstractPanelTest
     }
 
     /*
-     * If combo selection is cleared, variable should be set to null.
+     * If combo selection is cleared, variable should be set to the value of the first item.
      */
     @Test
-    public void comboShouldResetVariableToNullIfSelectionIsCleared() throws Exception
+    public void comboShouldResetVariableToValueOfFirstItemIfSelectionIsCleared() throws Exception
     {
         ResourceManager rm = getResourceManager();
         rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
@@ -290,7 +289,7 @@ public class UserInputPanelTest extends AbstractPanelTest
 
         checkNavigateNext(frame);
 
-        assertThat(installData.getVariable("combo"), nullValue());
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
     }
 
     /*
