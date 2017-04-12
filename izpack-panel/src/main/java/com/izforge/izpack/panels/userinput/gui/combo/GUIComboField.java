@@ -44,6 +44,7 @@ public class GUIComboField extends GUIField
      * The combo.
      */
     private final JComboBox combo;
+    private volatile boolean notifyUpdateListener = true;
 
     /**
      * Constructs a {@code GUIComboField}.
@@ -65,7 +66,10 @@ public class GUIComboField extends GUIField
             @Override
             public void itemStateChanged(ItemEvent e)
             {
-                notifyUpdateListener();
+                if (notifyUpdateListener)
+                {
+                    notifyUpdateListener();
+                }
             }
         });
 
@@ -97,6 +101,8 @@ public class GUIComboField extends GUIField
     @Override
     public boolean updateView()
     {
+        notifyUpdateListener = false;
+
         refreshChoices();
 
         boolean result = super.updateView();
@@ -117,6 +123,9 @@ public class GUIComboField extends GUIField
                 result = splitValue(defaultValue);
             }
         }
+
+        notifyUpdateListener = true;
+
         return result;
     }
 
@@ -128,7 +137,6 @@ public class GUIComboField extends GUIField
             if (value.equals(item.getTrueValue()))
             {
                 combo.setSelectedIndex(i);
-                notifyUpdateListener();
                 return true;
             }
         }

@@ -237,7 +237,7 @@ public class UserInputPanelTest extends AbstractPanelTest
      * If combo selection is cleared, variable should be set to null.
      */
     @Test
-    public void comboWithSetShouldResetVariableToNullIfSelectionIsCleared() throws Exception
+    public void comboWithSetShouldResetVariableToInitialValueIfSelectionIsCleared() throws Exception
     {
         ResourceManager rm = getResourceManager();
         rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
@@ -250,7 +250,7 @@ public class UserInputPanelTest extends AbstractPanelTest
 
         checkNavigateNext(frame);
 
-        assertThat(installData.getVariable("combo"), nullValue());
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
     }
 
     /*
