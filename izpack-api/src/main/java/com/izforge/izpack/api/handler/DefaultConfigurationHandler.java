@@ -21,14 +21,17 @@ import com.izforge.izpack.api.data.Configurable;
 import com.izforge.izpack.api.data.ConfigurationOption;
 import com.izforge.izpack.api.rules.RulesEngine;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-public abstract class DefaultConfigurationHandler implements Configurable
+public abstract class DefaultConfigurationHandler implements Configurable, Serializable
 {
+    private static final long serialVersionUID = 2814753202801899378L;
+
     /**
      * The logger.
      */
