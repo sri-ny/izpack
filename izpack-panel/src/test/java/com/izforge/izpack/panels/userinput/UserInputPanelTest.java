@@ -545,23 +545,16 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture address = fixture.textBox();
         assertEquals("localhost", address.text());
 
-        // address variable won't be defined until the field is set
-        assertNull(installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("dynamicMasterAddress"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
         address.setText("myhost");
-        assertNull(installData.getVariable("address"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
-
-        // verify that "address" is updated when the panel is validated, but "dynamicMasterAddress" isn't
         assertTrue(getPanels().getView().panelValidated());
-        assertEquals("myhost", installData.getVariable("address"));
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
+
         checkNavigateNext(fixture);
 
-
-        // navigation triggers a variable refresh. Make sure dynamicMasterAddress has updated
+        assertEquals("myhost", installData.getVariable("address"));
         assertEquals("myhost", installData.getVariable("dynamicMasterAddress"));
     }
 
