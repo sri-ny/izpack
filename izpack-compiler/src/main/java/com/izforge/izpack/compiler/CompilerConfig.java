@@ -170,6 +170,17 @@ public class CompilerConfig extends Thread
      */
     private final Map<String, IXMLElement> referencedPacksAntActionSpec = new HashMap<String, IXMLElement>();
 
+    /**
+     * Maps condition IDs to XML elements in the ConfigurationActionSpec resource referring to them for checking at the end of
+     * compilation whether referenced conditions exist for all elements.
+     */
+    private final Map<String, List<IXMLElement>> referencedConditionsConfigurationActionSpec = new HashMap<String, List<IXMLElement>>();
+
+    /**
+     * Maps condition pack names to XML elements in the ConfigurationActionSpec resource referring to them for checking at the end of
+     * compilation whether referenced packs exist for all elements.
+     */
+    private final Map<String, IXMLElement> referencedPacksConfigurationActionSpec = new HashMap<String, IXMLElement>();
 
     /**
      * UserInputPanel IDs for cross check whether given user input panel
@@ -2136,7 +2147,7 @@ public class CompilerConfig extends Thread
                 }
             }
 
-            IXMLElement userInputSpec = null, antActionSpec = null;
+            IXMLElement userInputSpec = null, antActionSpec = null, configurationSpec = null;
 
             // Just validate to avoid XML parser errors during installation later
             if (id.startsWith(Resources.CUSTOM_TRANSLATIONS_RESOURCE_NAME)
@@ -2163,7 +2174,7 @@ public class CompilerConfig extends Thread
             }
             else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
             {
-                new ConfigurationActionSpecXmlParser().parse(url);
+                configurationSpec = new ConfigurationActionSpecXmlParser().parse(url);
             }
             else if (id.equals(RegistryInstallerListener.SPEC_FILE_NAME))
             {
@@ -2295,6 +2306,55 @@ public class CompilerConfig extends Thread
                                     referencedConditionsAntActionSpec.put(antCallConditionId, elList);
                                 }
                                 elList.add(antCallSpecDef);
+                            }
+                        }
+                    }
+                } else if (id.equals(ConfigurationInstallerListener.SPEC_FILE_NAME))
+                {
+                    if (configurationSpec == null)
+                    {
+                        // Parse only if not validating for avoiding parsing twice
+                        configurationSpec = new XMLParser(false).parse(url);
+                    }
+                    for (IXMLElement packDef : configurationSpec.getChildrenNamed(SpecHelper.PACK_KEY))
+                    {
+                        String packName = xmlCompilerHelper.requireAttribute(packDef, SpecHelper.PACK_NAME);
+                        // Collect referenced packs in ConfigurationActionSpec for checking them later
+                        if (referencedPacksConfigurationActionSpec.put(packName, packDef) != null)
+                        {
+                            assertionHelper.parseError(configurationSpec, "Resource " + ConfigurationInstallerListener.SPEC_FILE_NAME
+                                    + ": Duplicate pack identifier '"
+                                    + packName + "'");
+                        }
+                        for (IXMLElement configurationactionDef : packDef.getChildrenNamed(ConfigurationInstallerListener.CONFIGURATIONACTION_ATTR))
+                        {
+                            for (IXMLElement configurableDef : configurationactionDef.getChildrenNamed(ConfigurationInstallerListener.CONFIGURABLE_ATTR))
+                            {
+                                String configurationConditionId = configurableDef.getAttribute(ConfigurationInstallerListener.CONDITION_ATTR);
+                                if (configurationConditionId != null)
+                                {
+                                    List<IXMLElement> elList = referencedConditionsConfigurationActionSpec.get(configurationConditionId);
+                                    if (elList == null)
+                                    {
+                                        elList = new ArrayList<IXMLElement>();
+                                        referencedConditionsConfigurationActionSpec.put(configurationConditionId, elList);
+                                    }
+                                    elList.add(configurableDef);
+                                }
+                            }
+                            for (IXMLElement configurablesetDef : configurationactionDef.getChildrenNamed(ConfigurationInstallerListener.CONFIGURABLESET_ATTR))
+                            {
+                                String configurationConditionId = configurablesetDef.getAttribute(ConfigurationInstallerListener.CONDITION_ATTR);
+                                if (configurationConditionId != null)
+                                {
+                                    List<IXMLElement> elList = referencedConditionsConfigurationActionSpec.get(configurationConditionId);
+                                    if (elList == null)
+                                    {
+                                        elList = new ArrayList<IXMLElement>();
+                                        referencedConditionsConfigurationActionSpec.put(configurationConditionId, elList);
+                                    }
+                                    elList.add(configurablesetDef);
+                                }
                             }
                         }
                     }
@@ -3778,6 +3838,8 @@ public class CompilerConfig extends Thread
                 new AssertionHelper("Resource " + UserInputPanelSpec.SPEC_FILE_NAME));
         failure |= checkReferencedConditions(referencedConditionsAntActionSpec,
                 new AssertionHelper("Resource " + AntActionInstallerListener.SPEC_FILE_NAME));
+        failure |= checkReferencedConditions(referencedConditionsConfigurationActionSpec,
+                new AssertionHelper("Resource " + ConfigurationInstallerListener.SPEC_FILE_NAME));
         if (failure)
         {
             throw new CompilerException("Cannot recover from reference(s) to undefined condition(s) listed above");
@@ -3788,6 +3850,8 @@ public class CompilerConfig extends Thread
     {
         AssertionHelper antActionSpecAssertionHelper
                 = new AssertionHelper("Resource " + AntActionInstallerListener.SPEC_FILE_NAME);
+        AssertionHelper configurationSpecAssertionHelper
+                = new AssertionHelper("Resource " + ConfigurationInstallerListener.SPEC_FILE_NAME);
         List<PackInfo> packs = packager.getPacksList();
         Set<String> definedPackNames = new HashSet<String>(packs.size());
         for (PackInfo packInfo:packs)
@@ -3800,6 +3864,15 @@ public class CompilerConfig extends Thread
             {
                 IXMLElement element = referencedPacksAntActionSpec.get(packName);
                 antActionSpecAssertionHelper.parseError(element,
+                        "Expression '" + packName + "' refers to undefined pack");
+            }
+        }
+        for (String packName : referencedPacksConfigurationActionSpec.keySet())
+        {
+            if (!definedPackNames.contains(packName))
+            {
+                IXMLElement element = referencedPacksConfigurationActionSpec.get(packName);
+                configurationSpecAssertionHelper.parseError(element,
                         "Expression '" + packName + "' refers to undefined pack");
             }
         }

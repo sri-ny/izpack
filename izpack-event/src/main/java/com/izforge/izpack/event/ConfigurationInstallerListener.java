@@ -69,6 +69,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     public static final String SPEC_FILE_NAME = "ConfigurationActionsSpec.xml";
 
     private static final String ERRMSG_CONFIGACTION_BADATTR = "Bad attribute value in configuration action: {0}=\"{1}\" not allowed";
+    
+    public static final String CONFIGURATIONACTION_ATTR = "configurationaction";
+    public static final String CONFIGURABLESET_ATTR = "configurableset";
+    public static final String CONFIGURABLE_ATTR = "configurable";
+    public static final String CONDITION_ATTR = "condition";
 
     /**
      * The configuration actions.
@@ -173,7 +178,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
             packActions.put(ActionBase.AFTERPACKS, new ArrayList<ConfigurationAction>());
 
             // Get all entries for antcalls.
-            List<IXMLElement> configActionEntries = pack.getChildrenNamed("configurationaction");
+            List<IXMLElement> configActionEntries = pack.getChildrenNamed(CONFIGURATIONACTION_ATTR);
             if (configActionEntries != null)
             {
                 logger.fine("Found " + configActionEntries.size() + " configuration actions");
@@ -388,7 +393,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     protected List<ConfigurationActionTask> readConfigurableSets(IXMLElement parent) throws InstallerException
     {
         List<ConfigurationActionTask> configtasks = new ArrayList<ConfigurationActionTask>();
-        for (IXMLElement el : parent.getChildrenNamed("configurableset"))
+        for (IXMLElement el : parent.getChildrenNamed(CONFIGURABLESET_ATTR))
         {
             String attrib = requireAttribute(el, "type");
             ConfigType configType;
@@ -422,7 +427,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                             "Type '" + configType.getAttribute() + "' currently not allowed for ConfigurableSet");
             }
 
-            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, "condition"),
+            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, CONDITION_ATTR),
                                                         getInstallData().getRules()));
         }
         return configtasks;
@@ -567,7 +572,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     {
         List<ConfigurationActionTask> configtasks = new ArrayList<ConfigurationActionTask>();
         InstallData idata = getInstallData();
-        for (IXMLElement el : parent.getChildrenNamed("configurable"))
+        for (IXMLElement el : parent.getChildrenNamed(CONFIGURABLE_ATTR))
         {
             String attrib = requireAttribute(el, "type");
             ConfigType configType;
@@ -642,7 +647,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                             "Type '" + configType.getAttribute() + "' currently not allowed for Configurable");
             }
 
-            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, "condition"),
+            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, CONDITION_ATTR),
                                                         getInstallData().getRules()));
         }
         return configtasks;
@@ -1181,7 +1186,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                                        + e.getMessage());
                 }
 
-                String conditionid = getAttribute(var, "condition");
+                String conditionid = getAttribute(var, CONDITION_ATTR);
                 dynamicVariable.setConditionid(conditionid);
 
                 dynamicVariables.add(dynamicVariable);
