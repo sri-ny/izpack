@@ -234,7 +234,7 @@ public class UserInputPanelTest extends AbstractPanelTest
     }
 
     /*
-     * If combo selection is cleared, variable should be set to null.
+     * If combo selection is cleared, variable should be set to initial value.
      */
     @Test
     public void comboWithSetShouldResetVariableToInitialValueIfSelectionIsCleared() throws Exception
