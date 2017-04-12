@@ -147,6 +147,14 @@ public interface Variables
     void registerBlockedVariableNames(Set<String> names, Object blocker);
 
     /**
+     * Get a set of variable names that are blocked by blocking object.
+     *
+     * @param blocker Blocking object
+     * @return variables
+     */
+    Set<String> getBlockedVariableNames(Object blocker);
+
+    /**
      * Unregister a set of variable names from blocking from further changes.
      *
      * @param names Variable names

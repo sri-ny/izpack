@@ -21,7 +21,7 @@
 
 package com.izforge.izpack.panels.userinput.processorclient;
 
-import java.util.Map;
+import com.izforge.izpack.api.data.Configurable;
 
 /*---------------------------------------------------------------------------*/
 
@@ -33,21 +33,14 @@ import java.util.Map;
  * @see com.izforge.izpack.panels.userinput.processor.Processor
  * @see com.izforge.izpack.panels.userinput.validator.Validator
  */
-/*---------------------------------------------------------------------------*/
-public interface ProcessingClient
+public interface ProcessingClient extends Configurable
 {
-
-    /*--------------------------------------------------------------------------*/
-
     /**
      * Returns the number of sub-fields.
      *
      * @return the number of sub-fields
      */
-    /*--------------------------------------------------------------------------*/
-    public int getNumFields();
-
-    /*--------------------------------------------------------------------------*/
+    int getNumFields();
 
     /**
      * Returns the contents of the field indicated by <code>index</code>.
@@ -56,13 +49,9 @@ public interface ProcessingClient
      * @return the contents of the indicated sub-field.
      * @throws IndexOutOfBoundsException if the index is out of bounds.
      */
-    /*--------------------------------------------------------------------------*/
-    public String getFieldContents(int index);
+    String getFieldContents(int index);
 
-// These newly added fields are similar to the functionality provided 
-// by the multiple validator support using the validator container.
-
-    /*---------------------------------------------------------------------------*/
+    String[] getValues();
 
     /**
      * Returns the field contents.
@@ -70,26 +59,7 @@ public interface ProcessingClient
      * @return the field contents
      */
     /*--------------------------------------------------------------------------*/
-    public String getText();
-
-    /*--------------------------------------------------------------------------*/
-
-    /**
-     * @return true if this instance has any parameters to pass to the Validator instance.
-     */
-    /*--------------------------------------------------------------------------*/
-    public boolean hasParams();
-
-    /*--------------------------------------------------------------------------*/
-
-    /**
-     * Returns the validator parameters, if any. The caller should check for the existence of
-     * validator parameters via the <code>hasParams()</code> method prior to invoking this method.
-     *
-     * @return a java.util.Map containing the validator parameters.
-     */
-    /*--------------------------------------------------------------------------*/
-    public Map<String, String> getValidatorParams();
+    String getText();
 
 }
 /*---------------------------------------------------------------------------*/

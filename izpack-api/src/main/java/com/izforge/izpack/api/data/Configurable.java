@@ -18,10 +18,9 @@ package com.izforge.izpack.api.data;
 
 import com.izforge.izpack.api.rules.RulesEngine;
 
-import java.io.Serializable;
 import java.util.Set;
 
-public interface Configurable extends Serializable
+public interface Configurable
 {
     /**
      * Add an optional configuration option to the implementing instance
@@ -30,6 +29,15 @@ public interface Configurable extends Serializable
      * @param option Configuration option
      */
     void addConfigurationOption(String name, ConfigurationOption option);
+
+
+    /**
+     * Get an optional configuration value to the implementing instance from the implementing instance
+     *
+     * @param name Configuration option name
+     * @return the effective value or {@code null}
+     */
+    String getConfigurationOptionValue(String name);
 
     /**
      * Get an optional configuration value to the implementing instance from the implementing instance

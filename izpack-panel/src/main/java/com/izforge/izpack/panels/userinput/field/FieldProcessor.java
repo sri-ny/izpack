@@ -21,13 +21,16 @@
 
 package com.izforge.izpack.panels.userinput.field;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.ConfigurationOption;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.panels.userinput.processor.Processor;
 import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
+
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -37,6 +40,7 @@ import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClien
  */
 public class FieldProcessor
 {
+    private final IXMLElement processorElement;
 
     /**
      * The configuration.
@@ -44,14 +48,27 @@ public class FieldProcessor
     private final Config config;
 
     /**
+
      * The processor class name.
      */
     private final String className;
 
     /**
+     * The name of the variable holding the original value before processing (optional)
+     */
+    private final String originalValueVariable;
+
+    /**
+     * The original value before processing (optional)
+     */
+    private String originalValue;
+
+    /**
      * The cached processor instance.
      */
     private Processor processor;
+
+    private InstallData installData;
 
     /**
      * The logger.
@@ -62,13 +79,20 @@ public class FieldProcessor
     /**
      * Constructs a {@code FieldProcessor}.
      *
-     * @param processor the processor element
+     * @param processorElement the processor element
      * @param config    the configuration
      */
-    public FieldProcessor(IXMLElement processor, Config config)
+    public FieldProcessor(IXMLElement processorElement, Config config)
     {
-        className = config.getAttribute(processor, "class");
+        className = config.getAttribute(processorElement, "class");
+        originalValueVariable = config.getAttribute(processorElement, "backupVariable");
+        this.processorElement = processorElement;
         this.config = config;
+    }
+
+    public void setInstallData(InstallData installData)
+    {
+        this.installData = installData;
     }
 
     /**
@@ -78,7 +102,7 @@ public class FieldProcessor
      * @return the result of the processing
      * @throws IzPackException if processing fails
      */
-    public String process(String[] values)
+    public String process(String... values)
     {
         String result;
         try
@@ -87,7 +111,33 @@ public class FieldProcessor
             {
                 processor = config.getFactory().create(className, Processor.class);
             }
-            result = processor.process(new ValuesProcessingClient(values));
+
+            ValuesProcessingClient client = new ValuesProcessingClient(values);
+            client.readParameters(processorElement);
+
+            // Copy optional processor configuration parameters
+            Set<String> names = client.getNames();
+            if (names != null)
+            {
+                for (String key : names)
+                {
+                    ConfigurationOption option = client.getConfigurationOption(key);
+                    if (installData != null)
+                    {
+                        // Resolve variables in processor configuration parameters
+                        String value = option.getValue(installData.getRules());
+                        String newValue = installData.getVariables().replace(value);
+                        if (value != null && !value.equals(newValue))
+                        {
+                            option = new ConfigurationOption(newValue);
+                        }
+                    }
+                    client.addConfigurationOption(key, option);
+                }
+            }
+
+            originalValue = client.getText();
+            result = processor.process(client);
         }
         catch (Throwable exception)
         {
@@ -103,4 +153,13 @@ public class FieldProcessor
         return result;
     }
 
+    public String getBackupVariable()
+    {
+        return originalValueVariable;
+    }
+
+    public String getOriginalValue()
+    {
+        return originalValue;
+    }
 }
