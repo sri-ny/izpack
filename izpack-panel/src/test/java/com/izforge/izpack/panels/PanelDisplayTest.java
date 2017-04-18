@@ -19,6 +19,9 @@
 package com.izforge.izpack.panels;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.text.StringContains.containsString;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +29,10 @@ import java.util.Collections;
 import org.fest.swing.fixture.DialogFixture;
 import org.fest.swing.fixture.FrameFixture;
 import org.hamcrest.text.StringContains;
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.ri.common.views.DocumentViewController;
+import org.icepdf.ri.common.views.OnePageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -75,15 +82,40 @@ public class PanelDisplayTest extends AbstractPanelTest
     {
         FrameFixture frameFixture = show(HTMLInfoPanel.class);
         String textArea = frameFixture.textBox(GuiId.HTML_INFO_PANEL_TEXT.id).text();
-        assertThat(textArea, StringContains.containsString("This is a test"));
+        assertThat(textArea, containsString("This is a test"));
     }
 
     @Test
     public void licencePanelShouldDisplayText() throws Exception
     {
-        FrameFixture frameFixture = show(LicencePanel.class, HTMLInfoPanel.class,PDFLicencePanel.class);
+        IzPanelView view = createPanelView(LicencePanel.class);
+        view.getPanel().setPanelId("licence");
+
+        FrameFixture frameFixture = show(view);
+
         String textArea = frameFixture.textBox(GuiId.LICENCE_TEXT_AREA.id).text();
-        assertThat(textArea, StringContains.containsString("This is a licenSe panel"));
+        assertThat(textArea, containsString("This is a licenSe panel"));
+    }
+
+    @Test
+    public void pdfLicencePanelShouldDisplayText() throws Exception
+    {
+        IzPanelView view = createPanelView(PDFLicencePanel.class);
+        view.getPanel().setPanelId("licence");
+
+        FrameFixture frameFixture = show(view);
+
+        OnePageView onePageView = frameFixture.robot.finder().findByType(OnePageView.class);
+        DocumentViewController controller = onePageView.getParentViewController();
+
+        Document document = controller.getDocument();
+        assertThat(document, hasProperty("numberOfPages", equalTo(1)));
+
+        PageText pageText = document.getPageText(0);
+        pageText.selectAll();
+
+        String textArea = pageText.getSelected().toString();
+        assertThat(textArea, containsString("This is a licenSe panel"));
     }
 
     @Test
@@ -91,7 +123,7 @@ public class PanelDisplayTest extends AbstractPanelTest
     {
         FrameFixture frameFixture = show(SimpleFinishPanel.class);
         String text = frameFixture.label(GuiId.SIMPLE_FINISH_LABEL.id).text();
-        assertThat(text, StringContains.containsString("Installation has completed"));
+        assertThat(text, containsString("Installation has completed"));
     }
 
     @Test
@@ -101,10 +133,10 @@ public class PanelDisplayTest extends AbstractPanelTest
         Mockito.when(uninstallDataWriter.isUninstallRequired()).thenReturn(true);
         FrameFixture frameFixture = show(HelloPanel.class, SimpleFinishPanel.class);
         String welcomeLabel = frameFixture.label(GuiId.HELLO_PANEL_LABEL.id).text();
-        assertThat(welcomeLabel, StringContains.containsString("Welcome to the installation of"));
+        assertThat(welcomeLabel, containsString("Welcome to the installation of"));
         frameFixture.button(GuiId.BUTTON_NEXT.id).click();
         String uninstallLabel = frameFixture.label(GuiId.SIMPLE_FINISH_UNINSTALL_LABEL.id).text();
-        assertThat(uninstallLabel, StringContains.containsString("An uninstaller program has been created in"));
+        assertThat(uninstallLabel, containsString("An uninstaller program has been created in"));
     }
 
     @Test
@@ -112,7 +144,7 @@ public class PanelDisplayTest extends AbstractPanelTest
     {
         FrameFixture frameFixture = show(FinishPanel.class);
         String text = frameFixture.label(GuiId.FINISH_PANEL_LABEL.id).text();
-        assertThat(text, StringContains.containsString("Installation has completed"));
+        assertThat(text, containsString("Installation has completed"));
         // Is automatic installation xml button visible?
         frameFixture.button(GuiId.FINISH_PANEL_AUTO_BUTTON.id).requireVisible();
     }
@@ -129,7 +161,7 @@ public class PanelDisplayTest extends AbstractPanelTest
         frameFixture.button(GuiId.BUTTON_HELP.id).click();
         DialogFixture dialogFixture = frameFixture.dialog(GuiId.HELP_WINDOWS.id);
         dialogFixture.requireVisible();
-        assertThat(dialogFixture.textBox().text(), StringContains.containsString("toto"));
+        assertThat(dialogFixture.textBox().text(), containsString("toto"));
     }
 
 }
