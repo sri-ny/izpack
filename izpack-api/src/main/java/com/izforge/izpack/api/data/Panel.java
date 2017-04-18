@@ -80,7 +80,7 @@ public class Panel extends DefaultConfigurationHandler implements Serializable
     /**
      * Set affected variable names that might be changed on this panel
      */
-    private Set<String> affectedVariableNames;
+    private Set<String> affectedVariableNames = new HashSet<String>();
 
     /**
      * The map of validator conditions for this panel depending on the validator
