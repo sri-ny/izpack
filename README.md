@@ -43,13 +43,15 @@ Below I provide a list of new services divided by providers:
 If you want to participate in development or improving our website, grab a Github account and send pull requests. All you need is the basic idea and the knowledge in using GIT and the Github services.
 
 Don't use the Github issue tracker or Wiki at this time. We use more advanced services for this.
-Source code
+
+#### Source code
 
 The IzPack source code is hosted at https://github.com/izpack/izpack.
 See the Developing and contributing section about how to contribute code changes.
 
 Fork the Github repository, create a branch using an according JIRA issue as the branch name for each change and send pull requests from this branch to be able to create a changelog for each release and not get mixed up changes from your master branch for several issues at once.
-Web page
+
+#### Web page
 
 The IzPack website is hosted at https://github.com/izpack/izpack.github.com. 
 For bigger changes or refactory use a special branch for each change. Send pull requests. 
