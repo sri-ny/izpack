@@ -30,8 +30,6 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
@@ -114,6 +112,9 @@ public class XMLParser implements IXMLParser
                 saxParserFactory.setSchema(schemaFactory.newSchema(schemaSources));
             }
 
+            saxParserFactory.setFeature("http://apache.org/xml/features/xinclude/fixup-base-uris", false);
+            saxParserFactory.setFeature("http://apache.org/xml/features/xinclude/fixup-language", false);
+
             SAXParser parser = saxParserFactory.newSAXParser();
             if (validating && (schemaSources == null || schemaSources.length == 0))
             {
@@ -154,14 +155,9 @@ public class XMLParser implements IXMLParser
             result = new DOMResult();
             SAXSource source = new SAXSource(inputSource);
             source.setXMLReader(filter);
-            URL xslResourceUrl = IXMLParser.class.getResource(XSL_FILE_NAME);
-            if (xslResourceUrl == null)
-            {
-                throw new XMLException("Can't find IzPack internal file \"" + XSL_FILE_NAME + "\"");
-            }
-            Source xsltSource = new StreamSource(xslResourceUrl.openStream());
-            Transformer xformer = TransformerFactory.newInstance().newTransformer(xsltSource);
-            xformer.transform(source, result);
+
+            TransformerFactory.newInstance().newTransformer().transform(source, result);
+
             filter.applyLN(result);
         }
         catch (TransformerException e)
@@ -182,10 +178,6 @@ public class XMLParser implements IXMLParser
             {
                 throw new XMLException("Error" + extraInfos + " : " + e.getMessage(), e);
             }
-            throw new XMLException(e);
-        }
-        catch (IOException e)
-        {
             throw new XMLException(e);
         }
         finally
