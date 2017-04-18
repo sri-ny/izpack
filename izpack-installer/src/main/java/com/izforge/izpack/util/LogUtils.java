@@ -94,7 +94,7 @@ public class LogUtils
 
             boolean mkdirs = false;
             String pattern = null;
-            if (configuration.getProperty("handlers").contains(FILEHANDLER_CLASSNAME) && manager.getProperty("handlers").contains(FILEHANDLER_CLASSNAME))
+            if (configuration.getProperty("handlers") != null && configuration.getProperty("handlers").contains(FILEHANDLER_CLASSNAME) && manager.getProperty("handlers").contains(FILEHANDLER_CLASSNAME))
             {
                 // IzPack maintains just one log file, don't override the existing handler type of it.
                 // Special use case: Command line argument -logfile "wins" over the <log-file> tag.
