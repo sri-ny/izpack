@@ -1269,7 +1269,6 @@ public class CompilerConfig extends Thread
             String conditionId = parseConditionAttribute(executableNode);
             List<OsModel> osList = OsConstraintHelper.getOsList(executableNode); // TODO: unverified
             int executionStage = ExecutableFile.NEVER, type = ExecutableFile.BIN, onFailure = ExecutableFile.ASK;
-            String mainClass = null;
             boolean keepFile;
 
             String val = executableNode.getAttribute("stage", "never");
@@ -1284,10 +1283,21 @@ public class CompilerConfig extends Thread
 
             // type of this executable
             val = executableNode.getAttribute("type", "bin");
+            String mainClass = executableNode.getAttribute("class"); // executable class
             if ("jar".equalsIgnoreCase(val))
             {
                 type = ExecutableFile.JAR;
-                mainClass = executableNode.getAttribute("class"); // executable class
+                if (mainClass == null || mainClass.isEmpty())
+                {
+                    throw new CompilerException("Attribute 'class' mandatory and must not be empty for type 'jar'");
+                }
+            }
+            else
+            {
+                if (mainClass != null)
+                {
+                    throw new CompilerException("Attribute 'class' allowed for type 'jar' only");
+                }
             }
 
             // what to do if execution fails
