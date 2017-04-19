@@ -29,6 +29,7 @@ import com.izforge.izpack.api.data.binding.OsModel;
 import com.izforge.izpack.api.data.binding.Stage;
 import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.factory.ObjectFactory;
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
 import com.izforge.izpack.api.installer.DataValidator;
 import com.izforge.izpack.api.installer.DataValidator.Status;
 import com.izforge.izpack.api.merge.Mergeable;
@@ -48,6 +49,7 @@ import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.compiler.resource.ResourceFinder;
 import com.izforge.izpack.compiler.util.AntPathMatcher;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
+import com.izforge.izpack.compiler.util.compress.ArchiveStreamFactory;
 import com.izforge.izpack.compiler.xml.*;
 import com.izforge.izpack.core.data.DynamicInstallerRequirementValidatorImpl;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
@@ -79,7 +81,6 @@ import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
-import com.izforge.izpack.compiler.util.compress.ArchiveStreamFactory;
 import com.izforge.izpack.util.file.DirectoryScanner;
 import com.izforge.izpack.util.helper.SpecHelper;
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -1794,8 +1795,7 @@ public class CompilerConfig extends Thread
                 }
             }
             panel.setClassName(type.getName());
-
-            addConfigurationOptions(panelElement, panel);
+            panel.readParameters(panelElement);
 
             // adding validator
             List<IXMLElement> validatorElements = panelElement.getChildrenNamed(DataValidator.DATA_VALIDATOR_TAG);
@@ -1806,11 +1806,11 @@ public class CompilerConfig extends Thread
                 {
                     String validatorCondition = validatorElement.getAttribute(DataValidator.DATA_VALIDATOR_CONDITION_ATTR);
                     Class<DataValidator> validatorType = classLoader.loadClass(validator, DataValidator.class);
-                    Configurable configurable = null;
+                    DefaultConfigurationHandler configurable = null;
                     if (PanelValidator.class.isAssignableFrom(validatorType))
                     {
                         configurable = new DefaultConfigurationHandlerAdapter();
-                        addConfigurationOptions(validatorElement, configurable);
+                        configurable.readParameters(validatorElement);
                         logger.finer("Validator " + validatorType.getName()
                                 + " extends the " + PanelValidator.class.getSimpleName()
                                 + "interface and adds "
@@ -3874,37 +3874,6 @@ public class CompilerConfig extends Thread
                 IXMLElement element = referencedPacksConfigurationActionSpec.get(packName);
                 configurationSpecAssertionHelper.parseError(element,
                         "Expression '" + packName + "' refers to undefined pack");
-            }
-        }
-    }
-
-    private void addConfigurationOptions(IXMLElement element, Configurable configurable)
-    {
-        IXMLElement configurationElement = element.getFirstChildNamed("configuration");
-        if (configurationElement != null)
-        {
-            logger.fine("Found configuration section for '" + element.getName() + "' element");
-            List<IXMLElement> params = configurationElement.getChildren();
-            for (IXMLElement param : params)
-            {
-                String elementName = param.getName();
-                String name = elementName;
-                final String value;
-                if (elementName.equals("param"))
-                {
-                    // Format: <param name="option_1" value="value_1" />
-                    name = xmlCompilerHelper.requireAttribute(param, "name");
-                    value = xmlCompilerHelper.requireAttribute(param, "value");
-                } else
-                {
-                    // Format: <option_1 condition="..." defaultValue="...">value_1</option_1>
-                    value = xmlCompilerHelper.requireContent(param);
-                }
-                String condition = parseConditionAttribute(param);
-                String defaultValue = param.getAttribute("defaultValue");
-                final ConfigurationOption option = new ConfigurationOption(value, condition, defaultValue);
-                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
-                configurable.addConfigurationOption(name, option);
             }
         }
     }
