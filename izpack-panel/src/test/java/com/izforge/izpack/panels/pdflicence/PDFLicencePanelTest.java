@@ -62,7 +62,6 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
 	@Test
 	public void shouldDisplayLicenceText() throws Exception
 	{
-
 		IzPanelView view = createPanelView(PDFLicencePanel.class);
 		view.getPanel().setPanelId("licence");
 
@@ -84,7 +83,6 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldSelectLicenceNoRadioByDefault() throws Exception
     {
-
         IzPanelView view = createPanelView(PDFLicencePanel.class);
         view.getPanel().setPanelId("licence");
 
@@ -96,7 +94,6 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldDisableNextButtonByDefault() throws Exception
     {
-
         IzPanelView view = createPanelView(PDFLicencePanel.class);
         view.getPanel().setPanelId("licence");
 
@@ -108,7 +105,6 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldEnableNextButtonIfLicenceIsAccepted() throws Exception
     {
-
         IzPanelView view = createPanelView(PDFLicencePanel.class);
         view.getPanel().setPanelId("licence");
 
