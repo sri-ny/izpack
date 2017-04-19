@@ -20,6 +20,7 @@
 package com.izforge.izpack.panels.userinput;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -716,8 +717,10 @@ public class UserInputPanelTest extends AbstractPanelTest
     {
         // attempt to navigate to the next panel
         frame.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
+
+        waitForPanel(SimpleFinishPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(SimpleFinishPanel.class));
     }
 
     /**
@@ -729,8 +732,10 @@ public class UserInputPanelTest extends AbstractPanelTest
     private FrameFixture showUserInputPanel(String id) throws InterruptedException
     {
         FrameFixture fixture = show(createPanel(UserInputPanel.class, id), createPanel(SimpleFinishPanel.class));
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof UserInputPanel);
+        waitForPanel(UserInputPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(UserInputPanel.class));
+
         return fixture;
     }
 
