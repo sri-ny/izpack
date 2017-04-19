@@ -21,6 +21,8 @@
 package com.izforge.izpack.panels.process;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.text.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -92,6 +94,7 @@ public class ProcessPanelTest extends AbstractPanelTest
     public void setUp()
     {
         lookAndFeel = UIManager.getLookAndFeel();
+        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/process/");
     }
 
     /**
@@ -114,19 +117,15 @@ public class ProcessPanelTest extends AbstractPanelTest
     @Test
     public void testExecuteClass() throws Exception
     {
-        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/process/");
         Executable.init();
         Executable.setReturn(true);
 
         // show the panel
-        FrameFixture fixture = show(ProcessPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof ProcessPanel);
+        FrameFixture fixture = showProcessPanel();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
+        waitForPanel(SimpleFinishPanel.class);
 
         // verify Executable was run the expected no. of times, with the expected arguments
         assertEquals(2, Executable.getInvocations());
@@ -149,23 +148,19 @@ public class ProcessPanelTest extends AbstractPanelTest
             UIManager.setLookAndFeel(lookAndFeel);
         }
 
-        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/process/");
         Executable.init();
         Executable.setException(true);
 
         // show the panel
-        FrameFixture fixture = show(ProcessPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof ProcessPanel);
+        FrameFixture fixture = showProcessPanel();
 
         // attempt to navigate to the next panel
         DialogFixture dialogFixture = fixture.dialog();
         dialogFixture.requireVisible();
         assertThat(dialogFixture.label("OptionPane.label").text(),
-                   StringContains.containsString("Executable exception"));
+                   containsString("Executable exception"));
         dialogFixture.button().click();
 
-        Thread.sleep(2000);
         fixture.button(GuiId.BUTTON_NEXT.id).requireDisabled();
 
         assertTrue(getPanels().getView() instanceof ProcessPanel);
@@ -175,4 +170,16 @@ public class ProcessPanelTest extends AbstractPanelTest
         assertArrayEquals(Executable.getArgs(0), new String[]{"run0"});
     }
 
+    /**
+     * Creates and waits for a process panel.
+     *
+     * @return The frame fixture for the process panel.
+     */
+    private FrameFixture showProcessPanel()
+    {
+        FrameFixture fixture = show(ProcessPanel.class, SimpleFinishPanel.class);
+        waitForPanel(ProcessPanel.class);
+        assertThat(getPanels().getView(), instanceOf(ProcessPanel.class));
+        return fixture;
+    }
 }
