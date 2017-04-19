@@ -22,7 +22,9 @@ package com.izforge.izpack.panels.defaulttarget;
 
 import static com.izforge.izpack.panels.target.TargetPanelHelper.TARGET_PANEL_DIR;
 import static com.izforge.izpack.util.Platform.Name.MAC_OSX;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -128,7 +130,7 @@ public class DefaultTargetPanelTest extends AbstractPanelTest
     }
 
     /**
-     * Verfiies that the installation path matches that expected, after the panel has been showh.
+     * Verifies that the installation path matches that expected, after the panel has been shown.
      *
      * @param expectedPath the expected installation path
      * @throws Exception for any error
@@ -137,9 +139,11 @@ public class DefaultTargetPanelTest extends AbstractPanelTest
     {
         GUIInstallData installData = getInstallData();
         show(DefaultTargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
-        assertEquals(expectedPath, installData.getInstallPath());
+
+        waitForPanel(SimpleFinishPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(SimpleFinishPanel.class));
+        assertThat(installData.getInstallPath(), equalTo(expectedPath));
     }
 
 }
