@@ -20,7 +20,9 @@
  */
 package com.izforge.izpack.panels.target;
 
+import static org.fest.swing.timing.Timeout.timeout;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -106,16 +108,12 @@ public class TargetPanelTest extends AbstractPanelTest
         GUIInstallData installData = getInstallData();
         installData.setDefaultInstallPath("");
 
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
         checkWarningQuestion(fixture, installData.getMessages().get("TargetPanel.warn"));
 
-        Thread.sleep(1000);
         assertEquals(userDir.getAbsolutePath(), installData.getInstallPath());
     }
 
@@ -133,17 +131,13 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
         String expectedMessage = installData.getMessages().get("TargetPanel.createdir") + "\n" + dir;
         checkWarning(fixture, expectedMessage);
 
-        Thread.sleep(1000);
         assertEquals(dir.getAbsolutePath(), installData.getInstallPath());
         assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
     }
@@ -163,16 +157,12 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
         checkWarningQuestion(fixture, installData.getMessages().get("TargetPanel.warn"));
 
-        Thread.sleep(1000);
         assertEquals(dir.getAbsolutePath(), installData.getInstallPath());
         assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
     }
@@ -191,12 +181,10 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
-        FrameFixture fixture = show(NotWritableTargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
+        FrameFixture fixture = showTargetPanel(NotWritableTargetPanel.class);
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
 
         checkErrorMessage(fixture, installData.getMessages().get("TargetPanel.notwritable"));
         assertNull(installData.getInstallPath());
@@ -220,31 +208,25 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
         checkErrorMessage(fixture, messages.get("PathInputPanel.required"));
 
-        Thread.sleep(1000);
         assertTrue(dir.mkdirs());
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
 
         checkErrorMessage(fixture, messages.get("PathInputPanel.required.forModificationInstallation"));
 
         // create the .installinformationfile
         TargetPanelTestHelper.createInstallationInfo(dir);
-        Thread.sleep(1000);
-        fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
 
         // navigation should now succeed.
+        checkNavigateNext(fixture);
+
         assertEquals(dir.getAbsolutePath(), installData.getInstallPath());
         assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
     }
@@ -271,19 +253,14 @@ public class TargetPanelTest extends AbstractPanelTest
         TargetPanelTestHelper.createBadInstallationInfo(badDir);
 
         // show the panel
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
         TargetPanel panel = (TargetPanel) getPanels().getView();
 
         // attempt to navigate to the next panel
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
 
         // panel should be the same and error should be displayed
-        assertEquals(panel, getPanels().getView());
         checkErrorMessage(fixture, TargetPanelTestHelper.getIncompatibleInstallationMessage(installData));
-        Thread.sleep(1000);
 
         // should still be on the TargetPanel
         assertEquals(panel, getPanels().getView());
@@ -293,10 +270,7 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setVariable("ShowCreateDirectoryMessage", "false");
 
         // attempt to navigate to the next panel
-        Thread.sleep(1000);
-        fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1500);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
+        checkNavigateNext(fixture);
     }
 
     /**
@@ -318,15 +292,13 @@ public class TargetPanelTest extends AbstractPanelTest
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
-        FrameFixture fixture = show(TargetPanel.class, SimpleFinishPanel.class);
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof TargetPanel);
+        FrameFixture fixture = showTargetPanel();
+
         TargetPanel panel = (TargetPanel) getPanels().getView();
         panel.setMustExist(true); // to avoid popping up a Directory already exists dialog
         panel.setExistFiles(requiredFiles);
 
         fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
         checkErrorMessage(fixture, messages.get("PathInputPanel.notValid"));
 
         // create the required files
@@ -335,9 +307,8 @@ public class TargetPanelTest extends AbstractPanelTest
             File file = new File(dir, required);
             FileUtils.touch(file);
         }
-        fixture.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(1000);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
+
+        checkNavigateNext(fixture);
         assertEquals(dir.getAbsolutePath(), installData.getInstallPath());
     }
 
@@ -356,7 +327,7 @@ public class TargetPanelTest extends AbstractPanelTest
 
     private void checkWarningQuestion(FrameFixture frame, String expected)
     {
-        JOptionPaneFixture warningQuestion = frame.optionPane().requireWarningMessage();
+        JOptionPaneFixture warningQuestion = frame.optionPane(timeout(2000)).requireWarningMessage();
         warningQuestion.requireMessage(expected);
         warningQuestion.yesButton().click();
     }
@@ -369,7 +340,7 @@ public class TargetPanelTest extends AbstractPanelTest
      */
     private void checkErrorMessage(FrameFixture frame, String expected)
     {
-        JOptionPaneFixture error = frame.optionPane().requireErrorMessage();
+        JOptionPaneFixture error = frame.optionPane(timeout(2000)).requireErrorMessage();
         // Can't use error.requireMessage due to custom JPanel message in GUIPrompt
         assertThat(error.label("OptionPane.label").text(), equalTo(expected));
         error.button().click();
@@ -383,9 +354,48 @@ public class TargetPanelTest extends AbstractPanelTest
      */
     private void checkQuestionMessage(FrameFixture frame, String expected)
     {
-        JOptionPaneFixture question = frame.optionPane().requireQuestionMessage();
+        JOptionPaneFixture question = frame.optionPane(timeout(2000)).requireQuestionMessage();
         question.requireMessage(expected);
         question.yesButton().click();
+    }
+
+    /**
+     * Verifies that the next panel can be navigated to.
+     *
+     * @param frame the frame
+     * @throws InterruptedException if interrupted waiting for the panel to change
+     */
+    private void checkNavigateNext(FrameFixture frame) throws InterruptedException
+    {
+        // attempt to navigate to the next panel
+        frame.button(GuiId.BUTTON_NEXT.id).click();
+
+        waitForPanel(SimpleFinishPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(SimpleFinishPanel.class));
+    }
+
+    /**
+     * Creates and waits for a {@link TargetPanel}.
+     *
+     * @return The frame fixture for the target panel.
+     */
+    private FrameFixture showTargetPanel()
+    {
+        return showTargetPanel(TargetPanel.class);
+    }
+
+    /**
+     * Creates and waits for a specific target panel.
+     *
+     * @return The frame fixture for the target panel.
+     */
+    private FrameFixture showTargetPanel(Class<? extends TargetPanel> clazz)
+    {
+        FrameFixture fixture = show(clazz, SimpleFinishPanel.class);
+        waitForPanel(clazz);
+        assertThat(getPanels().getView(), instanceOf(clazz));
+        return fixture;
     }
 
     /**
