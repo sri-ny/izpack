@@ -127,19 +127,19 @@ public abstract class DefaultConfigurationHandler implements Configurable, Seria
                 logger.fine("-> Adding configuration option " + name + " (" + option + ")");
                 addConfigurationOption(name, option);
             }
-            // Deprecated: compatibility
-            List<IXMLElement> otherParams = element.getChildrenNamed("param");
-            if (!otherParams.isEmpty())
+        }
+        // Deprecated: compatibility
+        List<IXMLElement> otherParams = element.getChildrenNamed("param");
+        if (!otherParams.isEmpty())
+        {
+            logger.fine("Found deprecated nested <param> definition(s) for '" + element.getName() + "' element, please migrate them to the new <configuration> format");
+            for (IXMLElement parameter : otherParams)
             {
-                logger.fine("Found deprecated nested <param> definition(s) for '" + element.getName() + "' element, please migrate them to the new <configuration> format");
-                for (IXMLElement parameter : otherParams)
-                {
-                    String name = parameter.getAttribute("name");
-                    String value = parameter.getAttribute("value");
-                    final ConfigurationOption option = new ConfigurationOption(value);
-                    logger.fine("-> Adding configuration option " + name + " (" + option + ")");
-                    addConfigurationOption(name, option);
-                }
+                String name = parameter.getAttribute("name");
+                String value = parameter.getAttribute("value");
+                final ConfigurationOption option = new ConfigurationOption(value);
+                logger.fine("-> Adding configuration option " + name + " (" + option + ")");
+                addConfigurationOption(name, option);
             }
         }
     }
