@@ -20,33 +20,37 @@
 package com.izforge.izpack.panels.licence;
 
 import com.izforge.izpack.api.data.Panel;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
+import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
 import com.izforge.izpack.installer.gui.IzPanel;
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.LayoutManager2;
 import java.net.URL;
 import java.util.logging.Logger;
 
 public abstract class AbstractLicencePanel extends IzPanel
 {
+    private static final long serialVersionUID = 1483930095144726447L;
+
     /**
      * The logger.
      */
     private static final Logger logger = Logger.getLogger(AbstractLicencePanel.class.getName());
 
-    private static final String DEFAULT_SUFFIX = ".licence";
-    private static final long serialVersionUID = 1483930095144726447L;
+    /**
+     * The shared licence loader.
+     */
+    private final transient LicenceLoader licenceLoader;
 
-    public AbstractLicencePanel(Panel panel, InstallerFrame parent, GUIInstallData installData, LayoutManager2 layoutManager, Resources resources)
+
+    public AbstractLicencePanel(Panel panel, InstallerFrame parent,
+                                GUIInstallData installData, LayoutManager2 layoutManager,
+                                Resources resources)
     {
         super(panel, parent, installData, layoutManager, resources);
+        licenceLoader = new LicenceLoader(getClass(), getMetadata(), resources);
     }
 
     /**
@@ -56,44 +60,15 @@ public abstract class AbstractLicencePanel extends IzPanel
      */
     protected URL loadLicence()
     {
-        final String resNamePrefix = getClass().getSimpleName();
-        String resNameStr = resNamePrefix + DEFAULT_SUFFIX;
-
-        Panel panel = getMetadata();
-        Resources resources = getResources();
-        URL url = null;
-        if (panel != null)
+        try
         {
-            String panelId = panel.getPanelId();
-            if (panelId != null)
-            {
-                String panelSpecificResName = resNamePrefix + '.' + panelId;
-                try
-                {
-                    url = resources.getURL(panelSpecificResName);
-                }
-                catch (ResourceNotFoundException e)
-                {
-                    try
-                    {
-                        url = resources.getURL(resNameStr);
-                    }
-                    catch (Exception ignored)
-                    {
-                    }
-                }
-            }
+            return licenceLoader.asURL();
         }
-
-        if (url == null)
+        catch (ResourceException e)
         {
-            String panelId = panel != null ? panel.getPanelId() : null;
-            logger.warning("Cannot open any of the possible license document resources ("
-                    + (panelId != null ? resNamePrefix + '.' + panelId + ", " : "")
-                    + resNamePrefix + DEFAULT_SUFFIX
-                    + ") for panel type '" + resNamePrefix + "" );
+            logger.warning(e.getMessage());
+            return null;
         }
-        return url;
     }
 
     protected String loadLicenceAsString()
@@ -103,26 +78,14 @@ public abstract class AbstractLicencePanel extends IzPanel
 
     protected String loadLicenceAsString(final String encoding)
     {
-        URL url = null;
-        String result = null;
         try
         {
-            url = loadLicence();
-
-            InputStream in = url.openStream();
-            try
-            {
-                result = IOUtils.toString(in, Charsets.toCharset(encoding));
-            }
-            finally
-            {
-                IOUtils.closeQuietly(in);
-            }
+            return licenceLoader.asString(encoding);
         }
-        catch (IOException e)
+        catch (ResourceException e)
         {
-            logger.warning("Cannot convert license document from resource " + url.getFile() + " to text: " + e.getMessage());
+            logger.warning(e.getMessage());
+            return null;
         }
-        return result;
     }
 }

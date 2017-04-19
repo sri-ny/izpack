@@ -81,6 +81,25 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
 	}
 
     @Test
+    public void shouldFindAndDisplayLicenceTextForPanelWithoutIdentifier() throws Exception
+    {
+        // create a panel without identifier
+        FrameFixture fixture = show(PDFLicencePanel.class);
+
+        OnePageView onePageView = fixture.robot.finder().findByType(OnePageView.class);
+        DocumentViewController controller = onePageView.getParentViewController();
+
+        Document document = controller.getDocument();
+        assertThat(document, hasProperty("numberOfPages", equalTo(1)));
+
+        PageText pageText = document.getPageText(0);
+        pageText.selectAll();
+
+        String textArea = pageText.getSelected().toString();
+        assertThat(textArea, containsString("This is a licenSe panel"));
+    }
+
+    @Test
     public void shouldSelectLicenceNoRadioByDefault() throws Exception
     {
         IzPanelView view = createPanelView(PDFLicencePanel.class);
