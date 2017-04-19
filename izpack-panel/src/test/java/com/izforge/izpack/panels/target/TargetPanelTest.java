@@ -20,8 +20,10 @@
  */
 package com.izforge.izpack.panels.target;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -154,10 +156,10 @@ public class TargetPanelTest extends AbstractPanelTest
     @Test
     public void testDirectoryExists() throws Exception
     {
+        File dir = temporaryFolder.getRoot();
+        temporaryFolder.newFile("warning-is-only-triggered-for-non-empty-directory.txt");
+
         GUIInstallData installData = getInstallData();
-        File root = temporaryFolder.getRoot();
-        File dir = new File(root, "install");
-        assertTrue(dir.mkdirs());
         installData.setDefaultInstallPath(dir.getAbsolutePath());
 
         // show the panel
@@ -183,8 +185,7 @@ public class TargetPanelTest extends AbstractPanelTest
     @Test
     public void testNotWritable() throws Exception
     {
-        File root = File.listRoots()[0];
-        File dir = new File(root, "install");
+        File dir = temporaryFolder.newFolder("install");
 
         GUIInstallData installData = getInstallData();
         installData.setDefaultInstallPath(dir.getAbsolutePath());
@@ -260,10 +261,10 @@ public class TargetPanelTest extends AbstractPanelTest
         GUIInstallData installData = getInstallData();
 
         // set up two potential directories to install to, "badDir" and "goodDir"
-        File root = temporaryFolder.getRoot();
-        File badDir = new File(root, "badDir");
-        assertTrue(badDir.mkdirs());
-        File goodDir = new File(root, "goodDir");   // don't bother creating it
+
+        File badDir = temporaryFolder.newFolder("badDir");
+        File goodDir = temporaryFolder.newFolder("goodDir");
+
         installData.setDefaultInstallPath(badDir.getAbsolutePath());
 
         // create an invalid "badDir/.installationinformation" to simulate incompatible data
@@ -369,8 +370,9 @@ public class TargetPanelTest extends AbstractPanelTest
     private void checkErrorMessage(FrameFixture frame, String expected)
     {
         JOptionPaneFixture error = frame.optionPane().requireErrorMessage();
-        error.requireMessage(expected);
-        error.okButton().click();
+        // Can't use error.requireMessage due to custom JPanel message in GUIPrompt
+        assertThat(error.label("OptionPane.label").text(), equalTo(expected));
+        error.button().click();
     }
 
     /**
@@ -397,6 +399,18 @@ public class TargetPanelTest extends AbstractPanelTest
                                       Resources resources, Log log)
         {
             super(panel, parent, installData, resources, log);
+        }
+
+        /**
+         * This implementation always returns false.
+         *
+         * @param path The path which is to be checked.
+         * @return Always false.
+         */
+        @Override
+        protected boolean isWritable(File path) {
+
+            return false;
         }
     }
 }

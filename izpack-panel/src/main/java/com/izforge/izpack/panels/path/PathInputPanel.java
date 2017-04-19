@@ -40,6 +40,9 @@ import java.util.logging.Logger;
 /**
  * Base class for panels which asks for paths to directories.
  *
+ * FIXME Uses un-mockable static calls to PathInputBase
+ * FIXME Injecting an instance of PathInputBase would solve testing issues
+ *
  * @author Klaus Bartz
  */
 public class PathInputPanel extends IzPanel implements ActionListener
@@ -176,7 +179,7 @@ public class PathInputPanel extends IzPanel implements ActionListener
         }
         else
         {
-            if (!PathInputBase.isWritable(file))
+            if (!isWritable(file))
             {
                 emitError(getString("installer.error"), getI18nStringForClass("notwritable", "TargetPanel"));
                 return false;
@@ -371,6 +374,23 @@ public class PathInputPanel extends IzPanel implements ActionListener
                     AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_YES) == AbstractUIHandler.ANSWER_YES;
         }
         return result;
+    }
+
+    /**
+     * Encapsulates the static call to {@link PathInputBase#isWritable(File)}.
+     *
+     * <p>
+     *     This method was re-added so that it can be overwritten by test
+     *     helpers since a directory which is not writable cannot be easily
+     *     created.
+     * </p>
+     *
+     * @param path The path which is to be checked.
+     * @return {@code True}, if the given path is writable.
+     */
+    protected boolean isWritable(File path) {
+
+        return PathInputBase.isWritable(path);
     }
 
     /**
