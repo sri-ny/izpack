@@ -99,7 +99,7 @@
 	  <dependency>
         <groupId>org.icepdf.os</groupId>
         <artifactId>icepdf-viewer</artifactId>
-        <version>6.2.0</version>
+        <version>6.2.2</version>
         <exclusions>
           <exclusion>
             <groupId>javax.media</groupId>
