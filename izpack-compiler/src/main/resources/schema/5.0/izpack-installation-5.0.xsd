@@ -947,6 +947,7 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
+        <xs:attribute name="class" type="types:fullyQualifiedClassNameType" use="optional"/>
         <xs:attribute name="failure" default="ask">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
