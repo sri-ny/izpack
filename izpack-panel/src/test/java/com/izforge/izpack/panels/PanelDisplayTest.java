@@ -19,8 +19,6 @@
 package com.izforge.izpack.panels;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.text.StringContains.containsString;
 
 import java.util.Arrays;
@@ -28,11 +26,6 @@ import java.util.Collections;
 
 import org.fest.swing.fixture.DialogFixture;
 import org.fest.swing.fixture.FrameFixture;
-import org.hamcrest.text.StringContains;
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.graphics.text.PageText;
-import org.icepdf.ri.common.views.DocumentViewController;
-import org.icepdf.ri.common.views.OnePageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -52,7 +45,6 @@ import com.izforge.izpack.panels.finish.FinishPanel;
 import com.izforge.izpack.panels.hello.HelloPanel;
 import com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel;
 import com.izforge.izpack.panels.licence.LicencePanel;
-import com.izforge.izpack.panels.pdflicence.PDFLicencePanel;
 import com.izforge.izpack.panels.simplefinish.SimpleFinishPanel;
 import com.izforge.izpack.panels.test.AbstractPanelTest;
 import com.izforge.izpack.panels.test.TestGUIPanelContainer;
@@ -94,27 +86,6 @@ public class PanelDisplayTest extends AbstractPanelTest
         FrameFixture frameFixture = show(view);
 
         String textArea = frameFixture.textBox(GuiId.LICENCE_TEXT_AREA.id).text();
-        assertThat(textArea, containsString("This is a licenSe panel"));
-    }
-
-    @Test
-    public void pdfLicencePanelShouldDisplayText() throws Exception
-    {
-        IzPanelView view = createPanelView(PDFLicencePanel.class);
-        view.getPanel().setPanelId("licence");
-
-        FrameFixture frameFixture = show(view);
-
-        OnePageView onePageView = frameFixture.robot.finder().findByType(OnePageView.class);
-        DocumentViewController controller = onePageView.getParentViewController();
-
-        Document document = controller.getDocument();
-        assertThat(document, hasProperty("numberOfPages", equalTo(1)));
-
-        PageText pageText = document.getPageText(0);
-        pageText.selectAll();
-
-        String textArea = pageText.getSelected().toString();
         assertThat(textArea, containsString("This is a licenSe panel"));
     }
 
