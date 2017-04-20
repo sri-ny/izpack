@@ -40,6 +40,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 public class PDFLicencePanelTest extends AbstractPanelTest {
@@ -62,10 +63,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
 	@Test
 	public void shouldDisplayLicenceText() throws Exception
 	{
-		IzPanelView view = createPanelView(PDFLicencePanel.class);
-		view.getPanel().setPanelId("licence");
-
-		FrameFixture fixture = show(view);
+        FrameFixture fixture = showPDFLicencePanel("licence");
 
 		OnePageView onePageView = fixture.robot.finder().findByType(OnePageView.class);
 		DocumentViewController controller = onePageView.getParentViewController();
@@ -84,7 +82,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     public void shouldFindAndDisplayLicenceTextForPanelWithoutIdentifier() throws Exception
     {
         // create a panel without identifier
-        FrameFixture fixture = show(PDFLicencePanel.class);
+        FrameFixture fixture = showPDFLicencePanel(null);
 
         OnePageView onePageView = fixture.robot.finder().findByType(OnePageView.class);
         DocumentViewController controller = onePageView.getParentViewController();
@@ -102,10 +100,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldSelectLicenceNoRadioByDefault() throws Exception
     {
-        IzPanelView view = createPanelView(PDFLicencePanel.class);
-        view.getPanel().setPanelId("licence");
-
-        FrameFixture fixture = show(view);
+        FrameFixture fixture = showPDFLicencePanel("licence");
 
         fixture.radioButton("LicenceNoRadio").requireSelected();
     }
@@ -113,10 +108,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldDisableNextButtonByDefault() throws Exception
     {
-        IzPanelView view = createPanelView(PDFLicencePanel.class);
-        view.getPanel().setPanelId("licence");
-
-        FrameFixture fixture = show(view, createPanelView(SimpleFinishPanel.class));
+        FrameFixture fixture = showPDFLicencePanel("licence");
 
         fixture.button("nextButton").requireDisabled();
     }
@@ -124,13 +116,32 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
     @Test
     public void shouldEnableNextButtonIfLicenceIsAccepted() throws Exception
     {
-        IzPanelView view = createPanelView(PDFLicencePanel.class);
-        view.getPanel().setPanelId("licence");
-
-        FrameFixture fixture = show(view, createPanelView(SimpleFinishPanel.class));
+        FrameFixture fixture = showPDFLicencePanel("licence");
 
         fixture.radioButton("LicenceYesRadio").check();
 
         fixture.button("nextButton").requireEnabled();
+    }
+
+    /**
+     * Creates a fixture for a {@link PDFLicencePanel} and a {@link SimpleFinishPanel}.
+     * <p>
+     *     This method waits for the panel to become visible before it returns.
+     * </p>
+     *
+     * @param id The panel identifier which is to be assigned to the licence panel.
+     * @return A frame fixture for the created panel.
+     */
+    private FrameFixture showPDFLicencePanel(String id)
+    {
+        IzPanelView view = createPanelView(PDFLicencePanel.class);
+        view.getPanel().setPanelId(id);
+
+        FrameFixture fixture = show(view, createPanelView(SimpleFinishPanel.class));
+        waitForPanel(PDFLicencePanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(PDFLicencePanel.class));
+
+        return fixture;
     }
 }
