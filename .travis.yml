@@ -1,10 +1,36 @@
 language: java
+install: true
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - fluxbox
+
+cache:
+ directories:
+   - $HOME/.m2/repository
+
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - fluxbox &> ~/fluxbox.log &
+  - sleep 3
+
 jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
   - oraclejdk8
-script: "mvn -U clean verify"
+
+env:
+  global:
+    - JAVA_OPTS="-Djava.awt.headless=false"
+
+script:
+  - mvn -U clean verify
+  - mvn test -Pwith-gui-tests
+
 notifications:
   email: false
-sudo: false
+
