@@ -21,6 +21,7 @@
 
 package com.izforge.izpack.core.handler;
 
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.handler.AbstractPrompt;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Messages;
@@ -37,59 +38,22 @@ public class ConsolePrompt extends AbstractPrompt
      * The console.
      */
     private final Console console;
-
+    
     /**
-     * OK-Cancel prompt.
+     * The install data.
      */
-    private final String okCancelPrompt;
-
-    /**
-     * Yes-No prompt.
-     */
-    private final String yesNoPrompt;
-
-    /**
-     * Yes-No-Cancel prompt.
-     */
-    private final String yesNoCancelPrompt;
-
-    /**
-     * 'OK' response value.
-     */
-    private final String ok;
-
-    /**
-     * 'Cancel' response value.
-     */
-    private final String cancel;
-
-    /**
-     * 'Yes' response value.
-     */
-    private final String yes;
-
-    /**
-     * 'No' response value.
-     */
-    private final String no;
-
+    private final InstallData installData;
 
     /**
      * Constructs a {@code ConsolePrompt}.
      *
      * @param console  the console
-     * @param messages the messages to localise the prompt
+     * @param installData
      */
-    public ConsolePrompt(Console console, Messages messages)
+    public ConsolePrompt(Console console, InstallData installData)
     {
         this.console = console;
-        okCancelPrompt = messages.get("ConsolePrompt.okCancel");
-        yesNoPrompt = messages.get("ConsolePrompt.yesNo");
-        yesNoCancelPrompt = messages.get("ConsolePrompt.yesNoCancel");
-        ok = messages.get("ConsolePrompt.ok");
-        cancel = messages.get("ConsolePrompt.cancel");
-        yes = messages.get("ConsolePrompt.yes");
-        no = messages.get("ConsolePrompt.no");
+        this.installData = installData;
     }
 
     @Override
@@ -120,6 +84,14 @@ public class ConsolePrompt extends AbstractPrompt
     public Option confirm(Type type, String title, String message, Options options, Option defaultOption)
     {
         Option result;
+        Messages messages = installData.getMessages();
+        String okCancelPrompt = messages.get("ConsolePrompt.okCancel");
+        String yesNoPrompt = messages.get("ConsolePrompt.yesNo");
+        String yesNoCancelPrompt = messages.get("ConsolePrompt.yesNoCancel");
+        String ok = messages.get("ConsolePrompt.ok");
+        String cancel = messages.get("ConsolePrompt.cancel");
+        String yes = messages.get("ConsolePrompt.yes");
+        String no = messages.get("ConsolePrompt.no");
 
         console.printMessageBox(title, message);
         if (options == Options.OK_CANCEL)

@@ -64,7 +64,7 @@ public class ConsolePanelView extends AbstractPanelView<ConsolePanel>
     {
         super(panel, ConsolePanel.class, factory, installData);
         this.console = console;
-        this.prompt = new ConsolePrompt(console, installData.getMessages());
+        this.prompt = new ConsolePrompt(console, installData);
     }
 
     /**

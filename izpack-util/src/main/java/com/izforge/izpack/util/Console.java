@@ -17,8 +17,8 @@
 package com.izforge.izpack.util;
 
 import com.izforge.izpack.api.data.ConsolePrefs;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.UserInterruptException;
-import com.izforge.izpack.api.resource.Messages;
 import jline.Terminal;
 import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
@@ -58,14 +58,14 @@ public class Console
     /**
      * Translations
      */
-    private final Messages messages;
+    private final InstallData installData;
 
     /**
      * Constructs a <tt>Console</tt> with <tt>System.in</tt> and <tt>System.out</tt> as the I/O streams.
      */
-    public Console(Messages messages, ConsolePrefs prefs)
+    public Console(InstallData installData, ConsolePrefs prefs)
     {
-        this.messages = messages;
+        this.installData = installData;
 
         Log.setOutput(new PrintStream(new OutputStream() {
             @Override
@@ -143,7 +143,7 @@ public class Console
             }
             catch (jline.console.UserInterruptException e)
             {
-                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
+                throw new UserInterruptException(installData.getMessages().get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
             }
         }
         else
@@ -280,7 +280,7 @@ public class Console
                 // Overflow
                 if (consoleReader != null)
                 {
-                    println("--" + messages.get("ConsoleInstaller.pagingMore") + "--");
+                    println("--" + installData.getMessages().get("ConsoleInstaller.pagingMore") + "--");
                     flush();
                 }
                 int c = read();
@@ -480,7 +480,7 @@ public class Console
             }
             catch (jline.console.UserInterruptException e)
             {
-                throw new UserInterruptException(messages.get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
+                throw new UserInterruptException(installData.getMessages().get("ConsoleInstaller.aborted.PressedCTRL-C"), e);
             }
             catch (IOException e)
             {
