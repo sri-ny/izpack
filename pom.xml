@@ -865,10 +865,9 @@
             </executions>
             <configuration>
               <includes>
-                <include>**/integration/**</include>
+                <include>**/InstallationTest.java</include>
               </includes>
               <excludes>
-                <exclude>**/InstallationTest.java</exclude>
                 <exclude>**/EventTest.java</exclude>
                 <exclude>**/ExecutableFileTest.java</exclude>
                 <exclude>**/IzpackGenerationTest.java</exclude>
