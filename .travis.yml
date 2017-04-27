@@ -29,7 +29,7 @@ env:
 
 script:
   - mvn -U clean verify
-  - mvn test -Pwith-gui-tests
+  - mvn verify -Pwith-gui-tests
 
 notifications:
   email: false
