@@ -23,7 +23,7 @@ package com.izforge.izpack.test.util;
 
 
 import com.izforge.izpack.api.data.ConsolePrefs;
-import com.izforge.izpack.api.resource.Messages;
+import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.util.Console;
 
 import java.io.IOException;
@@ -72,9 +72,9 @@ public class TestConsole extends Console
     /**
      * Constructs a <tt>TestConsole</tt>.
      */
-    public TestConsole(Messages messages, ConsolePrefs prefs)
+    public TestConsole(InstallData installData, ConsolePrefs prefs)
     {
-        super(messages, prefs);
+        super(installData, prefs);
     }
 
     /**

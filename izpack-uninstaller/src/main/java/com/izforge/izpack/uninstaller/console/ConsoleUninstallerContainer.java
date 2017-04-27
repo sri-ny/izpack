@@ -21,8 +21,10 @@
 
 package com.izforge.izpack.uninstaller.console;
 
+import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.exception.ContainerException;
+import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.handler.ConsolePrompt;
 import com.izforge.izpack.uninstaller.container.UninstallerContainer;
 import com.izforge.izpack.util.Console;
@@ -62,7 +64,8 @@ public class ConsoleUninstallerContainer extends UninstallerContainer
         ConsolePrefs consolePrefs = new ConsolePrefs();
         consolePrefs.enableConsoleReader = false;
         addComponent(ConsolePrefs.class, consolePrefs);
-
+        addComponent(DefaultVariables.class);
+        addComponent(AutomatedInstallData.class);
         addComponent(Console.class);
         addComponent(ConsolePrompt.class);
         addComponent(ConsoleDestroyerListener.class);
