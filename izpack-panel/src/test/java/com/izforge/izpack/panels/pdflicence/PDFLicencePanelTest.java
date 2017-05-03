@@ -29,7 +29,10 @@ import com.izforge.izpack.installer.gui.IzPanelView;
 import com.izforge.izpack.panels.simplefinish.SimpleFinishPanel;
 import com.izforge.izpack.panels.test.AbstractPanelTest;
 import com.izforge.izpack.panels.test.TestGUIPanelContainer;
+import org.fest.swing.core.ComponentFoundCondition;
+import org.fest.swing.core.TypeMatcher;
 import org.fest.swing.fixture.FrameFixture;
+import org.fest.swing.timing.Timeout;
 import org.icepdf.core.pobjects.Document;
 import org.icepdf.core.pobjects.graphics.text.PageText;
 import org.icepdf.ri.common.views.DocumentViewController;
@@ -37,6 +40,8 @@ import org.icepdf.ri.common.views.OnePageView;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.fest.swing.timing.Pause.pause;
+import static org.fest.swing.timing.Timeout.timeout;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -65,7 +70,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
 	{
         FrameFixture fixture = showPDFLicencePanel("licence");
 
-		OnePageView onePageView = fixture.robot.finder().findByType(OnePageView.class);
+		OnePageView onePageView = findOnePageView(fixture);
 		DocumentViewController controller = onePageView.getParentViewController();
 
 		Document document = controller.getDocument();
@@ -84,7 +89,7 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
         // create a panel without identifier
         FrameFixture fixture = showPDFLicencePanel(null);
 
-        OnePageView onePageView = fixture.robot.finder().findByType(OnePageView.class);
+        OnePageView onePageView = findOnePageView(fixture);
         DocumentViewController controller = onePageView.getParentViewController();
 
         Document document = controller.getDocument();
@@ -143,5 +148,33 @@ public class PDFLicencePanelTest extends AbstractPanelTest {
         assertThat(getPanels().getView(), instanceOf(PDFLicencePanel.class));
 
         return fixture;
+    }
+
+    /**
+     * Tries to find OnePageView with a default timeout of 2000ms.
+     *
+     * @param fixture The root frame fixture which should contain the view.
+     * @return The OnePageView instance on success.
+     */
+    private OnePageView findOnePageView(FrameFixture fixture)
+    {
+        return findOnePageView(fixture, timeout(2000));
+    }
+
+    /**
+     * Tries to find OnePageView.
+     *
+     * @param fixture The root frame fixture which should contain the view.
+     * @param timeout The amount of time to wait for the component to be found.
+     * @return The OnePageView instance on success.
+     */
+    private OnePageView findOnePageView(FrameFixture fixture, Timeout timeout)
+    {
+        TypeMatcher matcher = new TypeMatcher(OnePageView.class, true);
+        String description = "OnePageView to be found using matcher " + matcher;
+        ComponentFoundCondition condition = new ComponentFoundCondition(description,
+                fixture.robot.finder(), matcher);
+        pause(condition, timeout);
+        return (OnePageView) condition.found();
     }
 }
