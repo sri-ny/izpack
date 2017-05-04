@@ -46,6 +46,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Maven 2 confuses the usage of the Nexus staging plugin and would require further customization -->
     <mavenVersion>3.0</mavenVersion>
+    <skipTests>false</skipTests>
+    <skipUnitTests>${skipTests}</skipUnitTests>
+    <skipIntegrationTests>${skipTests}</skipIntegrationTests>
   </properties>
 
   <modules>
@@ -459,17 +462,21 @@
       </plugin>
 
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-              <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
-              <forkCount>1</forkCount>
-              <reuseFork>false</reuseFork>
-          </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
+          <forkCount>1</forkCount>
+          <reuseFork>false</reuseFork>
+          <skipTests>${skipUnitTests}</skipTests>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <skipTests>${skipIntegrationTests}</skipTests>
+        </configuration>
       </plugin>
 
       <plugin>
