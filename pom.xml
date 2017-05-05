@@ -467,7 +467,7 @@
         <configuration>
           <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
           <forkCount>1</forkCount>
-          <reuseFork>false</reuseFork>
+          <reuseForks>false</reuseForks>
           <skipTests>${skipUnitTests}</skipTests>
         </configuration>
       </plugin>
@@ -768,7 +768,7 @@
             <configuration>
               <jvm>/opt/jdk/jdk1.6.0/bin/java</jvm>
               <forkCount>1</forkCount>
-              <reuseFork>false</reuseFork>
+              <reuseForks>false</reuseForks>
             </configuration>
           </plugin>
         </plugins>
