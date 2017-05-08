@@ -34,6 +34,11 @@ public enum LookAndFeels
 
     private static Map<String, LookAndFeels> lookup;
 
+    public String getName()
+    {
+        return name;
+    }
+
     static
     {
         lookup = new HashMap<String, LookAndFeels>();

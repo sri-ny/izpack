@@ -87,7 +87,7 @@ public class GUIPrefs implements Serializable
 
         public boolean is(final LookAndFeels laf)
         {
-            return laf.name().equals(name);
+            return laf.getName().equals(name);
         }
     }
 }
