@@ -39,13 +39,21 @@ import org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputSt
 import org.apache.commons.compress.compressors.deflate.DeflateParameters;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.LZMAOutputStream;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
@@ -156,7 +164,8 @@ public class Packager extends PackagerBase
             packJar.putNextEntry(entry);
             packJar.flush(); // flush before we start counting
 
-            CountingOutputStream packOutputStream = new CountingOutputStream(new NoCloseOutputStream(packJar));
+            CountingOutputStream packOutputStream = new CountingOutputStream(new NoCloseOutputStream(
+                    new BufferedOutputStream(packJar)));
 
             try
             {
@@ -197,6 +206,7 @@ public class Packager extends PackagerBase
                         {
                             packFile.setStreamResourceName(streamResourceName);
                             packFile.setStreamOffset(packOutputStream.getByteCount()); // get the position
+
                             PackCompression comprFormat = getInfo().getCompressionFormat();
                             if (comprFormat != PackCompression.DEFAULT)
                             {
