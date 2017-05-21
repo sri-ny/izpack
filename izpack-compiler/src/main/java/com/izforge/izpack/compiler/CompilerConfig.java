@@ -1883,7 +1883,8 @@ public class CompilerConfig extends Thread
 
         // check if we can load the logging properties from an external file...
         List<IXMLElement> configFiles = loggingElement.getChildrenNamed("configuration-file");
-        if (configFiles != null) {
+        if (configFiles != null)
+        {
             if (configFiles.size() > 1)
             {
                 assertionHelper.parseError(loggingElement, "Logging configuration by external file may only be used once");
