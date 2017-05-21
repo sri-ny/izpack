@@ -1889,11 +1889,14 @@ public class CompilerConfig extends Thread
             {
                 assertionHelper.parseError(loggingElement, "Logging configuration by external file may only be used once");
             }
-            IXMLElement configFileElement = configFiles.get(0);
-            String fileName = xmlCompilerHelper.requireAttribute(configFileElement, "file");
-            URL url = resourceFinder.findProjectResource(fileName, "Logging configuration from file", configFileElement);
-            packager.addResource(ResourceManager.DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES, url);
-            return;
+            else if (configFiles.size() == 1)
+            {
+                IXMLElement configFileElement = configFiles.get(0);
+                String fileName = xmlCompilerHelper.requireAttribute(configFileElement, "file");
+                URL url = resourceFinder.findProjectResource(fileName, "Logging configuration from file", configFileElement);
+                packager.addResource(ResourceManager.DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES, url);
+                return;
+            }
         }
 
         // ... and if not, create the logging properties ourselves
