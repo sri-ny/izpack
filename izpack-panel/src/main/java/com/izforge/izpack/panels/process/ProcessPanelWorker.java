@@ -574,6 +574,8 @@ public class ProcessPanelWorker implements Runnable
                             QuestionErrorDisplayer myErrorAlter = new QuestionErrorDisplayer(handler);
                             SwingUtilities.invokeAndWait(myErrorAlter);
                             return myErrorAlter.shouldContinue();
+                        } else if (this.errorHandlingStrategy == ErrorHandlingStrategy.IGNORE) {
+                            return true;
                         } else {
                             this.handler.emitError("Process failed", "An error occurred while executing " + this.filename);
                             return false;
