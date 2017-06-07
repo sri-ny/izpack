@@ -126,7 +126,7 @@ public class LicencePanel extends IzPanel implements ActionListener
         {
             // We read it
             String resNamePrifix = "LicencePanel.licence";
-            licence = ResourceManager.getInstance().getTextResource(resNamePrifix);
+            licence = ResourceManager.getInstance().getTextResource(resNamePrifix, "UTF-8");
         }
         catch (Exception err)
         {
