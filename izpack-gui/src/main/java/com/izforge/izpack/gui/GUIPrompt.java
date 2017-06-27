@@ -353,6 +353,14 @@ public class GUIPrompt extends AbstractPrompt
                 JOptionPane.YES_NO_OPTION, null,
                 buttons.toArray());
         final JDialog dialog = pane.createDialog(parent, title);
+        // event handler for the Close button
+        closeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event)
+            {
+                dialog.dispose();
+            }
+        });
         if (throwable != null)
         {
             // event handler for the Details button
@@ -400,14 +408,6 @@ public class GUIPrompt extends AbstractPrompt
                     // select and copy stacktrace to system clipboard
                     exceptionPane.selectAll();
                     exceptionPane.copy();
-                }
-            });
-            // event handler for the Close button
-            closeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent event)
-                {
-                    dialog.dispose();
                 }
             });
         }
