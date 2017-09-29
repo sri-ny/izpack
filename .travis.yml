@@ -7,7 +7,6 @@ install:
   - bash .travis.install-maven.sh "3.2.5" "${HOME}/mvn-home"
   - export M2_HOME=${HOME}/mvn-home
   - export PATH=${HOME}/mvn-home/bin:${PATH}
-  # visual check that we have the correct maven version installed
   - mvn -version
 
 addons:
@@ -31,7 +30,9 @@ jdk:
   - openjdk6
   - openjdk7
   - openjdk8
+  - openjdk9
   - oraclejdk8
+  - oraclejdk9
 
 env:
   global:
