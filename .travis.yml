@@ -30,9 +30,7 @@ jdk:
   - openjdk6
   - openjdk7
   - openjdk8
-  - openjdk9
   - oraclejdk8
-  - oraclejdk9
 
 env:
   global:
@@ -44,4 +42,3 @@ script:
 
 notifications:
   email: false
-
