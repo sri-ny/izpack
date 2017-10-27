@@ -250,11 +250,10 @@ public abstract class UnpackerBase implements IUnpacker
         logger.info(new String(chars));
         logger.info(startMessage);
 
-        URLClassLoader cl = (URLClassLoader) getClass().getClassLoader();
         InputStream is = null;
         try
         {
-            URL url = cl.findResource("META-INF/MANIFEST.MF");
+            URL url = getClass().getClassLoader().getResource("META-INF/MANIFEST.MF");
             is = url.openStream();
             Manifest manifest = new Manifest(is);
             Attributes attr = manifest.getMainAttributes();
