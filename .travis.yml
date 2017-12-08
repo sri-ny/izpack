@@ -7,7 +7,6 @@ sudo: false
 # dist: precise
 
 install:
-  # install maven 3.2.5
   - bash .travis.install-maven.sh "${MVN_VERSION}" "${HOME}/mvn-home"
   - export M2_HOME=${HOME}/mvn-home
   - export PATH=${HOME}/mvn-home/bin:${PATH}
@@ -27,9 +26,6 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - fluxbox &> ~/fluxbox.log &
   - sleep 3
-
-jdk:
-  - oraclejdk8
 
 matrix:
   include:
