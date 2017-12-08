@@ -4,7 +4,7 @@ sudo: false
 
 # https://blog.travis-ci.com/2017-07-11-trusty-as-default-linux-is-coming
 # Travis now defaults to Trusty, which is missing openjdk6.
-dist: precise
+# dist: precise
 
 install:
   # install maven 3.2.5
@@ -17,7 +17,6 @@ addons:
   apt:
     packages:
       - openjdk-6-jdk
-      - openjdk-7-jdk
       - fluxbox
 
 cache:
@@ -32,9 +31,16 @@ before_script:
 
 jdk:
   - openjdk6
-  - openjdk7
-  - openjdk8
   - oraclejdk8
+  - oraclejdk9
+
+matrix:
+  include:
+    - addons:
+        apt:
+          packages:
+            - openjdk-6-jdk
+      jdk: openjdk6
 
 env:
   global:
