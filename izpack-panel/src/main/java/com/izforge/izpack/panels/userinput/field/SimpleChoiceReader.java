@@ -87,8 +87,9 @@ public class SimpleChoiceReader extends FieldReader implements ChoiceFieldConfig
             }
             else
             {
-                String value = config.getAttribute(choice, "value");
-                result.add(new Choice(value, getText(choice), conditionId));
+                String value = config.getAttribute( choice, "value" );
+                String label = this.installData.getVariables().replace( getText( choice ) );
+                result.add( new Choice( value, label, conditionId ) );
             }
         }
         return result;
