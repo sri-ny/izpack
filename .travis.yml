@@ -43,8 +43,8 @@ matrix:
       env: MVN_VERSION="3.3.9"
     - jdk: oraclejdk8
       env: MVN_VERSION="3.3.9"
-    - jdk: oraclejdk9
-      env: MVN_VERSION="3.3.9"
+#    - jdk: oraclejdk9
+#      env: MVN_VERSION="3.3.9"
 
 env:
   global:
