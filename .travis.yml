@@ -2,10 +2,6 @@ language: java
 install: true
 sudo: false
 
-# https://blog.travis-ci.com/2017-07-11-trusty-as-default-linux-is-coming
-# Travis now defaults to Trusty, which is missing openjdk6.
-# dist: precise
-
 install:
   - bash .travis.install-maven.sh "${MVN_VERSION}" "${HOME}/mvn-home"
   - export M2_HOME=${HOME}/mvn-home
@@ -13,7 +9,7 @@ install:
   - mvn -version
 
 # FIXME
-# Automatic GUI tests fail on OpenJDK 6/7 on Travis
+# Automatic GUI tests fail  on Travis
 # Failing command line: mvn verify -Pwith-gui-tests
 #addons:
 #  apt:
@@ -25,7 +21,7 @@ cache:
    - $HOME/.m2/repository
 
 # FIXME
-# Automatic GUI tests fail on OpenJDK 6/7 on Travis
+# Automatic GUI tests fail on Travis
 # Failing command line: mvn verify -Pwith-gui-tests
 #before_script:
 #  - export DISPLAY=:99.0
@@ -41,8 +37,6 @@ matrix:
             - openjdk-6-jdk
       jdk: openjdk6
       env: MVN_VERSION="3.2.5"
-      script:
-        - mvn -U clean verify
     - addons:
         apt:
           packages:
@@ -50,18 +44,8 @@ matrix:
             - openjdk-7-jdk
       jdk: openjdk7
       env: MVN_VERSION="3.3.9"
-      script:
-        - mvn -U clean verify
     - jdk: oraclejdk8
       env: MVN_VERSION="3.3.9"
-      before_script:
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
-        - fluxbox &> ~/fluxbox.log &
-        - sleep 3
-      script:
-        - mvn -U clean verify
-        - mvn verify -Pwith-gui-tests
 # FIXME:
 # Travis build fail on JDK 9 due to missing JAXB module in classpath
 #    - jdk: oraclejdk9
@@ -71,10 +55,10 @@ env:
   global:
     - JAVA_OPTS="-Djava.awt.headless=false"
 
+script:
+  - mvn -U clean verify
 # FIXME
-# Automatic GUI tests fail on OpenJDK 6/7 on Travis
-#script:
-#  - mvn -U clean verify
+# Automatic GUI tests fail on Travis
 #  - mvn verify -Pwith-gui-tests
 
 notifications:
