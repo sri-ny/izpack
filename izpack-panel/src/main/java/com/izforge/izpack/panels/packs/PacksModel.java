@@ -981,11 +981,11 @@ public class PacksModel extends AbstractTableModel
     /**
      * @return the number of bytes that the installation requires based on selected packs
      */
-    public int getTotalByteSize()
+    public long getTotalByteSize()
     {
         Map<Pack, Integer> packToRow = getPacksToRowNumbers();
         int row;
-        int bytes = 0;
+        long bytes = 0;
         for (Pack pack : packs)
         {
             row = packToRow.get(pack);
