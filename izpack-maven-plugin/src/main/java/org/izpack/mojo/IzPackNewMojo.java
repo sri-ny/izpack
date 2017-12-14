@@ -200,21 +200,15 @@ public class IzPackNewMojo extends AbstractMojo
             throw new MojoExecutionException( "Failure", e );
         }
 
-        if (classifier != null && !classifier.isEmpty())
+        if (enableOverrideArtifact)
         {
-            if (enableAttachArtifact)
-            {
-                projectHelper.attachArtifact(project, "jar", classifier, jarFile);
-            }
+            Artifact artifact = project.getArtifact();
+            artifact.setArtifactId(finalName);
+            artifact.setFile(jarFile);
         }
-        else
+        if (enableAttachArtifact)
         {
-            if (enableOverrideArtifact)
-            {
-                Artifact artifact = project.getArtifact();
-                artifact.setArtifactId(finalName);
-                artifact.setFile(jarFile);
-            }
+            projectHelper.attachArtifact(project, "jar", classifier, jarFile);
         }
     }
 
