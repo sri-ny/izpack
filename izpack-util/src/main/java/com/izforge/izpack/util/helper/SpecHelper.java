@@ -303,4 +303,10 @@ public class SpecHelper
         }
         return (attr);
     }
+
+    public String getOptionalAttribute(IXMLElement element, String attrName)
+    {
+        String attr = element.getAttribute(attrName);
+        return attr;
+    }
 }

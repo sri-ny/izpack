@@ -76,6 +76,8 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
 
     private static final String REG_ROOT = "root";
 
+    private static final String REG_ROOT_FALLBACK = "rootFallback";
+
     private static final String REG_BASENAME = "name";
 
     private static final String REG_KEYPATH = "keypath";
@@ -365,11 +367,25 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             String type = regEntry.getName();
             if (type.equalsIgnoreCase(REG_KEY))
             {
-                performKeySetting(regEntry);
+                try
+                {
+                    performKeySetting(regEntry, false);
+                }
+                catch (NativeLibException exception)
+                {
+                    performKeySetting(regEntry, true);
+                }
             }
             else if (type.equalsIgnoreCase(REG_VALUE))
             {
-                performValueSetting(regEntry);
+                try
+                {
+                    performValueSetting(regEntry, false);
+                }
+                catch (NativeLibException exception)
+                {
+                    performValueSetting(regEntry, true);
+                }
             }
             else
             {
@@ -388,16 +404,31 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * @throws InstallerException if a required attribute is missing
      * @throws NativeLibException for any native library error
      */
-    private void performValueSetting(IXMLElement regEntry) throws InstallerException, NativeLibException
+    private void performValueSetting(IXMLElement regEntry, boolean useRootFallback) throws InstallerException, NativeLibException
     {
         String name = spec.getRequiredAttribute(regEntry, REG_BASENAME);
         name = substitutor.substitute(name);
         String keypath = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
         keypath = substitutor.substitute(keypath);
-        String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
-        int rootId = resolveRoot(regEntry, root);
 
-        registry.setRoot(rootId);
+        if (useRootFallback)
+        {
+            String rootFallback = spec.getOptionalAttribute(regEntry, REG_ROOT_FALLBACK);
+            if (null == rootFallback)
+            {
+                throw new InstallerException("Error writing to registry");
+            }
+            int rootId = resolveRoot(regEntry, rootFallback);
+
+            registry.setRoot(rootId);
+        }
+        else
+        {
+            String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
+            int rootId = resolveRoot(regEntry, root);
+
+            registry.setRoot(rootId);
+        }
 
         String override = regEntry.getAttribute(REG_OVERRIDE, "true");
         if (!"true".equalsIgnoreCase(override))
@@ -507,13 +538,30 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * @throws InstallerException if a required attribute is missing
      * @throws NativeLibException for any native library error
      */
-    private void performKeySetting(IXMLElement regEntry) throws InstallerException, NativeLibException
+    private void performKeySetting(IXMLElement regEntry, boolean useRootFallback) throws InstallerException, NativeLibException
     {
         String path = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
         path = substitutor.substitute(path);
-        String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
-        int rootId = resolveRoot(regEntry, root);
-        registry.setRoot(rootId);
+
+        if (useRootFallback)
+        {
+            String rootFallback = spec.getOptionalAttribute(regEntry, REG_ROOT_FALLBACK);
+            if (null == rootFallback)
+            {
+                throw new InstallerException("Error writing to registry");
+            }
+            int rootId = resolveRoot(regEntry, rootFallback);
+
+            registry.setRoot(rootId);
+        }
+        else
+        {
+            String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
+            int rootId = resolveRoot(regEntry, root);
+
+            registry.setRoot(rootId);
+        }
+
         if (!registry.keyExist(path))
         {
             registry.createKey(path);
