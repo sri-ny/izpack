@@ -17,6 +17,7 @@
             startup="no"
             iconFile="$INSTALL_PATH\icons\izpack_wiki_32.png"
             url="https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Home"
+            type="Link"
             description="Browse the IzPack Wiki site online">
 
         <createForPack name="Core"/>
