@@ -1189,7 +1189,7 @@ public class ShortcutPanelLogic implements CleanupClient
         
         if (!shortcuts.isEmpty()) 
         {
-        	shortcut.execPostAction();
+            shortcut.execPostAction();
         }
 
         try
