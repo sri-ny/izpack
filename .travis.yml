@@ -25,18 +25,9 @@ before_script:
 
 matrix:
   include:
-    - addons:
-        apt:
-          packages:
-            - openjdk-6-jdk
-      jdk: openjdk6
+    - jdk: openjdk6
       env: MVN_VERSION="3.2.5"
-    - addons:
-        apt:
-          packages:
-            - fluxbox
-            - openjdk-7-jdk
-      jdk: openjdk7
+    - jdk: openjdk7
       env: MVN_VERSION="3.3.9"
     - jdk: oraclejdk8
       env: MVN_VERSION="3.3.9"
