@@ -83,6 +83,18 @@ public abstract class ConsoleField extends AbstractFieldView
     }
 
     /**
+     * Prints the field label, if one is available.
+     */
+    protected void printLabel()
+    {
+        String label = getField().getLabel();
+        if (label != null)
+        {
+            println(label);
+        }
+    }
+
+    /**
      * Prints a message to the console with a new line.
      *
      * @param message the message to print

@@ -73,6 +73,7 @@ public abstract class ConsoleChoiceField<T extends Choice> extends ConsoleField
     {
         ChoiceField field = getField();
         printDescription();
+        printLabel();
         List<Choice> choices = field.getChoices();
         final int selectedRealIndex = field.getSelectedIndex();
         MappedSelection visibleToRealMapping = listChoices(choices, selectedRealIndex);
