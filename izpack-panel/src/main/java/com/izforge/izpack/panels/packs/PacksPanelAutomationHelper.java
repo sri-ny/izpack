@@ -23,8 +23,8 @@ package com.izforge.izpack.panels.packs;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.installer.automation.PanelAutomation;
@@ -204,5 +204,5 @@ public class PacksPanelAutomationHelper implements PanelAutomation
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options) {}
+    public void processOptions(InstallData installData, Overrides overrides) {}
 }

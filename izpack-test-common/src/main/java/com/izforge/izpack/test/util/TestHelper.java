@@ -125,7 +125,7 @@ public class TestHelper
     public static void assertFileNotExists(File dir, String name)
     {
         File file = new File(dir, name);
-        assertFalse("File or directory " + file + " not expected but not found", file.exists());
+        assertFalse("File or directory " + file + " not expected but found", file.exists());
     }
 
     /**
@@ -148,12 +148,12 @@ public class TestHelper
      */
     public static void assertFileEquals(File expected, File actual)
     {
-        assertTrue(actual.exists());
-        assertFalse(actual.getAbsolutePath().equals(expected.getAbsolutePath()));
-        assertEquals(expected.length(), actual.length());
+        assertTrue("File not found", actual.exists());
+        assertFalse("Path differs", actual.getAbsolutePath().equals(expected.getAbsolutePath()));
+        assertEquals("File length differs", expected.length(), actual.length());
         try
         {
-            assertEquals(FileUtils.checksumCRC32(expected), FileUtils.checksumCRC32(actual));
+            assertEquals("Checksum differs", FileUtils.checksumCRC32(expected), FileUtils.checksumCRC32(actual));
         }
         catch (IOException exception)
         {

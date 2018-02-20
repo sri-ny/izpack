@@ -265,10 +265,6 @@ public class TargetFactory
             {
                 osFlavor = NT;
             }
-            else if (osName.contains("xp"))
-            {
-                osFlavor = NT;
-            }
         }
         // ----------------------------------------------------
         // test for Mac OS
@@ -698,8 +694,9 @@ public class TargetFactory
     }
 
     /**
-     * Gets a prefix alias for the current platform. "Win_" on Windows Systems "Win_NT_" on WinNT4,
-     * 2000, XP Mac on Mac Mac_X on macosx and Unix_
+     * Gets a prefix alias for the current platform. "Win_" on domestic Windows Systems 
+     * (Windows XP and 7, etc.), "Win_NT_" on WinNT4 and 2000, Mac on Mac Mac_X on macosx 
+     * and Unix_
      *
      * @return a prefix alias for the current platform
      */
@@ -725,10 +722,6 @@ public class TargetFactory
                 OSFlavor = NT;
             }
             else if (OSName.contains("2000"))
-            {
-                OSFlavor = NT;
-            }
-            else if (OSName.contains("xp"))
             {
                 OSFlavor = NT;
             }

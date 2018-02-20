@@ -3,7 +3,7 @@
     <parent>
         <artifactId>izpack</artifactId>
         <groupId>org.codehaus.izpack</groupId>
-        <version>5.0.10-SNAPSHOT</version>
+        <version>5.1.3-SNAPSHOT</version>
     </parent>    
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,6 +19,10 @@
         <dependency>
             <artifactId>izpack-compiler</artifactId>
             <groupId>${project.groupId}</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
         </dependency>
     </dependencies>
 

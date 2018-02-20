@@ -21,8 +21,6 @@
 
 package com.izforge.izpack.panels.userinput.console.password;
 
-import java.util.List;
-
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.panels.userinput.console.ConsoleField;
 import com.izforge.izpack.panels.userinput.field.ValidationStatus;
@@ -30,6 +28,8 @@ import com.izforge.izpack.panels.userinput.field.password.PasswordField;
 import com.izforge.izpack.panels.userinput.field.password.PasswordGroupField;
 import com.izforge.izpack.panels.userinput.gui.password.PasswordGroup;
 import com.izforge.izpack.util.Console;
+
+import java.util.List;
 
 
 /**
@@ -90,8 +90,7 @@ public class ConsolePasswordGroupField extends ConsoleField
             {
                 try
                 {
-                    String value = field.process(passwords);
-                    field.setValue(value);
+                    field.setValue(passwords[0]);
                     result = true;
                 }
                 catch (Throwable exception)
@@ -119,11 +118,7 @@ public class ConsolePasswordGroupField extends ConsoleField
         String[] values = new String[fields.size()];
         for (int i = 0; i < fields.size(); ++i)
         {
-            String value = console.promptPassword(fields.get(i).getLabel(), null);
-            if (value == null)
-            {
-                return null;
-            }
+            String value = console.promptPassword(fields.get(i).getLabel(), "");
             values[i] = value;
         }
         return values;

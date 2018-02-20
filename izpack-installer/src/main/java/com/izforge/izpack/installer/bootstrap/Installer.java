@@ -21,29 +21,30 @@
 
 package com.izforge.izpack.installer.bootstrap;
 
-import com.izforge.izpack.api.config.Config;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.Overrides;
+import com.izforge.izpack.core.data.DefaultOverrides;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.installer.automation.AutomatedInstaller;
 import com.izforge.izpack.installer.console.ConsoleInstallerAction;
 import com.izforge.izpack.installer.container.impl.AutomatedInstallerContainer;
 import com.izforge.izpack.installer.container.impl.InstallerContainer;
+import com.izforge.izpack.logging.FileFormatter;
 import com.izforge.izpack.util.Debug;
+import com.izforge.izpack.util.LogUtils;
 import com.izforge.izpack.util.StringTool;
 import org.apache.commons.io.FilenameUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -54,15 +55,15 @@ import java.util.logging.Logger;
  */
 public class Installer
 {
+    private static Logger logger = Logger.getLogger(Installer.class.getName());
+
+    @SuppressWarnings("WeakerAccess")
+    public static final int INSTALLER_GUI = 0, INSTALLER_AUTO = 1, INSTALLER_CONSOLE = 2;
+
     /**
      * Used to keep track of the current installation mode.
      */
     private static int installerMode = 0;
-    private static Logger logger;
-
-    public static final int INSTALLER_GUI = 0, INSTALLER_AUTO = 1, INSTALLER_CONSOLE = 2;
-
-    public static final String LOGGING_CONFIGURATION = "/com/izforge/izpack/installer/logging/logging.properties";
 
     /*
      * The main method (program entry point).
@@ -73,7 +74,6 @@ public class Installer
     {
         try
         {
-            initializeLogging();
             Installer installer = new Installer();
             installer.start(args);
         }
@@ -84,47 +84,50 @@ public class Installer
 
     }
 
-    private static void initializeLogging()
+    private static void initializeLogging(String logFileName) throws IOException
     {
-        LogManager manager = LogManager.getLogManager();
-        InputStream stream;
-        try
+        if (logFileName != null)
         {
-            stream = Installer.class.getResourceAsStream(LOGGING_CONFIGURATION);
-            if (stream != null)
-            {
-                manager.readConfiguration(stream);
-                //System.out.println("Read logging configuration from resource " + LOGGING_CONFIGURATION);
-            }
-            else
-            {
-                //System.err.println("Logging configuration resource " + LOGGING_CONFIGURATION + " not found");
-            }
-        }
-        catch (IOException e)
-        {
-            //System.err.println("Error loading logging configuration resource " + LOGGING_CONFIGURATION + ": " + e);
-        }
-
-        Logger rootLogger = Logger.getLogger("com.izforge.izpack");
-        rootLogger.setUseParentHandlers(false);
-        if (Debug.isDEBUG())
-        {
-            rootLogger.setLevel(Level.FINE);
+            final Properties props = new Properties();
+            final String cname = FileHandler.class.getName();
+            props.setProperty("handlers", cname);
+            props.setProperty(cname + ".pattern", FilenameUtils.normalize(logFileName));
+            props.setProperty(cname + ".formatter", FileFormatter.class.getName());
+            props.setProperty(ConsoleHandler.class.getName() + ".level", "OFF");
+            props.setProperty(".level", "OFF");
+            LogUtils.loadConfiguration(props);
         }
         else
         {
-            rootLogger.setLevel(Level.INFO);
+            LogUtils.loadConfiguration();
         }
-
         logger = Logger.getLogger(Installer.class.getName());
-        logger.info("Logging initialized at level '" + rootLogger.getLevel() + "'");
+    }
+
+    private static String fetchArgument(Iterator<String> iterator, String prev) throws IllegalArgumentException
+    {
+        if (prev != null)
+        {
+            throw new IllegalArgumentException("Option used twice or in an ambiguous combination");
+        }
+        String next = null;
+        if (iterator.hasNext())
+        {
+            next = iterator.next().trim();
+        }
+        return next;
+    }
+
+    private static void checkPath(String arg) throws IllegalArgumentException
+    {
+        if (arg == null)
+        {
+            throw new IllegalArgumentException("Option must be followed by a path");
+        }
     }
 
     private void start(String[] args)
     {
-        logger.info("Commandline arguments: " + StringTool.stringArrayToSpaceSeparatedString(args));
-
         // OS X tweaks
         if (System.getProperty("mrj.version") != null)
         {
@@ -143,73 +146,87 @@ public class Installer
             String langcode = null;
             String media = null;
             String defaultsFile = null;
+            String logFileName = null;
 
             while (args_it.hasNext())
             {
                 String arg = args_it.next().trim();
                 try
                 {
-                    if ("-console".equalsIgnoreCase(arg))
+                    if ("-logfile".equalsIgnoreCase(arg))
+                    {
+                        logFileName = fetchArgument(args_it, logFileName);
+                        checkPath(logFileName);
+                    } else if ("-debug".equalsIgnoreCase(arg))
+                    {
+                        Debug.setDEBUG(true);
+                    } else if ("-trace".equalsIgnoreCase(arg))
+                    {
+                        Debug.setTRACE(true);
+                    } else if ("-stacktrace".equalsIgnoreCase(arg))
+                    {
+                        Debug.setSTACKTRACE(true);
+                    } else if ("-console".equalsIgnoreCase(arg))
                     {
                         type = INSTALLER_CONSOLE;
-                    }
-                    else if ("-auto".equalsIgnoreCase(arg))
+                    } else if ("-auto".equalsIgnoreCase(arg))
                     {
                         type = INSTALLER_AUTO;
-                    }
-                    else if ("-defaults-file".equalsIgnoreCase(arg))
+                    } else if ("-defaults-file".equalsIgnoreCase(arg))
                     {
-                        defaultsFile = args_it.next().trim();
-                    }
-                    else if ("-options-template".equalsIgnoreCase(arg))
+                        defaultsFile = fetchArgument(args_it, defaultsFile);
+                        checkPath(defaultsFile);
+                    } else if ("-options-template".equalsIgnoreCase(arg))
                     {
-                        //TODO Make this available also for GUI installations.
+                        path = fetchArgument(args_it, path);
+                        checkPath(path);
                         type = INSTALLER_CONSOLE;
                         consoleAction = ConsoleInstallerAction.CONSOLE_GEN_TEMPLATE;
-                        path = args_it.next().trim();
-                    }
-                    else if ("-options".equalsIgnoreCase(arg))
+                    } else if ("-options".equalsIgnoreCase(arg))
                     {
-                        //TODO Make this available also for GUI installations.
+                        path = fetchArgument(args_it, path);
+                        checkPath(path);
                         type = INSTALLER_CONSOLE;
                         consoleAction = ConsoleInstallerAction.CONSOLE_FROM_TEMPLATE;
-                        path = args_it.next().trim();
-                    }
-                    else if ("-options-system".equalsIgnoreCase(arg))
+                    } else if ("-options-system".equalsIgnoreCase(arg))
                     {
-                        //TODO Make this available also for GUI installations.
                         type = INSTALLER_CONSOLE;
                         consoleAction = ConsoleInstallerAction.CONSOLE_FROM_SYSTEMPROPERTIES;
-                    }
-                    else if ("-options-auto".equalsIgnoreCase(arg))
+                    } else if ("-options-auto".equalsIgnoreCase(arg))
                     {
-                        //TODO Make this available also for GUI installations.
+                        path = fetchArgument(args_it, path);
+                        checkPath(path);
                         type = INSTALLER_CONSOLE;
                         consoleAction = ConsoleInstallerAction.CONSOLE_FROM_SYSTEMPROPERTIESMERGE;
-                        path = args_it.next().trim();
-                    }
-                    else if ("-language".equalsIgnoreCase(arg))
+                    } else if ("-language".equalsIgnoreCase(arg))
                     {
-                        langcode = args_it.next().trim();
-                    }
-                    else if ("-media".equalsIgnoreCase(arg))
+                        langcode = fetchArgument(args_it, langcode);
+                        if (langcode == null || langcode.startsWith("-"))
+                        {
+                            throw new IllegalArgumentException("Option must be followed by a language code");
+                        }
+                    } else if ("-media".equalsIgnoreCase(arg))
                     {
-                        media = args_it.next().trim();
-                    }
-                    else
+                        media = fetchArgument(args_it, media);
+                        checkPath(media);
+                    } else
                     {
                         type = INSTALLER_AUTO;
                         path = arg;
                     }
                 }
-                catch (NoSuchElementException e)
+                catch (IllegalArgumentException e)
                 {
-                    logger.log(Level.SEVERE, "Option \"" + arg + "\" requires an argument", e);
+                    logger.severe("Wrong usage of command line argument \"" + arg + "\": " + e.getMessage());
                     System.exit(1);
                 }
             }
 
-            Options defaults = getDefaults(defaultsFile);
+            initializeLogging(logFileName);
+
+            logger.info("Command line arguments: " + StringTool.stringArrayToSpaceSeparatedString(args));
+
+            Overrides defaults = getDefaults(defaultsFile);
             if (type == INSTALLER_AUTO && path == null && defaults == null)
             {
                 logger.log(Level.SEVERE,
@@ -228,7 +245,7 @@ public class Installer
         }
     }
 
-    public Options getDefaults(String path)
+    public Overrides getDefaults(String path) throws IOException
     {
         File overridePropFile = null;
 
@@ -254,19 +271,14 @@ public class Installer
 
         if (overridePropFile != null)
         {
-            Config config = Config.getGlobal().clone();
-            config.setFileEncoding(Charset.forName("UTF-8"));
-            config.setInclude(true);
-            Options opts = new Options(config);
-            opts.setFile(overridePropFile);
-            return opts;
+            return new DefaultOverrides(overridePropFile);
         }
 
         return null;
     }
 
     private void launchInstall(int type, ConsoleInstallerAction consoleAction, String path, String langCode,
-                               String mediaDir, Options defaults, String[] args) throws Exception
+                               String mediaDir, Overrides defaults, String[] args) throws Exception
     {
         // if headless, just use the console mode
         if (type == INSTALLER_GUI && GraphicsEnvironment.isHeadless())
@@ -301,14 +313,13 @@ public class Installer
      * @param args more command line arguments
      * @throws Exception for any error
      */
-    private void launchAutomatedInstaller(String path, String mediaDir, Options defaults, String[] args) throws Exception
+    private void launchAutomatedInstaller(String path, String mediaDir, Overrides defaults, String[] args) throws Exception
     {
         InstallerContainer container = new AutomatedInstallerContainer();
 
         if (defaults != null)
         {
-            Config config = defaults.getConfig();
-            config.setInstallData(container.getComponent(AutomatedInstallData.class));
+            defaults.setInstallData(container.getComponent(AutomatedInstallData.class));
             defaults.load();
             logger.info("Loaded " + defaults.size() + " override(s) from " + defaults.getFile());
 

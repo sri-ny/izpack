@@ -75,10 +75,22 @@ public abstract class ConsoleField extends AbstractFieldView
      */
     protected void printDescription()
     {
-        String description = getField().getDescription();
+        String description = getField().getDescription(true);
         if (description != null)
         {
             println(description);
+        }
+    }
+
+    /**
+     * Prints the field label, if one is available.
+     */
+    protected void printLabel()
+    {
+        String label = getField().getLabel();
+        if (label != null)
+        {
+            println(label);
         }
     }
 

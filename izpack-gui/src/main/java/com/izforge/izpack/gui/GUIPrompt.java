@@ -30,6 +30,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -251,16 +254,43 @@ public class GUIPrompt extends AbstractPrompt
     }
 
     /**
-     * Display details about throwable in a simple modal dialog.
-     * @param throwable
+     * Display details about throwable in a custom modal dialog, ensuring that it
+     * is displayed from the event dispatch thread.
+     *
+     * @param type the message type
      * @param title the title of the dialog box.
+     * @param message the message which is to be displayed.
      * @param submissionURL if not null, allow the user to report the exception to that URL
-     * @param component the "owner" of the dialog, and may be null for non-graphical applications.
+     * @param throwable a throwable
      */
     public void showMessageDialog(final int type, final String title, final String message,
-            final String submissionURL,
-            final Throwable throwable)
+                                  final String submissionURL, final Throwable throwable)
     {
+        if (SwingUtilities.isEventDispatchThread())
+        {
+            showMessageDialog0(type, title, message, submissionURL, throwable);
+        }
+        else
+        {
+            try
+            {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        showMessageDialog0(type, title, message, submissionURL, throwable);
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    private void showMessageDialog0(final int type, final String title, final String message,
+                                  final String submissionURL, final Throwable throwable) {
+
         final List<Object> buttons = new ArrayList<Object>();
         String throwMessage = null;
         final JButton detailsButton = new JButton(UIManager.getString(SHOW_DETAILS_BUTTON));;
@@ -271,19 +301,36 @@ public class GUIPrompt extends AbstractPrompt
             buttons.add(detailsButton);
             buttons.add(copyButton);
         }
-        final String basicMessage = ( (message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")) );
+        final String basicMessage = ((message != null) ? message : ((throwMessage != null) ? throwMessage : UIManager.getString("installer.errorMessage")));
 
+        Font font = UIManager.getFont("OptionPane.font");
+        AffineTransform at = new AffineTransform();     
+        FontRenderContext frc = new FontRenderContext(at, true, true);
+        final int basicMessageWidth = (int)font.getStringBounds(basicMessage, frc).getWidth();
         final JPanel topPanel = new JPanel();
         final JLabel messageLabel = new JLabel();
+        messageLabel.setName("OptionPane.label"); // required for gui tests
         messageLabel.setText(basicMessage);
+        if (basicMessageWidth > 700)
+        {
+            messageLabel.setText(wrapHtml(basicMessage));
+            messageLabel.setSize(new Dimension(700, 10)); // add small height so that preferred size is filled correctly
+            messageLabel.setPreferredSize(new Dimension (700, messageLabel.getPreferredSize().height));
+        }
+        else
+        {
+            messageLabel.setText(basicMessage);
+        }
         topPanel.add(messageLabel);
 
         final JPanel centerPanel = new JPanel();
         centerPanel.setSize(new Dimension(420, 300));
+
         final JEditorPane exceptionPane = new JEditorPane();
         exceptionPane.setEditable(false);
         exceptionPane.setContentType("text/html");
         exceptionPane.setText(getHTMLDetails(throwable));
+
         final JScrollPane exceptionScrollPane = new JScrollPane(exceptionPane);
         exceptionScrollPane.setPreferredSize(new Dimension(470, 300));
         centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -300,11 +347,20 @@ public class GUIPrompt extends AbstractPrompt
         {
             buttons.add(reportButton);
         }
-        buttons.add(UIManager.getString(CLOSE_BUTTON));
+        final JButton closeButton = new JButton(UIManager.getString(CLOSE_BUTTON));
+        buttons.add(closeButton);
         JOptionPane pane = new JOptionPane(jPanel, type,
                 JOptionPane.YES_NO_OPTION, null,
                 buttons.toArray());
         final JDialog dialog = pane.createDialog(parent, title);
+        // event handler for the Close button
+        closeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event)
+            {
+                dialog.dispose();
+            }
+        });
         if (throwable != null)
         {
             // event handler for the Details button
@@ -316,14 +372,28 @@ public class GUIPrompt extends AbstractPrompt
                     String label = detailsButton.getText();
                     if (label.startsWith(UIManager.getString(SHOW_DETAILS_BUTTON)))
                     {
-                        messageLabel.setText(basicMessage);
+                        if (basicMessageWidth > 700)
+                        {
+                            messageLabel.setText(wrapHtml(basicMessage));
+                        }
+                        else
+                        {
+                            messageLabel.setText(basicMessage);
+                        }
                         centerPanel.setVisible(true);
                         detailsButton.setText(UIManager.getString(HIDE_DETAILS_BUTTON));
                         dialog.pack(); // resize dialog to fit details
                     }
                     else
                     {
-                        messageLabel.setText(basicMessage);
+                        if (basicMessageWidth > 700)
+                        {
+                            messageLabel.setText(wrapHtml(basicMessage));
+                        }
+                        else
+                        {
+                            messageLabel.setText(basicMessage);
+                        }
                         centerPanel.setVisible(false);
                         detailsButton.setText(UIManager.getString(SHOW_DETAILS_BUTTON));
                         dialog.pack();
@@ -567,6 +637,9 @@ public class GUIPrompt extends AbstractPrompt
         return result;
     }
 
+    private String wrapHtml(String string) {
+      return "<html><body><div style='float:left; width:540px;'>" + string + "</div></body></html>";
+    }
 
     // A test program to demonstrate the class
     public static class Test

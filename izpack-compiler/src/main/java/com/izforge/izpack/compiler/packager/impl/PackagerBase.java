@@ -23,30 +23,28 @@
 package com.izforge.izpack.compiler.packager.impl;
 
 import com.izforge.izpack.api.data.*;
+import com.izforge.izpack.api.exception.CompilerException;
 import com.izforge.izpack.api.rules.Condition;
 import com.izforge.izpack.api.rules.RulesEngine;
-import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.merge.PanelMerge;
 import com.izforge.izpack.compiler.packager.IPackager;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
+import com.izforge.izpack.compiler.util.graph.DependencyGraph;
 import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.merge.MergeManager;
 import com.izforge.izpack.merge.resolve.MergeableResolver;
 import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.compiler.util.graph.DependencyGraph;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
 
 /**
  * The packager base class. The packager interface <code>IPackager</code> is used by the compiler to put files into an installer, and
@@ -63,6 +61,8 @@ public abstract class PackagerBase implements IPackager
      */
     public static final String RESOURCES_PATH = "resources/";
 
+    protected static final String PACKSINFO_RESOURCE_PATH = RESOURCES_PATH + "packs.info";
+
     /**
      * Variables.
      */
@@ -75,7 +75,6 @@ public abstract class PackagerBase implements IPackager
 
     /**
      * Executable zipped output stream. First to open, last to close.
-     * Attention! This is our own JarOutputStream, not the java standard!
      */
     private final JarOutputStream installerJar;
 
@@ -93,11 +92,6 @@ public abstract class PackagerBase implements IPackager
      * The mergeable resolver.
      */
     private final MergeableResolver mergeableResolver;
-
-    /**
-     * The compression format to be used for pack compression.
-     */
-    private final PackCompressor compressor;
 
     /**
      * The compiler data.
@@ -133,7 +127,7 @@ public abstract class PackagerBase implements IPackager
     /**
      * The ordered panels.
      */
-    protected List<Panel> panelList = new ArrayList<Panel>();
+    private final List<Panel> panelList = new ArrayList<Panel>();
 
     /**
      * The ordered pack information.
@@ -143,12 +137,12 @@ public abstract class PackagerBase implements IPackager
     /**
      * The ordered language pack locale names.
      */
-    private List<String> langpackNameList = new ArrayList<String>();
+    private final List<String> langpackNameList = new ArrayList<String>();
 
     /**
      * The ordered custom actions information.
      */
-    private List<CustomData> customDataList = new ArrayList<CustomData>();
+    private final List<CustomData> customDataList = new ArrayList<CustomData>();
 
     /**
      * The language pack URLs keyed by locale name (e.g. de_CH).
@@ -168,19 +162,8 @@ public abstract class PackagerBase implements IPackager
     /**
      * Dynamic conditions.
      */
-    private List<DynamicInstallerRequirementValidator> dynamicInstallerRequirements =
+    private final List<DynamicInstallerRequirementValidator> dynamicInstallerRequirements =
             new ArrayList<DynamicInstallerRequirementValidator>();
-
-    /**
-     * Jar file URLs who's contents will be copied into the installer.
-     */
-    private Set<Object[]> includedJarURLs = new HashSet<Object[]>();
-
-    /**
-     * Tracks files which are already written into the container file.
-     */
-    private Map<FilterOutputStream, Set<String>> alreadyWrittenFiles = new HashMap<FilterOutputStream, Set<String>>();
-
 
     /**
      * Constructs a <tt>PackagerBase</tt>.
@@ -191,12 +174,11 @@ public abstract class PackagerBase implements IPackager
      * @param mergeManager      the merge manager
      * @param pathResolver      the path resolver
      * @param mergeableResolver the mergeable resolver
-     * @param compressor        the pack compressor
      * @param compilerData      the compiler data
      */
     public PackagerBase(Properties properties, PackagerListener listener, JarOutputStream installerJar,
                         MergeManager mergeManager, CompilerPathResolver pathResolver,
-                        MergeableResolver mergeableResolver, PackCompressor compressor, CompilerData compilerData,
+                        MergeableResolver mergeableResolver, CompilerData compilerData,
                         RulesEngine rulesEngine)
     {
         this.properties = properties;
@@ -205,7 +187,6 @@ public abstract class PackagerBase implements IPackager
         this.mergeManager = mergeManager;
         this.pathResolver = pathResolver;
         this.mergeableResolver = mergeableResolver;
-        this.compressor = compressor;
         this.compilerData = compilerData;
         this.rulesEngine = rulesEngine;
     }
@@ -277,7 +258,12 @@ public abstract class PackagerBase implements IPackager
     public void addResource(String resId, URL url)
     {
         sendMsg("Adding resource: " + resId, PackagerListener.MSG_VERBOSE);
-        installerResourceURLMap.put(resId, url);
+        URL oldUrl = installerResourceURLMap.put(resId, url);
+        if (oldUrl != null)
+        {
+            throw new CompilerException("Resource '" + resId + "' has been already defined at URL '" + oldUrl + "'"
+            + " and going to be overridden by URL '" + url +  "'");
+        }
     }
 
     @Override
@@ -317,11 +303,6 @@ public abstract class PackagerBase implements IPackager
     {
         sendMsg("Setting the installer information", PackagerListener.MSG_VERBOSE);
         this.info = info;
-
-        if (!compressor.useStandardCompression() && compressor.getDecoderMapperName() != null)
-        {
-            this.info.setPackDecoderClassName(compressor.getDecoderMapperName());
-        }
     }
 
     public Info getInfo()
@@ -365,21 +346,19 @@ public abstract class PackagerBase implements IPackager
     @Override
     public void createInstaller() throws Exception
     {
-        // preliminary work
         info.setInstallerBase(compilerData.getOutput().replaceAll(".jar", ""));
-
-        sendStart();
-
-        writeInstaller();
-
-        // Finish up. closeAlways is a hack for pack compressions other than
-        // default. Some of it (e.g. BZip2) closes the slave of it also.
-        // But this should not be because the jar stream should be open
-        // for the next pack. Therefore an own JarOutputStream will be used
-        // which close method will be blocked.
-        getInstallerJar().closeAlways();
-
-        sendStop();
+        JarOutputStream jarOutputStream = getInstallerJar();
+        try
+        {
+            sendStart();
+            writeInstaller();
+            sendStop();
+            jarOutputStream.flush();
+        }
+        finally
+        {
+            IOUtils.closeQuietly(jarOutputStream);
+        }
     }
 
     /**
@@ -440,7 +419,6 @@ public abstract class PackagerBase implements IPackager
         writeInstallerObject("installerrequirements", installerRequirements);
 
         writeInstallerResources();
-        writeIncludedJars();
 
         // Pack File Data may be written to separate jars
         writePacks();
@@ -455,16 +433,23 @@ public abstract class PackagerBase implements IPackager
     {
         Manifest manifest = new Manifest(PackagerBase.class.getResourceAsStream("MANIFEST.MF"));
         File tempManifest = File.createTempFile("MANIFEST", ".MF", FileUtils.getTempDirectory());
-        manifest.write(new FileOutputStream(tempManifest));
-        mergeManager.addResourceToMerge(tempManifest.getAbsolutePath(), "META-INF/MANIFEST.MF");
+        tempManifest.deleteOnExit();
+        FileOutputStream manifestOutputStream = FileUtils.openOutputStream(tempManifest);
+        try
+        {
+            manifest.write(manifestOutputStream);
+            mergeManager.addResourceToMerge(tempManifest.getAbsolutePath(), "META-INF/MANIFEST.MF");
+        }
+        finally
+        {
+            IOUtils.closeQuietly(manifestOutputStream);
+        }
     }
 
     /**
      * Write skeleton installer to the installer jar.
-     *
-     * @throws IOException for any I/O error
      */
-    protected void writeSkeletonInstaller() throws IOException
+    protected void writeSkeletonInstaller()
     {
         sendMsg("Copying the skeleton installer", PackagerListener.MSG_VERBOSE);
         mergeManager.addResourceToMerge("com/izforge/izpack/installer/");
@@ -478,12 +463,23 @@ public abstract class PackagerBase implements IPackager
         mergeManager.addResourceToMerge("com/izforge/izpack/gui/");
         mergeManager.addResourceToMerge("com/izforge/izpack/merge/");
         mergeManager.addResourceToMerge("com/izforge/izpack/util/");
-        mergeManager.addResourceToMerge("org/apache/regexp/");
+        mergeManager.addResourceToMerge("com/izforge/izpack/logging/");
         mergeManager.addResourceToMerge("com/coi/tools/");
-        mergeManager.addResourceToMerge("org/apache/tools/zip/");
         mergeManager.addResourceToMerge("org/apache/commons/io/");
         mergeManager.addResourceToMerge("jline/");
         mergeManager.addResourceToMerge("org/fusesource/");
+        PackCompression comprFormat = info.getCompressionFormat();
+        switch (comprFormat)
+        {
+            case DEFAULT:
+                break;
+            default:
+                mergeManager.addResourceToMerge("org/apache/commons/compress");
+        }
+        if (comprFormat == PackCompression.XZ || comprFormat == PackCompression.LZMA)
+        {
+            mergeManager.addResourceToMerge("org/tukaani/xz");
+        }
         mergeManager.addResourceToMerge("META-INF/native/");
         mergeManager.merge(installerJar);
     }
@@ -495,7 +491,7 @@ public abstract class PackagerBase implements IPackager
      */
     protected void writeInstallerObject(String entryName, Object object) throws IOException
     {
-        installerJar.putNextEntry(new org.apache.tools.zip.ZipEntry(RESOURCES_PATH + entryName));
+        installerJar.putNextEntry(new ZipEntry(RESOURCES_PATH + entryName));
         ObjectOutputStream out = new ObjectOutputStream(installerJar);
         try
         {
@@ -525,37 +521,31 @@ public abstract class PackagerBase implements IPackager
         for (Map.Entry<String, URL> stringURLEntry : installerResourceURLMap.entrySet())
         {
             URL url = stringURLEntry.getValue();
-            InputStream in = url.openStream();
-
-            org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(
-                    RESOURCES_PATH + stringURLEntry.getKey());
-            long dateTime = FileUtil.getFileDateTime(url);
-            if (dateTime != -1)
+            InputStream in = null;
+            try
             {
-                newEntry.setTime(dateTime);
+                in = url.openStream();
+                ZipEntry newEntry = new ZipEntry(RESOURCES_PATH + stringURLEntry.getKey());
+                long dateTime = FileUtil.getFileDateTime(url);
+                if (dateTime != -1)
+                {
+                    newEntry.setTime(dateTime);
+                }
+
+                try
+                {
+                    installerJar.putNextEntry(newEntry);
+                    IOUtils.copy(in, installerJar);
+                }
+                finally
+                {
+                    installerJar.closeEntry();
+                }
             }
-            installerJar.putNextEntry(newEntry);
-
-            IoHelper.copyStream(in, installerJar);
-            installerJar.closeEntry();
-            in.close();
-        }
-    }
-
-    /**
-     * Copy included jars to installer jar.
-     *
-     * @throws IOException for any I/O error
-     */
-    protected void writeIncludedJars() throws IOException
-    {
-        sendMsg("Merging " + includedJarURLs.size() + " jars into installer");
-
-        for (Object[] includedJarURL : includedJarURLs)
-        {
-            InputStream is = ((URL) includedJarURL[0]).openStream();
-            ZipInputStream inJarStream = new ZipInputStream(is);
-            IoHelper.copyZip(inJarStream, installerJar, (List<String>) includedJarURL[1], alreadyWrittenFiles);
+            finally
+            {
+                IOUtils.closeQuietly(in);
+            }
         }
     }
 
@@ -574,16 +564,6 @@ public abstract class PackagerBase implements IPackager
     protected JarOutputStream getInstallerJar()
     {
         return installerJar;
-    }
-
-    /**
-     * Returns the pack compressor.
-     *
-     * @return the pack compressor
-     */
-    protected PackCompressor getCompressor()
-    {
-        return compressor;
     }
 
     /**

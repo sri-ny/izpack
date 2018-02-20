@@ -30,7 +30,6 @@ import com.izforge.izpack.panels.userinput.field.password.PasswordGroupField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import javax.swing.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,8 +90,7 @@ public class GUIPasswordGroupField extends GUIField
         {
             try
             {
-                String value = field.process(values);
-                field.setValue(value);
+                field.setValue(values[0]);
                 result = true;
             }
             catch (Throwable exception)

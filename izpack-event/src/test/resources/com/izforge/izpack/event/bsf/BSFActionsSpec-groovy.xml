@@ -9,9 +9,7 @@
       beforePacks = {
         // check expected parameters
         assert packs instanceof java.util.List
-        assert packs.size() == npacks         // NOTE: npacks provided for backward compatibility with 4.x
         assert installData instanceof com.izforge.izpack.api.data.InstallData
-        assert idata instanceof com.izforge.izpack.api.data.InstallData
 
         def parent = new File(installData.getVariable("INSTALL_PATH"))
         def file =  new File(parent, "beforepacks-groovy.txt")
@@ -24,13 +22,11 @@
         // check expected parameters
         assert pack instanceof com.izforge.izpack.api.data.Pack
         assert installData instanceof com.izforge.izpack.api.data.InstallData
-        assert i instanceof java.lang.Integer
 
         def parent = new File(installData.getVariable("INSTALL_PATH"))
         def file = new File(parent, "beforepack-groovy.txt")
         file.withWriter { w ->
             w << pack.getName() << "\n"
-            w << i << "\n"
         }
       }
 
@@ -96,13 +92,11 @@
         // check expected parameters
         assert pack instanceof com.izforge.izpack.api.data.Pack
         assert installData instanceof com.izforge.izpack.api.data.InstallData
-        assert i instanceof java.lang.Integer
 
         def parent = new File(installData.getVariable("INSTALL_PATH"))
         def file = new File(parent, "afterpack-groovy.txt")
         file.withWriter { w ->
             w << pack.getName() << "\n"
-            w << i << "\n"
         }
       }
 
@@ -110,7 +104,6 @@
         // check expected parameters
         assert packs instanceof java.util.List
         assert installData instanceof com.izforge.izpack.api.data.InstallData
-        assert idata instanceof com.izforge.izpack.api.data.InstallData
 
         def parent = new File(installData.getVariable("INSTALL_PATH"))
         def file = new File(parent, "afterpacks-groovy.txt")

@@ -31,7 +31,7 @@ import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.core.handler.PromptUIHandler;
-import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.api.data.ExecutableFile;
 import com.izforge.izpack.util.FileExecutor;
 import com.izforge.izpack.util.PlatformModelMatcher;
 

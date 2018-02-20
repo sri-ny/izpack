@@ -36,27 +36,15 @@ public class RegistryValue extends ValueImpl implements Serializable
      */
     private static final long serialVersionUID = 97879516787269847L;
 
-    public String root; // optional
     public String key; // mandatory
     public String value; // optional; if null -> use default value
     private String resolvedValue;
 
-    public RegistryValue(String root, String key, String value)
+    public RegistryValue(String key, String value)
     {
         super();
-        this.root = root;
         this.key = key;
         this.value = value;
-    }
-
-    public String getRoot()
-    {
-        return root;
-    }
-
-    public void setRoot(String root)
-    {
-        this.root = root;
     }
 
     public String getKey()
@@ -82,9 +70,7 @@ public class RegistryValue extends ValueImpl implements Serializable
     @Override
     public void validate() throws Exception
     {
-        if ((this.root == null && this.key == null) ||
-                ((this.root != null && this.root.length() <= 0) &&
-                        (this.key != null && this.key.length() <= 0)))
+        if ((this.key == null) || (this.key != null && this.key.length() <= 0))
         {
             throw new Exception("No or empty registry key path");
         }
@@ -93,9 +79,6 @@ public class RegistryValue extends ValueImpl implements Serializable
     @Override
     public String toString() {
     	StringBuilder str = new StringBuilder();
-    	if( root != null ) {
-    		str.append("root: ").append(root).append(", ");
-    	}
     	if( key != null ) {
     		str.append("key: ").append(key).append(", ");
     	}
@@ -118,15 +101,10 @@ public class RegistryValue extends ValueImpl implements Serializable
 
         Reg reg = null;
         Reg.Key regkey = null;
-        if (root != null)
-        {
-            reg = new Reg(root);
-        }
         if (key != null)
         {
             if (reg == null)
             {
-            	// If the regRoot is not provided, load the portion of the registry indicated by regKey
                 reg = new Reg(key);
             }
             regkey = reg.get(key);
@@ -150,15 +128,6 @@ public class RegistryValue extends ValueImpl implements Serializable
 
         Reg reg = null;
         Reg.Key regkey = null;
-        if (root != null)
-        {
-            String _root_ = root;
-            for (VariableSubstitutor substitutor : substitutors)
-            {
-                _root_ = substitutor.substitute(_root_);
-            }
-            reg = new Reg(_root_);
-        }
         if (key != null)
         {
         	String _key_ = key;
@@ -191,6 +160,6 @@ public class RegistryValue extends ValueImpl implements Serializable
     @Override
     public Set<String> getVarRefs()
     {
-        return parseUnresolvedVariableNames(root, key, value);
+        return parseUnresolvedVariableNames(key, value);
     }
 }

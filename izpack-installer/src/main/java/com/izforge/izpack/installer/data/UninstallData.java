@@ -20,7 +20,7 @@
 package com.izforge.izpack.installer.data;
 
 import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.ExecutableFile;
+import com.izforge.izpack.api.data.ExecutableFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

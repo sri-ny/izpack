@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.izpack</groupId>
   <artifactId>izpack</artifactId>
-  <version>5.0.10-SNAPSHOT</version>
+  <version>5.1.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>IzPack parent</name>
   <description>
@@ -46,6 +46,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Maven 2 confuses the usage of the Nexus staging plugin and would require further customization -->
     <mavenVersion>3.0</mavenVersion>
+    <skipTests>false</skipTests>
+    <skipUnitTests>${skipTests}</skipUnitTests>
+    <skipIntegrationTests>${skipTests}</skipIntegrationTests>
   </properties>
 
   <modules>
@@ -67,6 +70,7 @@
     <module>izpack-ant</module>
     <module>izpack-test-common</module>
     <module>izpack-test-listener</module>
+    <module>reports</module>
   </modules>
 
   <dependencyManagement>
@@ -76,7 +80,7 @@
       <dependency>
         <groupId>org.apache.ant</groupId>
         <artifactId>ant</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.9</version>
       </dependency>
       <dependency>
         <groupId>bsf</groupId>
@@ -84,36 +88,27 @@
         <version>2.4.0</version>
       </dependency>
       <dependency>
-        <groupId>jakarta-regexp</groupId>
-        <artifactId>jakarta-regexp</artifactId>
-        <version>1.4</version>
-      </dependency>
-      <dependency>
         <groupId>org.picocontainer</groupId>
         <artifactId>picocontainer</artifactId>
-        <version>2.14.1</version>
+        <version>2.15</version>
       </dependency>
-      <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3</artifactId>
-        <version>1.1.4c</version>
-      </dependency>
-      
+
       <!-- PDF Panel -->
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
         <version>1.8.10</version>
       </dependency>
-      	<dependency>
-		<groupId>org.icepdf.os</groupId>
-		<artifactId>icepdf-core</artifactId>
-		<version>6.0.1</version>
-	  </dependency>
 	  <dependency>
-		<groupId>org.icepdf.os</groupId>
-		  <artifactId>icepdf-viewer</artifactId>
-		  <version>6.0.1</version>
+        <groupId>org.icepdf.os</groupId>
+        <artifactId>icepdf-viewer</artifactId>
+        <version>6.2.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.media</groupId>
+            <artifactId>jai_core</artifactId>
+          </exclusion>
+        </exclusions>
 	  </dependency>
 	  <!-- PDF Panel -->
       
@@ -121,52 +116,74 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.4</version>
+        <version>3.5</version>
       </dependency>
-
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.2</version>
+        <version>1.3.1</version>
       </dependency>
-
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.4</version>
+        <version>2.5</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.3</version>
+        <version>1.12</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tukaani</groupId>
+        <artifactId>xz</artifactId>
+        <version>1.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>1.9</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-parsers</artifactId>
+        <version>1.9</version>
       </dependency>
 
-      <!-- Maven plugins libs -->
+      <!-- Maven API -->
+     <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-compat</artifactId>
+        <version>3.2.5</version>
+      </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
-        <version>2.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-plugin-api</artifactId>
-        <version>2.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-project</artifactId>
-        <version>2.2.1</version>
+        <version>3.2.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-model</artifactId>
-        <version>2.2.1</version>
+        <version>3.2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>3.2.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-artifact</artifactId>
-        <version>2.2.1</version>
+        <version>3.2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>3.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugin-testing</groupId>
+        <artifactId>maven-plugin-testing-harness</artifactId>
+        <version>3.3.0</version>
       </dependency>
 
       <!-- Internal -->
@@ -287,6 +304,12 @@
         <groupId>${project.groupId}</groupId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <artifactId>reports</artifactId>
+        <groupId>${project.groupId}</groupId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
 
       <!-- Inner dependencies to test jar -->
       <dependency>
@@ -345,13 +368,6 @@
         <groupId>org.apache.maven.shared</groupId>
         <artifactId>maven-shared-jar</artifactId>
         <version>1.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.maven.plugin-testing</groupId>
-        <artifactId>maven-plugin-testing-harness</artifactId>
-        <version>1.2</version>
-        <scope>test</scope>
       </dependency>
 
       <!-- laf -->
@@ -446,17 +462,21 @@
       </plugin>
 
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-              <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
-              <forkCount>1</forkCount>
-              <reuseFork>false</reuseFork>
-          </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- need to always fork as ClassUtils.loadJarInSystemClassLoader() mangles the system class loader -->
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <skipTests>${skipUnitTests}</skipTests>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <skipTests>${skipIntegrationTests}</skipTests>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -490,7 +510,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.8</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>sonatype-nexus-staging</serverId>
@@ -538,58 +558,63 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.3.1</version>
+          <version>1.4.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>2.2.1</version>
+          <version>3.0.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.0.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>2.5</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-eclipse-plugin</artifactId>
-          <version>2.8</version>
+          <version>2.10</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.4</version>
+          <version>3.0.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.8</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.0.0</version>
         </plugin>
         <!-- Testing -->
         <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.7.9</version>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.19</version>
+          <version>2.20</version>
           <configuration>
             <!-- <workingDirectory>${project.build.directory}</workingDirectory> -->
             <systemPropertyVariables>
@@ -613,7 +638,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.19</version>
+          <version>2.20</version>
           <executions>
             <execution>
               <goals>
@@ -657,23 +682,68 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.5</version>
+          <version>2.5.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.5</version>
+          <version>1.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.3</version>
+          <version>2.10.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <profiles>
+
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <!-- Disabled by default, enable with mvn test -Pcoverage -->
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>prepare-integration</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report-integration</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-integration</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 
     <profile>
       <id>buildhive</id>
@@ -698,7 +768,7 @@
             <configuration>
               <jvm>/opt/jdk/jdk1.6.0/bin/java</jvm>
               <forkCount>1</forkCount>
-              <reuseFork>false</reuseFork>
+              <reuseForks>false</reuseForks>
             </configuration>
           </plugin>
         </plugins>
@@ -802,10 +872,9 @@
             </executions>
             <configuration>
               <includes>
-                <include>**/integration/**</include>
+                <include>**/InstallationTest.java</include>
               </includes>
               <excludes>
-                <exclude>**/InstallationTest.java</exclude>
                 <exclude>**/EventTest.java</exclude>
                 <exclude>**/ExecutableFileTest.java</exclude>
                 <exclude>**/IzpackGenerationTest.java</exclude>
@@ -951,11 +1020,4 @@
     <url>http://izpack.atlassian.net</url>
   </issueManagement>
   
-  	<repositories>
-		<repository>
-			<id>ice-maven-release</id>
-			<name>Ice Maven Release Repository</name>
-			<url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
-		</repository>
-	</repositories>
 </project>

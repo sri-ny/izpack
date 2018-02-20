@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Selamat Datang"/>
     <str id="CompilePanel.headline" txt="Kompilasi Kode Sumber Java"/>
     <str id="ConditionalUserInputPanel.headline" txt="Data Pengguna"/>
-    <str id="ExtendedInstallPanel.headline" txt="Pemasangan dan Konfigurasi"/>
     <str id="FinishPanel.headline" txt="Pemasangan Telah Selesai"/>
     <str id="HelloPanel.headline" txt="Selamat Datang"/>
     <str id="HTMLInfoPanel.headline" txt="Informasi"/>
@@ -85,6 +84,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Ini akan menghapus aplikasi terpasang!"/>

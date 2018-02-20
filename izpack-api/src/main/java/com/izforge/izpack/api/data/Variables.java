@@ -22,7 +22,6 @@
 package com.izforge.izpack.api.data;
 
 
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.exception.InstallerException;
 
 import java.util.Properties;
@@ -148,6 +147,14 @@ public interface Variables
     void registerBlockedVariableNames(Set<String> names, Object blocker);
 
     /**
+     * Get a set of variable names that are blocked by blocking object.
+     *
+     * @param blocker Blocking object
+     * @return variables
+     */
+    Set<String> getBlockedVariableNames(Object blocker);
+
+    /**
      * Unregister a set of variable names from blocking from further changes.
      *
      * @param names Variable names
@@ -174,12 +181,12 @@ public interface Variables
      *
      * @return the variables
      */
-    void setOverrides(Options overrides);
+    void setOverrides(Overrides overrides);
 
     /**
      * Return all variables overrides.
      *
      * @return the variables overrides
      */
-    Options getOverrides();
+    Overrides getOverrides();
 }

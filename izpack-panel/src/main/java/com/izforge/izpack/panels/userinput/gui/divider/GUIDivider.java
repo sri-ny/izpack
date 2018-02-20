@@ -27,7 +27,7 @@ import com.izforge.izpack.panels.userinput.field.divider.Divider;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
 import javax.swing.*;
-
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
@@ -49,14 +49,16 @@ public class GUIDivider extends GUIField
         JPanel panel = new JPanel();
         Alignment alignment = field.getAlignment();
 
+        MatteBorder border;
         if (alignment != null && alignment == Alignment.TOP)
         {
-            panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray));
+            border = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray);
         }
         else
         {
-            panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
+            border = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray);
         }
+        panel.setBorder(border);
 
         TwoColumnConstraints constraints = new TwoColumnConstraints(TwoColumnConstraints.BOTH);
         constraints.stretch = true;

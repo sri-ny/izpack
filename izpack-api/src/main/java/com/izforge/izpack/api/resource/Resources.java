@@ -41,18 +41,23 @@ public interface Resources
      * The base name of the XML file that specifies the custom langpack. Searched is for the file
      * with the name expanded by _ISO3.
      */
-    public static final String CUSTOM_TRANSLATIONS_RESOURCE_NAME = "CustomLangPack.xml";
+    String CUSTOM_TRANSLATIONS_RESOURCE_NAME = "CustomLangPack.xml";
 
     /**
      * The base name of the XML file that specifies the pack langpack. Searched is for the file
      * with the name expanded by _ISO3.
      */
-    public static final String PACK_TRANSLATIONS_RESOURCE_NAME = "packsLang.xml";
+    String PACK_TRANSLATIONS_RESOURCE_NAME = "packsLang.xml";
 
     /**
      * The base name of the XML file that specifies the custom icons.
      */
-    public static final String CUSTOM_ICONS_RESOURCE_NAME = "customicons.xml";
+    String CUSTOM_ICONS_RESOURCE_NAME = "customicons.xml";
+
+    /**
+     * The install Java logging configuration.
+     */
+    String DEFAULT_INSTALL_LOGGING_CONFIGURATION_RES = "logging.properties";
 
     /**
      * Returns the stream to a resource.

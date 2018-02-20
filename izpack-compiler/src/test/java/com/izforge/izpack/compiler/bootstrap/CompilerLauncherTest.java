@@ -25,21 +25,17 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
 import com.izforge.izpack.compiler.packager.impl.AbstractPackagerTest;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
 import com.izforge.izpack.test.Container;
 import com.izforge.izpack.test.junit.PicoRunner;
 import org.hamcrest.core.IsNull;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Properties;
+import java.util.jar.JarOutputStream;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -52,7 +48,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Container(CompilerContainer.class)
 public class CompilerLauncherTest
 {
-    private CompilerContainer compilerContainer;
+    private final CompilerContainer compilerContainer;
 
     public CompilerLauncherTest(CompilerContainer compilerContainer)
     {
@@ -81,7 +77,7 @@ public class CompilerLauncherTest
                         baseDir + "src/test/resources/bindingTest.xml",
                         "",
                         baseDir + "/target/output.jar",
-                        false, true)
+                        true)
         );
         JarOutputStream jarOutputStream = compilerContainer.getComponent(JarOutputStream.class);
         assertThat(jarOutputStream, IsNull.notNullValue());
@@ -105,7 +101,7 @@ public class CompilerLauncherTest
                         baseDir + "src/test/resources/bindingTest.xml",
                         "",
                         baseDir + "/target/output.jar",
-                        false, true)
+                        false)
         );
         CompilerData data = compilerContainer.getComponent(CompilerData.class);
         assertThat(data, IsNull.notNullValue());

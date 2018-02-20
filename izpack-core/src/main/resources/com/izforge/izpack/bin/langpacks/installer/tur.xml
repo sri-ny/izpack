@@ -19,7 +19,6 @@
     <str id="CheckedHelloPanel.headline" txt="Hoşgeldiniz"/>
     <str id="CompilePanel.headline" txt="Java Kaynak Kodlarını Derle"/>
     <str id="ConditionalUserInputPanel.headline" txt="Kullanıcı Bilgileri"/>
-    <str id="ExtendedInstallPanel.headline" txt="Kurulum ve Yapılandırma"/>
     <str id="FinishPanel.headline" txt="Kurulum Tamamlandı"/>
     <str id="HelloPanel.headline" txt="Hoşgeldiniz"/>
     <str id="HTMLInfoPanel.headline" txt="Bilgiler"/>
@@ -85,6 +84,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Bu kurulmuş olan program(lar)ı kaldıracaktır!"/>

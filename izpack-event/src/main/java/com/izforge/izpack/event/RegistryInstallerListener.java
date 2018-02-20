@@ -22,6 +22,7 @@
 package com.izforge.izpack.event;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.Variables;
@@ -37,8 +38,8 @@ import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.util.CleanupClient;
 import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.file.FileUtils;
 import com.izforge.izpack.util.helper.SpecHelper;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -99,12 +100,12 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     /**
      * The unpacker.
      */
-    private IUnpacker unpacker;
+    private final IUnpacker unpacker;
 
     /**
      * The variable substituter.
      */
-    private VariableSubstitutor substituter;
+    private final VariableSubstitutor substitutor;
 
     /**
      * The uninstallation data.
@@ -146,7 +147,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * Constructs a <tt>RegistryInstallerListener</tt>.
      *
      * @param unpacker      the unpacker
-     * @param substituter   the variable substituter
+     * @param substitutor   the variable substituter
      * @param installData   the installation data
      * @param uninstallData the uninstallation data
      * @param rules         the rules
@@ -154,13 +155,13 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
      * @param housekeeper   the housekeeper
      * @param handler       the registry handler reference
      */
-    public RegistryInstallerListener(IUnpacker unpacker, VariableSubstitutor substituter,
+    public RegistryInstallerListener(IUnpacker unpacker, VariableSubstitutor substitutor,
                                      InstallData installData, UninstallData uninstallData,
                                      Resources resources, RulesEngine rules, Housekeeper housekeeper,
                                      RegistryDefaultHandler handler)
     {
         super(installData);
-        this.substituter = substituter;
+        this.substitutor = substitutor;
         this.unpacker = unpacker;
         this.uninstallData = uninstallData;
         this.resources = resources;
@@ -200,7 +201,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             try
             {
                 // need to read the spec now rather than in initialise(), in order to do variable replacement
-                spec.readSpec(SPEC_FILE_NAME, substituter);
+                spec.readSpec(SPEC_FILE_NAME);
             }
             catch (Exception exception)
             {
@@ -264,6 +265,9 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         // Register for cleanup
         housekeeper.registerForCleanup(this);
 
+        InstallData installData = getInstallData();
+        Info installInfo = installData.getInfo();
+        
         // Start logging
         IXMLElement uninstallerPack = null;
         // No interrupt desired after writing registry entries.
@@ -286,13 +290,14 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
 
             }
         }
-        String uninstallSuffix = getInstallData().getVariable("UninstallKeySuffix");
+        String uninstallSuffix = installData.getVariable("UninstallKeySuffix");
         if (uninstallSuffix != null)
         {
             registry.setUninstallName(registry.getUninstallName() + " " + uninstallSuffix);
         }
-        // Generate uninstaller key automatically if not defined in spec.
-        if (uninstallerPack == null)
+        // Generate uninstaller key automatically if not defined in spec only if the uninstaller path is set
+        // (this is not the case if write="false").
+        if (uninstallerPack == null && installInfo != null && installInfo.getUninstallerPath() != null)
         {
             registerUninstallKey();
         }
@@ -386,9 +391,9 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     private void performValueSetting(IXMLElement regEntry) throws InstallerException, NativeLibException
     {
         String name = spec.getRequiredAttribute(regEntry, REG_BASENAME);
-        name = substituter.substitute(name);
+        name = substitutor.substitute(name);
         String keypath = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
-        keypath = substituter.substitute(keypath);
+        keypath = substitutor.substitute(keypath);
         String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
         int rootId = resolveRoot(regEntry, root);
 
@@ -411,14 +416,14 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
         String value = regEntry.getAttribute(REG_DWORD);
         if (value != null)
         { // Value type is DWord; placeholder possible.
-            value = substituter.substitute(value);
+            value = substitutor.substitute(value);
             registry.setValue(keypath, name, Long.parseLong(value));
             return;
         }
         value = regEntry.getAttribute(REG_STRING);
         if (value != null)
         { // Value type is string; placeholder possible.
-            value = substituter.substitute(value);
+            value = substitutor.substitute(value);
             registry.setValue(keypath, name, value);
             return;
         }
@@ -431,7 +436,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             {
                 IXMLElement element = multiIter.next();
                 multiString[i] = spec.getRequiredAttribute(element, REG_DATA);
-                multiString[i] = substituter.substitute(multiString[i]);
+                multiString[i] = substitutor.substitute(multiString[i]);
             }
             registry.setValue(keypath, name, multiString);
             return;
@@ -453,7 +458,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
                     buf.append(",");
                 }
             }
-            byte[] bytes = extractBytes(regEntry, substituter.substitute(buf.toString()));
+            byte[] bytes = extractBytes(regEntry, substitutor.substitute(buf.toString()));
             registry.setValue(keypath, name, bytes);
             return;
         }
@@ -505,7 +510,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
     private void performKeySetting(IXMLElement regEntry) throws InstallerException, NativeLibException
     {
         String path = spec.getRequiredAttribute(regEntry, REG_KEYPATH);
-        path = substituter.substitute(path);
+        path = substitutor.substitute(path);
         String root = spec.getRequiredAttribute(regEntry, REG_ROOT);
         int rootId = resolveRoot(regEntry, root);
         registry.setRoot(rootId);
@@ -517,7 +522,7 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
 
     private int resolveRoot(IXMLElement regEntry, String root)
     {
-        String root1 = substituter.substitute(root);
+        String root1 = substitutor.substitute(root);
         Integer tmp = RegistryHandler.ROOT_KEY_MAP.get(root1);
         if (tmp != null)
         {
@@ -578,10 +583,10 @@ public class RegistryInstallerListener extends AbstractProgressInstallerListener
             
             // make sure the 'Uninstaller' directory exists
             File uninstallerIcon = new File(iconPath);
-            FileUtils.createNewFile(uninstallerIcon, true);
-            
+            FileUtils.touch(uninstallerIcon);
+
             out = new FileOutputStream(uninstallerIcon);
-            IoHelper.copyStream(in, out);
+            IOUtils.copy(in, out);
             out.flush();
             out.close();
             registry.setValue(keyName, "DisplayIcon", iconPath);

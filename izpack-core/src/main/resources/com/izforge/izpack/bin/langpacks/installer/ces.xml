@@ -58,6 +58,10 @@
     <str id="installer.sendReport" txt="Poslat report"/>
     <str id="installer.cancelled" txt="Instalace byla zrušena"/>
     <str id="installer.continueQuestion" txt="Přesto pokračovat?"/>
+    <str id="installer.started" txt="Instalace probíhá"/>
+    <str id="installer.platform" txt="Platforma: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Instalace skončila"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Tato operace odstraní nainstalovanou aplikaci !"/>
@@ -161,11 +165,22 @@
     <str id="ShortcutPanel.location.startMenu" txt="Startovní Menu"/>
     <str id="ShortcutPanel.location.startup" txt="Skupina Autostart"/>
 
+    <!-- SummaryPanel strings -->
+    <str id="SummaryPanel.info"
+         txt="Instalace bude nyní probíhat podle následujících voleb. Stiskni tlačítko Další na pokráčování."/>
+    <str id="TargetPanel.summaryCaption" txt="Instalační adresář"/>
+    <str id="JDKPathPanel.summaryCaption" txt="Cesta k JDK"/>
+    <str id="InstallationGroupPanel.summaryCaption" txt="Instalační prvky"/>
+    <str id="PacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="ImgPacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="TreePacksPanel.summaryCaption" txt="Instalační balíčky"/>
+    <str id="UserPathPanel.summaryCaption" txt="Vybraná cesta"/>
+    <str id="DefaultTargetPanel.summaryCaption" txt="Instalační adresář"/>
+
     <str id="UserInputPanel.error.caption" txt="Problém při spouštění"/>
     <str id="UserInputPanel.search.autodetect" txt="Automatická detekce"/>
 
-    <!-- more descriptive error message would be cool, like specifying what
-file we looked for -->
+    <!-- more descriptive error message would be cool, like specifying what file we looked for -->
     <str id="UserInputPanel.search.autodetect.failed.message" txt="Automatická detekce selhala."/>
     <str id="UserInputPanel.search.autodetect.failed.caption" txt="Automatická detekce selhala."/>
     <str id="UserInputPanel.search.autodetect.tooltip" txt="Zkontrolujte soubor nebo adrešář v zadané cestě."/>
@@ -201,6 +216,6 @@ file we looked for -->
     <str id="ProcessPanel.heading" txt="Probíhá"/>
 
     <str id="data.validation.error.title" txt="Ověrování selhalo"/>
-    <str id="data.validation.warning.title" txt="Ověrování selhalo - pokračuji instalaci"/>
+    <str id="data.validation.warning.title" txt="Důležité upozornění"/>
 
 </izpack:langpack>

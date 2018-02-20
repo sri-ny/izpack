@@ -21,50 +21,21 @@
 
 package com.izforge.izpack.installer.multiunpacker;
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileEquals;
-import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.io.FilenameUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.Pack;
+import com.izforge.izpack.api.data.*;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.handler.Prompt;
+import com.izforge.izpack.api.resource.Locales;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
-import com.izforge.izpack.compiler.compressor.DefaultPackCompressor;
-import com.izforge.izpack.compiler.compressor.PackCompressor;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.compiler.merge.CompilerPathResolver;
 import com.izforge.izpack.compiler.packager.impl.MultiVolumePackager;
-import com.izforge.izpack.compiler.stream.JarOutputStream;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.io.VolumeLocator;
 import com.izforge.izpack.core.resource.ResourceManager;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
-import com.izforge.izpack.data.ExecutableFile;
-import com.izforge.izpack.data.PackInfo;
 import com.izforge.izpack.installer.data.InstallData;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
@@ -78,6 +49,23 @@ import com.izforge.izpack.util.Housekeeper;
 import com.izforge.izpack.util.Librarian;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.Platforms;
+import org.apache.commons.io.FilenameUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.jar.JarOutputStream;
+
+import static com.izforge.izpack.test.util.TestHelper.assertFileEquals;
+import static com.izforge.izpack.test.util.TestHelper.assertFileNotExists;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link MultiVolumeUnpacker}.
@@ -241,12 +229,11 @@ public class MultiVolumeUnpackerTest
         AutomatedInstallData installData = createInstallData(packageDir, installDir, resources);
         setSelectedPacks(installData, "base", "pack2", "pack3");  // exclude pack1 from installation
         TestMultiVolumeUnpacker unpacker = createUnpacker(resources, installData);
-        
+
         TestMultiVolumeUnpacker spy = Mockito.spy(unpacker);
-        
         spy.unpack();
         
-        Mockito.verify(spy, Mockito.times(3)).readExecutableFiles(Mockito.any(ObjectInputStream.class), Mockito.anyList());
+        Mockito.verify(spy, Mockito.times(3)).readExecutableFiles(Mockito.any(PackInfo.class), Mockito.anyList());
 
         // verify the expected files exists in the installation directory
         checkInstalled(installDir, file1);
@@ -373,17 +360,17 @@ public class MultiVolumeUnpackerTest
     private static class TestMultiVolumeUnpacker extends MultiVolumeUnpacker {
 
 		public TestMultiVolumeUnpacker(com.izforge.izpack.api.data.InstallData installData, PackResources resources,
-				RulesEngine rules, VariableSubstitutor variableSubstitutor, UninstallData uninstallData,
-				FileQueueFactory queue, Housekeeper housekeeper, InstallerListeners listeners, Prompt prompt,
-				VolumeLocator locator, PlatformModelMatcher matcher) {
+                                       RulesEngine rules, VariableSubstitutor variableSubstitutor, UninstallData uninstallData,
+                                       FileQueueFactory queue, Housekeeper housekeeper, InstallerListeners listeners, Prompt prompt,
+                                       VolumeLocator locator, PlatformModelMatcher matcher) {
 			super(installData, resources, rules, variableSubstitutor, uninstallData, queue, housekeeper, listeners, prompt, locator,
 					matcher);
 		}
 
 		@Override
-		protected void readExecutableFiles(ObjectInputStream stream, List<ExecutableFile> executables)
-				throws IOException, ClassNotFoundException {
-			super.readExecutableFiles(stream, executables);
+		protected void readExecutableFiles(PackInfo packInfo, List<ExecutableFile> executables)
+        {
+			super.readExecutableFiles(packInfo, executables);
 			
 			assertTrue(executables.size() < 2);
 		}
@@ -396,8 +383,8 @@ public class MultiVolumeUnpackerTest
      * @param installDir the installation directory
      * @param resources  the resources
      * @return the installation data
-     * @throws IOException            for any I/O error
-     * @throws ClassNotFoundException
+     * @throws IOException for any I/O error
+     * @throws ClassNotFoundException a class has not been found
      */
     private AutomatedInstallData createInstallData(File mediaDir, File installDir, Resources resources)
             throws IOException, ClassNotFoundException
@@ -407,6 +394,9 @@ public class MultiVolumeUnpackerTest
         installData.setInstallPath(installDir.getPath());
         installData.setMediaPath(mediaDir.getPath());
         installData.setInfo(new Info());
+        InputStream langPack = getClass().getResourceAsStream("/com/izforge/izpack/bin/langpacks/installer/eng.xml");
+        assertNotNull(langPack);
+        installData.setMessages(new LocaleDatabase(langPack, Mockito.mock(Locales.class)));
         List<Pack> packs = getPacks(resources);
         installData.setAvailablePacks(packs);
         return installData;
@@ -438,16 +428,14 @@ public class MultiVolumeUnpackerTest
     {
         Properties properties = new Properties();
         PackagerListener packagerListener = Mockito.mock(PackagerListener.class);
-        JarOutputStream jar = new JarOutputStream(installerJar);
+        JarOutputStream jar = new JarOutputStream(new FileOutputStream(installerJar));
         MergeManager mergeManager = Mockito.mock(MergeManager.class);
         CompilerPathResolver resolver = Mockito.mock(CompilerPathResolver.class);
         MergeableResolver mergeableResolver = Mockito.mock(MergeableResolver.class);
-        PackCompressor compressor = new DefaultPackCompressor();
-        CompilerData data = new CompilerData(null, baseDir.getPath(), installerJar.getPath(), true, false);
+        CompilerData data = new CompilerData(null, baseDir.getPath(), installerJar.getPath(), true);
         RulesEngine rulesEngine = Mockito.mock(RulesEngine.class);
         MultiVolumePackager packager = new MultiVolumePackager(properties, packagerListener, jar, mergeManager,
-                                                               resolver, mergeableResolver, compressor, data,
-                                                               rulesEngine);
+                                                               resolver, mergeableResolver, data, rulesEngine);
         packager.setInfo(new Info());
         return packager;
     }
@@ -474,7 +462,7 @@ public class MultiVolumeUnpackerTest
         	}
         	else {
 	            pack.addFile(baseDir, file, "$INSTALL_PATH/" + file.getName(), null, OverrideType.OVERRIDE_FALSE, null,
-	                         Blockable.BLOCKABLE_NONE, null, null);
+	                         Blockable.BLOCKABLE_NONE, null, null, null);
         	}
         }
     }
@@ -492,15 +480,14 @@ public class MultiVolumeUnpackerTest
         // We read the packs data
         InputStream in = resources.getInputStream("packs.info");
         ObjectInputStream objIn = new ObjectInputStream(in);
-        int size = objIn.readInt();
+        List<PackInfo> packsInfo = (List<PackInfo>) objIn.readObject();
+        objIn.close();
         List<Pack> packs = new ArrayList<Pack>();
-
-        for (int i = 0; i < size; i++)
+        for (PackInfo packInfo : packsInfo)
         {
-            Pack pack = (Pack) objIn.readObject();
+            Pack pack = packInfo.getPack();
             packs.add(pack);
         }
-        objIn.close();
         return packs;
     }
 
@@ -523,9 +510,8 @@ public class MultiVolumeUnpackerTest
      *
      * @param installDir the installation directory
      * @param expected   the file that should be installed
-     * @throws IOException for any I/O error
      */
-    private void checkInstalled(File installDir, File expected) throws IOException
+    private void checkInstalled(File installDir, File expected)
     {
         File file = new File(installDir, expected.getName());
         assertFileEquals(expected, file);

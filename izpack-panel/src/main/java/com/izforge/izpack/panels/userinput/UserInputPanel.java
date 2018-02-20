@@ -18,19 +18,6 @@
  */
 package com.izforge.izpack.panels.userinput;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.Border;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.Panel;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -55,6 +42,14 @@ import com.izforge.izpack.panels.userinput.gui.UpdateListener;
 import com.izforge.izpack.panels.userinput.gui.custom.GUICustomField;
 import com.izforge.izpack.util.PlatformModelMatcher;
 
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * User input panel.
  *
@@ -75,17 +70,19 @@ public class UserInputPanel extends IzPanel
     /**
      * The parsed result from reading the XML specification from the file
      */
-    private IXMLElement spec;
+    private final IXMLElement spec;
 
     private boolean eventsActivated = false;
 
-    private List<GUIField> views = new ArrayList<GUIField>();
+    private boolean saving = false;
+
+    private final List<GUIField> views = new ArrayList<GUIField>();
 
     private JPanel panel;
 
     private JComponent firstFocusedComponent;
 
-    private RulesEngine rules;
+    private final RulesEngine rules;
 
     /**
      * The factory for creating validators.
@@ -147,7 +144,7 @@ public class UserInputPanel extends IzPanel
         this.delegatingPrompt = new DelegatingPrompt(prompt);
 
         this.spec = readSpec();
-        boolean isDisplayingHidden = false;
+        boolean isDisplayingHidden;
         try
         {
             isDisplayingHidden = Boolean.parseBoolean(spec.getAttribute(DISPLAY_HIDDEN));
@@ -172,7 +169,7 @@ public class UserInputPanel extends IzPanel
             rules.addPanelCondition(panel, globalConstraint);
         }
 
-        boolean readonly = false;
+        boolean readonly;
         try
         {
             readonly = Boolean.parseBoolean(spec.getAttribute(READONLY));
@@ -214,7 +211,11 @@ public class UserInputPanel extends IzPanel
      * Save visible contents of the this panel into install data.
      */
     @Override
-    public void saveData() { readInput(prompt, true); }
+    public void saveData()
+    {
+        saving = true;
+        readInput(prompt, true);
+    }
 
     /**
      * This method is called when the panel becomes active.
@@ -308,7 +309,7 @@ public class UserInputPanel extends IzPanel
     /**
      * Set elements to be visible or not depending on field conditions - dynamic update of field visibility.
      */
-    protected void updateUIElements()
+    private void updateUIElements()
     {
         boolean updated = false;
         firstFocusedComponent = null;
@@ -352,8 +353,8 @@ public class UserInputPanel extends IzPanel
 
         for (GUIField view : views)
         {
-            boolean enabled = false;
-            boolean addToPanel = false;
+            boolean enabled;
+            boolean addToPanel;
 
             Field fieldDefinition = view.getField();
             Panel metadata = getMetadata();
@@ -394,11 +395,11 @@ public class UserInputPanel extends IzPanel
                 {
                     component.setEnabled(enabled);
                     panel.add(component.getComponent(), component.getConstraints());
-                    String var = view.getVariable();
-                    if (var != null)
-                    {
-                        affectedVariables.add(var);
-                    }
+                }
+                String var = view.getVariable();
+                if (var != null)
+                {
+                    affectedVariables.add(var);
                 }
             }
         }
@@ -416,19 +417,30 @@ public class UserInputPanel extends IzPanel
     {
         delegatingPrompt.setPrompt(prompt);
 
-        for (GUIField view : views)
+        try
         {
-            if (view.isDisplayed() && view.getField().isConditionTrue())
+            for (GUIField view : views)
             {
-                if (skipValidation)
+                Field field = view.getField();
+                if (view.isDisplayed() && field.isConditionTrue())
                 {
-                    view.updateField(prompt, skipValidation);
-                }
-                else if (!view.updateField(prompt))
-                {
-                    return false;
+                    if (saving)
+                    {
+                        field.setSaving(true);
+                    }
+                    if (skipValidation)
+                    {
+                        view.updateField(prompt, true);
+                    } else if (!view.updateField(prompt))
+                    {
+                        return false;
+                    }
                 }
             }
+        }
+        finally
+        {
+            saving = false;
         }
         return true;
     }
@@ -462,15 +474,50 @@ public class UserInputPanel extends IzPanel
      */
     private void updateDialog()
     {
-        boolean skipValidation = true;
         if (this.eventsActivated)
         {
             this.eventsActivated = false;
-            readInput(LoggingPrompt.INSTANCE, skipValidation); // read from the input fields, but don't display a prompt for errors
+            readInput(LoggingPrompt.INSTANCE, true); // read from the input fields, but don't display a prompt for errors
             updateUIElements();
             buildUI();
             revalidate();
             repaint();
+            Panel metadata = getMetadata();
+            if (metadata.isVisited())
+            {
+                Set<String> blockedNames = metadata.getAffectedVariableNames();
+                Set<String> originalBlockedNames = installData.getVariables().getBlockedVariableNames(metadata);
+                Set<String> addedBlockedNames = new HashSet<String>();
+                Set<String> removedBlockedNames = new HashSet<String>();
+                if (blockedNames != null)
+                {
+                    for (String blockedName : blockedNames)
+                    {
+                        if (!installData.getVariables().isBlockedVariableName(blockedName))
+                        {
+                            addedBlockedNames.add(blockedName);
+                        }
+                    }
+                }
+                if (originalBlockedNames != null)
+                {
+                    for (String blockedName : originalBlockedNames)
+                    {
+                        if (!blockedNames.contains(blockedName))
+                        {
+                            removedBlockedNames.add(blockedName);
+                        }
+                    }
+                }
+                if (!addedBlockedNames.isEmpty())
+                {
+                    installData.getVariables().registerBlockedVariableNames(addedBlockedNames, metadata);
+                }
+                if (!removedBlockedNames.isEmpty())
+                {
+                    installData.getVariables().unregisterBlockedVariableNames(removedBlockedNames, metadata);
+                }
+            }
             this.eventsActivated = true;
         }
     }
@@ -551,7 +598,7 @@ public class UserInputPanel extends IzPanel
 
     /**
      * Summarize all the visible views in the panel.
-     * @return
+     * @return summary body
      */
     @Override
     public String getSummaryBody()
@@ -586,7 +633,7 @@ public class UserInputPanel extends IzPanel
     /**
      * Extract summary information from regular fields
      *
-     * @param view
+     * @param view GUI field view
      * @return summary information for a field
      */
     private String getViewSummary(GUIField view)
@@ -607,7 +654,7 @@ public class UserInputPanel extends IzPanel
     /**
      * Extract summary information from custom fields.
      *
-     * @param customField
+     * @param customField GUI custom field
      * @return summary information for a custom field
      */
     private String getCustomSummary(GUICustomField customField)
@@ -618,10 +665,10 @@ public class UserInputPanel extends IzPanel
 
         int column = 0;
         int row = 0;
-        String tab = "";
-        String entry = "";
-        String key = "";
-        String value = "";
+        String tab;
+        StringBuilder entry = new StringBuilder();
+        String key;
+        String value;
 
 
         for(String variable : variables)
@@ -647,15 +694,15 @@ public class UserInputPanel extends IzPanel
                 if (firstColumn)
                 {
                     row++;
-                    entry += String.format("%1$-3s", row + ". ");
+                    entry.append(String.format("%1$-3s", row + ". "));
                 }
-                entry += String.format(tab + key);
-                entry += String.format(" " + value);
-                entry += "<br>";
+                entry.append(tab).append(key);
+                entry.append(" ").append(value);
+                entry.append("<br>");
             }
 
         }
 
-        return entry;
+        return entry.toString();
     }
 }

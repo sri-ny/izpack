@@ -52,18 +52,6 @@
 
 package com.izforge.izpack.util.os;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
@@ -73,6 +61,16 @@ import com.izforge.izpack.util.unix.ShellScript;
 import com.izforge.izpack.util.unix.UnixHelper;
 import com.izforge.izpack.util.unix.UnixUser;
 import com.izforge.izpack.util.unix.UnixUsers;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This is the Implementation of the RFC-Based Desktop-Link. Used in KDE and GNOME.
@@ -156,12 +154,6 @@ public class Unix_Shortcut extends Shortcut
     private int    userType;
     private String workingDirectory;
 
-
-    /**
-     * internal String createdDirectory
-     */
-    private String createdDirectory;
-
     /**
      * internal String itsFileName
      */
@@ -170,17 +162,17 @@ public class Unix_Shortcut extends Shortcut
     /**
      * my Install ShellScript *
      */
-    public ShellScript myInstallScript;
+    private ShellScript myInstallScript;
 
     /**
      * Internal Constant: FS = File.separator // *
      */
-    public final String FS = File.separator;
+    private final String FS = File.separator;
 
     /**
      * Internal Constant: myHome = System.getProperty("user.home") *
      */
-    public final String myHome = System.getProperty("user.home");
+    private final String myHome = System.getProperty("user.home");
 
     /**
      * Cached value from {@link UnixHelper#getSuCommand()}.
@@ -215,6 +207,7 @@ public class Unix_Shortcut extends Shortcut
      * @param resources   the resources
      * @param installData the installation data
      */
+    @SuppressWarnings("WeakerAccess")
     public Unix_Shortcut(Resources resources, InstallData installData)
     {
         this.resources = resources;
@@ -242,11 +235,10 @@ public class Unix_Shortcut extends Shortcut
 
     /**
      * Builds contents of desktop file.
-     * @return
      */
     public String build()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         String userLanguage = System.getProperty("user.language", "en");
 
@@ -258,7 +250,11 @@ public class Unix_Shortcut extends Shortcut
 
         result.append("Comment=").append(description).append(N);
         result.append("Comment[").append(userLanguage).append("]=").append(description).append(N);
-        result.append("Encoding=").append(encoding).append(N);
+        if (!encoding.isEmpty()) {
+            logger.warning(String.format("using deprecated Desktop Entry key "
+                    + "Encoding with value %s", encoding));
+            result.append("Encoding=").append(encoding).append(N);
+        }
 
         // this causes too many problems
         // result.append("TryExec=" + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
@@ -266,10 +262,13 @@ public class Unix_Shortcut extends Shortcut
         if (!targetPath.isEmpty() || !arguments.isEmpty())
         {
             result.append("Exec=");
-            if (targetPath.contains(S))
-                result.append("'").append(targetPath).append("'");
-            else
-                result.append(targetPath);
+            result.append(targetPath);
+                //escaping needs to be handed more fine-grained (putting ''
+                //around everything after `Exec=` is not a solution because it
+                //causes invalid .desktop files (`desktop-file-validate` fails
+                //due to `error: value "'[...]'" for key "Exec" in group
+                //"Desktop Entry" contains a reserved character ''' outside of
+                //a quote`)
             if (!arguments.isEmpty())
                 result.append(S).append(arguments);
             result.append(N);
@@ -315,67 +314,24 @@ public class Unix_Shortcut extends Shortcut
         return result.toString();
     }
 
-
-    /**
-     * Overridden Method
-     *
-     * @param aType
-     * @param aName
-     * @throws java.lang.Exception
-     * @see com.izforge.izpack.util.os.Shortcut#initialize(int, java.lang.String)
-     */
     @Override
     public void initialize(int aType, String aName) throws Exception
     {
         this.linkName = aName;
     }
 
-
-    /**
-     * This indicates that Unix will be supported.
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#supported()
-     */
     @Override
     public boolean supported()
     {
         return true;
     }
 
-
-    /**
-     * Dummy
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#getDirectoryCreated()
-     */
-    @Override
-    public String getDirectoryCreated()
-    {
-        return this.createdDirectory; // while not stored...
-    }
-
-
-    /**
-     * Dummy
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#getFileName()
-     */
     @Override
     public String getFileName()
     {
         return (this.itsFileName);
     }
 
-
-    /**
-     * Overridden compatibility method. Returns all directories in $USER/.kde/share/applink.
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#getProgramGroups(int)
-     */
     @Override
     public List<String> getProgramGroups(int userType)
     {
@@ -388,11 +344,14 @@ public class Unix_Shortcut extends Shortcut
         {
             File[] listing = kdeShareApplnk.listFiles();
 
-            for (File aListing : listing)
+            if (listing != null)
             {
-                if (aListing.isDirectory())
+                for (File aListing : listing)
                 {
-                    groups.add(aListing.getName());
+                    if (aListing.isDirectory())
+                    {
+                        groups.add(aListing.getName());
+                    }
                 }
             }
         }
@@ -404,13 +363,6 @@ public class Unix_Shortcut extends Shortcut
         return groups;
     }
 
-
-    /**
-     * Gets the Programsfolder for the given User (non-Javadoc).
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#getProgramsFolder(int)
-     */
     @Override
     public String getProgramsFolder(int current_user)
     {
@@ -450,8 +402,8 @@ public class Unix_Shortcut extends Shortcut
      * Makes a filename usable in a script by escaping spaces.
      * This should <b>not</b> be used for filenames passed to Java filesystem
      * methods.
-     * @param filename
-     * @return
+     * @param filename filename to process
+     * @return escaped filename
      */
     private String makeFilenameScriptable(String filename)
     {
@@ -476,15 +428,12 @@ public class Unix_Shortcut extends Shortcut
     /**
      * Creates and stores the shortcut-files.
      *
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception error occured
      * @see com.izforge.izpack.util.os.Shortcut#save()
      */
     @Override
     public void save() throws Exception
     {
-
-        String target = null;
-
         String shortCutDef = this.build();
 
         boolean rootUser4All = this.getUserType() == Shortcut.ALL_USERS;
@@ -494,15 +443,15 @@ public class Unix_Shortcut extends Shortcut
         if ("".equals(this.programGroup) && (this.getLinkType() == Shortcut.DESKTOP))
         {
 
-            this.itsFileName = target;
+            this.itsFileName = null;
 
             // read the userdefined / overridden / wished Shortcut Location
             // This can be an absolute Path name or a relative Path to the InstallPath
             File shortCutLocation = null;
             File ApplicationShortcutPath;
-            String ApplicationShortcutPathName = installData.getVariable("ApplicationShortcutPath"/**
-             * TODO
-             * <-- Put in Docu and in Un/InstallerConstantsClass
+            String ApplicationShortcutPathName = installData.getVariable("ApplicationShortcutPath"/*
+              TODO
+              <-- Put in Docu and in Un/InstallerConstantsClass
              */
             );
             if (null != ApplicationShortcutPathName && !ApplicationShortcutPathName.equals(""))
@@ -527,6 +476,7 @@ public class Unix_Shortcut extends Shortcut
                 {
                     File relativePath = new File(installData.getInstallPath() + FS
                                                          + ApplicationShortcutPath);
+                    //noinspection ResultOfMethodCallIgnored
                     relativePath.mkdirs();
                     shortCutLocation = new File(relativePath.toString());
                 }
@@ -572,7 +522,7 @@ public class Unix_Shortcut extends Shortcut
                 }
                 while (myDesktopFile.exists());
 
-                copyTo(writtenDesktopFile, myDesktopFile);
+                FileUtils.copyFile(writtenDesktopFile, myDesktopFile, false);
                 uninstaller.addFile(myDesktopFile.toString(), true);
             }
 
@@ -619,7 +569,7 @@ public class Unix_Shortcut extends Shortcut
 
                     try
                     {
-                        copyTo(theIcon, commonIcon);
+                        FileUtils.copyFile(theIcon, commonIcon, false);
                         uninstaller.addFile(commonIcon.toString(), true);
                     }
                     catch (Exception e)
@@ -632,7 +582,7 @@ public class Unix_Shortcut extends Shortcut
 
                     // write *.desktop
 
-                    this.itsFileName = target;
+                    this.itsFileName = null;
                     File writtenFile = writeAppShortcut("/usr/share/applications/", this.linkName,
                                                         shortCutDef);
                     setWrittenFileName(writtenFile.getName());
@@ -650,9 +600,11 @@ public class Unix_Shortcut extends Shortcut
                 try
                 {
                     java.io.File file = new java.io.File(localApps);
+                    //noinspection ResultOfMethodCallIgnored
                     file.mkdirs();
 
                     file = new java.io.File(localPixmaps);
+                    //noinspection ResultOfMethodCallIgnored
                     file.mkdirs();
                 }
                 catch (Exception ignore)
@@ -668,7 +620,7 @@ public class Unix_Shortcut extends Shortcut
 
                 try
                 {
-                    copyTo(theIcon, commonIcon);
+                    FileUtils.copyFile(theIcon, commonIcon, false);
                     uninstaller.addFile(commonIcon.toString(), true);
                 }
                 catch (Exception e)
@@ -679,7 +631,7 @@ public class Unix_Shortcut extends Shortcut
 
                 // write *.desktop in the local folder
 
-                this.itsFileName = target;
+                this.itsFileName = null;
                 File writtenFile = writeAppShortcut(localApps, this.linkName, shortCutDef);
                 setWrittenFileName(writtenFile.getName());
                 uninstaller.addFile(writtenFile.toString(), true);
@@ -696,11 +648,9 @@ public class Unix_Shortcut extends Shortcut
      * creates User Desktop icons
      *
      * @param shortCutLocation in which folder should this stored.
-     * @throws IOException
-     * @throws ResourceNotFoundException
+     * @throws ResourceNotFoundException resource not found error
      */
-    public void createExtXdgDesktopIconCmd(File shortCutLocation) throws IOException,
-            ResourceNotFoundException
+    private void createExtXdgDesktopIconCmd(File shortCutLocation) throws ResourceNotFoundException
     {
         ShellScript myXdgDesktopIconScript = new ShellScript(null);
 
@@ -783,8 +733,8 @@ public class Unix_Shortcut extends Shortcut
 
 
     /**
-     * @param writtenDesktopFile
-     * @throws IOException
+     * @param writtenDesktopFile User desktop file
+     * @throws IOException I/O error occured
      */
     private void copyDesktopFileToAllUsersDesktop(File writtenDesktopFile) throws IOException
     {
@@ -800,7 +750,7 @@ public class Unix_Shortcut extends Shortcut
                                                                                              .currentTimeMillis())
                 + ".tmp");
 
-        copyTo(writtenDesktopFile, tempFile);
+        FileUtils.copyFile(writtenDesktopFile, tempFile, false);
 
         // Debug.log("Wrote Tempfile: " + tempFile.toString());
 
@@ -947,30 +897,6 @@ public class Unix_Shortcut extends Shortcut
         uninstaller.addUninstallScript(uninstallScript.getContentAsString());
     }
 
-    /**
-     * Copies the inFile file to outFile using cbuff as buffer.
-     *
-     * @param inFile  The File to read from.
-     * @param outFile The targetFile to write to.
-     * @throws IOException If an IO Error occurs
-     */
-    public static void copyTo(File inFile, File outFile) throws IOException
-    {
-        char[] cbuff = new char[32768];
-        BufferedReader reader = new BufferedReader(new FileReader(inFile));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
-
-        int readBytes;
-
-        while ((readBytes = reader.read(cbuff, 0, cbuff.length)) != -1)
-        {
-            writer.write(cbuff, 0, readBytes);
-        }
-
-        reader.close();
-        writer.close();
-    }
-
 
     private String writtenFileName;
 
@@ -979,7 +905,7 @@ public class Unix_Shortcut extends Shortcut
         return writtenFileName;
     }
 
-    protected void setWrittenFileName(String s)
+    private void setWrittenFileName(String s)
     {
         writtenFileName = s;
     }
@@ -1002,7 +928,7 @@ public class Unix_Shortcut extends Shortcut
 
     /**
      * Write the given ShortDefinition in a File $ShortcutName-$timestamp.desktop in the given
-     * TargetPath. ALSO all WhiteSpaces in the ShortCutName will be repalced with "-"
+     * TargetPath. ALSO all WhiteSpaces in the ShortCutName will be replaced with "-"
      *
      * @param targetPath   The Path in which the files should be written.
      * @param shortcutName The Name for the File
@@ -1029,132 +955,59 @@ public class Unix_Shortcut extends Shortcut
     private File writeAppShortcutWithSimpleSpacehandling(String targetPath, String shortcutName,
                                                          String shortcutDef, boolean replaceSpacesWithMinus)
     {
-        if (!(targetPath.endsWith("/") || targetPath.endsWith("\\")))
-        {
-            targetPath += File.separatorChar;
-        }
-
-        File shortcutFile;
-
-        do
-        {
-            shortcutFile = new File(targetPath
-                                            + (replaceSpacesWithMinus == true ? StringTool
-                    .replaceSpacesWithMinus(shortcutName) : shortcutName) + "-"
-                                            + System.currentTimeMillis() + DESKTOP_EXT);
-        }
-        while (shortcutFile.exists());
-
-        FileWriter fileWriter = null;
+        File shortcutFile = new File(
+                FilenameUtils.getFullPathNoEndSeparator(targetPath)
+                + '/'
+                + (replaceSpacesWithMinus ? StringTool.replaceSpacesWithMinus(shortcutName) : shortcutName)
+                + DESKTOP_EXT);
 
         try
         {
-            fileWriter = new FileWriter(shortcutFile);
-        }
-        catch (IOException e1)
-        {
-            System.out.println(e1.getMessage());
-        }
-
-        try
-        {
-            if (fileWriter != null)
-                fileWriter.write(shortcutDef);
+            FileUtils.writeStringToFile(shortcutFile, shortcutDef);
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            logger.warning("Application shortcut could not be created (" + e.getMessage() + ")");
         }
 
-        try
-        {
-            if (fileWriter != null)
-                fileWriter.close();
-        }
-        catch (IOException e2)
-        {
-            e2.printStackTrace();
-        }
         return shortcutFile;
-
     }
 
-
-    /**
-     * Set the command line Arguments
-     *
-     * @param args
-     * @see com.izforge.izpack.util.os.Shortcut#setArguments(java.lang.String)
-     */
     @Override
     public void setArguments(String args)
     {
         this.arguments = args;
     }
 
-
-    /**
-     * Sets the Categories Field
-     *
-     * @param theCategories the categories
-     */
     @Override
     public void setCategories(String theCategories)
     {
         this.categories = theCategories;
     }
 
-
-    /**
-     * Sets the Description
-     *
-     * @see com.izforge.izpack.util.os.Shortcut#setDescription(java.lang.String)
-     */
     @Override
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-
-    /**
-     * Sets The Encoding
-     *
-     * @param aEncoding
-     * @see com.izforge.izpack.util.os.Shortcut#setEncoding(java.lang.String)
-     */
     @Override
     public void setEncoding(String aEncoding)
     {
         this.encoding = aEncoding;
     }
 
-
-    /**
-     * Sets The KDE Specific subst UID property
-     *
-     * @param trueFalseOrNothing
-     * @see com.izforge.izpack.util.os.Shortcut#setKdeSubstUID(java.lang.String)
-     */
     @Override
     public void setKdeSubstUID(String trueFalseOrNothing)
     {
         this.kdeSubstituteUID = trueFalseOrNothing;
     }
 
-
-    /**
-     * Sets The KDE Specific subst UID property
-     *
-     * @param aUserName
-     * @see com.izforge.izpack.util.os.Shortcut#setKdeSubstUID(java.lang.String)
-     */
     @Override
     public void setKdeUserName(String aUserName)
     {
         this.kdeUserName = aUserName;
     }
-
 
     @Override
     public void setIconLocation(String path, int index)
@@ -1168,19 +1021,11 @@ public class Unix_Shortcut extends Shortcut
         return this.iconLocation;
     }
 
-
-    /**
-     * Sets the Name of this Shortcut
-     *
-     * @param aName
-     * @see com.izforge.izpack.util.os.Shortcut#setLinkName(java.lang.String)
-     */
     @Override
     public void setLinkName(String aName)
     {
         this.linkName = aName;
     }
-
 
     @Override
     public void setLinkType(int aType) throws IllegalArgumentException,
@@ -1195,163 +1040,78 @@ public class Unix_Shortcut extends Shortcut
         return linkType;
     }
 
-
-    /**
-     * Sets the MimeType
-     *
-     * @param aMimeType
-     * @see com.izforge.izpack.util.os.Shortcut#setMimetype(java.lang.String)
-     */
     @Override
     public void setMimetype(String aMimeType)
     {
         this.mimeType = aMimeType;
     }
 
-
-    /**
-     * Sets the ProgramGroup
-     *
-     * @param aGroupName
-     * @see com.izforge.izpack.util.os.Shortcut#setProgramGroup(java.lang.String)
-     */
     @Override
     public void setProgramGroup(String aGroupName)
     {
         this.programGroup = aGroupName;
     }
 
-
-    /**
-     * Sets the ShowMode
-     *
-     * @see com.izforge.izpack.util.os.Shortcut#setShowCommand(int)
-     */
     @Override
     public void setShowCommand(int show)
     {
         // ignored for Linux
     }
 
-    /**
-     * Sets The TargetPath
-     *
-     * @param aPath
-     * @see com.izforge.izpack.util.os.Shortcut#setTargetPath(java.lang.String)
-     */
     @Override
     public void setTargetPath(String aPath)
     {
         this.targetPath = aPath;
     }
 
-
-    /**
-     * Sets the user type.
-     *
-     * @param aUserType
-     * @see com.izforge.izpack.util.os.Shortcut#setUserType(int)
-     */
     @Override
     public void setUserType(int aUserType)
     {
         this.userType = aUserType;
     }
-    /**
-     * Gets the user type of the Shortcut.
-     *
-     * @return
-     * @see com.izforge.izpack.util.os.Shortcut#getUserType()
-     */
+
     @Override
     public int getUserType()
     {
         return userType;
     }
 
-
-
-    /**
-     * Sets the working-directory
-     *
-     * @param aDirectory
-     * @see com.izforge.izpack.util.os.Shortcut#setWorkingDirectory(java.lang.String)
-     */
     @Override
     public void setWorkingDirectory(String aDirectory)
     {
         this.workingDirectory = aDirectory;
     }
 
-
-    /**
-     * Sets the terminal
-     *
-     * @param trueFalseOrNothing
-     * @see com.izforge.izpack.util.os.Shortcut#setTerminal(java.lang.String)
-     */
     @Override
     public void setTerminal(String trueFalseOrNothing)
     {
         this.terminal = trueFalseOrNothing;
     }
 
-    /**
-     * Sets the terminal options
-     *
-     * @param someTerminalOptions
-     * @see com.izforge.izpack.util.os.Shortcut#setTerminalOptions(java.lang.String)
-     */
     @Override
     public void setTerminalOptions(String someTerminalOptions)
     {
         this.terminalOptions = someTerminalOptions;
     }
 
-
-    /**
-     * Sets the TryExecField.
-     *
-     * @param aTryExec the try exec command
-     */
     @Override
     public void setTryExec(String aTryExec)
     {
         // currently ignored
     }
 
-
-    /**
-     * Sets the Shortcut type (one of Application, Link or Device)
-     *
-     * @param aType
-     * @see com.izforge.izpack.util.os.Shortcut#setType(java.lang.String)
-     */
     @Override
     public void setType(String aType)
     {
         this.type = aType;
     }
 
-
-    /**
-     * Sets the Url for type Link. Can be also a absolute file/path
-     *
-     * @param anUrl
-     * @see com.izforge.izpack.util.os.Shortcut#setURL(java.lang.String)
-     */
     @Override
     public void setURL(String anUrl)
     {
         this.url = anUrl;
     }
 
-
-    /**
-     * Dumps the Name to console.
-     *
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString()
     {

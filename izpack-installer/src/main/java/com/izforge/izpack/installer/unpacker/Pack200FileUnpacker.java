@@ -26,7 +26,10 @@ import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.util.os.FileQueue;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 
@@ -38,66 +41,59 @@ import java.util.jar.Pack200;
  */
 class Pack200FileUnpacker extends FileUnpacker
 {
-    /**
-     * The resources.
-     */
-    private final PackResources resources;
-
-    /**
-     * The unpacker.
-     */
-    private final Pack200.Unpacker unpacker;
 
     /**
      * Constructs a <tt>Pack200FileUnpacker</tt>.
      *
      * @param cancellable determines if unpacking should be cancelled
      * @param resources   the pack resources
-     * @param unpacker    the unpacker
      * @param queue       the file queue. May be {@code null}
      */
-    public Pack200FileUnpacker(Cancellable cancellable, PackResources resources, Pack200.Unpacker unpacker,
-                               FileQueue queue)
+    public Pack200FileUnpacker(Cancellable cancellable, PackResources resources, FileQueue queue)
     {
         super(cancellable, queue);
-        this.resources = resources;
-        this.unpacker = unpacker;
     }
 
     /**
-     * Unpacks a pack file.
+     * Unpacks a pack packFile.
      *
-     * @param file            the pack file meta-data
+     * @param packFile            the pack packFile meta-data
      * @param packInputStream the pack input stream
      * @param target          the target
      * @throws IOException        for any I/O error
      * @throws InstallerException for any installer exception
      */
     @Override
-    public void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile packFile, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
-        int key = packInputStream.readInt();
-        InputStream in = null;
-        OutputStream out = null;
+        InputStream in = IOUtils.buffer(packInputStream);
         JarOutputStream jarOut = null;
 
         try
         {
-            in = resources.getInputStream("packs/pack200-" + key);
-            out = getTarget(file, target);
-            jarOut = new JarOutputStream(out);
+            jarOut = new JarOutputStream(getTarget(packFile, target));
+            Pack200.Unpacker unpacker = createPack200Unpacker(packFile);
             unpacker.unpack(in, jarOut);
-            jarOut.close();
         }
         finally
         {
-            IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(jarOut);
+            IOUtils.closeQuietly(in);
         }
 
-        postCopy(file);
+        postCopy(packFile);
     }
 
+    private Pack200.Unpacker createPack200Unpacker(PackFile packFile)
+    {
+        Pack200.Unpacker unpacker = Pack200.newUnpacker();
+        Map<String, String> defaultUnpackerProperties = unpacker.properties();
+        Map<String, String> localPackerProperties = packFile.getPack200Properties();
+        if (localPackerProperties != null)
+        {
+            defaultUnpackerProperties.putAll(localPackerProperties);
+        }
+        return unpacker;
+    }
 }

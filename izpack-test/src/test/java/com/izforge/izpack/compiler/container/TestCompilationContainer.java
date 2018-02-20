@@ -19,25 +19,24 @@
 
 package com.izforge.izpack.compiler.container;
 
+import com.izforge.izpack.api.exception.ContainerException;
+import com.izforge.izpack.api.exception.IzPackException;
+import com.izforge.izpack.compiler.CompilerConfig;
+import com.izforge.izpack.compiler.data.CompilerData;
+import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
+import com.izforge.izpack.test.InstallFile;
+import com.izforge.izpack.test.provider.JarFileProvider;
+import com.izforge.izpack.test.util.ClassUtils;
+import com.izforge.izpack.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.junit.runners.model.FrameworkMethod;
+import org.picocontainer.MutablePicoContainer;
+
 import java.io.File;
 import java.net.URL;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-
-import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
-import org.apache.commons.io.FileUtils;
-import org.junit.runners.model.FrameworkMethod;
-import org.picocontainer.MutablePicoContainer;
-
-import com.izforge.izpack.api.exception.ContainerException;
-import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.compiler.CompilerConfig;
-import com.izforge.izpack.compiler.data.CompilerData;
-import com.izforge.izpack.test.InstallFile;
-import com.izforge.izpack.test.provider.JarFileProvider;
-import com.izforge.izpack.test.util.ClassUtils;
-import com.izforge.izpack.util.FileUtil;
 
 /**
  * Container for compilation test.
@@ -155,7 +154,7 @@ public class TestCompilationContainer extends CompilerContainer
         File out = new File(targetDir, "out" + Math.random() + ".jar");
         out.deleteOnExit();
         CompilerData data = new CompilerData(file.getAbsolutePath(), baseDir.getAbsolutePath(), out.getAbsolutePath(),
-                                             false, true);
+                                             false);
         container.addConfig("installFile", file.getAbsolutePath());
         container.addComponent(CompilerData.class, data);
         container.addComponent(File.class, out);

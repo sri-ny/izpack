@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -48,18 +49,20 @@ public class PrivilegedRunnerTest
             assertTrue(file.delete());
         }
 
+        List<String> expectedElevatorCommand = new ArrayList<String>();
+        expectedElevatorCommand.add("xterm");
+        expectedElevatorCommand.add("-title");
+        expectedElevatorCommand.add("Installer");
+        expectedElevatorCommand.add("-e");
+        expectedElevatorCommand.add("sudo");
+        expectedElevatorCommand.add("java");
+        expectedElevatorCommand.addAll(new JVMHelper().getJVMArguments());
+        expectedElevatorCommand.add("-jar");
+        expectedElevatorCommand.add("installer.jar");
+
         PrivilegedRunner runner = new PrivilegedRunner(Platforms.UNIX);
         List<String> elevatorCommand = runner.getElevator("java", "installer.jar", new String[0]);
-        assertEquals(8, elevatorCommand.size());
-
-        assertEquals("xterm", elevatorCommand.get(0));
-        assertEquals("-title", elevatorCommand.get(1));
-        assertEquals("Installer", elevatorCommand.get(2));
-        assertEquals("-e", elevatorCommand.get(3));
-        assertEquals("sudo", elevatorCommand.get(4));
-        assertEquals("java", elevatorCommand.get(5));
-        assertEquals("-jar", elevatorCommand.get(6));
-        assertEquals("installer.jar", elevatorCommand.get(7));
+        assertEquals(expectedElevatorCommand, elevatorCommand);
 
         // no elevator extracted on Unix
         assertFalse(file.exists());
@@ -80,16 +83,18 @@ public class PrivilegedRunnerTest
             assertTrue(script.delete());
         }
 
+        List<String> expectedElevatorCommand = new ArrayList<String>();
+        expectedElevatorCommand.add("wscript");
+        expectedElevatorCommand.add(scriptPath);
+        expectedElevatorCommand.add("javaw");
+        expectedElevatorCommand.addAll(new JVMHelper().getJVMArguments());
+        expectedElevatorCommand.add("-Dizpack.mode=privileged");
+        expectedElevatorCommand.add("-jar");
+        expectedElevatorCommand.add("installer.jar");
+
         PrivilegedRunner runner = new PrivilegedRunner(Platforms.WINDOWS);
         List<String> elevatorCommand = runner.getElevator("javaw", "installer.jar", new String[0]);
-        assertEquals(6, elevatorCommand.size());
-
-        assertEquals("wscript", elevatorCommand.get(0));
-        assertEquals(scriptPath, elevatorCommand.get(1));
-        assertEquals("javaw", elevatorCommand.get(2));
-        assertEquals("-Dizpack.mode=privileged", elevatorCommand.get(3));
-        assertEquals("-jar", elevatorCommand.get(4));
-        assertEquals("installer.jar", elevatorCommand.get(5));
+        assertEquals(expectedElevatorCommand, elevatorCommand);
 
         assertTrue(script.exists());
         assertTrue(script.length() != 0);
@@ -111,14 +116,16 @@ public class PrivilegedRunnerTest
             assertTrue(script.delete());
         }
 
+        List<String> expectedElevatorCommand = new ArrayList<String>();
+        expectedElevatorCommand.add(scriptPath);
+        expectedElevatorCommand.add("java");
+        expectedElevatorCommand.addAll(new JVMHelper().getJVMArguments());
+        expectedElevatorCommand.add("-jar");
+        expectedElevatorCommand.add("installer.jar");
+
         PrivilegedRunner runner = new PrivilegedRunner(Platforms.MAC_OSX);
         List<String> elevatorCommand = runner.getElevator("java", "installer.jar", new String[0]);
-        assertEquals(4, elevatorCommand.size());
-
-        assertEquals(scriptPath, elevatorCommand.get(0));
-        assertEquals("java", elevatorCommand.get(1));
-        assertEquals("-jar", elevatorCommand.get(2));
-        assertEquals("installer.jar", elevatorCommand.get(3));
+        assertEquals(expectedElevatorCommand, elevatorCommand);
 
         assertTrue(script.exists());
         assertTrue(script.length() != 0);

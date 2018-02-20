@@ -19,23 +19,20 @@
 
 package com.izforge.izpack.compiler.data;
 
-import java.io.File;
+import com.izforge.izpack.api.adaptator.IXMLElement;
+import com.izforge.izpack.api.data.Variables;
+import com.izforge.izpack.api.exception.CompilerException;
+import com.izforge.izpack.api.substitutor.SubstitutionType;
+import com.izforge.izpack.compiler.helper.AssertionHelper;
+import com.izforge.izpack.compiler.listener.PackagerListener;
+import com.izforge.izpack.core.substitutor.VariableSubstitutorReader;
+import org.apache.commons.io.IOUtils;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
-
-import org.apache.tools.ant.taskdefs.Execute;
-
-import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.exception.CompilerException;
-import com.izforge.izpack.api.substitutor.SubstitutionType;
-import com.izforge.izpack.api.substitutor.VariableSubstitutor;
-import com.izforge.izpack.compiler.helper.AssertionHelper;
-import com.izforge.izpack.compiler.listener.PackagerListener;
 
 
 /**
@@ -43,7 +40,7 @@ import com.izforge.izpack.compiler.listener.PackagerListener;
  * modeled after ant properties
  * <p/>
  * <p/>
- * Properties are immutable: once a property is set it cannot be changed. They are most definately
+ * Properties are immutable: once a property is set it cannot be changed. They are most definitely
  * not variable.
  * <p/>
  * <p/>
@@ -91,19 +88,17 @@ import com.izforge.izpack.compiler.listener.PackagerListener;
 public class PropertyManager
 {
 
-    private Properties properties;
+    private final Properties properties;
 
-    private CompilerData compilerData;
-    private VariableSubstitutor variableSubstitutor;
-    private PackagerListener packagerListener;
-    private AssertionHelper assertionHelper;
+    private final Variables variables;
+    private final PackagerListener packagerListener;
+    private final AssertionHelper assertionHelper;
 
-    public PropertyManager(Properties properties, VariableSubstitutor variableSubstitutor, CompilerData compilerData, PackagerListener packagerListener, AssertionHelper assertionHelper)
+    public PropertyManager(Properties properties, Variables variables, CompilerData compilerData, PackagerListener packagerListener, AssertionHelper assertionHelper)
     {
         this.assertionHelper = assertionHelper;
         this.properties = properties;
-        this.variableSubstitutor = variableSubstitutor;
-        this.compilerData = compilerData;
+        this.variables = variables;
         this.packagerListener = packagerListener;
         this.setProperty("izpack.version", CompilerData.IZPACK_VERSION);
         this.setProperty("basedir", compilerData.getBasedir());
@@ -146,7 +141,7 @@ public class PropertyManager
     }
 
     /**
-     * Get the value of a property currerntly known to izpack.
+     * Get the value of a property.
      *
      * @param name the name of the property
      * @return the value of the property, or null
@@ -160,151 +155,133 @@ public class PropertyManager
      * Set the property in the project to the value. If the task was give a file, resource or env
      * attribute here is where it is loaded.
      *
-     * @param xmlProp
+     * @param propertyNode the properties XML definition
      */
-    public void execute(IXMLElement xmlProp) throws CompilerException
+    public void execute(IXMLElement propertyNode) throws CompilerException
     {
-        File file = null;
-        String name = xmlProp.getAttribute("name");
-        String value = xmlProp.getAttribute("value");
-        String environnement = xmlProp.getAttribute("environment");
-        if (environnement != null && !environnement.endsWith("."))
+        String name = propertyNode.getAttribute("name");
+        String value = propertyNode.getAttribute("value");
+        String environment = propertyNode.getAttribute("environment");
+        if (environment != null && !environment.endsWith("."))
         {
-            environnement += ".";
+            environment += ".";
         }
 
-        String prefix = xmlProp.getAttribute("prefix");
+        String prefix = propertyNode.getAttribute("prefix");
         if (prefix != null && !prefix.endsWith("."))
         {
             prefix += ".";
         }
 
-        String filename = xmlProp.getAttribute("file");
+        String fileName = propertyNode.getAttribute("file");
 
-        if (filename != null)
-        {
-            file = new File(filename);
-        }
         if (name != null)
         {
             if (value == null)
             {
-                assertionHelper.parseError(xmlProp, "You must specify a value with the name attribute");
+                assertionHelper.parseError(propertyNode, "You must specify a value with the name attribute");
             }
         }
         else
         {
-            if (file == null && environnement == null)
+            if (fileName == null && environment == null)
             {
-                assertionHelper.parseError(xmlProp,
+                assertionHelper.parseError(propertyNode,
                         "You must specify file, or environment when not using the name attribute");
             }
         }
 
-        if (file == null && prefix != null)
+        if (fileName == null && prefix != null)
         {
-            assertionHelper.parseError(xmlProp, "Prefix is only valid when loading from a file ");
+            assertionHelper.parseError(propertyNode, "Prefix is only valid when loading from a file ");
         }
 
         if ((name != null) && (value != null))
         {
             addProperty(name, value);
         }
-        else if (file != null)
+        else if (environment != null)
         {
-            loadFile(file, xmlProp, prefix);
+            try
+            {
+                loadEnvironment(environment);
+            }
+            catch (IOException e)
+            {
+                assertionHelper.parseError(propertyNode, "Failed loading properties from environment variables", e);
+            }
         }
-        else if (environnement != null)
+        else if (fileName != null)
         {
-            loadEnvironment(environnement, xmlProp, file);
+            try
+            {
+                loadFile(fileName, prefix);
+            }
+            catch (IOException e)
+            {
+                packagerListener.packagerMsg("Unable to load property file: " + fileName,
+                        PackagerListener.MSG_VERBOSE);
+
+                assertionHelper.parseError(propertyNode, "Failed loading properties from file " + fileName, e);
+            }
         }
     }
 
     /**
      * load properties from a file
      *
-     * @param file    file to load
-     * @param xmlProp
-     * @param prefix
+     * @param fileName name of the file to load
+     * @param prefix prefix to to be automatically added to the property name, can be null
      */
-    private void loadFile(File file, IXMLElement xmlProp, String prefix) throws CompilerException
+    private void loadFile(String fileName, String prefix) throws IOException
     {
         Properties props = new Properties();
-        packagerListener.packagerMsg("Loading " + file.getAbsolutePath(),
+        packagerListener.packagerMsg("Loading " + fileName,
                 PackagerListener.MSG_VERBOSE);
+
+        FileInputStream fis = new FileInputStream(fileName);
         try
         {
-            if (file.exists())
-            {
-                FileInputStream fis = new FileInputStream(file);
-                try
-                {
-                    props.load(fis);
-                }
-                finally
-                {
-                    fis.close();
-                }
-                addProperties(props, xmlProp, file, prefix);
-            }
-            else
-            {
-                packagerListener.packagerMsg(
-                        "Unable to find property file: " + file.getAbsolutePath(),
-                        PackagerListener.MSG_VERBOSE);
-            }
+            props.load(fis);
         }
-        catch (IOException ex)
+        finally
         {
-            assertionHelper.parseError(xmlProp, "Faild to load file: " + file.getAbsolutePath(), ex);
+            fis.close();
         }
+
+        addProperties(props, prefix);
     }
 
     /**
      * load the environment values
      *
-     * @param prefix  prefix to place before them
-     * @param xmlProp
-     * @param file
+     * @param prefix prefix to to be automatically added to the property name, can be null
      */
-    protected void loadEnvironment(String prefix, IXMLElement xmlProp, File file) throws CompilerException
+    private void loadEnvironment(String prefix) throws IOException
     {
-        Properties props = new Properties();
         packagerListener.packagerMsg("Loading Environment " + prefix,
                 PackagerListener.MSG_VERBOSE);
-        Vector<String> osEnv = Execute.getProcEnvironment();
-        for (Enumeration<String> e = osEnv.elements(); e.hasMoreElements();)
-        {
-            String entry = e.nextElement();
-            int pos = entry.indexOf('=');
-            if (pos == -1)
-            {
-                packagerListener.packagerMsg("Ignoring " + prefix,
-                        PackagerListener.MSG_WARN);
-            }
-            else
-            {
-                props.put(prefix + entry.substring(0, pos), entry.substring(pos + 1));
-            }
+
+        Properties props = new Properties();
+        Map<String, String> envVarMap = System.getenv();
+        for (String key : envVarMap.keySet()) {
+            props.put(prefix + key, envVarMap.get(key));
         }
-        addProperties(props, xmlProp, file, prefix);
+
+        addProperties(props, prefix);
     }
 
     /**
      * iterate through a set of properties, resolve them then assign them
      *
-     * @param props
-     * @param xmlProp
-     * @param file
-     * @param prefix
+     * @param props properties to resolve
+     * @param prefix prefix to to be automatically added to the property name, can be null
      */
-    public void addProperties(Properties props, IXMLElement xmlProp, File file, String prefix) throws CompilerException
+    private void addProperties(Properties props, String prefix) throws IOException
     {
-        resolveAllProperties(props, xmlProp, file);
-        Enumeration e = props.keys();
-        while (e.hasMoreElements())
+        resolveAllProperties(props);
+        for (String name : props.stringPropertyNames())
         {
-            String name = (String) e.nextElement();
             String value = props.getProperty(name);
 
             if (prefix != null)
@@ -318,66 +295,30 @@ public class PropertyManager
     /**
      * Add a name value pair to the project property set
      *
-     * @param name  name of property
+     * @param name name of property
      * @param value value to set
      */
     private void addPropertySubstitute(String name, String value)
     {
+        //noinspection EmptyCatchBlock
         try
         {
-            value = variableSubstitutor.substitute(value, SubstitutionType.TYPE_AT);
+            properties.put(name, IOUtils.toString(new VariableSubstitutorReader(new StringReader(value), variables, SubstitutionType.TYPE_AT)));
         }
-        catch (Exception e)
-        {
-            // ignore
-        }
-        properties.put(name, value);
+        catch (IOException e) {}
     }
 
     /**
-     * resolve properties inside a properties object
+     * Resolve references to IzPack variables in all values of a properties object
      *
-     * @param props   properties to resolve
-     * @param xmlProp
-     * @param file
+     * @param props properties to resolve
      */
-    private void resolveAllProperties(Properties props, IXMLElement xmlProp, File file) throws CompilerException
+    private void resolveAllProperties(Properties props) throws IOException
     {
-        variableSubstitutor.setBracesRequired(true);
-
-        for (Enumeration e = props.keys(); e.hasMoreElements();)
+        for (String name : props.stringPropertyNames())
         {
-            String name = (String) e.nextElement();
             String value = props.getProperty(name);
-
-            int mods = -1;
-            do
-            {
-                StringReader read = new StringReader(value);
-                StringWriter write = new StringWriter();
-
-                try
-                {
-                    try
-                    {
-                        mods = variableSubstitutor.substitute(read, write, SubstitutionType.TYPE_AT);
-                    }
-                    catch (Exception e1)
-                    {
-                        throw new IOException(e1.getMessage());
-                    }
-                    // TODO: check for circular references. We need to know
-                    // which
-                    // variables were substituted to do that
-                    props.put(name, value);
-                }
-                catch (IOException ex)
-                {
-                    assertionHelper.parseError(xmlProp, "Faild to load file: " + file.getAbsolutePath(),
-                            ex);
-                }
-            }
-            while (mods != 0);
+            props.put(name, IOUtils.toString(new VariableSubstitutorReader(new StringReader(value), variables, SubstitutionType.TYPE_AT, true)));
         }
     }
 }

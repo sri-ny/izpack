@@ -22,8 +22,8 @@
 package com.izforge.izpack.panels.install;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.installer.automation.PanelAutomation;
@@ -70,7 +70,7 @@ public class InstallPanelAutomationHelper extends PanelAutomationHelper implemen
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options)
+    public void processOptions(InstallData installData, Overrides overrides)
     {
         unpacker.run();
         if (!unpacker.getResult())

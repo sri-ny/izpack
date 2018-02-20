@@ -28,12 +28,14 @@ import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.panels.userinput.field.AbstractFieldView;
 import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.util.HyperlinkHandler;
+import com.izforge.izpack.panels.userinput.gui.rule.RuleInputField;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -54,6 +56,18 @@ public abstract class GUIField extends AbstractFieldView
      */
     private UpdateListener listener;
 
+    /**
+     * Holds static label text with variable references which must not be overridden,
+     * because the variables might change during the installation; for always showing the actual value after resolving.
+     */
+    private final Map<Integer, String> untranslatedItems;
+
+    /**
+     * Holds static tooltip text with variable references which must not be overridden,
+     * because the variables might change during the installation; for always showing the actual value after resolving.
+     */
+    private final Map<Integer, String> untranslatedTooltips;
+
 
     /**
      * Constructs a {@code GUIField}.
@@ -63,6 +77,8 @@ public abstract class GUIField extends AbstractFieldView
     public GUIField(Field field)
     {
         super(field);
+        untranslatedItems = new HashMap<Integer, String>();
+        untranslatedTooltips = new HashMap<Integer, String>();
     }
 
     /**
@@ -170,6 +186,24 @@ public abstract class GUIField extends AbstractFieldView
      */
     protected void addComponent(JComponent component, Object constraints)
     {
+        if (component instanceof JTextPane)
+        {
+            JTextPane pane = (JTextPane)component;
+            String oldText = pane.getText();
+            if (oldText != null)
+            {
+                untranslatedItems.put(Integer.valueOf(pane.hashCode()), oldText);
+            }
+        }
+        else if (component instanceof JLabel)
+        {
+            JLabel label = (JLabel)component;
+            String oldText = label.getText();
+            if (oldText != null)
+            {
+                untranslatedItems.put(Integer.valueOf(label.hashCode()), oldText);
+            }
+        }
         components.add(new Component(component, constraints));
     }
 
@@ -188,23 +222,40 @@ public abstract class GUIField extends AbstractFieldView
             {
                 JTextPane pane = (JTextPane)jc;
                 pane.setOpaque(false);
-                String oldText = pane.getText();
+                String oldText = untranslatedItems.get(Integer.valueOf(jc.hashCode()));
                 if (oldText != null)
                 {
                     String newText = replaceVariables(oldText);
-                    updated |= oldText.equals(newText);
-                    pane.setText(newText);
+                    if (!oldText.equals(newText))
+                    {
+                        updated = true;
+                        pane.setText(newText);
+                    }
                 }
             }
             else if (jc instanceof JLabel)
             {
                 JLabel label = (JLabel)jc;
-                String oldText = label.getText();
+                String oldText = untranslatedItems.get(Integer.valueOf(label.hashCode()));
                 if (oldText != null)
                 {
                     String newText = replaceVariables(oldText);
-                    updated |= oldText.equals(newText);
-                    label.setText(newText);
+                    if (!oldText.equals(newText))
+                    {
+                        updated = true;
+                        label.setText(newText);
+                    }
+                }
+            }
+
+            String tooltip = untranslatedTooltips.get(Integer.valueOf(jc.hashCode()));
+            if (tooltip != null)
+            {
+                String newText = replaceVariables(tooltip);
+                if (!tooltip.equals(newText))
+                {
+                    jc.setToolTipText(newText);
+                    updated = true;
                 }
             }
         }
@@ -221,10 +272,22 @@ public abstract class GUIField extends AbstractFieldView
         if (tooltipId != null)
         {
             String tooltip = getInstallData().getMessages().get(tooltipId);
-
-            for (Component component : components)
+            if (tooltip != null)
             {
-                component.getComponent().setToolTipText(tooltip);
+                for (Component component : components)
+                {
+                    untranslatedTooltips.put(Integer.valueOf(component.getComponent().hashCode()), tooltip);
+                    component.getComponent().setToolTipText(tooltip);
+                    JComponent jc = component.getComponent();
+                    if (jc instanceof RuleInputField)
+                    {
+                        RuleInputField rif = (RuleInputField)jc;
+                        for (JTextField input : rif.getInputFields())
+                        {
+                            input.setToolTipText(tooltip);
+                        }
+                    }
+                }
             }
         }
     }

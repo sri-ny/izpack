@@ -284,7 +284,6 @@ public class InstallationGroupPanel extends IzPanel
     {
         InstallationGroupPanelAutomationHelper helper = new InstallationGroupPanelAutomationHelper();
         this.installData.setAttribute("GroupData", rows);
-        this.installData.setAttribute("packsByName", packsByName);
         helper.createInstallationRecord(this.installData, panelRoot);
     }
 

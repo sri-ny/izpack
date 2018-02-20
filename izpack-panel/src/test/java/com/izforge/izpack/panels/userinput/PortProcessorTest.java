@@ -1,17 +1,15 @@
 package com.izforge.izpack.panels.userinput;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.util.Map;
-
+import com.izforge.izpack.api.handler.DefaultConfigurationHandler;
+import com.izforge.izpack.panels.userinput.processor.PortProcessor;
+import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
+import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.izforge.izpack.panels.userinput.processor.PortProcessor;
-import com.izforge.izpack.panels.userinput.processorclient.ProcessingClient;
-
-import junit.framework.Assert;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 
 
 @Ignore
@@ -118,10 +116,10 @@ public class PortProcessorTest
         }
     }
 
-    class ProcessingClientStub implements ProcessingClient
+    class ProcessingClientStub extends DefaultConfigurationHandler implements ProcessingClient
     {
 
-        String[] fields;
+        final String[] fields;
 
         public ProcessingClientStub(String host, int port)
         {
@@ -148,6 +146,17 @@ public class PortProcessorTest
             }
         }
 
+        @Override
+        public String[] getValues()
+        {
+            String[] values = new String[getNumFields()];
+            for (int i = 0; i < values.length; ++i)
+            {
+                values[i] = getFieldContents(i);
+            }
+            return values;
+        }
+
         public int getNumFields()
         {
             return fields.length;
@@ -157,16 +166,5 @@ public class PortProcessorTest
         {
             return null;
         }
-
-        public Map<String, String> getValidatorParams()
-        {
-            return null;
-        }
-
-        public boolean hasParams()
-        {
-            return false;
-        }
-
     }
 }

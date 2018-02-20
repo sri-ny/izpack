@@ -13,7 +13,6 @@
     <str id="CheckedHelloPanel.headline" txt="Ласкаво просимо"/>
     <str id="CompilePanel.headline" txt="Компіляция Java"/>
     <str id="ConditionalUserInputPanel.headline" txt="Дані користувача"/>
-    <str id="ExtendedInstallPanel.headline" txt="Встановлення та налашутвання"/>
     <str id="FinishPanel.headline" txt="Встановлення завершено"/>
     <str id="HelloPanel.headline" txt="Ласкаво просимо"/>
     <str id="HTMLInfoPanel.headline" txt="Інформація"/>
@@ -86,6 +85,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Це видалить встановлену програму!"/>

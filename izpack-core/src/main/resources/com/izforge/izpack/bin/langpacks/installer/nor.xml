@@ -36,7 +36,6 @@
     <str id="CheckedHelloPanel.headline" txt="Velkommen"/>
     <str id="CompilePanel.headline" txt="Kompiler Java-kildekode"/>
     <str id="ConditionalUserInputPanel.headline" txt="Brukerdata"/>
-    <str id="ExtendedInstallPanel.headline" txt="Installasjon og konfigurasjon"/>
     <str id="FinishPanel.headline" txt="Installasjon fullført"/>
 
     <str id="HelloPanel.headline" txt="Velkommen"/>
@@ -93,6 +92,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Dette vil fjerne installerte programmer!"/>

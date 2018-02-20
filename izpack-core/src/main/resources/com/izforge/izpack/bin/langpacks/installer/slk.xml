@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Vitajte"/>
     <str id="CompilePanel.headline" txt="Kompilácia zdrojových súborov"/>
     <str id="ConditionalUserInputPanel.headline" txt="Použivateľské data"/>
-    <str id="ExtendedInstallPanel.headline" txt="Inštalácia a konfigurácia"/>
     <str id="FinishPanel.headline" txt="Inštalácia ukončená"/>
     <str id="HelloPanel.headline" txt="Vitajte"/>
     <str id="HTMLInfoPanel.headline" txt="Informácie"/>
@@ -91,6 +90,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Táto operácia odstráni nainštalovanú aplikáciu !"/>

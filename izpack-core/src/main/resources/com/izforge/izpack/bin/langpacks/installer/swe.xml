@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Välkommen"/>
     <str id="CompilePanel.headline" txt="Komilera Java-källkod"/>
     <str id="ConditionalUserInputPanel.headline" txt="Användardata"/>
-    <str id="ExtendedInstallPanel.headline" txt="Installation and Konfiguration"/>
     <str id="FinishPanel.headline" txt="Installationen slutförd"/>
     <str id="HelloPanel.headline" txt="Välkommen"/>
     <str id="HTMLInfoPanel.headline" txt="Information"/>
@@ -79,6 +78,10 @@
     <str id="installer.sendReport" txt="Skicka rapport"/>
     <str id="installer.continueQuestion" txt="Fortsätt ändå?"/>
     <str id="installer.cancelled" txt="Installationen avbryten"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="Detta kommer att ta bort den installerade applikationen!"/>

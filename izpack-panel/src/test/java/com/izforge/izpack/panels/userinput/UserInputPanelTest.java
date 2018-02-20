@@ -19,8 +19,11 @@
 
 package com.izforge.izpack.panels.userinput;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -40,6 +43,7 @@ import org.fest.swing.fixture.JFileChooserFixture;
 import org.fest.swing.fixture.JRadioButtonFixture;
 import org.fest.swing.fixture.JTextComponentFixture;
 import org.fest.swing.timing.Timeout;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -123,7 +127,7 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture rule4 = frame.textBox("rule1.4");
         assertEquals("1", rule4.text());
 
-        assertNull(installData.getVariable("rule1"));
+        assertEquals("192.168.0.1", installData.getVariable("rule1"));
 
         rule1.setText("127");
         rule2.setText("0");
@@ -162,10 +166,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture text3 = frame.textBox("text3");
         assertEquals("text3 default value", text3.text());
 
-        assertNull(installData.getVariable("text1"));
-        assertNull(installData.getVariable("text2"));
-        assertNull(installData.getVariable("text3"));
-
+        assertEquals("", installData.getVariable("text1"));
+        
         text1.setText("text1 value");
 
         // attempt to navigate to the next panel
@@ -176,46 +178,137 @@ public class UserInputPanelTest extends AbstractPanelTest
         assertEquals("text3 default value", installData.getVariable("text3"));
     }
 
-    /**
-     * Tests combo fields.
-     *
-     * @throws Exception for any error
+    /*
+     * Initial selection should be determined by attribute 'set'.
      */
     @Test
-    public void testComboField() throws Exception
+    public void comboWithSetShouldSelectInitialValue() throws Exception
     {
-        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/combo/userInputSpec.xml
-        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/");
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
 
-        InstallData installData = getInstallData();
-
-        installData.setVariable("combo2", "value3"); // should select the 3rd value
-        installData.setVariable("combo4", "value4"); // should select the 4rd value
-
-        // show the panel
-        FrameFixture frame = showUserInputPanel("comboinput");
-
-        // for combo1, the initial selection is determined by the 'set' attribute
-        checkCombo("combo1", "value2", frame);
-
-        // for combo2, the initial selection is determined by the "combo2" variable
-        checkCombo("combo2", "value3", frame);
-
-        // for combo3, there is no initial selection, so default to first value
-        checkCombo("combo3", "value1", frame);
-
-        // for combo4,  the initial selection is determined by the "combo4" variable and override the set attribute
-        checkCombo("combo4", "value4", frame);
-
-        frame.comboBox("combo1").component().setSelectedIndex(0);
-        frame.comboBox("combo3").component().setSelectedIndex(1);
-        frame.comboBox("combo4").clearSelection();
+        FrameFixture frame = showUserInputPanel("with-set");
+        checkCombo("combo", "value2", frame);
         checkNavigateNext(frame);
 
-        assertEquals("value1", installData.getVariable("combo1"));
-        assertEquals("value3", installData.getVariable("combo2"));
-        assertEquals("value2", installData.getVariable("combo3"));
-        assertNull(installData.getVariable("combo4"));
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
+    }
+
+    /*
+     * Initial selection should be updated if selection changes.
+     */
+    @Test
+    public void comboWithSetShouldUpdateVariableWhenSelectionChanges() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+        frame.comboBox("combo").selectItem(0);
+
+        checkNavigateNext(frame);
+
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
+    }
+
+    /*
+     * Initial selection should be updated if variable contains selected value.
+     */
+    @Test
+    public void comboWithSetShouldDetermineSelectionFromVariableValue() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+
+        checkCombo("combo", "value3", frame);
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value3"));
+    }
+
+    /*
+     * If combo selection is cleared, variable should be set to initial value.
+     */
+    @Test
+    public void comboWithSetShouldResetVariableToInitialValueIfSelectionIsCleared() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/with-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("with-set");
+        frame.comboBox("combo").clearSelection();
+
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
+    }
+
+    /*
+     * Variable value should be evaluated to determine selected index.
+     */
+    @Test
+    public void comboShouldDetermineSelectionFromVariableValue() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value2");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+
+        checkCombo("combo", "value2", frame);
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value2"));
+    }
+
+    /*
+     * If combo selection is cleared, variable should be set to the value of the first item.
+     */
+    @Test
+    public void comboShouldResetVariableToValueOfFirstItemIfSelectionIsCleared() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        InstallData installData = getInstallData();
+        installData.setVariable("combo", "value3");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+        frame.comboBox("combo").clearSelection();
+
+        checkNavigateNext(frame);
+
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
+    }
+
+    /*
+     * If there is neither a variable value nor a set attribute, default to first item.
+     */
+    @Test
+    public void comboShouldDefaultToFirstItemAsFallback() throws Exception
+    {
+        ResourceManager rm = getResourceManager();
+        rm.setResourceBasePath("/com/izforge/izpack/panels/userinput/combo/without-set/");
+
+        FrameFixture frame = showUserInputPanel("without-set");
+
+        checkCombo("combo", "value1", frame);
+        checkNavigateNext(frame);
+
+        InstallData installData = getInstallData();
+        assertThat(installData.getVariable("combo"), equalTo("value1"));
     }
 
     /**
@@ -374,9 +467,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         // move to the next panel and verify the variables have updated
         checkNavigateNext(frame);
 
-        assertNull(installData.getVariable("check1"));
-        assertNull(installData.getVariable("check2"));
-
+        assertEquals("true", installData.getVariable("check1"));
+        assertEquals("false", installData.getVariable("check2"));
         assertEquals("check3set", installData.getVariable("check3"));
         assertEquals("check4unset", installData.getVariable("check4"));
         assertEquals("check5set", installData.getVariable("check5"));
@@ -548,24 +640,94 @@ public class UserInputPanelTest extends AbstractPanelTest
         JTextComponentFixture address = fixture.textBox();
         assertEquals("localhost", address.text());
 
-        // address variable won't be defined until the field is set
-        assertNull(installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("address"));
+        assertEquals("localhost", installData.getVariable("dynamicMasterAddress"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
         address.setText("myhost");
-        assertNull(installData.getVariable("address"));
 
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
-
-        // verify that "address" is updated when the panel is validated, but "dynamicMasterAddress" isn't
         assertTrue(getPanels().getView().panelValidated());
-        assertEquals("myhost", installData.getVariable("address"));
-        assertEquals("${address}", installData.getVariable("dynamicMasterAddress"));
+
         checkNavigateNext(fixture);
 
-
-        // navigation triggers a variable refresh. Make sure dynamicMasterAddress has updated
+        assertEquals("myhost", installData.getVariable("address"));
         assertEquals("myhost", installData.getVariable("dynamicMasterAddress"));
+    }
+
+    @Test
+    public void processorWithDefaultConfigurationShouldUpdateFieldProperty() throws Exception
+    {
+        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/text/userInputSpec.xml
+        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/processors/");
+        InstallData installData = getInstallData();
+
+        // show the panel
+        FrameFixture frame = showUserInputPanel("processors");
+
+        JTextComponentFixture text1 = frame.textBox("processors1");
+        assertEquals("ProcessorOne", text1.text());
+        assertEquals("ProcessorOne", installData.getVariable("processors1"));
+
+        // attempt to navigate to the next panel
+        checkNavigateNext(frame);
+
+        assertEquals("Processed: ProcessorOne", installData.getVariable("processors1"));
+    }
+
+    @Test
+    public void processorWithToVariableShouldLeaveFieldPropertyUntouched() throws Exception
+    {
+        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/text/userInputSpec.xml
+        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/processors/");
+        InstallData installData = getInstallData();
+
+        // show the panel
+        FrameFixture frame = showUserInputPanel("processors");
+        JTextComponentFixture textField = frame.textBox("processors2");
+
+        // attempt to navigate to the next panel
+        checkNavigateNext(frame);
+
+        assertEquals("ProcessorTwo", textField.text());
+        assertEquals("ProcessorTwo", installData.getVariable("processors2"));
+        assertEquals("Processed: ProcessorTwo", installData.getVariable("processors2.processed"));
+    }
+
+    @Test
+    public void fieldShouldBeAbleToHaveSeveralProcessors() throws Exception
+    {
+        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/text/userInputSpec.xml
+        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/processors/");
+        InstallData installData = getInstallData();
+
+        // show the panel
+        FrameFixture frame = showUserInputPanel("processors");
+        JTextComponentFixture textField = frame.textBox("processors3");
+
+        // attempt to navigate to the next panel
+        checkNavigateNext(frame);
+
+        assertEquals("ProcessorThree", textField.text());
+        assertEquals("Processed: Processed: ProcessorThree", installData.getVariable("processors3"));
+    }
+
+    @Test
+    public void processorWithToVariableShouldNotGiveResultToFollowingProcessors() throws Exception
+    {
+        // Set the base path in order to pick up com/izforge/izpack/panels/userinput/text/userInputSpec.xml
+        getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/processors/");
+        InstallData installData = getInstallData();
+
+        // show the panel
+        FrameFixture frame = showUserInputPanel("processors");
+        JTextComponentFixture textField = frame.textBox("processors4");
+
+        // attempt to navigate to the next panel
+        checkNavigateNext(frame);
+
+        assertEquals("ProcessorFour", textField.text());
+        assertEquals("Processed: ProcessorFour", installData.getVariable("processors4"));
+        assertEquals("Processed: ProcessorFour", installData.getVariable("processors4.processed.first"));
+        assertEquals("Processed: Processed: ProcessorFour", installData.getVariable("processors4.processed.second"));
     }
 
     /**
@@ -632,8 +794,10 @@ public class UserInputPanelTest extends AbstractPanelTest
     {
         // attempt to navigate to the next panel
         frame.button(GuiId.BUTTON_NEXT.id).click();
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof SimpleFinishPanel);
+
+        waitForPanel(SimpleFinishPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(SimpleFinishPanel.class));
     }
 
     /**
@@ -645,8 +809,10 @@ public class UserInputPanelTest extends AbstractPanelTest
     private FrameFixture showUserInputPanel(String id) throws InterruptedException
     {
         FrameFixture fixture = show(createPanel(UserInputPanel.class, id), createPanel(SimpleFinishPanel.class));
-        Thread.sleep(2000);
-        assertTrue(getPanels().getView() instanceof UserInputPanel);
+        waitForPanel(UserInputPanel.class);
+
+        assertThat(getPanels().getView(), instanceOf(UserInputPanel.class));
+
         return fixture;
     }
 

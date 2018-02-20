@@ -43,6 +43,8 @@ import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.api.config.Options;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The user input panel console implementation.
@@ -87,6 +89,11 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     private final Prompt prompt;
 
     private final Panel panel;
+
+    /**
+     * The logger.
+     */
+    private static final Logger logger = Logger.getLogger(UserInputConsolePanel.class.getName());
 
     /**
      * The fields.
@@ -218,6 +225,11 @@ public class UserInputConsolePanel extends AbstractConsolePanel
     @Override
     public boolean run(InstallData installData, Console console)
     {
+        if (logger.isLoggable(Level.FINE))
+        {
+            logger.fine("Unblocked variables on panel '" + panel.getPanelId() +"': " + createListAsString(installData.getVariables().getBlockedVariableNames(panel)));
+        }
+        installData.getVariables().unregisterBlockedVariableNames(installData.getVariables().getBlockedVariableNames(panel), panel);
         printHeadLine(installData, console);
 
         boolean result = true;
@@ -239,6 +251,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                             || (panel.getReadonlyCondition() != null && rules.isConditionTrue(panel.getReadonlyCondition())),
                             rules);
                     addToPanel = true;
+                    field.setDisplayed(true);
                 }
                 else if (required
                         && (
@@ -251,6 +264,7 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                 {
                     readonly = true;
                     addToPanel = true;
+                    field.setDisplayed(false);
                 }
                 else
                 {
@@ -275,6 +289,11 @@ public class UserInputConsolePanel extends AbstractConsolePanel
                 }
             }
             panel.setAffectedVariableNames(variables);
+            if (logger.isLoggable(Level.FINE))
+            {
+                logger.fine("Blocked variables on panel '" + panel.getPanelId() +"': " + createListAsString(variables));
+            }
+            installData.getVariables().registerBlockedVariableNames(variables, panel);
 
             if (rerun)
             {
@@ -323,5 +342,27 @@ public class UserInputConsolePanel extends AbstractConsolePanel
             return promptRerunPanel(installData, console);
         }
         return true;
+    }
+
+    private String createListAsString(Set<String> list)
+    {
+        StringBuffer msg = new StringBuffer("{");
+        if (list != null)
+        {
+            Iterator<String> it = list.iterator();
+            while (it.hasNext())
+            {
+                if( logger.isLoggable(Level.FINE))
+                {
+                    msg.append(it.next());
+                    if (it.hasNext())
+                    {
+                        msg.append(", ");
+                    }
+                }
+            }
+        }
+        msg.append("}");
+        return msg.toString();
     }
 }

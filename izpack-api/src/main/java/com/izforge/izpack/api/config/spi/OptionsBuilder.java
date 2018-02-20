@@ -63,11 +63,35 @@ public class OptionsBuilder implements OptionsHandler
     @Override public void handleOption(String name, String value)
     {
         String newName = name;
-        if (getConfig().isAutoNumbering() && name.matches("(.+\\.)+[\\d]+"))
+        if (getConfig().isAutoNumbering() && name.matches("(.+\\.)+[\\d]+(\\.+.*)*"))
         {
             String[] parts = name.split("\\.");
-            newName = name.substring(0, name.length() - parts[parts.length - 1].length() - 1) + ".";
-            int pos = Integer.parseInt(parts[parts.length - 1]);
+            StringBuilder sb = new StringBuilder();
+            int pos = -1;
+            for (String part : parts)
+            {
+                if (sb.length() > 0)
+                {
+                    sb.append(".");
+                }
+                if (pos != -1)
+                {
+                    sb.append(part);
+                }
+                else
+                {
+                    try
+                    {
+                        pos = Integer.parseInt(part);
+                        // The first \.\d+\. "wins"
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        sb.append(part);
+                    }
+                }
+            }
+            newName = sb.toString();
 
             // check whether key has been added before
             if (!_options.containsKey(newName))

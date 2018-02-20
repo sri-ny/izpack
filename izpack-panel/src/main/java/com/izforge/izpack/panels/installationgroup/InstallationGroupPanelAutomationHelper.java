@@ -23,13 +23,11 @@ package com.izforge.izpack.panels.installationgroup;
 
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.adaptator.impl.XMLElementImpl;
-import com.izforge.izpack.api.config.Options;
 import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.installer.automation.PanelAutomation;
-import com.izforge.izpack.panels.installationgroup.InstallationGroupPanel.GroupData;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -44,7 +42,6 @@ public class InstallationGroupPanelAutomationHelper implements PanelAutomation
     public void createInstallationRecord(InstallData installData, IXMLElement rootElement)
     {
         GroupData[] rows = (GroupData[]) installData.getAttribute("GroupData");
-        HashMap<String, Pack> packsByName = (HashMap<String, Pack>) installData.getAttribute("packsByName");
         String selectedInstallGroup = installData.getVariable("INSTALL_GROUP");
 
         // Write out the group to pack mappings
@@ -94,5 +91,5 @@ public class InstallationGroupPanelAutomationHelper implements PanelAutomation
     }
 
     @Override
-    public void processOptions(InstallData installData, Options options) {}
+    public void processOptions(InstallData installData, Overrides overrides) {}
 }

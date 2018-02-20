@@ -21,7 +21,13 @@
 
 package com.izforge.izpack.integration;
 
-import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
+import com.izforge.izpack.api.data.Info;
+import com.izforge.izpack.api.data.InstallData;
+import com.izforge.izpack.uninstaller.Destroyer;
+import com.izforge.izpack.uninstaller.console.ConsoleUninstallerContainer;
+import com.izforge.izpack.uninstaller.gui.GUIUninstallerContainer;
+import com.izforge.izpack.util.IoHelper;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import com.izforge.izpack.api.data.Info;
-import com.izforge.izpack.api.data.InstallData;
-import com.izforge.izpack.uninstaller.Destroyer;
-import com.izforge.izpack.uninstaller.console.ConsoleUninstallerContainer;
-import com.izforge.izpack.uninstaller.gui.GUIUninstallerContainer;
-import com.izforge.izpack.util.IoHelper;
-import org.apache.commons.io.FileUtils;
+import static com.izforge.izpack.test.util.TestHelper.assertFileExists;
 
 
 /**
@@ -172,8 +172,7 @@ public class UninstallHelper
     {
         File copy = File.createTempFile("uninstaller", ".jar");
         copy.deleteOnExit();
-        IoHelper.copyFile(uninstallJar, copy);
+        FileUtils.copyFile(uninstallJar, copy);
         return copy;
     }
-
 }

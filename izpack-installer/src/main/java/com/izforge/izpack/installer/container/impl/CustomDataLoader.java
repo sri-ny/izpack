@@ -22,8 +22,6 @@
 
 package com.izforge.izpack.installer.container.impl;
 
-import java.util.List;
-
 import com.izforge.izpack.api.event.InstallerListener;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.factory.ObjectFactory;
@@ -32,6 +30,8 @@ import com.izforge.izpack.data.CustomData;
 import com.izforge.izpack.installer.data.UninstallData;
 import com.izforge.izpack.installer.event.InstallerListeners;
 import com.izforge.izpack.util.PlatformModelMatcher;
+
+import java.util.List;
 
 /**
  * Reads the <em>customData</em> resource in order to populate the {@link InstallerListeners} and {@link UninstallData}.
@@ -98,8 +98,6 @@ public class CustomDataLoader
      * <li>uninstaller jars</li>
      * <li>uninstaller native libraries</li>
      * </ul>
-     * The {@link InstallerListener#afterInstallerInitialization} method will be invoked for each installer listener.
-     *
      * @throws IzPackException if an {@link InstallerListener} throws an exception
      */
     @SuppressWarnings("unchecked")

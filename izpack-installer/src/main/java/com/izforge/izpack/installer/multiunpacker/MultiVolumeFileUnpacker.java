@@ -21,12 +21,6 @@
 
 package com.izforge.izpack.installer.multiunpacker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.ObjectInputStream;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.data.XPackFile;
 import com.izforge.izpack.api.exception.InstallerException;
@@ -34,6 +28,12 @@ import com.izforge.izpack.core.io.FileSpanningInputStream;
 import com.izforge.izpack.installer.unpacker.Cancellable;
 import com.izforge.izpack.installer.unpacker.FileUnpacker;
 import com.izforge.izpack.util.os.FileQueue;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.util.logging.Logger;
 
 
 /**
@@ -69,7 +69,7 @@ public class MultiVolumeFileUnpacker extends FileUnpacker
     /**
      * Unpacks a pack file.
      *
-     * @param file            the pack file meta-data
+     * @param packFile            the pack file meta-data
      * @param packInputStream the pack input stream
      * @param target          the target
      * @throws InterruptedIOException if the unpack is cancelled
@@ -77,19 +77,20 @@ public class MultiVolumeFileUnpacker extends FileUnpacker
      * @throws InstallerException     for any installer exception
      */
     @Override
-    public void unpack(PackFile file, ObjectInputStream packInputStream, File target)
+    public void unpack(PackFile packFile, InputStream packInputStream, File target)
             throws IOException, InstallerException
     {
         // read in the position of this file
-        long position = ((XPackFile) file).getArchiveFilePosition();
+        long position = ((XPackFile) packFile).getArchiveFilePosition();
 
-        if (volumes.getFilePointer() < position)
+        long filePointer = volumes.getFilePointer();
+        if (filePointer < position)
         {
             // need to skip to the correct position
             logger.fine("Skipping bytes to get to file " + target.getName()
-                                + " (" + volumes.getFilePointer() + "<" + position
-                                + ") target is: " + (position - volumes.getFilePointer()));
-            skip(position - volumes.getFilePointer());
+                                + " (" + filePointer + "<" + position
+                                + ") target is: " + (position - filePointer));
+            skip(position - filePointer);
         }
 
         if (volumes.getFilePointer() > position)
@@ -97,7 +98,7 @@ public class MultiVolumeFileUnpacker extends FileUnpacker
             throw new IOException("Error, can't access file in pack.");
         }
 
-        copy(file, volumes, target);
+        copy(packFile, volumes, target);
     }
 
     /**

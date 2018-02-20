@@ -1,19 +1,18 @@
 package com.izforge.izpack.installer.unpacker;
 
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.net.URL;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.exception.ResourceInterruptedException;
-import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
 import com.izforge.izpack.installer.web.WebRepositoryAccessor;
 import com.izforge.izpack.util.IoHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * {@link PackResources} implementation for the GUI-based installer.
@@ -22,11 +21,10 @@ import com.izforge.izpack.util.IoHelper;
  */
 public class GUIPackResources extends AbstractPackResources
 {
-
     /**
-     * Temporary directory.
+     * The logger.
      */
-    private static final String tempSubPath = "/IzpackWebTemp";
+    private static final Logger logger = Logger.getLogger(GUIPackResources.class.getName());
 
     /**
      * Constructs a {@code GUIPackResources}.
@@ -39,46 +37,51 @@ public class GUIPackResources extends AbstractPackResources
         super(resources, installData);
     }
 
-    /**
-     * Returns the stream to a web-based pack resource.
-     *
-     * @param name      the resource name
-     * @param webDirURL the web URL to load the resource from
-     * @return a stream to the resource
-     * @throws ResourceNotFoundException    if the resource cannot be found
-     * @throws ResourceInterruptedException if resource retrieval is interrupted
-     */
+    @Override
     protected InputStream getWebPackStream(String name, String webDirURL)
     {
         InputStream result;
 
-        // TODO: Look first in same directory as primary jar
-        // This may include prompting for changing of media
-        // TODO: download and cache them all before starting copy process
-
-        // See compiler.Packager#getJarOutputStream for the counterpart
         InstallData installData = getInstallData();
         String baseName = installData.getInfo().getInstallerBase();
-        String packURL = webDirURL + "/" + baseName + ".pack-" + name + ".jar";
-        String tempFolder = IoHelper.translatePath(
-                installData.getInfo().getUninstallerPath() + GUIPackResources.tempSubPath,
-                installData.getVariables());
-        String tempFile;
+        File installerDir = new File(baseName).getParentFile();
+
+        if (baseName.contains("/"))
+            baseName = baseName.substring(baseName.lastIndexOf('/'));
+
+        String packFileName = baseName + ".pack-" + name + ".jar";
+
+        // Look first in same directory as primary jar, then download it if not found
+        File packLocalFile = new File(installerDir, packFileName);
+        if (packLocalFile.exists() && packLocalFile.canRead())
+        {
+            logger.info("Found local pack " + packLocalFile.getAbsolutePath());
+        }
+        else
+        {
+            String packURL = webDirURL + "/" + baseName + ".pack-" + name.replace(" ", "%20") + ".jar";
+            logger.info("Downloading remote pack " + packURL);
+            String tempFolder = IoHelper.translatePath(installData.getInfo().getUninstallerPath()
+                    + WEB_TEMP_SUB_PATH, installData.getVariables());
+            String tempFile;
+            try
+            {
+                tempFile = WebRepositoryAccessor.getCachedUrl(packURL, tempFolder);
+                packLocalFile = new File(tempFile);
+            }
+            catch (InterruptedIOException exception)
+            {
+                throw new ResourceInterruptedException("Retrieval of " + webDirURL + " interrupted", exception);
+            }
+            catch (IOException exception)
+            {
+                throw new ResourceException("Failed to read " + webDirURL, exception);
+            }
+        }
+
         try
         {
-            tempFile = WebRepositoryAccessor.getCachedUrl(packURL, tempFolder);
-        }
-        catch (InterruptedIOException exception)
-        {
-            throw new ResourceInterruptedException("Retrieval of " + webDirURL + " interrupted", exception);
-        }
-        catch (IOException exception)
-        {
-            throw new ResourceException("Failed to read " + webDirURL, exception);
-        }
-        try
-        {
-            URL url = new URL("jar:" + tempFile + "!/packs/pack-" + name);
+            URL url = new URL("jar:" + packLocalFile.toURI().toURL() + "!/packs/pack-" + name);
             result = url.openStream();
         }
         catch (IOException exception)
@@ -87,6 +90,5 @@ public class GUIPackResources extends AbstractPackResources
         }
         return result;
     }
-
 
 }

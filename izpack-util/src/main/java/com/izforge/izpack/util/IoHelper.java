@@ -1,10 +1,5 @@
 /*
- * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
- *
- * http://izpack.org/
- * http://izpack.codehaus.org/
- *
- * Copyright 2004 Elmar Klaus Bartz
+ * Copyright 2016 Julien Ponge, René Krell and the IzPack team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,47 +16,26 @@
 
 package com.izforge.izpack.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import com.izforge.izpack.api.data.Variables;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
-
-import org.apache.tools.zip.ZipOutputStream;
-
-import com.izforge.izpack.api.data.Variables;
-import com.izforge.izpack.api.substitutor.SubstitutionType;
-import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 
 /**
- * <p>
- * Class with some IO related helper.
- * </p>
+ * I/O-related utility methods.
  */
 public class IoHelper
 {
-
     // This class uses the same values for family and flavor as
     // TargetFactory. But this class should not depends on TargetFactory,
     // because it is possible that TargetFactory is not bound. Therefore
     // the definition here again.
-
-    // ------------------------------------------------------------------------
-    // Constant Definitions
-    // ------------------------------------------------------------------------
 
     /**
      * Placeholder during translatePath computing
@@ -70,227 +44,16 @@ public class IoHelper
 
     private static Properties envVars = null;
 
-    /**
-     * Default constructor
-     */
-    private IoHelper()
-    {
-    }
-
-    /**
-     * Copies the contents of inFile into outFile.
-     *
-     * @param inFile  path of file which should be copied
-     * @param outFile path of file to create and copy the contents of inFile into
-     */
-    public static void copyFile(String inFile, String outFile) throws IOException
-    {
-        copyFile(new File(inFile), new File(outFile));
-    }
-
-    /**
-     * Creates an in- and output stream for the given File objects and copies all the data from the
-     * specified input to the specified output.
-     *
-     * @param inFile  File object for input
-     * @param outFile File object for output
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyFile(File inFile, File outFile) throws IOException
-    {
-        copyFile(inFile, outFile, null, null);
-    }
-
-    /**
-     * Creates an in- and output stream for the given File objects and copies all the data from the
-     * specified input to the specified output. If permissions is not null, a chmod will be done on
-     * the output file.
-     *
-     * @param inFile      File object for input
-     * @param outFile     File object for output
-     * @param permissions permissions for the output file
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyFile(File inFile, File outFile, String permissions) throws IOException
-    {
-        copyFile(inFile, outFile, permissions, null);
-    }
-
-    /**
-     * Creates an in- and output stream for the given File objects and copies all the data from the
-     * specified input to the specified output. If the VariableSubstitutor is not null, a substition
-     * will be done during copy.
-     *
-     * @param inFile  File object for input
-     * @param outFile File object for output
-     * @param vss     substitutor which is used during copying
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyFile(File inFile, File outFile, VariableSubstitutor vss)
-            throws IOException
-    {
-        copyFile(inFile, outFile, null, vss);
-    }
-
-    /**
-     * Creates an in- and output stream for the given File objects and copies all the data from the
-     * specified input to the specified output. If the VariableSubstitutor is not null, a substition
-     * will be done during copy. If permissions is not null, a chmod will be done on the output
-     * file.
-     *
-     * @param inFile      File object for input
-     * @param outFile     File object for output
-     * @param permissions permissions for the output file
-     * @param vs          substitutor which is used during copying
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyFile(File inFile, File outFile, String permissions,
-                                VariableSubstitutor vs) throws IOException
-    {
-        copyFile(inFile, outFile, permissions, vs, null);
-    }
-
-    /**
-     * Creates an in- and output stream for the given File objects and copies all the data from the
-     * specified input to the specified output. If the VariableSubstitutor is not null, a substition
-     * will be done during copy. If permissions is not null, a chmod will be done on the output
-     * file. If type is not null, that type is used as file type at substitution.
-     *
-     * @param inFile      File object for input
-     * @param outFile     File object for output
-     * @param permissions permissions for the output file
-     * @param vs          substitutor which is used during copying
-     * @param type        file type for the substitutor
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyFile(File inFile, File outFile, String permissions,
-                                VariableSubstitutor vs, SubstitutionType type) throws IOException
-    {
-        FileOutputStream out = new FileOutputStream(outFile);
-        FileInputStream in = new FileInputStream(inFile);
-        copyStream(in, out, vs, type);
-        if (permissions != null && IoHelper.supported("chmod"))
-        {
-            chmod(outFile.getAbsolutePath(), permissions);
-        }
-    }
-
-    /**
-     * Copies an input stream to an output stream.  Both streams must already
-     * be open. If the VariableSubstitutor is not null, a substition
-     * will be done during copy.
-     *
-     * @param in   stream object for input
-     * @param out  stream object for output
-     * @param vs   substitutor which is used during copying
-     * @param type file type for the substitutor
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copyStream(InputStream in, OutputStream out, VariableSubstitutor vs, SubstitutionType type)
-            throws IOException
-    {
-        if (vs == null)
-        {
-            byte[] buffer = new byte[5120];
-            long bytesCopied = 0;
-            int bytesInBuffer;
-            while ((bytesInBuffer = in.read(buffer)) != -1)
-            {
-                out.write(buffer, 0, bytesInBuffer);
-                bytesCopied += bytesInBuffer;
-            }
-            in.close();
-            out.close();
-        }
-        else
-        {
-            BufferedInputStream bin = new BufferedInputStream(in, 5120);
-            BufferedOutputStream bout = new BufferedOutputStream(out, 5120);
-            try
-            {
-                vs.substitute(bin, bout, type, null);
-            }
-            catch (Exception e)
-            {
-                throw new IOException("Substitution failed during copying a stream(" + e.getMessage() + ")");
-            }
-            bin.close();
-            bout.close();
-        }
-    }
 
     /**
      * Creates a temp file with delete on exit rule. The extension is extracted from the template if
      * possible, else the default extension is used. The contents of template will be copied into
      * the temporary file.
      *
-     * @param template         file to copy from and define file extension
+     * @param template         file path to copy from and define file extension
      * @param defaultExtension file extension if no is contained in template
      * @return newly created and filled temporary file
-     * @throws IOException
-     */
-    public static File copyToTempFile(File template, String defaultExtension) throws IOException
-    {
-        return copyToTempFile(template, defaultExtension, null);
-    }
-
-    /**
-     * Creates a temp file with delete on exit rule. The contents of the input stream will be copied into
-     * the temporary file. If the variable substitutor is not null, variables will be replaced
-     * during copying.
-     *
-     * @param is  input stream to copy from
-     * @param ext file extension
-     * @param vss substitutor which is used during copying
-     * @return newly created and filled temporary file
-     * @throws IOException
-     */
-    public static File copyToTempFile(InputStream is, String ext,
-                                      VariableSubstitutor vss) throws IOException
-    {
-        File tmpFile = File.createTempFile("izpack_io", ext);
-        tmpFile.deleteOnExit();
-        IoHelper.copyStream(is, new FileOutputStream(tmpFile), vss, null);
-        return tmpFile;
-    }
-
-    /**
-     * Creates a temp file with delete on exit rule. The extension is extracted from the template if
-     * possible, else the default extension is used. The contents of template will be copied into
-     * the temporary file. If the variable substitutor is not null, variables will be replaced
-     * during copying.
-     *
-     * @param template         file to copy from and define file extension
-     * @param defaultExtension file extension if no is contained in template
-     * @param vss              substitutor which is used during copying
-     * @return newly created and filled temporary file
-     * @throws IOException
-     */
-    public static File copyToTempFile(File template, String defaultExtension,
-                                      VariableSubstitutor vss) throws IOException
-    {
-        String path = template.getCanonicalPath();
-        int pos = path.lastIndexOf('.');
-        String ext = path.substring(pos);
-        if (ext == null)
-        {
-            ext = defaultExtension;
-        }
-        File tmpFile = File.createTempFile("izpack_io", ext);
-        tmpFile.deleteOnExit();
-        IoHelper.copyFile(template, tmpFile, vss);
-        return tmpFile;
-    }
-
-    /**
-     * Creates a temp file with delete on exit rule. The extension is extracted from the template if
-     * possible, else the default extension is used. The contents of template will be copied into
-     * the temporary file.
-     *
-     * @param template         file to copy from and define file extension
-     * @param defaultExtension file extension if no is contained in template
-     * @return newly created and filled temporary file
-     * @throws IOException
+     * @throws IOException if an I/O error occurred
      */
     public static File copyToTempFile(String template, String defaultExtension) throws IOException
     {
@@ -298,39 +61,28 @@ public class IoHelper
     }
 
     /**
-     * Changes the permissions of the given file to the given POSIX permissions.
+     * Creates a temp file with delete on exit rule. The extension is extracted from the template if
+     * possible, else the default extension is used. The contents of template will be copied into
+     * the temporary file.
      *
-     * @param file        the file for which the permissions should be changed
-     * @param permissions POSIX permissions to be set
-     * @throws IOException if an I/O error occurs
+     * @param templateFile         file to copy from and define file extension
+     * @param defaultExtension file extension if no is contained in template
+     * @return newly created and filled temporary file
+     * @throws IOException if an I/O error occurred
      */
-    public static void chmod(File file, String permissions) throws IOException
+    public static File copyToTempFile(File templateFile, String defaultExtension) throws IOException
     {
-        chmod(file.getAbsolutePath(), permissions);
-    }
-
-    /**
-     * Changes the permissions of the given file to the given POSIX permissions. This method will be
-     * raised an exception, if the OS is not UNIX.
-     *
-     * @param path        the absolute path of the file for which the permissions should be changed
-     * @param permissions POSIX permissions to be set
-     * @throws IOException if an I/O error occurs
-     */
-    public static void chmod(String path, String permissions) throws IOException
-    {
-        // Perform UNIX
-        if (OsVersion.IS_UNIX)
+        String path = templateFile.getCanonicalPath();
+        int pos = path.lastIndexOf('.');
+        String ext = path.substring(pos);
+        if (ext.isEmpty())
         {
-            String[] params = {"chmod", permissions, path};
-            String[] output = new String[2];
-            FileExecutor fe = new FileExecutor();
-            fe.executeCommand(params, output);
+            ext = defaultExtension;
         }
-        else
-        {
-            throw new IOException("Sorry, chmod not supported yet on " + OsVersion.OS_NAME + ".");
-        }
+        File tmpFile = File.createTempFile("izpack_io", ext);
+        tmpFile.deleteOnExit();
+        FileUtils.copyFile(templateFile, tmpFile);
+        return tmpFile;
     }
 
     /**
@@ -341,7 +93,7 @@ public class IoHelper
      */
     public static long getFreeSpace(String path)
     {
-        long retval = -1;
+        long ret = -1;
         if (OsVersion.IS_WINDOWS)
         {
             String command = "cmd.exe";
@@ -353,7 +105,7 @@ public class IoHelper
             String[] output = new String[2];
             FileExecutor fe = new FileExecutor();
             fe.executeCommand(params, output);
-            retval = extractLong(output[0], -3, 3, "%");
+            ret = extractLong(output[0], -3);
         }
         else if (OsVersion.IS_SUNOS)
         {
@@ -361,7 +113,7 @@ public class IoHelper
             String[] output = new String[2];
             FileExecutor fe = new FileExecutor();
             fe.executeCommand(params, output);
-            retval = extractLong(output[0], -3, 3, "%") * 1024;
+            ret = extractLong(output[0], -3) * 1024;
         }
         else if (OsVersion.IS_HPUX)
         {
@@ -369,7 +121,7 @@ public class IoHelper
             String[] output = new String[2];
             FileExecutor fe = new FileExecutor();
             fe.executeCommand(params, output);
-            retval = extractLong(output[0], -3, 3, "%") * 1024;
+            ret = extractLong(output[0], -3) * 1024;
         }
         else if (OsVersion.IS_UNIX)
         {
@@ -377,9 +129,9 @@ public class IoHelper
             String[] output = new String[2];
             FileExecutor fe = new FileExecutor();
             fe.executeCommand(params, output);
-            retval = extractLong(output[0], -3, 3, "%") * 1024;
+            ret = extractLong(output[0], -3) * 1024;
         }
-        return retval;
+        return ret;
     }
 
     /**
@@ -387,7 +139,7 @@ public class IoHelper
      * of this class are not supported on all operation systems.
      *
      * @param method name of the method
-     * @return true if the method will be supported with the current enivronment else false
+     * @return true if the method will be supported with the current environment else false
      * @throws RuntimeException if the given method name does not exist
      */
     public static boolean supported(String method)
@@ -400,11 +152,7 @@ public class IoHelper
             }
             if (OsVersion.IS_WINDOWS)
             { // getFreeSpace do not work on Windows 98.
-                if (System.getProperty("os.name").toLowerCase().contains("windows 9"))
-                {
-                    return (false);
-                }
-                return (true);
+                return !System.getProperty("os.name").toLowerCase().contains("windows 9");
             }
         }
         else if ("chmod".equals(method))
@@ -459,32 +207,29 @@ public class IoHelper
 
     /**
      * Extracts a long value from a string in a special manner. The string will be broken into
-     * tokens with a standard StringTokenizer. Arround the assumed place (with the given half range)
-     * the tokens are scaned reverse for a token which represents a long. if useNotIdentifier is not
+     * tokens with a standard StringTokenizer. Around the assumed place (with the given half range)
+     * the tokens are scanned reverse for a token which represents a long. if useNotIdentifier is not
      * null, tokens which are contains this string will be ignored. The first founded long returns.
      *
      * @param in               the string which should be parsed
      * @param assumedPlace     token number which should contain the value
-     * @param halfRange        half range for detection range
-     * @param useNotIdentifier string which determines tokens which should be ignored
      * @return founded long
      */
-    private static long extractLong(String in, int assumedPlace, int halfRange,
-                                    String useNotIdentifier)
+    private static long extractLong(String in, int assumedPlace)
     {
-        long retval = -1;
+        long ret = -1;
         StringTokenizer st = new StringTokenizer(in);
         int length = st.countTokens();
         int i;
         int currentRange = 0;
-        String[] interestedEntries = new String[halfRange + halfRange];
-        for (i = 0; i < length - halfRange + assumedPlace; ++i)
+        String[] interestedEntries = new String[3 + 3];
+        for (i = 0; i < length - 3 + assumedPlace; ++i)
         {
             st.nextToken(); // Forget this entries.
         }
 
-        for (i = 0; i < halfRange + halfRange; ++i)
-        { // Put the interesting Strings into an intermediaer array.
+        for (i = 0; i < 3 + 3; ++i)
+        { // Put the interesting Strings into an intermediate array.
             if (st.hasMoreTokens())
             {
                 interestedEntries[i] = st.nextToken();
@@ -494,13 +239,13 @@ public class IoHelper
 
         for (i = currentRange - 1; i >= 0; --i)
         {
-            if (useNotIdentifier != null && interestedEntries[i].contains(useNotIdentifier))
+            if (interestedEntries[i].contains("%"))
             {
                 continue;
             }
             try
             {
-                retval = Long.parseLong(interestedEntries[i]);
+                ret = Long.parseLong(interestedEntries[i]);
             }
             catch (NumberFormatException nfe)
             {
@@ -508,54 +253,7 @@ public class IoHelper
             }
             break;
         }
-        return retval;
-    }
-
-    /**
-     * Returns the primary group of the current user. This feature will be supported only on Unix.
-     * On other systems null returns.
-     *
-     * @return the primary group of the current user
-     */
-    public static String getPrimaryGroup()
-    {
-        if (supported("getPrimaryGroup"))
-        {
-            if (OsVersion.IS_SUNOS)
-            { // Standard id of SOLARIS do not support -gn.
-                String[] params = {"id"};
-                String[] output = new String[2];
-                FileExecutor fileExecutor = new FileExecutor();
-                fileExecutor.executeCommand(params, output);
-                // No we have "uid=%u(%s) gid=%u(%s)"
-                if (output[0] != null)
-                {
-                    StringTokenizer tokenizer = new StringTokenizer(output[0], "()");
-                    int length = tokenizer.countTokens();
-                    if (length >= 4)
-                    {
-                        for (int i = 0; i < 3; ++i)
-                        {
-                            tokenizer.nextToken();
-                        }
-                        return (tokenizer.nextToken());
-                    }
-                }
-                return (null);
-            }
-            else
-            {
-                String[] params = {"id", "-gn"};
-                String[] output = new String[2];
-                FileExecutor fe = new FileExecutor();
-                fe.executeCommand(params, output);
-                return output[0];
-            }
-        }
-        else
-        {
-            return null;
-        }
+        return ret;
     }
 
     /**
@@ -569,12 +267,12 @@ public class IoHelper
      * @param with        with what string what should be replaced
      * @return a new String object if what was found in the given string, else the given string self
      */
-    public static String replaceString(String destination, String what, String with)
+    private static String replaceString(String destination, String what, String with)
     {
         if (destination.contains(what))
         { // what found, with (placeholder) not included in destination ->
             // perform changing.
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             int last = 0;
             int current = destination.indexOf(what);
             int whatLength = what.length();
@@ -611,28 +309,6 @@ public class IoHelper
     }
 
     /**
-     * Translates a relative path to a local system path.
-     *
-     * @param destination The path to translate.
-     * @return The translated path.
-     * @deprecated see {@link #translatePath(String, Variables)}
-     */
-    @Deprecated
-    public static String translatePath(String destination, VariableSubstitutor vs)
-    {
-        // Parse for variables
-        try
-        {
-            destination = vs.substitute(destination);
-        }
-        catch (Exception e)
-        {
-            // ignore
-        }
-        return translatePath(destination);
-    }
-
-    /**
      * Translates a path.
      *
      * @param destination the path to translate
@@ -646,8 +322,8 @@ public class IoHelper
         // Undo the conversion if the slashes was masked with
         // a backslash
 
-        // Not all occurencies of slashes are path separators. To differ
-        // between it we allow to mask a slash with a backslash infront.
+        // Not all occurrences of slashes are path separators. To differ
+        // between it we allow to mask a slash with a leading backslash.
         // Unfortunately we cannot use String.replaceAll because it
         // handles backslashes in the replacement string in a special way
         // and the method exist only beginning with JRE 1.4.
@@ -710,13 +386,11 @@ public class IoHelper
             {
                 command = "command.com";
             }
-            String[] paramst = {command, "/C", "set"};
-            params = paramst;
+            params = new String[]{command, "/C", "set"};
         }
         else
         {
-            String[] paramst = {"env"};
-            params = paramst;
+            params = new String[]{"env"};
         }
         FileExecutor fe = new FileExecutor();
         fe.executeCommand(params, output);
@@ -755,7 +429,7 @@ public class IoHelper
      * Extracts key and value from the given string var. The key should be separated from the value
      * by a sign. On Windows all chars of the key are translated to upper case.
      *
-     * @param var
+     * @param var expression for setting the environment variable
      */
     private static void setEnvVar(String var)
     {
@@ -778,87 +452,11 @@ public class IoHelper
 
     }
 
-    /**
-     * Copies specified contents of one jar to another.
-     * <p/>
-     * <p/>
-     * TODO: it would be useful to be able to keep signature information from signed jar files, can
-     * we combine manifests and still have their content signed?
-     */
-    public static void copyZip(ZipInputStream zin, org.apache.tools.zip.ZipOutputStream out,
-                               List<String> files, Map<FilterOutputStream, Set<String>> alreadyWrittenFiles)
-            throws IOException
-    {
-        ZipEntry zentry;
-        if (!alreadyWrittenFiles.containsKey(out))
-        {
-            alreadyWrittenFiles.put(out, new HashSet<String>());
-        }
-        Set<String> currentSet = alreadyWrittenFiles.get(out);
-        while ((zentry = zin.getNextEntry()) != null)
-        {
-            String currentName = zentry.getName();
-            String testName = currentName.replace('/', '.');
-            testName = testName.replace('\\', '.');
-            if (files != null)
-            {
-                boolean founded = false;
-                for (String doInclude : files)
-                {   // Make "includes" self to support regex.
-                    if (testName.matches(doInclude))
-                    {
-                        founded = true;
-                        break;
-                    }
-                }
-                if (!founded)
-                {
-                    continue;
-                }
-            }
-            if (currentSet.contains(currentName))
-            {
-                continue;
-            }
-            try
-            {
-                // Get input file date and time.
-                long fileTime = zentry.getTime();
-                copyStreamToJar(zin, out, currentName, fileTime);
-                zin.closeEntry();
-                currentSet.add(currentName);
-            }
-            catch (ZipException x)
-            {
-                // This avoids any problem that can occur with duplicate
-                // directories. for instance all META-INF data in jars
-                // unfortunately this do not work with the apache ZipOutputStream...
-            }
-        }
-    }
-
-    public static void copyStreamToJar(InputStream zin, ZipOutputStream out, String currentName, long fileTime)
-            throws IOException
-    {
-        // Create new entry for zip file.
-        org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(currentName);
-        // Make sure there is date and time set.
-        if (fileTime != -1)
-        {
-            newEntry.setTime(fileTime); // If found set it into output file.
-        }
-        out.putNextEntry(newEntry);
-        if (zin != null)
-        {
-            copyStream(zin, out);
-        }
-    }
-
     public static void copyStreamToJar(InputStream zin, java.util.zip.ZipOutputStream out, String currentName,
                                        long fileTime) throws IOException
     {
         // Create new entry for zip file.
-        org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(currentName);
+        ZipEntry newEntry = new ZipEntry(currentName);
         // Make sure there is date and time set.
         if (fileTime != -1)
         {
@@ -867,29 +465,8 @@ public class IoHelper
         out.putNextEntry(newEntry);
         if (zin != null)
         {
-            copyStream(zin, out);
+            IOUtils.copy(zin, out);
         }
         out.closeEntry();
-    }
-
-    /**
-     * Copies all the data from the specified input stream to the specified output stream.
-     *
-     * @param in  the input stream to read
-     * @param out the output stream to write
-     * @return the total number of bytes copied
-     * @throws IOException if an I/O error occurs
-     */
-    public static long copyStream(InputStream in, OutputStream out) throws IOException
-    {
-        byte[] buffer = new byte[5120];
-        long bytesCopied = 0;
-        int bytesInBuffer;
-        while ((bytesInBuffer = in.read(buffer)) != -1)
-        {
-            out.write(buffer, 0, bytesInBuffer);
-            bytesCopied += bytesInBuffer;
-        }
-        return bytesCopied;
     }
 }

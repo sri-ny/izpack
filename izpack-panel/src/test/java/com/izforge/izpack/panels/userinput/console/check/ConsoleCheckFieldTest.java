@@ -23,7 +23,6 @@ package com.izforge.izpack.panels.userinput.console.check;
 
 import com.izforge.izpack.api.data.ConsolePrefs;
 import com.izforge.izpack.api.handler.Prompt;
-import com.izforge.izpack.api.resource.Messages;
 import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.core.container.DefaultContainer;
 import com.izforge.izpack.core.data.DefaultVariables;
@@ -37,7 +36,6 @@ import com.izforge.izpack.panels.userinput.field.check.TestCheckFieldConfig;
 import com.izforge.izpack.test.util.TestConsole;
 import com.izforge.izpack.util.Platforms;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -79,8 +77,8 @@ public class ConsoleCheckFieldTest extends AbstractConsoleFieldTest
         prefs.enableConsoleReader = false;
         installData.consolePrefs = prefs;
 
-        console = new TestConsole(installData.getMessages(), prefs);
-        prompt = new ConsolePrompt(console, Mockito.mock(Messages.class));
+        console = new TestConsole(installData, prefs);
+        prompt = new ConsolePrompt(console, installData);
         installData.setRules(rules);
     }
 

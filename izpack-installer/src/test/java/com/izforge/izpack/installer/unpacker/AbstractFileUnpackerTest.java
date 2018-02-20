@@ -21,33 +21,23 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
-
+import com.izforge.izpack.api.data.Blockable;
+import com.izforge.izpack.api.data.OverrideType;
+import com.izforge.izpack.api.data.PackFile;
+import com.izforge.izpack.api.exception.InstallerException;
+import com.izforge.izpack.util.Librarian;
+import com.izforge.izpack.util.Platforms;
+import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
-import com.izforge.izpack.api.data.Blockable;
-import com.izforge.izpack.api.data.OverrideType;
-import com.izforge.izpack.api.data.PackFile;
-import com.izforge.izpack.api.exception.InstallerException;
-import com.izforge.izpack.util.IoHelper;
-import com.izforge.izpack.util.Librarian;
-import com.izforge.izpack.util.Platforms;
-import com.izforge.izpack.util.os.FileQueue;
+import java.io.*;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -107,12 +97,13 @@ public abstract class AbstractFileUnpackerTest
         File target = getTargetFile(baseDir);
 
         FileQueue queue = new FileQueueFactory(Platforms.WINDOWS, librarian).create();
-        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
 
         PackFile file = createPackFile(baseDir, source, target, Blockable.BLOCKABLE_NONE);
         assertFalse(target.exists());
 
-        ObjectInputStream packStream = createPackStream(source);
+        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
+        InputStream packStream = createPackStream(source);
+
         unpacker.unpack(file, packStream, target);
         assertTrue(queue.isEmpty());
 
@@ -166,9 +157,9 @@ public abstract class AbstractFileUnpackerTest
      * @return a new stream
      * @throws IOException for any I/O error
      */
-    protected ObjectInputStream createPackStream(File source) throws IOException
+    protected InputStream createPackStream(File source) throws IOException
     {
-        return Mockito.mock(ObjectInputStream.class);
+        return Mockito.mock(InputStream.class);
     }
 
     /**
@@ -193,7 +184,7 @@ public abstract class AbstractFileUnpackerTest
      */
     protected PackFile createPackFile(File baseDir, File source, File target, Blockable blockable) throws IOException
     {
-        return new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null, blockable);
+        return new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE, null, blockable, null);
     }
 
     /**
@@ -249,9 +240,9 @@ public abstract class AbstractFileUnpackerTest
         File target = getTargetFile(baseDir);
 
         FileQueue queue = new FileQueueFactory(Platforms.WINDOWS, librarian).create();
-        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
         PackFile file = createPackFile(baseDir, source, target, blockable);
 
+        FileUnpacker unpacker = createUnpacker(sourceDir, queue);
         unpacker.unpack(file, createPackStream(source), target);
         assertNotNull(queue);
         assertEquals(1, queue.getOperations().size());
@@ -269,7 +260,7 @@ public abstract class AbstractFileUnpackerTest
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         FileInputStream in = new FileInputStream(file);
-        IoHelper.copyStream(in, out);
+        IOUtils.copy(in, out);
         in.close();
         out.close();
         return out.toByteArray();

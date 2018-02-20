@@ -21,16 +21,15 @@
 
 package com.izforge.izpack.uninstaller.event;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.izforge.izpack.api.event.ProgressListener;
 import com.izforge.izpack.api.event.UninstallerListener;
 import com.izforge.izpack.api.exception.IzPackException;
 import com.izforge.izpack.api.handler.Prompt;
 import com.izforge.izpack.core.handler.ProgressHandler;
-import com.izforge.izpack.event.SimpleUninstallerListener;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -108,11 +107,7 @@ public class UninstallerListeners
         {
             try
             {
-                if (listener instanceof SimpleUninstallerListener)
-                {
-                    ((SimpleUninstallerListener) listener).setHandler(handler);
-                }
-                l.beforeDelete(files);
+                l.beforeDelete(files, listener);
             }
             catch (IzPackException exception)
             {
@@ -144,10 +139,6 @@ public class UninstallerListeners
             {
                 if (l.isFileListener())
                 {
-                    if (listener instanceof SimpleUninstallerListener)
-                    {
-                        ((SimpleUninstallerListener) listener).setHandler(handler);
-                    }
                     l.beforeDelete(file);
                 }
             }
@@ -173,10 +164,6 @@ public class UninstallerListeners
             {
                 if (l.isFileListener())
                 {
-                    if (listener instanceof SimpleUninstallerListener)
-                    {
-                        ((SimpleUninstallerListener) listener).setHandler(handler);
-                    }
                     l.afterDelete(file);
                 }
             }
@@ -197,10 +184,6 @@ public class UninstallerListeners
         {
             try
             {
-                if (listener instanceof SimpleUninstallerListener)
-                {
-                    ((SimpleUninstallerListener) listener).setHandler(handler);
-                }
                 l.afterDelete(files, listener);
             }
             catch (IzPackException exception)

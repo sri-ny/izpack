@@ -62,16 +62,6 @@ abstract public class PanelAutomationHelper implements AbstractUIHandler
     }
 
     /*
-    * @see com.izforge.izpack.api.handler.AbstractUIHandler#emitErrorAndBlockNext(java.lang.String,
-    * java.lang.String)
-    */
-    @Override
-    public void emitErrorAndBlockNext(String title, String message)
-    {
-        emitError(title, message);
-    }
-
-    /*
      * @see com.izforge.izpack.api.handler.AbstractUIHandler#askQuestion(java.lang.String,
      * java.lang.String, int)
      */

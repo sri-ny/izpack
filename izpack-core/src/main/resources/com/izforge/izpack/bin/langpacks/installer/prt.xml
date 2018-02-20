@@ -12,7 +12,6 @@
     <str id="CheckedHelloPanel.headline" txt="Bem Vindo"/>
     <str id="CompilePanel.headline" txt="Compilar Código Java"/>
     <str id="ConditionalUserInputPanel.headline" txt="Dados do Utilizador"/>
-    <str id="ExtendedInstallPanel.headline" txt="Instalação e Configuração"/>
     <str id="FinishPanel.headline" txt="Instalação Terminada"/>
     <str id="HelloPanel.headline" txt="Bem Vindo"/>
     <str id="HTMLInfoPanel.headline" txt="Informação"/>
@@ -85,6 +84,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="A aplicação vai ser removida!"/>

@@ -22,6 +22,7 @@
 package com.izforge.izpack.core.data;
 
 import com.izforge.izpack.api.data.DynamicVariable;
+import com.izforge.izpack.api.data.Overrides;
 import com.izforge.izpack.api.data.Variables;
 import com.izforge.izpack.api.exception.InstallerException;
 import com.izforge.izpack.api.exception.IzPackException;
@@ -29,7 +30,6 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
 import com.izforge.izpack.core.variable.utils.ValueUtils;
-import com.izforge.izpack.api.config.Options;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -52,7 +52,7 @@ public class DefaultVariables implements Variables
     /**
      * The forced override values.
      */
-    private Options overrides;
+    private Overrides overrides;
 
     /**
      * The dynamic variables.
@@ -160,7 +160,7 @@ public class DefaultVariables implements Variables
     public String get(String name, String defaultValue)
     {
         final String value = properties.getProperty(name, defaultValue);
-        return containsOverride(name) ? overrides.get(name, value) : value;
+        return containsOverride(name) ? overrides.fetch(name, value) : value;
     }
 
     /**
@@ -421,13 +421,13 @@ public class DefaultVariables implements Variables
     }
 
     @Override
-    public void setOverrides(Options overrides)
+    public void setOverrides(Overrides overrides)
     {
         this.overrides = overrides;
     }
 
     @Override
-    public Options getOverrides()
+    public Overrides getOverrides()
     {
         return this.overrides;
     }
@@ -471,5 +471,22 @@ public class DefaultVariables implements Variables
     {
         Deque<Object> blockerStack = blockedVariableNameStacks.get(name);
         return (blockerStack != null && !blockerStack.isEmpty());
+    }
+
+    @Override
+    public Set<String> getBlockedVariableNames(Object blocker)
+    {
+        Set<String> blockedVariableNames = new HashSet<String>();
+        for (String key : blockedVariableNameStacks.keySet())
+        {
+            Deque<Object> blockerStack = blockedVariableNameStacks.get(key);
+            if (blockerStack != null && !blockerStack.isEmpty())
+            {
+                if (blockerStack.contains(blocker)) {
+                    blockedVariableNames.add(key);
+                }
+            }
+        }
+        return blockedVariableNames;
     }
 }

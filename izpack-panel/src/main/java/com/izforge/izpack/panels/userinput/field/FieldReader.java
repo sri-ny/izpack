@@ -53,20 +53,20 @@ public class FieldReader extends ElementReader implements FieldConfig
     /**
      * Variable attribute name.
      */
-    public static final String SUMMARY_KEY = "summaryKey";
+    private static final String SUMMARY_KEY = "summaryKey";
 
-    public static final String DISPLAY_HIDDEN = "displayHidden";
+    private static final String DISPLAY_HIDDEN = "displayHidden";
 
-    public static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
+    private static final String DISPLAY_HIDDEN_CONDITION = "displayHiddenCondition";
 
-    public static final String READONLY = "readonly";
+    private static final String READONLY = "readonly";
 
-    public static final String READONLY_CONDITION = "readonlyCondition";
+    private static final String READONLY_CONDITION = "readonlyCondition";
 
     /**
      * Text size attribute name.
      */
-    public static final String TEXT_SIZE = "size";
+    private static final String TEXT_SIZE = "size";
 
     /**
      * The field specification element name.
@@ -76,12 +76,17 @@ public class FieldReader extends ElementReader implements FieldConfig
     /**
      * The validator element name.
      */
-    public static final String VALIDATOR = "validator";
+    private static final String VALIDATOR = "validator";
+
+    /**
+     * The processor element name.
+     */
+    private static final String PROCESSOR = "processor";
 
     /**
      * The tooltip attribute name.
      */
-    public static final String TOOLTIP = "tooltip";
+    private static final String TOOLTIP = "tooltip";
 
     /**
      * The omitFromAuto attribute name.
@@ -258,8 +263,7 @@ public class FieldReader extends ElementReader implements FieldConfig
         for (IXMLElement element : field.getChildrenNamed(VALIDATOR))
         {
             FieldValidatorReader reader = new FieldValidatorReader(element, config);
-            result.add(new FieldValidator(reader.getClassName(), reader.getParameters(), reader.getMessage(),
-                                          config.getFactory()));
+            result.add(new FieldValidator(reader, config.getFactory()));
         }
         return result;
     }
@@ -269,16 +273,25 @@ public class FieldReader extends ElementReader implements FieldConfig
     {
         return getValidators(this.field);
     }
+
     /**
      * Returns the processor the field.
      *
      * @return the field processor, or {@code null} if none exists
      */
     @Override
-    public FieldProcessor getProcessor()
+    public List<FieldProcessor> getProcessors()
     {
-        IXMLElement element = (spec != null) ? spec.getFirstChildNamed("processor") : null;
-        return element != null ? new FieldProcessor(element, getConfig()) : null;
+        List<FieldProcessor> result = new ArrayList<FieldProcessor>();
+        if (spec != null)
+        {
+            Config config = getConfig();
+            for (IXMLElement element : spec.getChildrenNamed(PROCESSOR))
+            {
+                result.add(new FieldProcessor(element, config));
+            }
+        }
+        return result;
     }
 
     /**

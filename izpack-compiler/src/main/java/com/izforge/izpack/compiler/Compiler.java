@@ -47,7 +47,7 @@ import com.izforge.izpack.compiler.helper.CompilerHelper;
 import com.izforge.izpack.compiler.util.CompilerClassLoader;
 import com.izforge.izpack.compiler.packager.IPackager;
 import com.izforge.izpack.data.CustomData;
-import com.izforge.izpack.data.PackInfo;
+import com.izforge.izpack.api.data.PackInfo;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;

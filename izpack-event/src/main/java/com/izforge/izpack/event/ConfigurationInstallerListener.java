@@ -21,20 +21,6 @@
 
 package com.izforge.izpack.event;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.izforge.izpack.api.adaptator.IXMLElement;
 import com.izforge.izpack.api.data.DynamicVariable;
 import com.izforge.izpack.api.data.InstallData;
@@ -49,38 +35,28 @@ import com.izforge.izpack.api.substitutor.VariableSubstitutor;
 import com.izforge.izpack.core.data.DefaultVariables;
 import com.izforge.izpack.core.data.DynamicVariableImpl;
 import com.izforge.izpack.core.substitutor.VariableSubstitutorImpl;
-import com.izforge.izpack.core.variable.ConfigFileValue;
-import com.izforge.izpack.core.variable.EnvironmentValue;
-import com.izforge.izpack.core.variable.ExecValue;
-import com.izforge.izpack.core.variable.JarEntryConfigValue;
-import com.izforge.izpack.core.variable.PlainConfigFileValue;
-import com.izforge.izpack.core.variable.PlainValue;
-import com.izforge.izpack.core.variable.RegistryValue;
-import com.izforge.izpack.core.variable.ZipEntryConfigFileValue;
+import com.izforge.izpack.core.variable.*;
 import com.izforge.izpack.core.variable.filters.CaseStyleFilter;
 import com.izforge.izpack.core.variable.filters.LocationFilter;
 import com.izforge.izpack.core.variable.filters.RegularExpressionFilter;
 import com.izforge.izpack.util.FileUtil;
-import com.izforge.izpack.util.config.ConfigFileTask;
-import com.izforge.izpack.util.config.ConfigurableFileCopyTask;
-import com.izforge.izpack.util.config.ConfigurableTask;
-import com.izforge.izpack.util.config.IniFileCopyTask;
-import com.izforge.izpack.util.config.OptionFileCopyTask;
-import com.izforge.izpack.util.config.RegistryTask;
-import com.izforge.izpack.util.config.SingleConfigurableTask;
+import com.izforge.izpack.util.config.*;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.LookupType;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.Operation;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Entry.Type;
 import com.izforge.izpack.util.config.SingleConfigurableTask.Unit;
-import com.izforge.izpack.util.config.SingleIniFileTask;
-import com.izforge.izpack.util.config.SingleOptionFileTask;
-import com.izforge.izpack.util.config.SingleXmlFileMergeTask;
 import com.izforge.izpack.util.file.FileNameMapper;
 import com.izforge.izpack.util.file.GlobPatternMapper;
 import com.izforge.izpack.util.file.types.FileSet;
 import com.izforge.izpack.util.file.types.Mapper;
 import com.izforge.izpack.util.helper.SpecHelper;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ConfigurationInstallerListener extends AbstractProgressInstallerListener
@@ -93,6 +69,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     public static final String SPEC_FILE_NAME = "ConfigurationActionsSpec.xml";
 
     private static final String ERRMSG_CONFIGACTION_BADATTR = "Bad attribute value in configuration action: {0}=\"{1}\" not allowed";
+    
+    public static final String CONFIGURATIONACTION_ATTR = "configurationaction";
+    public static final String CONFIGURABLESET_ATTR = "configurableset";
+    public static final String CONFIGURABLE_ATTR = "configurable";
+    public static final String CONDITION_ATTR = "condition";
 
     /**
      * The configuration actions.
@@ -155,7 +136,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
         spec = new SpecHelper(resources);
         try
         {
-            spec.readSpec(SPEC_FILE_NAME, replacer);
+            spec.readSpec(SPEC_FILE_NAME);
         }
         catch (Exception exception)
         {
@@ -197,20 +178,19 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
             packActions.put(ActionBase.AFTERPACKS, new ArrayList<ConfigurationAction>());
 
             // Get all entries for antcalls.
-            List<IXMLElement> configActionEntries = pack.getChildrenNamed("configurationaction");
+            List<IXMLElement> configActionEntries = pack.getChildrenNamed(CONFIGURATIONACTION_ATTR);
             if (configActionEntries != null)
             {
                 logger.fine("Found " + configActionEntries.size() + " configuration actions");
                 if (configActionEntries.size() >= 1)
                 {
-                    Iterator<IXMLElement> entriesIter = configActionEntries.iterator();
-                    while (entriesIter != null && entriesIter.hasNext())
+                    for (IXMLElement configActionEntry : configActionEntries)
                     {
-                        ConfigurationAction act = readConfigAction(entriesIter.next());
+                        ConfigurationAction act = readConfigAction(configActionEntry);
                         if (act != null)
                         {
                             logger.fine("Adding " + act.getOrder() + "configuration action with "
-                                                + act.getActionTasks().size() + " tasks");
+                                    + act.getActionTasks().size() + " tasks");
                             (packActions.get(act.getOrder())).add(act);
                         }
                     }
@@ -240,11 +220,10 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
      * Invoked before a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int i)
+    public void beforePack(Pack pack)
     {
         performAllActions(pack.getName(), ActionBase.BEFOREPACK, null);
     }
@@ -254,11 +233,10 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
      * Invoked after a pack is installed.
      *
      * @param pack the pack
-     * @param i    the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int i)
+    public void afterPack(Pack pack)
     {
         performAllActions(pack.getName(), ActionBase.AFTERPACK, null);
     }
@@ -310,11 +288,6 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     // -------------------------------------------------------
     protected List<ConfigurationAction> getActions(String packName, String order)
     {
-        if (actions == null)
-        {
-            return null;
-        }
-
         Map<Object, List<ConfigurationAction>> packActions = actions.get(packName);
         if (packActions == null || packActions.size() == 0)
         {
@@ -420,7 +393,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     protected List<ConfigurationActionTask> readConfigurableSets(IXMLElement parent) throws InstallerException
     {
         List<ConfigurationActionTask> configtasks = new ArrayList<ConfigurationActionTask>();
-        for (IXMLElement el : parent.getChildrenNamed("configurableset"))
+        for (IXMLElement el : parent.getChildrenNamed(CONFIGURABLESET_ATTR))
         {
             String attrib = requireAttribute(el, "type");
             ConfigType configType;
@@ -454,7 +427,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                             "Type '" + configType.getAttribute() + "' currently not allowed for ConfigurableSet");
             }
 
-            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, "condition"),
+            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, CONDITION_ATTR),
                                                         getInstallData().getRules()));
         }
         return configtasks;
@@ -583,7 +556,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                                                     IXMLElement el, ConfigFileTask task)
             throws InstallerException
     {
-        File tofile = FileUtil.getAbsoluteFile(requireAttribute(el, "tofile"), idata.getInstallPath());
+        File tofile = FileUtil.getAbsoluteFile(replacer.substitute(requireAttribute(el, "tofile")), idata.getInstallPath());
         task.setToFile(tofile);
         task.setOldFile(FileUtil.getAbsoluteFile(getAttribute(el, "patchfile"), idata.getInstallPath()));
         File newfile = FileUtil.getAbsoluteFile(getAttribute(el, "originalfile"), idata.getInstallPath());
@@ -599,7 +572,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     {
         List<ConfigurationActionTask> configtasks = new ArrayList<ConfigurationActionTask>();
         InstallData idata = getInstallData();
-        for (IXMLElement el : parent.getChildrenNamed("configurable"))
+        for (IXMLElement el : parent.getChildrenNamed(CONFIGURABLE_ATTR))
         {
             String attrib = requireAttribute(el, "type");
             ConfigType configType;
@@ -635,7 +608,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
 
                 case XML:
                     task = new SingleXmlFileMergeTask();
-                    File tofile = FileUtil.getAbsoluteFile(requireAttribute(el, "tofile"), idata.getInstallPath());
+                    File tofile = FileUtil.getAbsoluteFile(replacer.substitute(requireAttribute(el, "tofile")), idata.getInstallPath());
                     ((SingleXmlFileMergeTask) task).setToFile(tofile);
                     ((SingleXmlFileMergeTask) task).setPatchFile(
                             FileUtil.getAbsoluteFile(getAttribute(el, "patchfile"), idata.getInstallPath()));
@@ -663,8 +636,8 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
 
                 case REGISTRY:
                     task = new RegistryTask();
-                    ((RegistryTask) task).setFromKey(requireAttribute(el, "fromkey"));
-                    ((RegistryTask) task).setKey(requireAttribute(el, "tokey"));
+                    ((RegistryTask) task).setFromKey(replacer.substitute(requireAttribute(el, "fromkey")));
+                    ((RegistryTask) task).setKey(replacer.substitute(requireAttribute(el, "tokey")));
                     readSingleConfigurableTaskCommonAttributes(el, (SingleConfigurableTask) task);
                     break;
 
@@ -674,7 +647,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                             "Type '" + configType.getAttribute() + "' currently not allowed for Configurable");
             }
 
-            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, "condition"),
+            configtasks.add(new ConfigurationActionTask(task, getAttribute(el, CONDITION_ATTR),
                                                         getInstallData().getRules()));
         }
         return configtasks;
@@ -700,7 +673,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
             else if (task instanceof RegistryTask)
             {
                 entry.setSection(el.getAttribute("key"));
-                entry.setKey(el.getAttribute("value"));
+                entry.setKey(replacer.substitute(el.getAttribute("value")));
                 entry.setValue(getAttribute(el, "data"));
             }
             task.addEntry(entry);
@@ -762,7 +735,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
             }
             e.setUnit(unit);
         }
-        e.setDefault(parent.getAttribute("default"));
+        e.setDefault(replacer.substitute(parent.getAttribute("default")));
         e.setPattern(parent.getAttribute("pattern"));
         //FIXME remove?
         //filterEntryFromXML(parent, e);
@@ -775,7 +748,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     {
         for (IXMLElement f : parent.getChildrenNamed("xpathproperty"))
         {
-            task.addProperty(requireAttribute(f, "key"), requireAttribute(f, "value"));
+            task.addProperty(requireAttribute(f, "key"), replacer.substitute(requireAttribute(f, "value")));
         }
     }
 
@@ -890,8 +863,8 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                     {
                         ((GlobPatternMapper) mapper).setCaseSensitive(Boolean.parseBoolean(boolval));
                     }
-                    mapper.setFrom(requireAttribute(f, "from"));
-                    mapper.setTo(requireAttribute(f, "to"));
+                    mapper.setFrom(replacer.substitute(requireAttribute(f, "from")));
+                    mapper.setTo(replacer.substitute(requireAttribute(f, "to")));
                 }
                 else
                 {
@@ -913,7 +886,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     {
         for (IXMLElement f : parent.getChildrenNamed("include"))
         {
-            fileset.createInclude().setName(requireAttribute(f, "name"));
+            fileset.createInclude().setName(replacer.substitute(requireAttribute(f, "name")));
         }
     }
 
@@ -922,7 +895,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
     {
         for (IXMLElement f : parent.getChildrenNamed("exclude"))
         {
-            fileset.createExclude().setName(requireAttribute(f, "name"));
+            fileset.createExclude().setName(replacer.substitute(requireAttribute(f, "name")));
         }
     }
 
@@ -981,7 +954,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                     IXMLElement valueElement = var.getFirstChildNamed("value");
                     if (valueElement != null)
                     {
-                        value = valueElement.getContent();
+                        value = replacer.substitute(valueElement.getContent());
                         if (value == null)
                         {
                             parseError("Empty value element for dynamic variable " + name);
@@ -1006,12 +979,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                 value = getAttribute(var, "regkey");
                 if (value != null)
                 {
-                    String regroot = getAttribute(var, "regroot");
                     String regvalue = getAttribute(var, "regvalue");
                     if (dynamicVariable.getValue() == null)
                     {
                         dynamicVariable.setValue(
-                                new RegistryValue(regroot, value, regvalue));
+                                new RegistryValue(value, regvalue));
                     }
                     else
                     {
@@ -1019,7 +991,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                     }
                 }
                 // Check for value from plain config file
-                value = var.getAttribute("file");
+                value = replacer.substitute(var.getAttribute("file"));
                 if (value != null)
                 {
                     String stype = var.getAttribute("type");
@@ -1069,7 +1041,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                     }
                 }
                 // Check for value from config file entry in a jar file
-                value = var.getAttribute("jarfile");
+                value = replacer.substitute(var.getAttribute("jarfile"));
                 if (value != null)
                 {
                     String entryname = requireAttribute(var, "entry");
@@ -1120,7 +1092,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                         {
                             for (IXMLElement arg : args)
                             {
-                                String content = arg.getContent();
+                                String content = replacer.substitute(arg.getContent());
                                 if (content != null)
                                 {
                                     cmd.add(content);
@@ -1128,7 +1100,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                             }
                         }
                         String[] cmdarr = new String[cmd.size()];
-                        if (exectype.equalsIgnoreCase("process") || exectype == null)
+                        if (exectype == null || exectype.equalsIgnoreCase("process"))
                         {
                             dynamicVariable.setValue(new ExecValue(cmd.toArray(cmdarr), dir, false, stderr));
                         }
@@ -1190,7 +1162,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                         }
                         else if (filterName.equals("location"))
                         {
-                            String basedir = filterElement.getAttribute("basedir");
+                            String basedir = replacer.substitute(filterElement.getAttribute("basedir"));
                             dynamicVariable.addFilter(new LocationFilter(basedir));
                         }
                         else if (filterName.equals("casestyle"))
@@ -1214,7 +1186,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
                                        + e.getMessage());
                 }
 
-                String conditionid = getAttribute(var, "condition");
+                String conditionid = getAttribute(var, CONDITION_ATTR);
                 dynamicVariable.setConditionid(conditionid);
 
                 dynamicVariables.add(dynamicVariable);
@@ -1315,7 +1287,7 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
         {
             return substituteVariables(value);
         }
-        return value;
+        return null;
     }
 
     /**
@@ -1340,22 +1312,11 @@ public class ConfigurationInstallerListener extends AbstractProgressInstallerLis
         throw new InstallerException(SPEC_FILE_NAME + ":" + parent.getLineNr() + ": " + message);
     }
 
-    /**
-     * Create a parse warning with consistent messages. Includes file name and line # of parent.     *
-     *
-     * @param parent  The element in which the warning occured
-     * @param message Warning message
-     */
-    protected void parseWarn(IXMLElement parent, String message)
-    {
-        System.out.println("Warning: " + SPEC_FILE_NAME + ":" + parent.getLineNr() + ": " + message);
-    }
-
     public enum ConfigType
     {
         OPTIONS("options"), INI("ini"), XML("xml"), REGISTRY("registry");
 
-        private static Map<String, ConfigType> lookup;
+        private static final Map<String, ConfigType> lookup;
 
         private String attribute;
 

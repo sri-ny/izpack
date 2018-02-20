@@ -28,6 +28,7 @@ import com.izforge.izpack.gui.FlowLayout;
 import com.izforge.izpack.gui.TwoColumnConstraints;
 import com.izforge.izpack.installer.data.GUIInstallData;
 import com.izforge.izpack.installer.gui.InstallerFrame;
+import com.izforge.izpack.panels.userinput.field.Field;
 import com.izforge.izpack.panels.userinput.field.search.SearchField;
 import com.izforge.izpack.panels.userinput.gui.GUIField;
 
@@ -47,6 +48,8 @@ public class GUISearchField extends GUIField
      */
     private final SearchInputField searchInputField;
 
+    private final JComboBox combo;
+
     /**
      * Constructs a {@code GUISearchField}.
      *
@@ -57,9 +60,10 @@ public class GUISearchField extends GUIField
     public GUISearchField(SearchField field, GUIInstallData installData, InstallerFrame frame)
     {
         super(field);
+
         String filename = field.getFilename();
         String checkFilename = field.getCheckFilename();
-        JComboBox combo = new JComboBox();
+        combo = new JComboBox();
 
         combo.setEditable(true);
         combo.setName(field.getVariable());
@@ -68,7 +72,11 @@ public class GUISearchField extends GUIField
         {
             combo.addItem(choice);
         }
-        combo.setSelectedIndex(field.getSelectedIndex());
+        int index = field.getSelectedIndex();
+        if (index > -1)
+        {
+            combo.setSelectedIndex(index);
+        }
 
         addDescription();
         addLabel();
@@ -114,6 +122,7 @@ public class GUISearchField extends GUIField
         buttonPanel.add(browse);
 
         addComponent(buttonPanel, new TwoColumnConstraints(TwoColumnConstraints.EASTONLY));
+
         searchInputField = new SearchInputField(field, frame, combo, autoDetect, browse, installData);
         addTooltip();
     }
@@ -133,8 +142,40 @@ public class GUISearchField extends GUIField
     }
 
     @Override
+    public boolean updateView()
+    {
+        boolean result = super.updateView();
+        Field field = getField();
+
+        String value = field.getInitialValue();
+        if (value != null)
+        {
+            searchInputField.setResult(value);
+            result &= true;
+        }
+
+        if (value == null) // fallback for invalid values
+        {
+            // Set default value here for getting current variable values replaced
+            value = field.getDefaultValue();
+            if (value != null)
+            {
+                searchInputField.setResult(value);
+                result &= true;
+            }
+        }
+
+        if (value == null)
+        {
+            result &= searchInputField.autodetect();
+        }
+
+        return result;
+    }
+
+    @Override
     public JComponent getFirstFocusableComponent()
     {
-        return getComponents().get(0).getComponent();
+        return combo;
     }
 }

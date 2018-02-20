@@ -26,6 +26,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Tests the {@link JavaVersionChecker} class.
  *
@@ -50,5 +53,37 @@ public class JavaVersionCheckerTest extends AbstractRequirementCheckerTest
 
         installData.getInfo().setJavaVersion(currentVersion);
         assertTrue(checker.check());
+
+        // in case of OpenJDK, version number is e.g 1.8.0_102-redhat
+        // therefore the version must increased to
+        // 1.8.0_1029 instead of 1.8.0_102-redhat9
+        String[] parts = currentVersion.split("-|_|\\.");
+        int pos=0;
+        // find the last part of version with numeric parts
+        for(int i=0; i<parts.length; i++){
+            if(isNumeric(parts[i])){
+                pos=i;
+            } else{
+                break;
+            }
+        }
+        // and add the "9" on it
+        parts[pos]=parts[pos].concat("9");
+        installData.getInfo().setJavaVersion(StringUtils.join(parts,"."));
+        assertFalse(checker.check());
+
+        String[] splitCurrentVersion = currentVersion.split("_");
+        installData.getInfo().setJavaVersion(splitCurrentVersion[0]);
+        assertTrue(checker.check());
+    }
+
+    private boolean isNumeric(String str) {
+        try {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }

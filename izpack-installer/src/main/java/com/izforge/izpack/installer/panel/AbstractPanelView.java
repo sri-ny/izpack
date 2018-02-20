@@ -30,6 +30,7 @@ import com.izforge.izpack.data.PanelAction.ActionStage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -466,9 +467,13 @@ public abstract class AbstractPanelView<T> implements PanelView<T>
             Configurable configurable = getPanel().getValidatorConfiguration(index);
             if (configurable != null)
             {
-                for (String name : configurable.getNames())
+                final Set<String> names = configurable.getNames();
+                if (names != null)
                 {
-                    panelValidator.addConfigurationOption(name, configurable.getConfigurationOption(name));
+                    for (String name : names)
+                    {
+                        panelValidator.addConfigurationOption(name, configurable.getConfigurationOption(name));
+                    }
                 }
             }
         }

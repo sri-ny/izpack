@@ -61,16 +61,13 @@ public interface RulesEngine
 
     void analyzeXml(IXMLElement conditionsspec);
 
-    @Deprecated
-    Condition instantiateCondition(IXMLElement condition);
-
     /**
      * Returns the class name implementing a condition type.
      *
      * @param type the condition type
      * @return the class name
      */
-    public String getClassName(String type);
+    String getClassName(String type);
 
     /**
      * Creates a condition given its XML specification.
@@ -87,13 +84,13 @@ public interface RulesEngine
      * @param conditionClass the dedicated class implementing a {@code Condition}
      * @return a new  condition
      */
-    public Condition createCondition(IXMLElement condition, Class<Condition> conditionClass);
+    Condition createCondition(IXMLElement condition, Class<Condition> conditionClass);
 
     /**
      * Check whether references condition exist This must be done after all conditions have been
      * read, to not depend on order of their definition in the XML
      */
-    void resolveConditions() throws Exception;
+    void resolveConditions();
 
     IXMLElement createConditionElement(Condition condition, IXMLElement root);
 }

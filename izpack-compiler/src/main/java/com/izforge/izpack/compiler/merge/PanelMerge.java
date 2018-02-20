@@ -19,15 +19,13 @@
 
 package com.izforge.izpack.compiler.merge;
 
+import com.izforge.izpack.api.merge.Mergeable;
+import com.izforge.izpack.installer.gui.IzPanel;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.tools.zip.ZipOutputStream;
-
-import com.izforge.izpack.api.merge.Mergeable;
-import com.izforge.izpack.installer.gui.IzPanel;
 
 /**
  * Merge for a panel
@@ -36,9 +34,9 @@ import com.izforge.izpack.installer.gui.IzPanel;
  */
 public class PanelMerge implements Mergeable
 {
-    private List<Mergeable> packageMerge;
-    private Class<IzPanel> panelClass;
-    private FileFilter fileFilter;
+    private final List<Mergeable> packageMerge;
+    private final Class<IzPanel> panelClass;
+    private final FileFilter fileFilter;
 
     public PanelMerge(final Class<IzPanel> panelClass, List<Mergeable> packageMergeable)
     {
@@ -52,14 +50,6 @@ public class PanelMerge implements Mergeable
                         pathname.getAbsolutePath().contains("/" + panelClass + ".class");
             }
         };
-    }
-
-    public void merge(ZipOutputStream outputStream)
-    {
-        for (Mergeable mergeable : packageMerge)
-        {
-            mergeable.merge(outputStream);
-        }
     }
 
     public List<File> recursivelyListFiles(FileFilter fileFilter)

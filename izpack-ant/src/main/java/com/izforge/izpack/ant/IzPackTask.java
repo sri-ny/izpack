@@ -23,10 +23,10 @@
 package com.izforge.izpack.ant;
 
 import com.izforge.izpack.ant.logging.AntHandler;
+import com.izforge.izpack.api.data.PackCompression;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.listener.PackagerListener;
 import com.izforge.izpack.merge.resolve.ResolveUtils;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -105,11 +105,6 @@ public class IzPackTask extends Task implements PackagerListener
     private Boolean inheritAll = false;
 
     /**
-     * should we validate XML descriptors?
-     */
-    private Boolean validating = true;
-
-    /**
      * Creates new IZPackTask
      */
     public IzPackTask()
@@ -120,9 +115,10 @@ public class IzPackTask extends Task implements PackagerListener
         output = null;
         installerType = null;
         izPackDir = null;
-        compression = "default";
+        compression = PackCompression.DEFAULT.toName();
         compressionLevel = -1;
     }
+
 
 
     /**
@@ -225,11 +221,10 @@ public class IzPackTask extends Task implements PackagerListener
             ClassLoader loader = new URLClassLoader(getUrlsForClassloader());
             @SuppressWarnings("unchecked")
 			Class<IzpackAntRunnable> runableClass 
-			        = (Class<IzpackAntRunnable>) loader.loadClass("com.izforge.izpack.ant.IzpackAntRunnable");
+			        = (Class<IzpackAntRunnable>) loader.loadClass(IzpackAntRunnable.class.getName());
             Constructor constructor = runableClass.getConstructors()[0];
             Object instance = constructor.newInstance(compression, kind, input, configText, basedir, output, mkdirs,
-                    validating, compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir,
-                    logHandler);
+                    compressionLevel, properties, inheritAll, getProject().getProperties(), izPackDir, logHandler);
             final Thread thread = new Thread((Runnable) instance);
             thread.setContextClassLoader(loader);
             thread.start();
@@ -376,16 +371,6 @@ public class IzPackTask extends Task implements PackagerListener
     public void setCompressionLevel(int compressionLevel)
     {
         this.compressionLevel = compressionLevel;
-    }
-
-    /**
-     * If true, all XML descriptors are validated against the according XSD during compiling. Defaults to true;
-     *
-     * @param validating true if all XML descriptors should be validated against the according XSD during compiling.
-     */
-    public void setValidating(boolean validating)
-    {
-        this.validating = validating;
     }
 
 

@@ -21,15 +21,13 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-
 import com.izforge.izpack.api.data.InstallData;
 import com.izforge.izpack.api.exception.ResourceException;
 import com.izforge.izpack.api.exception.ResourceInterruptedException;
 import com.izforge.izpack.api.exception.ResourceNotFoundException;
 import com.izforge.izpack.api.resource.Resources;
+
+import java.io.InputStream;
 
 
 /**
@@ -39,6 +37,11 @@ import com.izforge.izpack.api.resource.Resources;
  */
 public abstract class AbstractPackResources implements PackResources
 {
+    /**
+     * Temporary directory for web installers.
+     */
+    protected static final String WEB_TEMP_SUB_PATH = "/IzpackWebTemp";
+
     /**
      * The resources.
      */
@@ -84,11 +87,6 @@ public abstract class AbstractPackResources implements PackResources
         {
             result = getWebPackStream(name, webDirURL);
         }
-        String className = installData.getInfo().getPackDecoderClassName();
-        if (className != null)
-        {
-            result = getDecodingInputStream(result, className);
-        }
 
         return result;
     }
@@ -109,47 +107,12 @@ public abstract class AbstractPackResources implements PackResources
     }
 
     /**
-     * Returns a stream that decodes the supplied stream.
-     *
-     * @param in        the stream to decode
-     * @param className the decoding input stream class name.
-     * @return the decoding stream
-     * @throws ResourceException for any error
-     */
-    protected InputStream getDecodingInputStream(InputStream in, String className)
-    {
-        Object result;
-        try
-        {
-            Class decoder = Class.forName(className);
-            Class[] paramsClasses = {java.io.InputStream.class};
-            Constructor constructor = decoder.getDeclaredConstructor(paramsClasses);
-            // Our first used decoder input stream (bzip2) reads byte for byte from
-            // the source. Therefore we put a buffering stream between it and the source.
-            InputStream buffer = new BufferedInputStream(in);
-            Object[] params = {buffer};
-            result = constructor.newInstance(params);
-        }
-        catch (Exception exception)
-        {
-            throw new ResourceException("Failed to create stream to decode resource", exception);
-        }
-
-        if (!InputStream.class.isInstance(result))
-        {
-            throw new ResourceException("Cannot decode resource: '" + className + "' must be derived from "
-                                                + InputStream.class.getName());
-        }
-        return (InputStream) result;
-    }
-
-    /**
      * Returns a stream to a local pack.
      *
      * @param name the pack name
      * @return the pack stream
      */
-    protected InputStream getLocalPackStream(String name)
+    private InputStream getLocalPackStream(String name)
     {
         return resources.getInputStream("packs/pack-" + name);
     }

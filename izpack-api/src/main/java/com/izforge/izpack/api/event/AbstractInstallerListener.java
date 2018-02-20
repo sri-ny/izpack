@@ -18,14 +18,12 @@
  */
 package com.izforge.izpack.api.event;
 
-import java.io.File;
-import java.util.List;
-
-import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.Pack;
 import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.api.exception.IzPackException;
-import com.izforge.izpack.api.handler.AbstractUIProgressHandler;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Abstract implementation of {@link InstallerListener}.
@@ -59,14 +57,30 @@ public abstract class AbstractInstallerListener implements InstallerListener
     }
 
     /**
-     * Invoked before a pack is installed.
+     * Invoked before packs are installed.
+     * <p>
+     *     The default implementation calls {@link #beforePacks(List)} for
+     *     backwards compatibility.
+     * </p>
      *
-     * @param pack  the pack
-     * @param index the pack number
+     * @param packs the packs to be installed
+     * @param listener the progress listener
      * @throws IzPackException for any error
      */
     @Override
-    public void beforePack(Pack pack, int index)
+    public void beforePacks(List<Pack> packs, ProgressListener listener)
+    {
+        beforePacks(packs);
+    }
+
+    /**
+     * Invoked before a pack is installed.
+     *
+     * @param pack  the pack
+     * @throws IzPackException for any error
+     */
+    @Override
+    public void beforePack(Pack pack)
     {
     }
 
@@ -74,11 +88,10 @@ public abstract class AbstractInstallerListener implements InstallerListener
      * Invoked after a pack is installed.
      *
      * @param pack  the pack
-     * @param index the pack number
      * @throws IzPackException for any error
      */
     @Override
-    public void afterPack(Pack pack, int index)
+    public void afterPack(Pack pack)
     {
     }
 
@@ -147,44 +160,6 @@ public abstract class AbstractInstallerListener implements InstallerListener
     }
 
     /**
-     * Invoked when the installer creates the listener instance, immediately after the install data is parsed.
-     *
-     * @param data the installation data
-     * @throws Exception for any error
-     */
-    @Override
-    public void afterInstallerInitialization(AutomatedInstallData data) throws Exception
-    {
-    }
-
-    /**
-     * Invoked before packs are installed.
-     *
-     * @param data    the installation data
-     * @param packs   the number of packs which are defined for this installation
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     */
-    @Override
-    public void beforePacks(AutomatedInstallData data, Integer packs, AbstractUIProgressHandler handler)
-            throws Exception
-    {
-    }
-
-    /**
-     * Invoked before a pack is installed.
-     *
-     * @param pack    the pack
-     * @param i       the pack number
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     */
-    @Override
-    public void beforePack(Pack pack, Integer i, AbstractUIProgressHandler handler) throws Exception
-    {
-    }
-
-    /**
      * Determines if the listener should be notified of every file and directory installation.
      *
      * @return <tt>false</tt>
@@ -193,78 +168,5 @@ public abstract class AbstractInstallerListener implements InstallerListener
     public boolean isFileListener()
     {
         return false;
-    }
-
-    /**
-     * Invoked before a directory is created.
-     *
-     * @param dir      the directory
-     * @param packFile the corresponding pack file
-     * @throws Exception for any error
-     */
-    @Override
-    public void beforeDir(File dir, PackFile packFile) throws Exception
-    {
-    }
-
-    /**
-     * Invoked after a directory is created.
-     *
-     * @param dir      the directory
-     * @param packFile the corresponding pack file
-     * @throws Exception for any error
-     */
-    @Override
-    public void afterDir(File dir, PackFile packFile) throws Exception
-    {
-    }
-
-    /**
-     * Invoked before a file is installed.
-     *
-     * @param file     the file
-     * @param packFile the corresponding pack file
-     * @throws Exception if the listener throws an exception
-     */
-    @Override
-    public void beforeFile(File file, PackFile packFile) throws Exception
-    {
-    }
-
-    /**
-     * Invoked after a file is installed.
-     *
-     * @param file     the file
-     * @param packFile the corresponding pack file
-     * @throws Exception for any error
-     */
-    @Override
-    public void afterFile(File file, PackFile packFile) throws Exception
-    {
-    }
-
-    /**
-     * Invoked after a pack is installed.
-     *
-     * @param pack    the pack
-     * @param i       the pack number
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     */
-    @Override
-    public void afterPack(Pack pack, Integer i, AbstractUIProgressHandler handler) throws Exception
-    {
-    }
-
-    /**
-     * Invoked after packs are installed.
-     *
-     * @param data    the installation data
-     * @param handler the UI progress handler
-     * @throws Exception for any error
-     */
-    @Override
-    public void afterPacks(AutomatedInstallData data, AbstractUIProgressHandler handler) throws Exception
-    {
     }
 }

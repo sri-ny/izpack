@@ -28,11 +28,16 @@ import java.util.Map;
  */
 public enum LookAndFeels
 {
-    LOOKS("looks"), SUBSTANCE("substance"), NIMBUS("nimbus"), KUNSTSTOFF("kunststoff");
+    LOOKS("looks"), SUBSTANCE("substance"), NIMBUS("nimbus"), KUNSTSTOFF("kunststoff"), METOUIA("metouia");
 
     private String name;
 
     private static Map<String, LookAndFeels> lookup;
+
+    public String getName()
+    {
+        return name;
+    }
 
     static
     {

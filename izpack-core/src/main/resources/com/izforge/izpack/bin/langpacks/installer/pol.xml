@@ -40,7 +40,6 @@
     <str id="CompilePanel.tip" txt="Postęp kompilacji:"/>
     <str id="ConditionalUserInputPanel.headline" txt="Dane użytkownika"/>
     <str id="debug.changevariable" txt="zmodyfikuj wartość"/>
-    <str id="ExtendedInstallPanel.headline" txt="Instalacja i konfiguracja"/>
     <str id="FinishPanel.auto" txt="Generuj skrypt automatycznej instalacji"/>
     <str id="FinishPanel.auto.dialog.filterdesc" txt="Pliki XML"/>
     <str id="FinishPanel.auto.tip" txt="Użyj tego skryptu, aby powtorzyć instalację na innych komputerach."/>
@@ -98,6 +97,10 @@
     <str id="installer.sendReport" txt="Send Report"/>
     <str id="installer.continueQuestion" txt="Continue anyway?"/>
     <str id="installer.cancelled" txt="Installation cancelled"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- ConsolePrompt strings -->
     <str id="ConsolePrompt.okCancel" txt="Enter O for OK, C to Cancel: "/>

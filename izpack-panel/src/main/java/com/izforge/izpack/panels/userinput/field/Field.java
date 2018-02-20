@@ -28,9 +28,6 @@ import com.izforge.izpack.api.rules.RulesEngine;
 import com.izforge.izpack.core.rules.process.ExistsCondition;
 import com.izforge.izpack.panels.userinput.processorclient.ValuesProcessingClient;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,9 +81,9 @@ public abstract class Field
     private final List<FieldValidator> validators;
 
     /**
-     * The field processor. May be {@code null}
+     * The field processors. May be {@code null}
      */
-    private final FieldProcessor processor;
+    private final List<FieldProcessor> processors;
 
     /**
      * The field label. May be {@code null}
@@ -112,22 +109,22 @@ public abstract class Field
      * Determines if the field should always be displayed on the panel regardless if its conditionid is true or false.
      * If the conditionid is false, display the field but disable it.
      */
-    private Boolean displayHidden;
+    private final Boolean displayHidden;
 
     /**
      * Determines a condition for which the field should be displayed on the panel regardless if its conditionid is true or false.
      */
-    private String displayHiddenCondition;
+    private final String displayHiddenCondition;
 
     /**
      * Determines if the field should always be displayed read-only.
      */
-    private Boolean readonly;
+    private final Boolean readonly;
 
     /**
      * Determines a condition for which the field should be displayed read-only.
      */
-    private String readonlyCondition;
+    private final String readonlyCondition;
 
     /**
      * The installation data.
@@ -137,7 +134,11 @@ public abstract class Field
     /**
      * Determines if the 'value' of an entry will be included in the user input panel
      */
-    private boolean omitFromAuto;
+    private final boolean omitFromAuto;
+
+    private String unprocessedValue;
+
+    private boolean saving = false;
 
     /**
      * The logger.
@@ -161,7 +162,7 @@ public abstract class Field
         packs = config.getPacks();
         models = config.getOsModels();
         validators = config.getValidators();
-        processor = config.getProcessor();
+        processors = config.getProcessors();
         label = config.getLabel();
         description = config.getDescription();
         displayHidden = config.isDisplayHidden();
@@ -201,16 +202,6 @@ public abstract class Field
     }
 
     /**
-     * Returns all variables that this field updates.
-     *
-     * @return all variables that this field updates
-     */
-    public List<String> getVariables()
-    {
-        return variable != null ? Arrays.asList(variable) : Collections.<String>emptyList();
-    }
-
-    /**
      * Returns the summaryKey.
      *
      * @return the summaryKey. May be {@code null}
@@ -221,53 +212,17 @@ public abstract class Field
     }
 
     /**
-     * Returns if the field should always be displayed read-only
-     * on the panel regardless if its conditionid is true or false.
-     * This equals the value of the 'displayHidden' attribute from the field definition.
-     *
-     * @return the 'displayHidden' attribute, or {@code false}
-     */
-    public Boolean isDisplayHidden()
-    {
-        return displayHidden;
-    }
-
-    /**
-     * Returns a condition for which the field should be displayed read-only
-     * on the panel regardless if its conditionid is true or false.
-     * If the condition evaluates false, don't apply displayHidden.
-     * This equals the value of the 'displayHiddenCondition' attribute from the field definition.
-     *
-    * @return the condition ID, or {@code null}
-     */
-    public String getDisplayHiddenCondition()
-    {
-        return displayHiddenCondition;
-    }
-
-    /**
-     * Returns if the field should be always displayed read-only.
-     * This equals the value of the 'readonly' attribute from the field definition.
-     *
-     * @return true if field should be shown read-only, or {@code false}
-     */
-    public Boolean isReadonly()
-    {
-        return readonly;
-    }
-
-    /**
      * Returns an effective value whether a field should be currently displayed read-only.
      *
      * @return true if field should be shown read-only, or {@code false}
      */
     public boolean isEffectiveReadonly(boolean defaultFlag, RulesEngine rules)
     {
-        boolean result = false;
+        boolean result;
 
         if (readonly != null)
         {
-            result = readonly.booleanValue();
+            result = readonly;
         }
         else if (readonlyCondition != null && rules.isConditionTrue(readonlyCondition))
         {
@@ -287,11 +242,11 @@ public abstract class Field
      */
     public boolean isEffectiveDisplayHidden(boolean defaultFlag, RulesEngine rules)
     {
-        boolean result = false;
+        boolean result;
 
         if (displayHidden != null)
         {
-            result = displayHidden.booleanValue();
+            result = displayHidden;
         }
         else if (displayHiddenCondition != null && rules.isConditionTrue(displayHiddenCondition))
         {
@@ -302,18 +257,6 @@ public abstract class Field
             result = defaultFlag;
         }
         return result;
-    }
-
-    /**
-     * Returns a condition for which the field should be displayed read-only.
-     * If the conditionid is false, don't apply readonly.
-     * This equals the value of the 'readonlyCondition' attribute from the field definition.
-     *
-     * @return the condition ID, or {@code null}
-     */
-    public String getReadonlyCondition()
-    {
-        return readonlyCondition;
     }
 
     /**
@@ -337,37 +280,49 @@ public abstract class Field
     }
 
     /**
-     * Returns the default value of the field.
+     * Returns the default value of the field with resolved variables.
      *
      * @return the default value. May be {@code null}
      */
     public String getDefaultValue()
     {
+        return getDefaultValue(true);
+    }
+
+    /**
+     * Returns the default value of the field.
+     *
+     * @param translated true if variable references in the text should be resolved
+     * @return the default value. May be {@code null}
+     */
+    private String getDefaultValue(boolean translated)
+    {
         String value = wrapDefaultValue(defaultValue);
-        if (value != null)
+        if (translated && value != null)
         {
             return replaceVariables(value);
         }
-        return null;
+        return value;
     }
 
     /**
      * Returns the forced value of the field.
      *
+     * @param translated true if variable references in the text should be resolved
      * @return the forced value. May be {@code null}
      */
-    private String getForcedValue()
+    private String getForcedValue(boolean translated)
     {
         String value = wrapInitialValue(initialValue);
-        if (value != null)
+        if (translated && value != null)
         {
             return replaceVariables(value);
         }
-        return null;
+        return value;
     }
 
     /**
-     * Returns the initial value to use for this field.
+     * Returns the initial value to use for this field with resolved variables.
      * <p/>
      * The following non-null value is used from the following search order
      * <ul>
@@ -380,17 +335,42 @@ public abstract class Field
      */
     public String getInitialValue()
     {
+        return getInitialValue(true);
+    }
+
+    /**
+     * Returns the initial value to use for this field.
+     * <p/>
+     * The following non-null value is used from the following search order
+     * <ul>
+     * <li>initial value (substituting variables)
+     * <li>current variable value
+     * <li>default value (substituting variables)
+     * </ul>
+     *
+     * @param resolve true if variable references in the text should be resolved
+     * @return The initial value to use for this field
+     */
+    private String getInitialValue(boolean resolve)
+    {
         String result = null;
         if (!installData.getVariables().isBlockedVariableName(variable))
         {
-            result = getForcedValue();
+            result = getForcedValue(resolve);
         }
         if (result == null)
         {
             result = getValue();
-            if (result == null)
+            if (result != null)
             {
-                result = getDefaultValue();
+                if (resolve)
+                {
+                    result = replaceVariables(result);
+                }
+            }
+            else
+            {
+                result = getDefaultValue(resolve);
             }
         }
         return result;
@@ -403,7 +383,18 @@ public abstract class Field
      */
     public String getValue()
     {
-        return installData.getVariable(variable);
+        final String savedValue = installData.getVariable(variable);
+        if (savedValue == null && unprocessedValue != null)
+        {
+            unprocessedValue = null;
+        }
+
+        return (unprocessedValue==null ? savedValue : unprocessedValue);
+    }
+
+    public void setSaving(boolean flag)
+    {
+        this.saving = flag;
     }
 
     /**
@@ -413,12 +404,18 @@ public abstract class Field
      */
     public void setValue(String value)
     {
-        value = process(value);
+        unprocessedValue = value;
+        if (saving)
+        {
+            value = process(value);
+        }
+
         if (logger.isLoggable(Level.FINE))
         {
             logger.fine("Field setting variable=" + variable + " to value=" + value);
         }
         installData.setVariable(variable, value);
+        saving = false;
     }
 
 
@@ -486,18 +483,6 @@ public abstract class Field
     /**
      * Validates values using any validators associated with the field.
      *
-     * @param format how the values should be formatted into one text
-     * @param values the values to validate
-     * @return the status of the validation
-     */
-    public ValidationStatus validate(MessageFormat format, String... values)
-    {
-        return validate(new ValuesProcessingClient(format, values));
-    }
-
-    /**
-     * Validates values using any validators associated with the field.
-     *
      * @param values the values to validate
      * @return the status of the validation
      */
@@ -507,6 +492,7 @@ public abstract class Field
         {
             for (FieldValidator validator : validators)
             {
+                validator.setInstallData(installData);
                 if (!validator.validate(values))
                 {
                     return ValidationStatus.failed(validator.getMessage());
@@ -527,12 +513,34 @@ public abstract class Field
      * @return the result of processing
      * @throws IzPackException if processing fails
      */
-    public String process(String... values)
+    private String process(String... values)
     {
         String result = null;
-        if (processor != null)
+        if (processors != null && !processors.isEmpty())
         {
-            result = processor.process(values);
+            for (FieldProcessor processor : processors)
+            {
+                processor.setInstallData(installData);
+                String processorResult;
+                if (result == null) {
+                    processorResult = processor.process(values);
+                } else {
+                    processorResult = processor.process(result);
+                }
+
+                String backupVariable = processor.getBackupVariable();
+                if (backupVariable != null)
+                {
+                    installData.setVariable(backupVariable, processor.getOriginalValue());
+                }
+                String toVariable = processor.getToVariable();
+                if (toVariable != null)
+                {
+                    installData.setVariable(toVariable, processorResult);
+                    processorResult = processor.getOriginalValue();
+                }
+                result = processorResult;
+            }
         }
         else if (values.length > 0)
         {
@@ -542,57 +550,76 @@ public abstract class Field
     }
 
     /**
-     * Returns the field processor.
+     * Returns the field processors.
      *
-     * @return the field processor. May be {@code null}
+     * @return the field processors. May be {@code null}
      */
-    public FieldProcessor getProcessor()
+    public List<FieldProcessor> getProcessors()
     {
-        return processor;
+        return processors;
     }
 
     /**
-     * Returns the field label.
+     * Returns the field label with resolved variable values.
      *
      * @return the field label. May be {@code null}
      */
     public String getLabel()
     {
-        String result = null;
-        if (label != null)
-        {
-            result = replaceVariables(label);
-        }
-        return result;
+        return getLabel(false);
     }
 
     /**
-     * Returns the field description.
+     * Returns the field label.
+     *
+     * @param resolve whether the label should be returned with resolved variables
+     * @return the field label. May be {@code null}
+     */
+    public String getLabel(boolean resolve)
+    {
+        return (resolve && label != null)?replaceVariables(label):label;
+    }
+
+    /**
+     * Returns the field description with resolved variable values.
      *
      * @return the field description. May be {@code null}
      */
     public String getDescription()
     {
-        String result = null;
-        if (description != null)
-        {
-            result = replaceVariables(description);
-        }
-        return result;
+        return getDescription(false);
+    }
+
+    /**
+     * Returns the field description.
+     *
+     * @param resolve whether the description should be returned with resolved variables
+     * @return the field label. May be {@code null}
+     */
+    public String getDescription(boolean resolve)
+    {
+        return (resolve && description != null)?replaceVariables(description):description;
+    }
+
+    /**
+     * Returns the field tooltip with resolved variable values.
+     *
+     * @return the field tooltip. May be {@code null}
+     */
+    public String getTooltip()
+    {
+        return getTooltip(false);
     }
 
     /**
      * Returns the field tooltip.
      *
+     * @param resolve whether the tooltip should be returned with resolved variables
      * @return the field tooltip. May be {@code null}
      */
-    public String getTooltip() {
-        String result = null;
-        if (tooltip != null)
-        {
-            result = replaceVariables(tooltip);
-        }
-        return result;
+    private String getTooltip(boolean resolve)
+    {
+        return (resolve && tooltip != null)?replaceVariables(tooltip):tooltip;
     }
 
     /**
@@ -621,7 +648,7 @@ public abstract class Field
      *
      * @return the rules
      */
-    protected RulesEngine getRules()
+    private RulesEngine getRules()
     {
         return installData.getRules();
     }

@@ -8,13 +8,13 @@
     <info>
         <appname>IzPack</appname>
         <appversion>@izpack.version</appversion>
-        <authors><!-- We now get them from the POM :-) --></authors>
         <url>http://izpack.org/</url>
         <javaversion>1.6</javaversion>
         <requiresjdk>no</requiresjdk>
-        <!--><pack200/>-->
-        <run-privileged condition="izpack.windowsinstall.vista|izpack.windowsinstall.7"/>
-        <summarylogfilepath>$INSTALL_PATH/installinfo/Summary.htm</summarylogfilepath>
+        <run-privileged condition="izpack.windowsinstall.vista|izpack.windowsinstall.7|izpack.windowsinstall.8|izpack.windowsinstall.10"/>
+        <summarylogfilepath>$INSTALL_PATH/setup/Summary.htm</summarylogfilepath>
+        <readinstallationinformation>false</readinstallationinformation>
+        <writeinstallationinformation>false</writeinstallationinformation>
     </info>
 
     <variables>
@@ -24,7 +24,6 @@
 
     <!-- Flexible and in the screen proportions -->
     <guiprefs height="700" resizable="yes" width="870">
-        <!-- GUI adaption for more information see "Modifying the GUI" in the documentation -->
         <modifier key="langDisplayType" value="default"/>
         <modifier key="layoutAnchor" value="CENTER"/>
         <modifier key="headingPanelCounter" value="progressbar"/>
@@ -62,11 +61,13 @@
         <langpack iso3="srp"/>
         <langpack iso3="ces"/>
         <langpack iso3="kor"/>
-        <langpack iso3="glg"/>
     </locale>
 
     <!-- The resources needed by the various panels -->
     <resources>
+        <res id="packsLang.xml_cze" src="i18n/packsLang.xml_cze" />
+        <res id="packsLang.xml_deu" src="i18n/packsLang.xml_deu" />
+        <res id="packsLang.xml_eng" src="i18n/packsLang.xml_eng" />
         <res src="install-readme.html" id="HTMLInfoPanel.info"/>
         <res src="license.html" id="HTMLLicencePanel.licence"/>
         <res src="splash-3.10.png" id="installer.langsel.img"/>
@@ -113,7 +114,7 @@
     <packs>
 
         <!-- The core files -->
-        <pack name="Core" required="yes">
+        <pack id="pack.core" name="Core" required="yes">
             <description>The IzPack core files.</description>
             <fileset dir="" override="true">
                 <include name="README.md"/>
@@ -121,61 +122,39 @@
                 <include name="KEYS"/>
                 <include name="NOTICE"/>
                 <include name="bin/**"/>
+                <include name="icons/**"/>
                 <include name="lib/**"/>
                 <include name="legal/**"/>
                 <include name="schema/**"/>
             </fileset>
             <executable targetfile="$INSTALL_PATH/bin/compile" stage="never"/>
             <executable targetfile="$INSTALL_PATH/bin/start.sh" stage="never"/>
+            <updatecheck>
+                <exclude name="setup/**"/>
+            </updatecheck>
         </pack>
-
-        <!-- The documentation -->
-        <!-- <pack name="HTML Documentation" required="no">
-            <description>The IzPack documentation (HTML version).</description>
-            <fileset dir="" targetdir="$INSTALL_PATH">
-                <include name="doc/izpack/html/**/*"/>
-            </fileset>
-        </pack>
-        <pack name="PDF Documentation" required="no">
-            <description>The IzPack documentation (PDF version).</description>
-            <fileset dir="" targetdir="$INSTALL_PATH">
-                <include name="doc/izpack/pdf/**/*"/>
-            </fileset>
-        </pack>
-        <pack name="Javadocs Documentation" required="no">
-            <description>The IzPack Java documentation (Javadocs for IzPack developers).</description>
-            <fileset dir="" targetdir="$INSTALL_PATH">
-                <include name="doc/izpack/javadoc/**/*"/>
-            </fileset>
-        </pack> -->
 
         <!-- Utilities pack -->
-        <pack name="Utilities" required="no">
-            <description>IzPack utilities (izpack2exe, izpack2app, izpack2jnlp)</description>
+        <pack id="pack.experimental" name="Experimental tools" required="no">
+            <description>This pack contains several experimental utilities (izpack2exe, izpack2app, izpack2jnlp).</description>
             <fileset dir="" override="true">
                 <include name="utils/**/*"/>
             </fileset>
             <executable
-                    targetfile="$INSTALL_PATH/utils/wrappers/izpack2app/Mac-App-Template/Contents/MacOS/JavaApplicationStub"
+                    targetfile="$INSTALL_PATH/utils/wrappers/izpack2app/Mac-App-Template/Contents/MacOS/universalJavaApplicationStub"
                     stage="never"/>
         </pack>
-
-        <!-- A trivial sample to get started -->
-        <!-- <pack name="Sample" required="no">
-            <description>A sample installation.</description>
-            <fileset dir="" targetdir="$INSTALL_PATH">
-                <include name="sample/**/*"/>
-            </fileset>
-        </pack> -->
 
     </packs>
 
     <!-- The native libraries to add -->
     <natives>
-        <native type="izpack" name="ShellLink.dll"/>
-        <native type="izpack" name="ShellLink_x64.dll"/>
-        <native type="izpack" name="WinSetupAPI.dll"/>
-        <native type="izpack" name="WinSetupAPI_x64.dll"/>
+        <native type="izpack" name="ShellLink.dll">
+            <os family="windows"/>
+        </native>
+        <native type="izpack" name="ShellLink_x64.dll">
+            <os family="windows"/>
+        </native>
         <native type="3rdparty" name="COIOSHelper.dll" uninstaller="true">
             <os family="windows"/>
         </native>

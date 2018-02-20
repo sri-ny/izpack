@@ -42,7 +42,6 @@
     <str id="CheckedHelloPanel.headline" txt="ようこそ"/>
     <str id="CompilePanel.headline" txt="Java のソースをコンパイル"/>
     <str id="ConditionalUserInputPanel.headline" txt="ユーザデータ"/>
-    <str id="ExtendedInstallPanel.headline" txt="インストールと設定"/>
     <str id="FinishPanel.headline" txt="インストール完了"/>
     <str id="HelloPanel.headline" txt="ようこそ"/>
     <str id="HTMLInfoPanel.headline" txt="情報"/>
@@ -107,6 +106,10 @@
     <str id="installer.step" txt="ステップ"/>
     <str id="installer.of" txt="/"/>
     <str id="installer.Message" txt="メッセージ"/>
+    <str id="installer.started" txt="Installation started"/>
+    <str id="installer.platform" txt="Platform: {0}"/>
+    <str id="installer.version" txt="Framework: {0}"/>
+    <str id="installer.finished" txt="Installation finished"/>
 
     <!-- Uninstaller specific strings -->
     <str id="uninstaller.warning" txt="この操作は、インストール済のアプリケーションを削除します!"/>

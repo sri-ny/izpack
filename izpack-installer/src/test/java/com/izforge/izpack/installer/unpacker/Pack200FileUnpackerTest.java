@@ -21,30 +21,22 @@
 
 package com.izforge.izpack.installer.unpacker;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.zip.ZipEntry;
-
-import org.mockito.Mockito;
-
+import com.izforge.izpack.api.data.Blockable;
+import com.izforge.izpack.api.data.OverrideType;
+import com.izforge.izpack.api.data.PackFile;
 import com.izforge.izpack.util.IoHelper;
 import com.izforge.izpack.util.os.FileQueue;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.*;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Pack200FileUnpacker} class.
@@ -53,6 +45,8 @@ import com.izforge.izpack.util.os.FileQueue;
  */
 public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
 {
+    private PackFile packFile;
+    private File sourceFile;
 
     /**
      * Verifies the target matches the source.
@@ -72,9 +66,54 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
         assertArrayEquals(sourceBytes, targetBytes);
     }
 
+    @Override
+    protected InputStream createPackStream(File source) throws IOException
+    {
+        File tmpfile = null;
+        JarFile jar = null;
+
+        try
+        {
+            tmpfile = File.createTempFile("izpack-compress", ".pack200", FileUtils.getTempDirectory());
+            CountingOutputStream proxyOutputStream = new CountingOutputStream(FileUtils.openOutputStream(tmpfile));
+            OutputStream bufferedStream = IOUtils.buffer(proxyOutputStream);
+
+            Pack200.Packer packer = createPack200Packer(this.packFile);
+            jar = new JarFile(this.packFile.getFile());
+            packer.pack(jar, bufferedStream);
+
+            bufferedStream.flush();
+            this.packFile.setSize(proxyOutputStream.getByteCount());
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            IOUtils.copy(FileUtils.openInputStream(tmpfile), out);
+            out.close();
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+        finally
+        {
+            if (jar != null)
+            {
+                jar.close();
+            }
+            FileUtils.deleteQuietly(tmpfile);
+        }
+    }
+
+    private Pack200.Packer createPack200Packer(PackFile packFile)
+    {
+        Pack200.Packer packer = Pack200.newPacker();
+        Map<String, String> defaultPackerProperties = packer.properties();
+        Map<String,String> localPackerProperties = packFile.getPack200Properties();
+        if (localPackerProperties != null)
+        {
+            defaultPackerProperties.putAll(localPackerProperties);
+        }
+        return packer;
+    }
+
     /**
      * Helper to create an unpacker.
-     *
      *
      * @param sourceDir the source directory
      * @param queue the file queue. May be {@code null}
@@ -84,19 +123,7 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
     protected FileUnpacker createUnpacker(File sourceDir, FileQueue queue) throws IOException
     {
         PackResources resources = Mockito.mock(PackResources.class);
-        JarInputStream stream = new JarInputStream(new FileInputStream(new File(sourceDir, "installer.jar")));
-        JarEntry entry;
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        while ((entry = stream.getNextJarEntry()) != null)
-        {
-            if (entry.getName().endsWith("packs/pack200-1"))
-            {
-                IoHelper.copyStream(stream, bytes);
-                break;
-            }
-        }
-        when(resources.getInputStream("packs/pack200-1")).thenReturn(new ByteArrayInputStream(bytes.toByteArray()));
-        return new Pack200FileUnpacker(getCancellable(), resources, Pack200.newUnpacker(), queue);
+        return new Pack200FileUnpacker(getCancellable(), resources, queue);
     }
 
     /**
@@ -104,29 +131,27 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
      *
      * @param baseDir the base directory
      * @return the source file
-     * @throws java.io.IOException for any I/O error
+     * @throws IOException for any I/O error
      */
     @Override
     protected File createSourceFile(File baseDir) throws IOException
     {
         File source = super.createSourceFile(baseDir);
-        Pack200.Packer packer = Pack200.newPacker();
-        File src = new File(baseDir, "source.jar");
-        JarOutputStream srcJar = new JarOutputStream(new FileOutputStream(src));
 
+        this.sourceFile = new File(baseDir, "source.jar");
+        JarOutputStream srcJar = new JarOutputStream(new FileOutputStream(this.sourceFile));
         FileInputStream stream = new FileInputStream(source);
-        IoHelper.copyStreamToJar(stream, srcJar, source.getName(), source.lastModified());
-        srcJar.close();
+        try
+        {
+            IoHelper.copyStreamToJar(stream, srcJar, source.getName(), source.lastModified());
+        }
+        finally
+        {
+            IOUtils.closeQuietly(stream);
+            IOUtils.closeQuietly(srcJar);
+        }
 
-        JarOutputStream installerJar = new JarOutputStream(
-                new FileOutputStream(new File(baseDir, "installer.jar")));
-        installerJar.putNextEntry(new ZipEntry("/resources/packs/pack200-1"));
-        JarFile jar = new JarFile(src);
-        packer.pack(jar, installerJar);
-        jar.close();
-        installerJar.closeEntry();
-        installerJar.close();
-        return src;
+        return this.sourceFile;
     }
 
     /**
@@ -138,21 +163,6 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
     protected File getTargetFile(File baseDir)
     {
         return new File(baseDir, "target.jar");
-    }
-
-    /**
-     * Creates a pack file stream.
-     *
-     * @param source the source file
-     * @return a new stream
-     * @throws IOException for any I/O error
-     */
-    @Override
-    protected ObjectInputStream createPackStream(File source) throws IOException
-    {
-        ObjectInputStream stream = Mockito.mock(ObjectInputStream.class);
-        when(stream.readInt()).thenReturn(1);
-        return stream;
     }
 
     /**
@@ -174,7 +184,7 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
             {
                 if (entry.getName().endsWith(name))
                 {
-                    IoHelper.copyStream(stream, bytes);
+                    IOUtils.copy(stream, bytes);
                     return bytes.toByteArray();
                 }
             }
@@ -187,4 +197,13 @@ public class Pack200FileUnpackerTest extends AbstractFileUnpackerTest
         return null;
     }
 
+    @Override
+    protected PackFile createPackFile(File baseDir, File source, File target, Blockable blockable) throws IOException
+    {
+        PackFile packFile = new PackFile(baseDir, source, target.getName(), null, OverrideType.OVERRIDE_TRUE,
+                        null, blockable, new HashMap<String, String>());
+        packFile.setStreamResourceName("packs/pack200-" + packFile.getId());
+        packFile.setStreamOffset(0);
+        return (this.packFile = packFile);
+    }
 }

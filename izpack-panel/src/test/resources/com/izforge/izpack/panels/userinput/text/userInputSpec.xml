@@ -18,7 +18,7 @@
   ~ limitations under the License.
   -->
 
-<izpack:userInput version="5.0"
+<izpack:userinput version="5.0"
                   xmlns:izpack="http://izpack.org/schema/userinput"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://izpack.org/schema/userinput http://izpack.org/schema/5.0/izpack-userinput-5.0.xsd">
@@ -34,4 +34,4 @@
             <spec txt="text3:" size="20" set="${text3value}"/>
         </field>
     </panel>
-</izpack:userInput>
+</izpack:userinput>

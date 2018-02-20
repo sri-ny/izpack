@@ -21,11 +21,12 @@
 
 package com.izforge.izpack.installer.web;
 
+import com.izforge.izpack.api.data.Pack;
+import org.apache.commons.io.input.CountingInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-
-import com.izforge.izpack.api.data.Pack;
 
 /**
  * Wraps an InputStream in order to track how much bytes are being read, and
@@ -38,8 +39,7 @@ import com.izforge.izpack.api.data.Pack;
  */
 public class LoggedInputStream extends InputStream
 {
-    private long bytesRead = 0;
-    private InputStream is;
+    private CountingInputStream is;
     private DownloadPanel downloader;
     private volatile boolean cancelled = false;
     private long lastTime = -1;
@@ -56,8 +56,7 @@ public class LoggedInputStream extends InputStream
         {
             throw new RuntimeException("Unable to connect");
         }
-        this.is = is;
-        // this.webAccessor = webAccessor;
+        this.is = new CountingInputStream(is);
 
         String sizeStr;
         if (webAccessor.getContentLength() > 0)
@@ -116,10 +115,6 @@ public class LoggedInputStream extends InputStream
     public int read(byte[] b, int off, int len) throws IOException
     {
         int bytes = is.read(b, off, len);
-        if (bytes > 0)
-        {
-            bytesRead += bytes;
-        }
         update();
         return bytes;
     }
@@ -127,26 +122,13 @@ public class LoggedInputStream extends InputStream
     public int read(byte[] b) throws IOException
     {
         int bytes = is.read(b);
-        if (bytes > 0)
-        {
-            bytesRead += bytes;
-        }
         update();
         return bytes;
-    }
-
-    public long getBytesRead()
-    {
-        return bytesRead;
     }
 
     public int read() throws IOException
     {
         int bytes = is.read();
-        if (bytes > 0)
-        {
-            bytesRead += 1;
-        }
         update();
         return bytes;
     }
@@ -158,6 +140,8 @@ public class LoggedInputStream extends InputStream
      */
     private void update() throws IOException
     {
+        long bytesRead = is.getByteCount();
+
         if (lastTime > 0)
         {
             long currTime = System.currentTimeMillis();

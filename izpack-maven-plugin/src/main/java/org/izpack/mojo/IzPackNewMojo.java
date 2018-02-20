@@ -26,12 +26,14 @@ import com.izforge.izpack.compiler.container.CompilerContainer;
 import com.izforge.izpack.compiler.data.CompilerData;
 import com.izforge.izpack.compiler.data.PropertyManager;
 import com.izforge.izpack.compiler.logging.MavenStyleLogFormatter;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
@@ -46,129 +48,96 @@ import java.util.logging.Level;
  * Mojo for izpack
  *
  * @author Anthonin Bonnefoy
- * @goal izpack
- * @phase package
- * @requiresProject
- * @threadSafe
- * @requiresDependencyResolution test
  */
+@Mojo( name = "izpack", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true,
+       requiresDependencyResolution = ResolutionScope.TEST)
 public class IzPackNewMojo extends AbstractMojo
 {
-
     /**
      * The Maven Session Object
-     *
-     * @parameter property="session" default-value="${session}"
-     * @required
-     * @readonly
      */
+    @Parameter( property = "session", required = true, readonly = true, defaultValue = "${session}" )
     private MavenSession session;
 	
     /**
      * The Maven Project Object
-     *
-     * @parameter property="project" default-value="${project}"
-     * @required
-     * @readonly
      */
+    @Parameter( property = "project", required = true, readonly = true, defaultValue = "${project}" )
     private MavenProject project;
 
     /**
      * Maven ProjectHelper.
-     *
-     * @component
-     * @readonly
      */
+    @Component
     private MavenProjectHelper projectHelper;
 
     /**
-     * Format compression. Choices are bzip2, default
-     *
-     * @parameter default-value="default"
+     * Format compression. Choices are default (no compression), gzip, bzip2, xz, lzma, deflate
      */
+    @Parameter( defaultValue = "default" )
     private String comprFormat;
 
     /**
-     * Kind of installation. Choices are standard (default) or web
-     *
-     * @parameter default-value="standard"
+     * Kind of installation. Choices are standard (default - file installer) or web
      */
+    @Parameter( defaultValue = "standard" )
     private String kind;
 
     /**
      * Location of the IzPack installation file
-     *
-     * @parameter default-value="${basedir}/src/main/izpack/install.xml"
      */
-    private String installFile;
+    @Parameter( required = true, defaultValue = "${basedir}/src/main/izpack/install.xml" )
+    private File installFile;
 
     /**
      * Base directory of compilation process
-     *
-     * @parameter default-value="${project.build.directory}/staging"
      */
-    private String baseDir;
+    @Parameter( defaultValue = "${project.build.directory}/staging" )
+    private File baseDir;
 
     /**
      * Output where compilation result will be situate
-     *
-     * @parameter
-     * @deprecated Use outputDirectory, finalName and optional classifier instead
      */
-    private String output;
+    @Deprecated
+    @Parameter
+    private File output;
 
     /**
      * Whether to automatically create parent directories of the output file
-     *
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false" )
     private boolean mkdirs;
 
     /**
-     * Specifies that the XML parser will validate each descriptor using W3C XML Schema as they are parsed.
-     * By default the value of this is set to false.
-     *
-     * @parameter default-value="true"
-     */
-    private boolean validating;
-
-    /**
      * Compression level of the installation. Deactivated by default (-1)
-     *
-     * @parameter default-value="-1"
      */
+    @Parameter( defaultValue = "-1" )
     private int comprLevel;
 
     /**
      * Whether to automatically include project.url from Maven into
      * IzPack info header
-     *
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false" )
     private boolean autoIncludeUrl;
 
     /**
      * Whether to automatically include developer list from Maven into
      * IzPack info header
-     *
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false" )
     private boolean autoIncludeDevelopers;
 
     /**
      * Directory containing the generated JAR.
-     *
-     * @parameter default-value="${project.build.directory}"
-     * @required
      */
+    @Parameter( defaultValue = "${project.build.directory}", required = true)
     private File outputDirectory;
 
     /**
      * Name of the generated JAR.
-     *
-     * @parameter alias="jarName" property="jar.finalName" default-value="${project.build.finalName}"
-     * @required
      */
+    @Parameter( alias = "jarName", property = "jar.finalName", defaultValue = "${project.build.finalName}")
     private String finalName;
 
     /**
@@ -176,18 +145,16 @@ public class IzPackNewMojo extends AbstractMojo
      * Furthermore, the output file name gets -<i>classifier</i> as suffix.
      * If this is not given,it will merely be written to the output directory
      * according to the finalName.
-     *
-     * @parameter
      */
+    @Parameter
     private String classifier;
 
     /**
      * Whether to attach the generated installer jar to the project
      * as artifact if a classifier is specified.
      * This has no effect if no classifier was specified.
-     *
-     * @parameter default-value="true"
      */
+    @Parameter( defaultValue = "true")
     private boolean enableAttachArtifact;
 
     /**
@@ -196,9 +163,8 @@ public class IzPackNewMojo extends AbstractMojo
      * This will set the artifact file to the given name based on
      * <i>outputDirectory</i> + <i>finalName</i> or on <i>output</i>.
      * This has no effect if a classifier was specified.
-     *
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false")
     private boolean enableOverrideArtifact;
 
     private PropertyManager propertyManager;
@@ -209,7 +175,7 @@ public class IzPackNewMojo extends AbstractMojo
 
         CompilerData compilerData = initCompilerData(jarFile);
         CompilerContainer compilerContainer = new CompilerContainer();
-        compilerContainer.addConfig("installFile", installFile);
+        compilerContainer.addConfig("installFile", installFile.getPath());
         compilerContainer.getComponent(IzpackProjectInstaller.class);
         compilerContainer.addComponent(CompilerData.class, compilerData);
         compilerContainer.addComponent(Handler.class, createLogHandler());
@@ -226,7 +192,7 @@ public class IzPackNewMojo extends AbstractMojo
         catch ( CompilerException e )
         {
             //TODO: This might be enhanced with other exceptions which
-            // should be handled like CompilerExecptions
+            // should be handled like CompilerException
             throw new MojoFailureException( "Failure during compilation process", e );
         }
         catch ( Exception e )
@@ -245,7 +211,9 @@ public class IzPackNewMojo extends AbstractMojo
         {
             if (enableOverrideArtifact)
             {
-                project.getArtifact().setFile(jarFile);
+                Artifact artifact = project.getArtifact();
+                artifact.setArtifactId(finalName);
+                artifact.setFile(jarFile);
             }
         }
     }
@@ -256,7 +224,7 @@ public class IzPackNewMojo extends AbstractMojo
 
         if (output != null)
         {
-            file = new File(output);
+            file = output;
         }
         else
         {
@@ -316,7 +284,8 @@ public class IzPackNewMojo extends AbstractMojo
             {
                 if (project.getDevelopers() != null)
                 {
-                    for (Developer dev : (List<Developer>) project.getDevelopers())
+                    //noinspection unchecked
+                    for (Developer dev : project.getDevelopers())
                     {
                         info.addAuthor(new Info.Author(dev.getName(), dev.getEmail()));
                     }
@@ -327,8 +296,8 @@ public class IzPackNewMojo extends AbstractMojo
                 info.setAppURL(project.getUrl());
             }
         }
-        return new CompilerData(comprFormat, kind, installFile, null, baseDir, jarFile.getPath(),
-                                mkdirs, validating, comprLevel, info);
+        return new CompilerData(comprFormat, kind, installFile.getPath(), null, baseDir.getPath(), jarFile.getPath(),
+                                mkdirs, comprLevel, info);
     }
 
     private Handler createLogHandler()

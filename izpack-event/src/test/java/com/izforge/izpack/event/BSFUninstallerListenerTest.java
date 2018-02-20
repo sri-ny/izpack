@@ -133,7 +133,7 @@ public class BSFUninstallerListenerTest
         // hack to pass additional parameters to script. TODO
 
         assertFileNotExists(installDir, "beforedeletion" + suffix);
-        listener.beforeDelete(files);
+        listener.beforeDelete(files, Mockito.mock(ProgressListener.class));
         assertFileExists(installDir, "beforedeletion" + suffix);
 
         assertFileNotExists(installDir, "beforedelete" + suffix);
@@ -197,7 +197,7 @@ public class BSFUninstallerListenerTest
         Mockito.when(resources.getInputStream(BSFInstallerListener.SPEC_FILE_NAME)).thenReturn(specStream);
 
         UninstallData uninstallData = new UninstallData();
-        BSFInstallerListener listener = new BSFInstallerListener(installData, replacer, resources,
+        BSFInstallerListener listener = new BSFInstallerListener(installData, replacer, variables, resources,
                                                                  uninstallData, new ProgressNotifiersImpl());
         listener.initialise();
         Pack pack = new Pack(packName, null, null, null, null, true, true, false, null, true, 0);

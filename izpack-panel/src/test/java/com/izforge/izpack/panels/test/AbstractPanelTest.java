@@ -20,13 +20,18 @@
  */
 package com.izforge.izpack.panels.test;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import com.izforge.izpack.installer.gui.IzPanel;
+import org.fest.swing.fixture.ContainerFixture;
 import org.fest.swing.fixture.FrameFixture;
+import org.fest.swing.timing.Condition;
+import org.fest.swing.timing.Pause;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -253,7 +258,7 @@ public class AbstractPanelTest
                 {
                     panels = new IzPanels(panelViews, container, installData);
                     DefaultNavigator navigator = new DefaultNavigator(panels, icons, installData);
-                    InstallerFrame frame = new InstallerFrame("A title", installData, rules,
+                    InstallerFrame frame = new InstallerFrame(installData, rules,
                                                               icons, panels, uninstallDataWriter, resourceManager,
                                                               Mockito.mock(UninstallData.class),
                                                               Mockito.mock(Housekeeper.class), navigator,
@@ -274,6 +279,7 @@ public class AbstractPanelTest
         InstallerController controller = new InstallerController(configuratorWithRules, frame);
         controller.buildInstallation();
         controller.launchInstallation();
+
         return frameFixture;
     }
 
@@ -301,5 +307,54 @@ public class AbstractPanelTest
         return new IzPanelView(panel, factory, installData);
     }
 
+    /**
+     * Helper which waits until a specific IzPanel class is shown.
+     *
+     * @param panelClass The IzPanel class to wait for.
+     */
+    protected void waitForPanel(Class<? extends IzPanel> panelClass)
+    {
+        if (null == frameFixture)
+        {
+            throw new IzPackException("Can't wait for panel, frame fixture not available");
+        }
+
+        Pause.pause(new UntilPanelIsShowing(frameFixture, panelClass));
+    }
+
+    /**
+     * Condition which waits until a specific IzPanel is shown.
+     */
+    protected static class UntilPanelIsShowing extends Condition
+    {
+
+        private final Class<? extends IzPanel> panelClass;
+        private final ContainerFixture fixture;
+
+        /**
+         * Creates a condition for the given {@code fixture} and {@code panelClass}.
+         *
+         * @param fixture A container fixture (needed to gain access to the robot instance).
+         * @param panelClass The IzPanel class to wait for.
+         */
+        public UntilPanelIsShowing(ContainerFixture fixture, Class<? extends IzPanel> panelClass)
+        {
+            super("Waiting for panel " + panelClass.getSimpleName());
+
+            this.fixture = fixture;
+            this.panelClass = panelClass;
+        }
+
+        /**
+         * @return True, if a component which is an instance of the given
+         *      {@code panelClass} is visible.
+         */
+        @Override
+        public boolean test()
+        {
+            Component component = fixture.robot.finder().findByType(panelClass, true);
+            return (null != component);
+        }
+    }
 }
 
