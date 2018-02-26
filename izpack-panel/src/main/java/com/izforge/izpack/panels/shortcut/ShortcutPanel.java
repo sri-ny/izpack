@@ -211,24 +211,11 @@ public class ShortcutPanel extends IzPanel implements ActionListener, ListSelect
     }
 
     @Override
-    public void panelDeactivate()
-    {
-        if (shortcutPanelLogic.isPreviousDisabled())
-        {
-            parent.unlockPrevButton();
-        }
-    }
-
-    @Override
     public void panelActivate()
     {
         try
         {
             shortcutPanelLogic.refreshShortcutData();
-            if (shortcutPanelLogic.isPreviousDisabled())
-            {
-                parent.lockPrevButton();
-            }
             allowDesktopShortcut.setVisible(shortcutPanelLogic.hasDesktopShortcuts());
             allowStartupShortcut.setVisible(shortcutPanelLogic.hasStartupShortcuts());
             usersPanel.setVisible(shortcutPanelLogic.isSupportingMultipleUsers());
