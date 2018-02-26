@@ -280,6 +280,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="Siap untuk pemasangan. Daftar data yang penting terdapat di bawah. Tekan &quot;Berikut&quot; untuk memulai pemasangan."/>
+    <str id="SummaryPanel.next" txt="Berikut"/>
     <str id="TargetPanel.summaryCaption" txt="Lokasi pemasangan"/>
     <str id="JDKPathPanel.summaryCaption" txt="Lokasi JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Paket-paket pemasangan yang dipilih"/>

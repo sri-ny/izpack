@@ -240,6 +240,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="Färdig att installera. Viktiga inställningar anges nedan. Tryck &quot;Nästa&quot; för att starta installationen, "/>
+    <str id="SummaryPanel.next" txt="Nästa"/>
     <str id="TargetPanel.summaryCaption" txt="Sökväg för installationen"/>
     <str id="JDKPathPanel.summaryCaption" txt="Sökväg till JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Valda paket för installering"/>

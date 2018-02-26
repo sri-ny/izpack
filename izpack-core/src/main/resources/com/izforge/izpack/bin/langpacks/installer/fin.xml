@@ -291,6 +291,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Valmis asennukseen. Tärkeät tiedot on listattu alla. Paina &quot;Seuraava&quot; aloittaaksesi asennuksen."/>
+    <str id="SummaryPanel.next" txt="Seuraava"/>
     <str id="TargetPanel.summaryCaption" txt="Asennuspolku"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK polku"/>
     <str id="PacksPanel.summaryCaption" txt="Valitut asennuspaketit"/>

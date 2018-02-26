@@ -300,6 +300,7 @@
 
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info" txt="次の設定でインストールします。よければ次へボタンを押してください。"/>
+    <str id="SummaryPanel.next" txt="次へ"/>
     <str id="TargetPanel.summaryCaption" txt="インストールパス"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK パス"/>
     <str id="PacksPanel.summaryCaption" txt="選択したインストール項目"/>

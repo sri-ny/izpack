@@ -275,6 +275,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="L'installazione proseguirà con le impostazioni indicate qui sotto. Selezionare &quot;Avanti&quot; per iniziare l'installazione."/>
+    <str id="SummaryPanel.next" txt="Avanti"/>
     <str id="TargetPanel.summaryCaption" txt="Percorso installazione"/>
     <str id="JDKPathPanel.summaryCaption" txt="Percorso JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Componenti selezionati per l'installazione"/>

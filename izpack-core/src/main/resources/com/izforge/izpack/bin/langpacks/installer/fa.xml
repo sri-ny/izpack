@@ -247,6 +247,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="آمادۀ نصب... فهرست اطلاعات مهم در زیر آمده. برای آغاز عملیات نصب دکمۀ &quot;Next&quot; را بزنید."/>
+    <str id="SummaryPanel.next" txt="بعدی"/>
     <str id="TargetPanel.summaryCaption" txt="مسیر نصب"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK مسیر"/>
     <str id="PacksPanel.summaryCaption" txt="بسته های نصب انتخاب شده"/>

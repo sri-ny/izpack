@@ -316,7 +316,7 @@ file we looked for -->
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Installasjonen vil fortsette med følgende innstillinger. Trykk på Neste for å fortsette."/>
-
+    <str id="SummaryPanel.next" txt="Neste"/>
     <str id="TargetPanel.summaryCaption" txt="Installasjonsmål"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK-filsti"/>
     <str id="PacksPanel.summaryCaption" txt="Valgte installasjonspakker"/>

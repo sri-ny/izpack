@@ -289,7 +289,7 @@ file we looked for -->
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Alle für die Installation notwendigen Daten liegen nun vor. Die wichtigsten sind nachfolgend aufgeführt. Klicken Sie auf &quot;Weiter&quot;, um mit der Installation zu beginnen. "/>
-
+    <str id="SummaryPanel.next" txt="Weiter"/>
     <str id="TargetPanel.summaryCaption" txt="Installationspfad"/>
     <str id="JDKPathPanel.summaryCaption" txt="Pfad des JDK-Verzeichnisses"/>
     <str id="PacksPanel.summaryCaption" txt="Gewählte Installationspakete"/>

@@ -90,8 +90,19 @@ public class SummaryPanel extends IzPanel
     public void panelActivate()
     {
         super.panelActivate();
+        String nextText = getString("SummaryPanel.next");
+        if (nextText == null)
+        {
+            nextText = getString("installer.next");
+        }
+        parent.getNavigator().setNextText(nextText);
         textArea.setText(SummaryProcessor.getSummary(this.installData));
         textArea.setCaretPosition(0);
     }
 
+    public void panelDeactivate()
+    {
+        super.panelDeactivate();
+        parent.getNavigator().setNextText(getString("installer.next"));
+    }
 }
