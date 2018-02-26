@@ -50,6 +50,8 @@ public class ShortcutConstants
 
     static final String SPEC_KEY_PACKS = "createForPack";
 
+    static final String SPEC_KEY_PREVIOUS_DISABLED = "previousDisabled";
+
     // ------------------------------------------------------
     // spec file key attributes
     // ------------------------------------------------------

@@ -92,6 +92,11 @@ public class ShortcutPanelLogic implements CleanupClient
     private boolean skipIfNotSupported = false;
 
     /**
+     * Tells whether to disable previous nav button
+     */
+    private boolean previousDisabled = false;
+
+    /**
      * the one shortcut instance for reuse in many locations
      */
     private Shortcut shortcut;
@@ -456,6 +461,14 @@ public class ShortcutPanelLogic implements CleanupClient
     }
 
     /**
+     * @return <code>true</code> if previous nav button is disabled otherwise <code>false</code>
+     */
+    public boolean isPreviousDisabled()
+    {
+        return previousDisabled;
+    }
+
+    /**
      * @return <code>true</code> if shortcut creation is supported otherwise <code>false</code>
      */
     public boolean isSupported()
@@ -786,6 +799,7 @@ public class ShortcutPanelLogic implements CleanupClient
         simulateNotSupported = (spec.getFirstChildNamed(SPEC_KEY_NOT_SUPPORTED) != null);
         defaultCurrentUserFlag = (spec.getFirstChildNamed(SPEC_KEY_DEF_CUR_USER) != null);
         skipIfNotSupported = (spec.getFirstChildNamed(SPEC_KEY_SKIP_IFNOT_SUPPORTED) != null);
+        previousDisabled = (spec.getFirstChildNamed(SPEC_KEY_PREVIOUS_DISABLED) != null);
         setCreateShortcutsImmediately(spec.getFirstChildNamed(SPEC_KEY_LATE_INSTALL) == null);
 
 
