@@ -21,7 +21,6 @@ package com.izforge.izpack.merge.resolve;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -139,21 +138,18 @@ public class PathResolver
             result.add(path);
         }
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        if (loader instanceof URLClassLoader)
+        try
         {
-            try
+            Enumeration<URL> iterator = loader.getResources(resourcePath);
+            while (iterator.hasMoreElements())
             {
-                Enumeration<URL> iterator = ((URLClassLoader) loader).findResources(resourcePath);
-                while (iterator.hasMoreElements())
-                {
-                    URL url = iterator.nextElement();
-                    result.add(url);
-                }
+                URL url = iterator.nextElement();
+                result.add(url);
             }
-            catch (IOException e)
-            {
-                throw new IzPackException(e);
-            }
+        }
+        catch (IOException e)
+        {
+            throw new IzPackException(e);
         }
         return result;
     }
