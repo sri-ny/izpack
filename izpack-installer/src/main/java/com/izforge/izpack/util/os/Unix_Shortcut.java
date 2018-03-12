@@ -68,6 +68,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -409,7 +410,44 @@ public class Unix_Shortcut extends Shortcut
     {
         return filename.replace(" ", "\\ ");
     }
+    
+    
+    /**
+     * Quotes a command in order to make it usable as a parameter for, e.g.,
+     * {@code su} command.
+     * @param cmd command to quote
+     * @return quoted command
+     */
+    private String[] quoteCommand(String... cmd)
+    {
+        String[] quoted = Arrays.copyOf(cmd, cmd.length);
+        quoted[0] = "\"" + cmd[0];
+        quoted[cmd.length - 1] = "\"" + cmd[cmd.length - 1];
+        return quoted;
+    }
 
+    
+    /**
+     * Returns value of the {@code SUDO_USER} enviroment variable. The variable
+     * is set when the installer is executed using {@code sudo} command.
+     * @return value of {@code SUDO_USER}
+     */
+    private UnixUser getSudoUser()
+    {
+        String printEnvCmd = UnixHelper.getCustomCommand("printenv");
+        String sudoUserName = FileExecutor.getExecOutput(
+                new String[]{printEnvCmd, "SUDO_USER"}, true).trim();
+        
+        for (UnixUser user : getUsers())
+        {
+            if (user.getName().equals(sudoUserName))
+            {
+                return user;
+            }
+        }
+        return null;
+    }
+    
 
     /**
      * overridden method
@@ -493,36 +531,67 @@ public class Unix_Shortcut extends Shortcut
             // Now install my Own with xdg-if available // Note the The reverse Uninstall-Task is on
             // TODO: "WHICH another place"
 
+            UnixUser sudoUser = getSudoUser();
+            
             String cmd = getXdgDesktopIconCmd();
             if (cmd != null)
             {
                 createExtXdgDesktopIconCmd(shortCutLocation);
-                // / TODO: DELETE the ScriptFiles
-                myInstallScript.appendln(new String[]{
+                
+                String[] installCmd = new String[]{
                     makeFilenameScriptable(myXdgDesktopIconCmd),
                     "install",
                     "--novendor",
-                    StringTool.escapeSpaces(writtenDesktopFile.toString())});
-                ShellScript myUninstallScript = new ShellScript();
-                myUninstallScript.appendln(new String[]{
+                    StringTool.escapeSpaces(writtenDesktopFile.toString())};
+                String[] uninstallCmd = new String[]{
                     makeFilenameScriptable(myXdgDesktopIconCmd),
                     "uninstall",
                     "--novendor",
-                    StringTool.escapeSpaces(writtenDesktopFile.toString())});
+                    StringTool.escapeSpaces(writtenDesktopFile.toString())};
+                
+                // / TODO: DELETE the ScriptFiles
+                ShellScript myUninstallScript = new ShellScript();
+                if (sudoUser != null)
+                {
+                    // make sudo user owner of shortcuts, execute as sudo user
+                    myInstallScript.append(new String[]{getSuCommand(), sudoUser.getName(), "-c"});
+                    myUninstallScript.append(new String[]{getSuCommand(), sudoUser.getName(), "-c"});
+                    installCmd = quoteCommand(installCmd);
+                    uninstallCmd = quoteCommand(uninstallCmd);
+                }
+                
+                myInstallScript.appendln(installCmd);
+                myUninstallScript.appendln(uninstallCmd);
                 uninstaller.addUninstallScript(myUninstallScript.getContentAsString());
             }
             else
             {
                 // otherwise copy to my desktop and add to uninstaller
+                String userHome = sudoUser != null ? sudoUser.getHome() : myHome;
                 File myDesktopFile;
                 do
                 {
-                    myDesktopFile = new File(myHome + FS + "Desktop" + writtenDesktopFile.getName()
-                                                     + "-" + System.currentTimeMillis() + DESKTOP_EXT);
+                    myDesktopFile = new File(userHome + FS + "Desktop" + FS
+                                                    + FilenameUtils.getBaseName(writtenDesktopFile.getName())
+                                                    + "-" + System.currentTimeMillis() + DESKTOP_EXT);
                 }
                 while (myDesktopFile.exists());
 
                 FileUtils.copyFile(writtenDesktopFile, myDesktopFile, false);
+                
+                // make sure about permissions and ownership
+                String chmodCmd = UnixHelper.getCustomCommand("chmod");
+                FileExecutor.getExecOutput(new String[]{chmodCmd, "u+x",
+                    StringTool.escapeSpaces(myDesktopFile.getPath())});
+                
+                if (sudoUser != null)
+                {
+                    // transfer ownership of shortcut to sudo user
+                    String chownCmd = UnixHelper.getCustomCommand("chown");
+                    FileExecutor.getExecOutput(new String[]{chownCmd, sudoUser.getName(),
+                        StringTool.escapeSpaces(myDesktopFile.getPath())});
+                }
+                
                 uninstaller.addFile(myDesktopFile.toString(), true);
             }
 
