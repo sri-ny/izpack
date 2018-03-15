@@ -141,8 +141,13 @@
     <str id="JDKPathPanel.badVersion1" txt="La versione della JDK selezionata non è corretta (disponibili: "/>
     <str id="JDKPathPanel.badVersion2" txt=" richiesta: "/>
     <str id="JDKPathPanel.badVersion3" txt=") usare comunquesta questa JDK?"/>
+    <str id="JDKPathPanel.badVersion4" txt="Continuare comunque? [y/n] [n]"/>
     <str id="JDKPathPanel.nonValidPathInReg"
          txt="Il registro di Windows contiene un percorso non valido per questa JDK. Volete usare comunque questa JDK?"/>
+    <str id="JDKPathPanel.jdkDownload"
+         txt="&lt;html&gt;&lt;p&gt;Questo software richiede una versione minima ${JDKPathPanel.minVersion} di Java Development Kit (JDK).&lt;p/&gt;
+         Qualora non sia installata, si prega di visitare &lt;a href='http://java.sun.com/javase/downloads/'&gt;http://java.sun.com/javase/downloads&lt;/a&gt;,
+         per ottenerla e installarla.&lt;/html&gt;"/> 
 
     <str id="PacksPanel.info" txt="Scegliere i componenti da installare:"/>
     <str id="PacksPanel.tip" txt="Nota: i componenti in grigio sono obbligatori."/>
@@ -343,4 +348,8 @@
     <str id="InstallationGroupPanel.colNameSize" txt="Dimensione"/>
 
     <str id="debug.changevariable" txt="modifica valore"/>
+
+    <str id="data.validation.error.title" txt="Validatione fallita"/>
+    <str id="data.validation.warning.title" txt="Avviso"/> 
+ 
 </izpack:langpack>
