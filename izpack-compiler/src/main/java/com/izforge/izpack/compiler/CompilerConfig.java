@@ -1014,7 +1014,7 @@ public class CompilerConfig extends Thread
         {
             for (TargetFileSet fs : readFileSets(packElement, baseDir))
             {
-                processFileSetChildren(fs, baseDir, pack);
+                processFileSetChildren(fs, baseDir, null, pack);
             }
         }
         catch (Exception e)
@@ -1023,7 +1023,7 @@ public class CompilerConfig extends Thread
         }
     }
 
-    private void processFileSetChildren(TargetFileSet fs, File baseDir, PackInfo pack) throws Exception
+    private void processFileSetChildren(TargetFileSet fs, File baseDir, List<OsModel> parentOsList, PackInfo pack) throws Exception
     {
         String[][] includedFilesAndDirs = new String[][]{
                 fs.getDirectoryScanner().getIncludedDirectories(),
@@ -1039,8 +1039,24 @@ public class CompilerConfig extends Thread
                     {
                         File file = new File(fs.getDir(), filePath);
                         String target = new File(fs.getTargetDir(), filePath).getPath();
+                        List<OsModel> osList = fs.getOsList();
+                        
+                        if (parentOsList != null && !parentOsList.isEmpty())
+                        {
+                            // get list of OS constraints safisfiying both parent's and fs's
+                            try
+                            {
+                                osList = OsConstraintHelper.commonOsList(parentOsList, fs.getOsList());
+                                logCombineOsLists(parentOsList, fs.getOsList(), osList);
+                            }
+                            catch (OsConstraintHelper.UnsatisfiableOsConstraintsException ex)
+                            {
+                                throw new CompilerException(ex.getMessage());
+                            }
+                        }
+                        
                         logAddingFile(file.toString(), target);
-                        pack.addFile(baseDir, file, target, fs.getOsList(),
+                        pack.addFile(baseDir, file, target, osList,
                                      fs.getOverride(), fs.getOverrideRenameTo(),
                                      fs.getBlockable(), fs.getAdditionals(), fs.getCondition(), fs.getPack200Properties());
                     }
@@ -1688,7 +1704,7 @@ public class CompilerConfig extends Thread
             {
                 for (IXMLElement fileSetNode : filesetNodes)
                 {
-                    processFileSetChildren(readArchiveFileSet(fileSetNode, baseTempDir, targetDir), baseTempDir, pack);
+                    processFileSetChildren(readArchiveFileSet(fileSetNode, baseTempDir, targetDir), baseTempDir, osList, pack);
                 }
             }
         }
@@ -3934,5 +3950,16 @@ public class CompilerConfig extends Thread
     {
         logger.log(Level.INFO, "Adding pack {0} containing {1} files",
                 new String[]{packInfo.getPack().getName(), Integer.toString(packInfo.getPackFiles().size())});
+    }
+    
+    private void logCombineOsLists(List<OsModel> parentOsList, List<OsModel> osList, List<OsModel> commonOsList)
+    {
+        logger.log(Level.INFO, "Combined parent''s OS constraints:\n\t{0}\nwith node''s:\n\t{1}\ninto:\n\t{2}",
+                new String[]{
+                    OsConstraintHelper.toOsContraintsString(parentOsList),
+                    OsConstraintHelper.toOsContraintsString(osList),
+                    OsConstraintHelper.toOsContraintsString(commonOsList)
+                }
+        );
     }
 }
