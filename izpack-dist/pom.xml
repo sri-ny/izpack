@@ -133,6 +133,7 @@
                 <version>${project.version}</version>
                 <configuration>
                     <comprLevel>9</comprLevel>
+                    <enableAttachArtifact>false</enableAttachArtifact>
                 </configuration>
                 <executions>
                     <execution>

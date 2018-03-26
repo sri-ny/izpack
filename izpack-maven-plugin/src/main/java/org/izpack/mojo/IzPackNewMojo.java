@@ -157,16 +157,6 @@ public class IzPackNewMojo extends AbstractMojo
     @Parameter( defaultValue = "true")
     private boolean enableAttachArtifact;
 
-    /**
-     * Whether to override the artifact file by the generated installer jar,
-     * if no classifier is specified.
-     * This will set the artifact file to the given name based on
-     * <i>outputDirectory</i> + <i>finalName</i> or on <i>output</i>.
-     * This has no effect if a classifier was specified.
-     */
-    @Parameter( defaultValue = "false")
-    private boolean enableOverrideArtifact;
-
     private PropertyManager propertyManager;
 
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -200,21 +190,9 @@ public class IzPackNewMojo extends AbstractMojo
             throw new MojoExecutionException( "Failure", e );
         }
 
-        if (classifier != null && !classifier.isEmpty())
+        if (enableAttachArtifact)
         {
-            if (enableAttachArtifact)
-            {
-                projectHelper.attachArtifact(project, "jar", classifier, jarFile);
-            }
-        }
-        else
-        {
-            if (enableOverrideArtifact)
-            {
-                Artifact artifact = project.getArtifact();
-                artifact.setArtifactId(finalName);
-                artifact.setFile(jarFile);
-            }
+            projectHelper.attachArtifact(project, "jar", classifier, jarFile);
         }
     }
 
