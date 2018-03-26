@@ -201,7 +201,7 @@ public class InstallationTest
         // Finish panel
         installerFrameFixture.button(GuiId.FINISH_PANEL_AUTO_BUTTON.id).click();
         Thread.sleep(800);
-        installerFrameFixture.fileChooser(GuiId.FINISH_PANEL_FILE_CHOOSER.id).fileNameTextBox().enterText("auto.xml");
+        installerFrameFixture.fileChooser(GuiId.FINISH_PANEL_FILE_CHOOSER.id).fileNameTextBox().setText("auto.xml");
         Thread.sleep(300);
         installerFrameFixture.fileChooser(GuiId.FINISH_PANEL_FILE_CHOOSER.id).approve();
         assertThat(new File(installPath, "auto.xml").exists(), is(true));

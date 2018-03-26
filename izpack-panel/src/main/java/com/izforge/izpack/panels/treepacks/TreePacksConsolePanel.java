@@ -193,7 +193,7 @@ public class TreePacksConsolePanel extends AbstractConsolePanel implements Conso
     public void printPackMenu()
     {
         int row = 0;
-        int totalSize = packsModel.getTotalByteSize();
+        long totalSize = packsModel.getTotalByteSize();
 
         for (Pack pack : packsModel.getVisiblePacks())
         {

@@ -30,12 +30,14 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 
 import org.fest.swing.exception.ComponentLookupException;
+import org.fest.swing.finder.JFileChooserFinder;
 import org.fest.swing.fixture.DialogFixture;
 import org.fest.swing.fixture.FrameFixture;
 import org.fest.swing.fixture.JComboBoxFixture;
@@ -43,7 +45,6 @@ import org.fest.swing.fixture.JFileChooserFixture;
 import org.fest.swing.fixture.JRadioButtonFixture;
 import org.fest.swing.fixture.JTextComponentFixture;
 import org.fest.swing.timing.Timeout;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -554,7 +555,8 @@ public class UserInputPanelTest extends AbstractPanelTest
         getResourceManager().setResourceBasePath("/com/izforge/izpack/panels/userinput/multifile/");
 
         InstallData installData = getInstallData();
-        String path = temporaryFolder.getRoot().getPath();
+        File tempFolder = temporaryFolder.getRoot();
+        String path = tempFolder.getPath();
         installData.setVariable("MY_DIR", path);
         assertTrue(new File(path, "fileA").createNewFile());
         File fileB = new File(path, "fileB");
@@ -564,23 +566,11 @@ public class UserInputPanelTest extends AbstractPanelTest
 
         // show the panel
         FrameFixture frame = showUserInputPanel("multifileinput");
-
-        frame.button(GuiId.BUTTON_BROWSE.id).click();
-        DialogFixture dialog = frame.dialog(Timeout.timeout(10000));
-
-        JFileChooserFixture fileBChooser = dialog.fileChooser();
-        fileBChooser.setCurrentDirectory(temporaryFolder.getRoot());
-        fileBChooser.selectFile(fileB);
-        fileBChooser.approveButton().click();
-
-        frame.button(GuiId.BUTTON_BROWSE.id).click();
-        dialog = frame.dialog(Timeout.timeout(10000));
-
-        JFileChooserFixture fileCChooser = dialog.fileChooser();
-        fileCChooser.setCurrentDirectory(temporaryFolder.getRoot());
-        fileCChooser.selectFile(fileC);
-        fileCChooser.approveButton().click();
-
+        
+        // select files
+        browseFileFromFileChooser(frame, tempFolder, fileB);
+        browseFileFromFileChooser(frame, tempFolder, fileC);
+        
         // move to the next panel and verify the variables have updated
         checkNavigateNext(frame);
 
@@ -837,6 +827,32 @@ public class UserInputPanelTest extends AbstractPanelTest
         panel.setPanelId(id);
         panel.setClassName(panelClass.getName());
         return panel;
+    }
+    
+    /**
+     * Clicks on "browse" button and selects the given file in
+     * given directory.<br>
+     * A Thread.sleep() is used to ensure the "selectFile" action
+     * is not launched while the current directory's update is
+     * not finished yet.
+     * 
+     * @param frame the frame from which the browse button is
+     * @param currentDirectory the directory of the file to select
+     * @param fileToSelect the file to select
+     * @throws InterruptedException if error occurs during Thread.sleep()
+     */
+    private void browseFileFromFileChooser(FrameFixture frame, File currentDirectory, 
+            File fileToSelect) throws InterruptedException 
+    {
+        frame.button(GuiId.BUTTON_BROWSE.id).click();
+        
+        JFileChooserFixture fileChooser = JFileChooserFinder.findFileChooser()
+                .withTimeout(10, TimeUnit.SECONDS)
+                .using(frame.robot);
+        
+        fileChooser.setCurrentDirectory(currentDirectory);
+        Thread.sleep(50);
+        fileChooser.selectFile(fileToSelect).approve();
     }
 
 }

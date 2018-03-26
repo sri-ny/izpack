@@ -8,41 +8,31 @@ install:
   - export PATH=${HOME}/mvn-home/bin:${PATH}
   - mvn -version
 
-# FIXME
-# Automatic GUI tests fail  on Travis
-# Failing command line: mvn verify -Pwith-gui-tests
-#addons:
-#  apt:
-#    packages:
-#      - fluxbox
+addons:
+  apt:
+    packages:
+      - fluxbox
 
 cache:
  directories:
    - $HOME/.m2/repository
 
-# FIXME
-# Automatic GUI tests fail on Travis
-# Failing command line: mvn verify -Pwith-gui-tests
-#before_script:
-#  - export DISPLAY=:99.0
-#  - sh -e /etc/init.d/xvfb start
-#  - fluxbox &> ~/fluxbox.log &
-#  - sleep 3
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - fluxbox &> ~/fluxbox.log &
+  - sleep 3
 
 matrix:
   include:
     - addons:
         apt:
           packages:
+            - fluxbox
             - openjdk-6-jdk
       jdk: openjdk6
       env: MVN_VERSION="3.2.5"
-    - addons:
-        apt:
-          packages:
-            - fluxbox
-            - openjdk-7-jdk
-      jdk: openjdk7
+    - jdk: openjdk7
       env: MVN_VERSION="3.3.9"
     - jdk: oraclejdk8
       env: MVN_VERSION="3.3.9"
@@ -57,9 +47,7 @@ env:
 
 script:
   - mvn -U clean verify
-# FIXME
-# Automatic GUI tests fail on Travis
-#  - mvn verify -Pwith-gui-tests
+  - mvn verify -Pwith-gui-tests
 
 notifications:
   email: false

@@ -23,7 +23,8 @@ public class RegistryValueTest {
 		String regValue = "CurrentUser";
 		Assert.assertEquals("USERNAME", new RegistryValue(regKey, regValue).resolve());
 		
-		Assert.assertEquals("%SystemRoot%\\MEMORY.DMP", new RegistryValue(regKey + "\\CrashControl", "DumpFile").resolve());
+//		Assert.assertEquals("%SystemRoot%\\MEMORY.DMP", new RegistryValue(regKey + "\\CrashControl", "DumpFile").resolve());
+		Assert.assertEquals("%SystemRoot%\\Minidump", new RegistryValue(regKey + "\\CrashControl", "MinidumpDir").resolve());
 		
 // This won't work			
 //			Assert.assertEquals("%SystemRoot%\\MEMORY.DMP", new RegistryValue(null, regKey, "CrashControl\\DumpFile").resolve());
