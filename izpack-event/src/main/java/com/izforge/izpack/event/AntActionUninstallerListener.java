@@ -220,7 +220,7 @@ public class AntActionUninstallerListener extends AbstractUninstallerListener
                     ByteArrayInputStream bin = new ByteArrayInputStream(content);
                     File buildFile = File.createTempFile("izpack_io", "xml");
                     buildFile.deleteOnExit();
-                    IOUtils.copy(is, new FileOutputStream(buildFile));
+                    IOUtils.copy(bin, new FileOutputStream(buildFile));
                     buildResource = buildFile.getAbsolutePath();
                 }
                 ois.close();
