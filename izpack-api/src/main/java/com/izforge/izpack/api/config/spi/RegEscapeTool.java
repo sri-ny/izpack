@@ -101,6 +101,9 @@ public class RegEscapeTool extends EscapeTool
         byte[] bytes = new byte[value.length()];
         int idx = 0;
         int shift = DIGIT_SIZE;
+        if (value.length() == 0) {
+        	return bytes;
+        }
 
         for (int i = 0; i < value.length(); i++)
         {
@@ -212,6 +215,9 @@ public class RegEscapeTool extends EscapeTool
     {
         String str;
 
+        if (bytes.length < 2) {
+        	return null;
+        }
         try
         {
             str = new String(bytes, 0, bytes.length - 2, HEX_CHARSET);
