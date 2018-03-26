@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -50,12 +51,18 @@ public class GUIPackResources extends AbstractPackResources
             baseName = baseName.substring(baseName.lastIndexOf('/'));
 
         String packFileName = baseName + ".pack-" + name + ".jar";
+        String path = null;
 
         // Look first in same directory as primary jar, then download it if not found
         File packLocalFile = new File(installerDir, packFileName);
         if (packLocalFile.exists() && packLocalFile.canRead())
         {
             logger.info("Found local pack " + packLocalFile.getAbsolutePath());
+            try {
+                path = "jar:" + packLocalFile.toURI().toURL() + "!/packs/pack-" + name;
+            } catch(MalformedURLException exception) {
+                throw new ResourceException("Malformed URL", exception);
+            }
         }
         else
         {
@@ -77,11 +84,13 @@ public class GUIPackResources extends AbstractPackResources
             {
                 throw new ResourceException("Failed to read " + webDirURL, exception);
             }
+
+            path = "jar:" + packLocalFile.getPath() + "!/packs/pack-" + name;
         }
 
         try
         {
-            URL url = new URL("jar:" + packLocalFile.toURI().toURL() + "!/packs/pack-" + name);
+            URL url = new URL(path);
             result = url.openStream();
         }
         catch (IOException exception)
