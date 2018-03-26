@@ -288,6 +288,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="A instalación procederá coas seguintes preseleccións. Presiona en Seguinte para comeza-la instalación, "/>
+    <str id="SummaryPanel.next" txt="Seguinte"/>
     <str id="TargetPanel.summaryCaption" txt="Ruta de Instalación"/>
     <str id="JDKPathPanel.summaryCaption" txt="Ruta do JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Paquetes de instalación escollidos"/>

@@ -168,6 +168,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Instalace bude nyní probíhat podle následujících voleb. Stiskni tlačítko Další na pokráčování."/>
+    <str id="SummaryPanel.next" txt="Další"/>
     <str id="TargetPanel.summaryCaption" txt="Instalační adresář"/>
     <str id="JDKPathPanel.summaryCaption" txt="Cesta k JDK"/>
     <str id="InstallationGroupPanel.summaryCaption" txt="Instalační prvky"/>

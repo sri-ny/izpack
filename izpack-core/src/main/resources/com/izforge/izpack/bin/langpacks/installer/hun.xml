@@ -187,6 +187,7 @@
 
     <str id="SummaryPanel.info"
          txt="Készen állunk a telepítésre. A fontosabb beállítások listája. Kattintson az 'Következõ' gombra a telepítés megkezdéséhez, "/>
+    <str id="SummaryPanel.next" txt="Következ?"/>
     <str id="TargetPanel.summaryCaption" txt="Célmappa"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK elérési út"/>
     <str id="PacksPanel.summaryCaption" txt="Kiválasztott telepítési csomagok"/>

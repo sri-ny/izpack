@@ -239,6 +239,7 @@
     <str id="SimpleFinishPanel.headline" txt="Instalacja zakończona"/>
     <str id="SummaryPanel.headline" txt="Podsumowanie konfiguracji"/>
     <str id="SummaryPanel.info" txt="Instalator zastosuje wybrane ustawienia. Wybierz 'Dalej' aby kontynuować."/>
+    <str id="SummaryPanel.next" txt="Dalej"/>
     <str id="TargetPanel.browse" txt="Przeglądaj..."/>
     <str id="TargetPanel.createdir" txt="Katalog docelowy zostanie utworzony: "/>
     <str id="TargetPanel.empty_target"

@@ -209,6 +209,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="Все необходимые данные для начала установки собраны. Нажмите &quot;Далее&quot; для запуска."/>
+    <str id="SummaryPanel.next" txt="Далее"/>
     <str id="TargetPanel.summaryCaption" txt="Каталог установки"/>
     <str id="JDKPathPanel.summaryCaption" txt="Путь к JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Выбранные модули для установки"/>

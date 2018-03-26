@@ -263,6 +263,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Prêt à installer. Les données importantes sont listées ci-dessous. Appuyez sur &quot;Suivant&quot; pour commencer l'installation, "/>
+    <str id="SummaryPanel.next" txt="Suivant"/>
     <str id="TargetPanel.summaryCaption" txt="Chemin de l'installation"/>
     <str id="JDKPathPanel.summaryCaption" txt="Chemin du JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Paquet(s) d'installation choisis"/>

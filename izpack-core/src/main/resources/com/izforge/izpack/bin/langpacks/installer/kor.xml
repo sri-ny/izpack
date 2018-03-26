@@ -206,6 +206,7 @@
 
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info" txt="설치 준비 완료. 중요한 데이터가 다음에 나와 있습니다. 설치를 시작하려면 &quot;다음&quot;을 누르십시오, "/>
+    <str id="SummaryPanel.next" txt="다음"/>
     <str id="TargetPanel.summaryCaption" txt="설치 경로"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK 경로"/>
     <str id="PacksPanel.summaryCaption" txt="선택한 설치 꾸러미"/>

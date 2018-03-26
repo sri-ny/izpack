@@ -291,6 +291,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Instalazioa hurrengoko konfigurazioarekin hasiko da. Sakatu Aurrera jarraitzeko."/>
+    <str id="SummaryPanel.next" txt="Aurrera"/>
     <str id="TargetPanel.summaryCaption" txt="Instalazio bidea"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK bidea"/>
     <str id="PacksPanel.summaryCaption" txt="Aukeratutako instalazio paketeak"/>

@@ -190,6 +190,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="Έτοιμοι για εγκατάσταση. Διάφορες σημαντικές πληροφορίες φαίνονται παρακάτω. Πατήστε «Επόμενο» για να ξεκινήσει η εγκατάσταση, "/>
+    <str id="SummaryPanel.next" txt="Επόμενο"/>
     <str id="TargetPanel.summaryCaption" txt="Κατάλογος εγκατάστασης"/>
     <str id="JDKPathPanel.summaryCaption" txt="Κατάλογος JDK"/>
     <str id="PacksPanel.summaryCaption" txt="Επιλεγμένα πακέτα εγκατάστασης"/>

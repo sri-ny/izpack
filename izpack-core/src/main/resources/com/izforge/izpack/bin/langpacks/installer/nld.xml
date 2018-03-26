@@ -331,6 +331,7 @@
     <!-- Strings for the summary of panels - START -->
     <str id="SummaryPanel.info"
          txt="Gereed voor installatie. Belangrijke gegevens staan hieronder opgesomd. Druk op &quot;Volgende&quot; om de installatie te starten."/>
+    <str id="SummaryPanel.next" txt="Volgende"/>
     <str id="TargetPanel.summaryCaption" txt="Installatie pad"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK pad"/>
     <str id="PacksPanel.summaryCaption"

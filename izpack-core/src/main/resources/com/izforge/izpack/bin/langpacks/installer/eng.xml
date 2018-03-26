@@ -311,6 +311,7 @@
     <!-- SummaryPanel strings -->
     <str id="SummaryPanel.info"
          txt="Installation will proceed with the following settings. Press Next to continue."/>
+    <str id="SummaryPanel.next" txt="Next"/>
     <str id="TargetPanel.summaryCaption" txt="Installation Path"/>
     <str id="JDKPathPanel.summaryCaption" txt="JDK Path"/>
     <str id="InstallationGroupPanel.summaryCaption" txt="Chosen Installation Feature"/>
