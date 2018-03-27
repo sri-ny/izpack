@@ -67,19 +67,24 @@ public abstract class AbstractAttributeMatcher extends AbstractTagMatcher
                         {
                             if (origAttribute.getQualifiedName().equalsIgnoreCase(patchAttribute.getQualifiedName()))
                             {
-                                return equalsString(origAttribute.getValue(), patchAttribute.getValue(), ignoreCaseAttributeValue());
+                                if (!equalsString(origAttribute.getValue(), patchAttribute.getValue(), ignoreCaseAttributeValue())) {
+                                    return false;
+                                }
                             }
                         }
                         else
                         {
                             if (origAttribute.getQualifiedName().equals(patchAttribute.getQualifiedName()))
                             {
-                                return equalsString(origAttribute.getValue(), patchAttribute.getValue(), ignoreCaseAttributeValue());
+                                if (!equalsString(origAttribute.getValue(), patchAttribute.getValue(), ignoreCaseAttributeValue())) {
+                                    return false;
+                                }
                             }
                         }
                     }
                 }
             }
+            return true;
         }
         return false;
     }
