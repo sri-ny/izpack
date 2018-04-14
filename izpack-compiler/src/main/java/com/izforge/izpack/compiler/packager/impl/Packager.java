@@ -259,7 +259,10 @@ public class Packager extends PackagerBase
                                     }
                                     packFile.setSize(proxyOutputStream.getByteCount());
 
-                                    FileUtils.copyFile(tmpfile, packOutputStream);
+                                    final long bytesPacked = FileUtils.copyFile(tmpfile, packOutputStream);
+                                    if (bytesPacked != packFile.size()) {
+                                        throw new IOException("File size mismatch when writing " + file);
+                                    }
 
                                     logger.fine("File " + packFile.getTargetPath() + " added compressed as "
                                             + comprFormat.toName()
