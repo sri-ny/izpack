@@ -704,7 +704,7 @@ public class TreePacksPanel extends IzPanel
             node = nameToCheckBox.get(pack.getName());
 
             long old = node.getTotalSize();
-            if (old != bytes)
+            if (old > 0 && old != bytes)
             {
                 node.setTotalSizeChanged(true);
             }
