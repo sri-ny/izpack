@@ -284,7 +284,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
-                    <xs:attribute name="omitFromAuto" type="xs:string" use="optional">
+                    <xs:attribute name="omitFromAuto" type="xs:boolean" use="optional">
                         <xs:annotation>
                             <xs:documentation>
                                 Whether to omit the field variable's value from being written to the auto-install.xml
