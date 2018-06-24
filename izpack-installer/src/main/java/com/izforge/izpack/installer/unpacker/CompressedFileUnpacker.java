@@ -99,7 +99,7 @@ public class CompressedFileUnpacker extends FileUnpacker
         }
         catch (CompressorException e)
         {
-            throw new IOException(e);
+            throw new IOException("An exception occurred whilst unpacking: " + file.getRelativeSourcePath() + ": " + e.getMessage(), e);
         }
         finally
         {

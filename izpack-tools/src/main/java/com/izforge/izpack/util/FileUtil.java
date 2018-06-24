@@ -22,6 +22,8 @@
 package com.izforge.izpack.util;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -45,11 +47,14 @@ public class FileUtil
     {
         try
         {
-            return URLDecoder.decode(url.getFile(), "UTF-8");
+            final String encodedQuery = url.getQuery();
+            return new URI(url.getPath()).getPath() + (encodedQuery == null || encodedQuery.isEmpty() ? "" : "?" + URLDecoder.decode(encodedQuery, "UTF-8"));
         }
-        catch (UnsupportedEncodingException e)
+        catch (final URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        catch (final UnsupportedEncodingException e)
         {
-            // yet another stupid checked exception...
             throw new RuntimeException(e);
         }
     }

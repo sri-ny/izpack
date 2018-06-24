@@ -77,6 +77,15 @@ public class MergeableResolverTest
         assertThat(mergeable, MergeMatcher.isMergeableContainingFile("com/sora/panel/VimPanel.class"));
     }
 
+    @Test
+    public void testGetMergeableWithPlusSign() throws Exception
+    {
+        resource = ClassLoader.getSystemResource("com/izforge/izpack/merge/test/vim-panel-1.0-SNAPSHOT+201804141646.jar");
+        resource = new File(FileUtil.convertUrlToFilePath(resource) + "!com").toURI().toURL();
+        Mergeable mergeable = mergeableResolver.getMergeableFromURL(resource);
+        assertThat(mergeable, MergeMatcher.isMergeableContainingFile("com/sora/panel/VimPanel.class"));
+    }
+
     @Test           
     public void testGetMergeableFromURLWithDestination() throws Exception
     {
