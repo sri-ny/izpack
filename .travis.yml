@@ -31,11 +31,11 @@ matrix:
             - fluxbox
             - openjdk-6-jdk
       jdk: openjdk6
-      env: MVN_VERSION="3.2.5"
+      env: MVN_VERSION="3.2.5" JAVA_OPTS="-Dhttps.protocols=TLSv1.2"
     - jdk: openjdk7
-      env: MVN_VERSION="3.3.9"
+      env: MVN_VERSION="3.3.9" JAVA_OPTS=""
     - jdk: oraclejdk8
-      env: MVN_VERSION="3.3.9"
+      env: MVN_VERSION="3.3.9" JAVA_OPTS=""
 # FIXME:
 # Travis build fail on JDK 9 due to missing JAXB module in classpath
 #    - jdk: oraclejdk9
@@ -43,7 +43,7 @@ matrix:
 
 env:
   global:
-    - JAVA_OPTS="-Djava.awt.headless=false"
+    - JAVA_OPTS="$JAVA_OPTS -Djava.awt.headless=false"
 
 script:
   - mvn -U clean verify
