@@ -31,7 +31,7 @@ matrix:
             - fluxbox
             - openjdk-6-jdk
       jdk: openjdk6
-      env: MVN_VERSION="3.2.5" JAVA_OPTS="-Dhttps.protocols=TLSv1.2 -Djava.awt.headless=false"
+      env: MVN_VERSION="3.2.5" JAVA_OPTS="-Dhttps.protocols=TLSv1 -Djava.awt.headless=false"
     - jdk: openjdk7
       env: MVN_VERSION="3.3.9" JAVA_OPTS=""
     - jdk: oraclejdk8
