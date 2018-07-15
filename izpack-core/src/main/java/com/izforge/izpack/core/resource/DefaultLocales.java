@@ -329,32 +329,37 @@ public class DefaultLocales implements Locales
         // add mapping for language codes, if:
         // * no mapping exists for the 2 character code;  or
         // * a mapping exists that isn't the default locale and has a country, and the new mapping has no country
-        if (existing == null || (existing != defaultLocale && !"".equals(existing.getCountry()) && "".equals(country)))
+        if (existing == null || (existing != defaultLocale && !isEmpty(existing.getCountry()) && isEmpty(country)))
         {
             // use locales not associated with a particular country by preference, unless its the default locale
-            if (!"".equals(language))
+            if (!isEmpty(language))
             {
                 locales.put(language, locale);
             }
             String language3 = LocaleHelper.getISO3Language(locale);
-            if (!"".equals(language3))
+            if (!isEmpty(language3))
             {
                 locales.put(language3, locale);
             }
         }
 
         // add mapping for 2 character country code
-        if (!"".equals(country))
+        if (!isEmpty(country))
         {
             locales.put(country, locale);
         }
 
         // add mapping for 3 character country code
         String country3 = LocaleHelper.getISO3Country(locale);
-        if (!"".equals(country3))
+        if (!isEmpty(country3))
         {
             locales.put(country3, locale);
         }
+    }
+    
+    private boolean isEmpty(String var) 
+    {
+        return (var == null || var.isEmpty());
     }
 
     /**
@@ -365,13 +370,13 @@ public class DefaultLocales implements Locales
      */
     private boolean changeLocale(String code)
     {
-        if (code == null || code.equals(""))
+        if (isEmpty(code))
         {
             locale = null;
         }
         else
         {
-		    		Messages parentMessages = messages;
+		    Messages parentMessages = messages;
             messages = null;
             locale = findByCountry(code);
             if (locale == null)
