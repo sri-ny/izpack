@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.izforge.izpack.api.data.LocaleDatabase;
@@ -120,11 +121,11 @@ public class DefaultLocales implements Locales
             Map<String, Locale> available = getAvailableLocales(defaultLocale);
             for (String code : codes)
             {
-                String key = code.toUpperCase();
+                String key = code.toLowerCase();
                 Locale locale = available.get(key);    // check to see if its a country code match
                 if (locale == null)
                 {
-                    key = code.toLowerCase();
+                    key = code.toUpperCase();
                     locale = available.get(key);       // check to see if its a language code match
                 }
                 if (locale == null)
@@ -320,35 +321,45 @@ public class DefaultLocales implements Locales
         String country = locale.getCountry();
         Locale existing = locales.get(language);
 
+        if (logger.isLoggable(Level.FINE)) 
+        {
+        	logger.log(Level.FINE, "addLocale, current language: " + language + ", country: " + country +", locale: "+ locale + ", variant: " + locale.getVariant() + ", existing: " + existing);
+        }
+        
         // add mapping for language codes, if:
         // * no mapping exists for the 2 character code;  or
         // * a mapping exists that isn't the default locale and has a country, and the new mapping has no country
-        if (existing == null || (existing != defaultLocale && !"".equals(existing.getCountry()) && "".equals(country)))
+        if (existing == null || (existing != defaultLocale && !isEmpty(existing.getCountry()) && isEmpty(country)))
         {
             // use locales not associated with a particular country by preference, unless its the default locale
-            if (!"".equals(language))
+            if (!isEmpty(language))
             {
                 locales.put(language, locale);
             }
             String language3 = LocaleHelper.getISO3Language(locale);
-            if (language3 != null)
+            if (!isEmpty(language3))
             {
                 locales.put(language3, locale);
             }
         }
 
         // add mapping for 2 character country code
-        if (!"".equals(country))
+        if (!isEmpty(country))
         {
             locales.put(country, locale);
         }
 
         // add mapping for 3 character country code
         String country3 = LocaleHelper.getISO3Country(locale);
-        if (country3 != null)
+        if (!isEmpty(country3))
         {
             locales.put(country3, locale);
         }
+    }
+    
+    private boolean isEmpty(String var) 
+    {
+        return (var == null || var.isEmpty());
     }
 
     /**
@@ -359,13 +370,13 @@ public class DefaultLocales implements Locales
      */
     private boolean changeLocale(String code)
     {
-        if (code == null || code.equals(""))
+        if (isEmpty(code))
         {
             locale = null;
         }
         else
         {
-		    		Messages parentMessages = messages;
+		    Messages parentMessages = messages;
             messages = null;
             locale = findByCountry(code);
             if (locale == null)
