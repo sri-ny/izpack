@@ -328,12 +328,12 @@ public class PathInputPanel extends IzPanel implements ActionListener
         for (String existFile : existFiles)
         {
             File file = new File(path, existFile).getAbsoluteFile();
-            if (file.exists())
+            if (!file.exists())
             {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
