@@ -16,13 +16,10 @@ before_install:
       $JABBA_HOME/bin/jabba install $TRAVIS_JDK_1_6;
       export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK_1_6";
       bash .travis.install-maven-archived.sh "${MVN_VERSION}" "${HOME}/mvn-home";
-      export M2_HOME=${HOME}/mvn-home;
-      wget http://central.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.61/bcprov-jdk15on-1.61.jar -P $JAVA_HOME/jre/lib/ext;
-      wget http://central.maven.org/maven2/org/bouncycastle/bctls-jdk15on/1.61/bctls-jdk15on-1.61.jar -P $JAVA_HOME/jre/lib/ext;
     else
       bash .travis.install-maven.sh "${MVN_VERSION}" "${HOME}/mvn-home";
-      export M2_HOME=${HOME}/mvn-home;
     fi
+  - export M2_HOME=${HOME}/mvn-home;
 
 install:
   - export PATH="$M2_HOME/bin:$JAVA_HOME/bin:$PATH"
