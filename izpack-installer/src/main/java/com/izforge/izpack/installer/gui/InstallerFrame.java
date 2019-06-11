@@ -274,6 +274,8 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         ImageIcon jframeIcon = getIcons().get("JFrameIcon");
         setIconImage(jframeIcon.getImage());
+        setWMClass(getTitle());
+
         // Prepares the glass pane to block the gui interaction when needed
         JPanel glassPane = (JPanel) getGlassPane();
         glassPane.addMouseListener(new MouseAdapter()
@@ -381,6 +383,25 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             }
 
         });
+    }
+
+    private void setWMClass(String title) {
+
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        try {
+            final java.lang.reflect.Field field =
+                toolkit.getClass().getDeclaredField("awtAppClassName");
+            field.setAccessible(true);
+            field.set(toolkit, title);
+        }
+        catch (ReflectiveOperationException e) {
+            // Will only succeed on Linux.
+            log.addDebugMessage("Failed to set WM_CLASS", null, Log.PANEL_TRACE, e);
+        }
+        catch (SecurityException e) {
+            // Oh well.
+            log.addDebugMessage("Failed to set WM_CLASS", null, Log.PANEL_TRACE, e);
+        }
     }
 
     /**
