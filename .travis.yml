@@ -1,10 +1,11 @@
+dist: trusty
 language: java
 install: true
 sudo: false
 
 env:
   global:
-    - JAVA_OPTS="-Djava.awt.headless=false -Dhttps.protocols=TLSv1.2,TLSv1.1,TLSv1"
+    - JAVA_OPTS="-Djava.awt.headless=false -Dhttps.protocols=TLSv1.2 -Djdk.tls.client.protocols=TLSv1.2"
     - TRAVIS_JDK_1_6=
     - JABBA_HOME=/home/travis/.jabba
 
@@ -12,7 +13,7 @@ before_install:
   - cp ./.travis.settings.xml $HOME/.m2/settings.xml
   - if [ $TRAVIS_JDK_1_6 == "zulu@1.6.119" ]; then
       echo "Download Jabba";
-      curl -sL https://raw.githubusercontent.com/shyiko/jabba/0.10.1/install.sh | bash && . ~/.jabba/jabba.sh;
+      curl -sL https://raw.githubusercontent.com/shyiko/jabba/0.11.2/install.sh | bash && . ~/.jabba/jabba.sh;
       $JABBA_HOME/bin/jabba install $TRAVIS_JDK_1_6;
       export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK_1_6";
       bash .travis.install-maven-archived.sh "${MVN_VERSION}" "${HOME}/mvn-home";
@@ -23,6 +24,7 @@ before_install:
 
 install:
   - export PATH="$M2_HOME/bin:$JAVA_HOME/bin:$PATH"
+#  - export MAVEN_OPTS=-Dhttps.protocols=TLSv1.2
   - mvn -version
 
 addons:
@@ -48,9 +50,9 @@ matrix:
             - fluxbox
             #- openjdk-6-jdk
       #jdk: openjdk6
-      env: MVN_VERSION="3.2.5" TRAVIS_JDK_1_6="zulu@1.6.119"
+      env: MVN_VERSION="3.2.5" TRAVIS_JDK_1_6="zulu@1.6.119" JAVA_OPTS="-Djava.awt.headless=false -Dhttps.protocols=TLSv1.1 -Djdk.tls.client.protocols=TLSv1.1"
     - jdk: openjdk7
-      env: MVN_VERSION="3.3.9"
+      env: MVN_VERSION="3.3.9" 
     - jdk: oraclejdk8
       env: MVN_VERSION="3.3.9"
 # FIXME:
