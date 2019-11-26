@@ -156,6 +156,13 @@ public class IzPackNewMojo extends AbstractMojo
      */
     @Parameter( defaultValue = "true")
     private boolean enableAttachArtifact;
+    
+    /**
+     * Whether include maven properties that contain "password" in the key.
+     * By default they won't be included.
+     */
+    @Parameter( defaultValue = "false")
+    private boolean includePasswordProperties;
 
     private PropertyManager propertyManager;
 
@@ -240,13 +247,16 @@ public class IzPackNewMojo extends AbstractMojo
                 } else {
                     value = properties.getProperty(propertyName);
                 }
-                if (propertyManager.addProperty(propertyName, value))
+                if (!propertyName.contains("password") || includePasswordProperties)
                 {
-                    getLog().debug("Maven property added: " + propertyName + "=" + value);
-                }
-                else
-                {
-                    getLog().warn("Maven property " + propertyName + " could not be overridden");
+                    if (propertyManager.addProperty(propertyName, value))
+                    {
+                        getLog().debug("Maven property added: " + propertyName + "=" + value);
+                    }
+                    else
+                    {
+                        getLog().warn("Maven property " + propertyName + " could not be overridden");
+                    }
                 }
             }
         }
