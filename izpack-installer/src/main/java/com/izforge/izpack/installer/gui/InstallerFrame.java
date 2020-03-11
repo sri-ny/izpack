@@ -398,11 +398,7 @@ public class InstallerFrame extends JFrame implements InstallerBase, InstallerVi
             field.setAccessible(true);
             field.set(toolkit, title);
         }
-        catch (ReflectiveOperationException e) {
-            // Will only succeed on Linux.
-            log.addDebugMessage("Failed to set WM_CLASS", null, Log.PANEL_TRACE, e);
-        }
-        catch (SecurityException e) {
+        catch (Exception e) {
             // Oh well.
             log.addDebugMessage("Failed to set WM_CLASS", null, Log.PANEL_TRACE, e);
         }
