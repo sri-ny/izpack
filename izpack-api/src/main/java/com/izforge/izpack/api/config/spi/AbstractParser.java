@@ -99,7 +99,7 @@ abstract class AbstractParser
         {
         	// If the value is a string we have to check if the terminating '"' is the last character of the line.
         	// If this is not the case then get the next line.
-        	if (line.charAt(idx + 1) == '"' && line.charAt(line.length() - 1) != '"') {
+        	if (idx < (line.length() - 1) && line.charAt(idx + 1) == '"' && line.charAt(line.length() - 1) != '"') {
         		try {
         			String nextLine = source.readLine();
         			line += nextLine;
