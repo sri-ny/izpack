@@ -158,11 +158,11 @@ public class IzPackNewMojo extends AbstractMojo
     private boolean enableAttachArtifact;
     
     /**
-     * Whether include maven properties that contain "password" in the key.
-     * By default they won't be included.
+     * Comma separated list of strings marked for exclusion.
+     * By default the list is empty.
      */
-    @Parameter( defaultValue = "false")
-    private boolean includePasswordProperties;
+    @Parameter
+    private String excludeProperties;
 
     private PropertyManager propertyManager;
 
@@ -235,6 +235,10 @@ public class IzPackNewMojo extends AbstractMojo
         {
             Properties properties = project.getProperties();
             Properties userProps  = session.getUserProperties();
+            String[] exclusionList = null;
+            if (excludeProperties != null) {
+                exclusionList = excludeProperties.split(",");
+            }
             for (String propertyName : properties.stringPropertyNames())
             {
                 String value;
@@ -247,7 +251,7 @@ public class IzPackNewMojo extends AbstractMojo
                 } else {
                     value = properties.getProperty(propertyName);
                 }
-                if (!propertyName.contains("password") || includePasswordProperties)
+                if (!containsExcludedProperty(propertyName, exclusionList))
                 {
                     if (propertyManager.addProperty(propertyName, value))
                     {
@@ -314,4 +318,15 @@ public class IzPackNewMojo extends AbstractMojo
         return consoleHandler;
     }
 
+    private boolean containsExcludedProperty(String property, String[] exclusionList) {
+        if (exclusionList == null) {
+          return false;
+        }
+        for (String s : exclusionList) {
+          if (property.contains(s.trim())) {
+              return true;
+          }
+        }
+        return false;
+    }
 }
