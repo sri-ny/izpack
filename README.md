@@ -11,7 +11,7 @@ under different terms.
 
 ## Building IzPack from source
 
-[![Build Status](https://secure.travis-ci.org/izpack/izpack.png?branch=master)](http://travis-ci.org/izpack/izpack)
+[![Build Status](https://api.travis-ci.com/izpack/izpack.svg?branch=master)](https://travis-ci.com/izpack/izpack)
 
 IzPack only requires Java SE 6+ and at minimum Maven 3. Due to the JDK compatibility the maximum Maven version supported is 3.2.6 when compiled using JDK 1.6.
 
