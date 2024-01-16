@@ -52,8 +52,8 @@ jobs:
           gpg-private-key: "${{ secrets.GPG_SIGNING_KEY }}"
           overwrite-settings: false
       - name: Deploy snapshot artifacts
-        run: mvn deploy --settings .github/workflows/settings.xml -DskipTests=true
         env:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: mvn deploy --settings .github/workflows/settings.xml -DskipTests=true
