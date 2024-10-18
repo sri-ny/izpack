@@ -70,15 +70,16 @@ import com.izforge.izpack.installer.gui.IzPanel;
 import com.izforge.izpack.installer.unpacker.IUnpacker;
 import com.izforge.izpack.logging.FileFormatter;
 import com.izforge.izpack.merge.MergeManager;
+import com.izforge.izpack.panels.packs.PackValidator;
 import com.izforge.izpack.panels.process.ProcessPanelWorker;
 import com.izforge.izpack.panels.shortcut.ShortcutConstants;
-import com.izforge.izpack.panels.packs.PackValidator;
 import com.izforge.izpack.panels.userinput.UserInputPanel;
 import com.izforge.izpack.panels.userinput.field.FieldReader;
 import com.izforge.izpack.panels.userinput.field.SimpleChoiceReader;
 import com.izforge.izpack.panels.userinput.field.UserInputPanelSpec;
 import com.izforge.izpack.panels.userinput.field.button.ButtonFieldReader;
 import com.izforge.izpack.util.FileUtil;
+import com.izforge.izpack.util.JavaVersion;
 import com.izforge.izpack.util.OsConstraintHelper;
 import com.izforge.izpack.util.PlatformModelMatcher;
 import com.izforge.izpack.util.file.DirectoryScanner;
@@ -539,11 +540,28 @@ public class CompilerConfig extends Thread
                             mergeableList = pathResolver.getMergeableFromPackageName("com/incors/plaf");
                             break;
                         case LOOKS:
-                            mergeableList = pathResolver.getMergeableFromPackageName("com/jgoodies/looks");
+                            mergeableList = pathResolver.getMergeableFromPackageName("com/jgoodies");
                             break;
                         case SUBSTANCE:
-                            mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels");
+
+                            if (getMinJavaVersion() > 8 )
+                            {
+                                // Add RADIANCE only
+                                mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels/radiance");
+                            }
+                            else if (compilerData.getExternalInfo().getJavaVersionStrict())
+                            {
+                                // Add SUBSTANCE only
+                                mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels/substance");
+                            }
+                            else
+                            {
+                                // Add SUBSTANCE and RADIANCE
+                                mergeableList = pathResolver.getMergeableJarFromPackageName("org/pushingpixels");
+                            }
+
                             break;
+
                         case NIMBUS:
                             // Nimbus was included in JDK 6u10, and in JDK7 changed packages.
                             // mergeableList = pathResolver.getMergeableFromPackageName("com/sun/java/swing/plaf/nimbus");
@@ -4003,6 +4021,17 @@ public class CompilerConfig extends Thread
         return variableSubstitutor.substitute(attributeValue);
     }
 
+    private int getMinJavaVersion()
+    {
+        String javaVersion = compilerData.getExternalInfo().getJavaVersion();
+        int minJavaVersion = 1;
+        if (javaVersion != null && !javaVersion.isEmpty())
+        {
+            minJavaVersion = JavaVersion.parse(javaVersion).feature();
+        }
+        return minJavaVersion;
+    }
+
     // Logging helper methods
 
     private void logAddingFile(String source, String target)
@@ -4039,4 +4068,5 @@ public class CompilerConfig extends Thread
                 }
         );
     }
+
 }
