@@ -3,8 +3,7 @@ name: Build IzPack Project
 on:
   push:
     branches:
-      - main
-      - other-branch # Add the specific branches you want to monitor
+      - 5.1
 
 jobs:
   build:
