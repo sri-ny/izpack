@@ -3,7 +3,7 @@ name: Build IzPack Project
 on:
   push:
     branches:
-      - 5.1
+      - master
 
 jobs:
   build:
