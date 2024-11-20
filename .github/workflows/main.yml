@@ -3,7 +3,7 @@ name: Build IzPack
 on:
   push:
     branches:
-      - master
+      - 5.1
       
   pull_request:
     branches:
