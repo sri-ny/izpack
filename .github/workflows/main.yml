@@ -2,8 +2,9 @@ name: Build IzPack
 
 on:
   push:
-    branches:
-      - 5.1
+    branches: 
+    - main 
+    - 'release/*'
       
   pull_request:
     branches:
