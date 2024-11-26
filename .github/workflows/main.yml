@@ -22,12 +22,13 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '1.8.0_162'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean install --batch-mode --errors --fail-at-end -DtrimStackTrace=true
         env:
-          ACTIONS_STEP_DEBUG: true
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/1.8.0_162/x64
+          JAVA_HOME_8_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/1.8.0_162/x64
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
